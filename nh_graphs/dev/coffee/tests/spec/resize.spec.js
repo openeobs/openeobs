@@ -178,36 +178,36 @@ describe('Resize', function() {
             expect(NHGraphLib.prototype.redraw_resize).toHaveBeenCalled()
         });
 
-        it("NHContext.handle_resize() fires on 'context_resize' event",function() {
+        it("NHContext.handle_resize() fires on 'resize' event",function() {
 
             spyOn(context, 'handle_resize').and.callThrough();
 
             graphlib.init();
             graphlib.draw();
 
-            ev.html('context_resize',window);
+            ev.html('resize',window);
 
             expect(context.handle_resize).toHaveBeenCalled()
         });
 
-        it("NHFocus.handle_resize() fires on 'focus_resize' event",function() {
+        it("NHFocus.handle_resize() fires on 'resize' event",function() {
             spyOn(NHFocus.prototype, 'handle_resize').and.callThrough();
 
             graphlib.init();
             graphlib.draw();
 
-            ev.html('focus_resize',window);
+            ev.html('resize',window);
 
             expect(NHFocus.prototype.handle_resize).toHaveBeenCalled()
         });
 
-        xit("NHGraph.resize_graph() fires on 'graph_resize' event",function() {
+        it("NHGraph.resize_graph() fires on 'resize' event",function() {
             spyOn(NHGraph.prototype, 'resize_graph').and.callThrough();
 
             graphlib.init();
             graphlib.draw();
 
-            ev.html('graph_resize',window);
+            ev.html('resize',window);
 
             expect(NHGraph.prototype.resize_graph).toHaveBeenCalled()
         });

@@ -167,8 +167,8 @@ class NHGraph extends NHGraphLib
 
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
-  rangify_graph: (self, event) ->
-    if event.target.checked
+  rangify_graph: (self, ranged) ->
+    if ranged
       d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
       d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
       self.axes.y.scale.domain([(if d0 > 0 then d0 else 0), d1])
@@ -258,18 +258,7 @@ class NHGraph extends NHGraphLib
     .attr("height", @.style.dimensions.height + 3)
     .attr("y", top_offset).attr("x", left_offset)
 
-    @.axes.y.scale = nh_graphs.scale.linear()
-    .domain([@.axes.y.min, @.axes.y.max])
-    .range([top_offset+@style.dimensions.height, top_offset])
     self = @
-    @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
-    .tickFormat(if @.style.axis.step > 0 then \
-      nh_graphs.format(",." + @.style.axis.step + "f") else \
-      nh_graphs.format("d")).tickSubdivide(@.style.axis.step)
-    if not @.style.axis.y.hide
-      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
-      .call(@.axes.y.axis)
-      @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
 
     if self.options.keys.length>1
       values = []
@@ -288,6 +277,28 @@ class NHGraph extends NHGraphLib
         else return null
       )
 
+    # Check ranged option
+    dom = null
+    if @.parent_obj.parent_obj.options.ranged
+      d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
+      d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
+      dom = [(if d0 > 0 then d0 else 0), d1]
+    else
+      dom = [self.axes.y.min, self.axes.y.max]
+
+    @.axes.y.scale = nh_graphs.scale.linear()
+    .domain(dom)
+    .range([top_offset+@style.dimensions.height, top_offset])
+    self = @
+    @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
+    .tickFormat(if @.style.axis.step > 0 then \
+      nh_graphs.format(",." + @.style.axis.step + "f") else \
+      nh_graphs.format("d")).tickSubdivide(@.style.axis.step)
+    if not @.style.axis.y.hide
+      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
+      .call(@.axes.y.axis)
+      @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
+
     if @.options.label?
       y_label = @.axes.y.scale(@.axes.y.min) -
         (@.style.label_text_height*(@.options.keys.length+1))
@@ -296,7 +307,7 @@ class NHGraph extends NHGraphLib
         'y': y_label,
         'class': 'label'
       })
-      self = @
+
       @.drawables.background.obj.selectAll('text.measurement')
       .data(@.options.keys).enter().append('text').text((d, i) ->
         raw = self.parent_obj.parent_obj.data.raw

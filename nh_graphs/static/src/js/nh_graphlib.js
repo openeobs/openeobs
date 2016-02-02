@@ -39,6 +39,7 @@ NHGraphLib = (function() {
           landscape: 5
         }
       },
+      ranged: null,
       controls: {
         date: {
           start: null,
@@ -51,7 +52,8 @@ NHGraphLib = (function() {
         rangify: null
       },
       handler: {
-        rangify: null
+        rangify: null,
+        resize: null
       }
     };
     this.el = element ? element : null;
@@ -170,24 +172,23 @@ NHGraphLib = (function() {
     }
   };
 
-  NHGraphLib.prototype.rangify_graphs = function(event) {
-    var graph, i, len, ref, results;
+  NHGraphLib.prototype.rangify_graphs = function() {
+    var graph, i, len, ranged, ref;
+    this.options.ranged = this.options.controls.rangify.checked;
+    ranged = this.options.ranged;
     if (this.is_alive()) {
-      this.context.graph.rangify_graph(this.context.graph, event);
+      this.context.graph.rangify_graph(this.context.graph, ranged);
       ref = this.focus.graphs;
-      results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         graph = ref[i];
-        results.push(graph.rangify_graph(graph, event));
+        graph.rangify_graph(graph, ranged);
       }
-      return results;
     }
   };
 
   NHGraphLib.prototype.add_listeners = function() {
     var rangify;
     if (typeof _ !== "undefined" && _ !== null) {
-      console.log('throttled handler used');
       this.options.handler.resize = _.debounce(this.redraw_resize.bind(this), 250);
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
@@ -195,15 +196,18 @@ NHGraphLib = (function() {
     window.addEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     this.options.handler.rangify = this.rangify_graphs.bind(this);
-    return rangify != null ? rangify.addEventListener('click', this.options.handler.rangify) : void 0;
+    if (rangify != null) {
+      rangify.addEventListener('click', this.options.handler.rangify);
+    }
   };
 
   NHGraphLib.prototype.remove_listeners = function() {
     var rangify;
-    console.log('remove listeners called');
     window.removeEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
-    return rangify != null ? rangify.removeEventListener('click', this.options.handler.rangify) : void 0;
+    if (rangify != null) {
+      rangify.removeEventListener('click', this.options.handler.rangify);
+    }
   };
 
   NHGraphLib.prototype.is_alive = function() {
@@ -455,7 +459,6 @@ NHContext = (function(superClass) {
   NHContext.prototype.handle_resize = function(self, parent_svg, event) {
     var d, new_date, ref, ref1, ref2, ref3, ref4;
     if (!event.handled) {
-      console.log('context.handle_resize called');
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
@@ -879,9 +882,9 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
-  NHGraph.prototype.rangify_graph = function(self, event) {
+  NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
-    if (event.target.checked) {
+    if (ranged) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
       d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
       self.axes.y.scale.domain([(d0 > 0 ? d0 : 0), d1]);
@@ -909,7 +912,7 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -951,13 +954,7 @@ NHGraph = (function(superClass) {
     }
     this.obj.attr('height', this.style.dimensions.height);
     this.obj.append("defs").append("clipPath").attr("class", "clip").attr('id', this.options.keys.join('-') + '-clip').append("rect").attr("width", this.style.dimensions.width).attr("height", this.style.dimensions.height + 3).attr("y", top_offset).attr("x", left_offset);
-    this.axes.y.scale = nh_graphs.scale.linear().domain([this.axes.y.min, this.axes.y.max]).range([top_offset + this.style.dimensions.height, top_offset]);
     self = this;
-    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
-    if (!this.style.axis.y.hide) {
-      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
-      this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
-    }
     if (self.options.keys.length > 1) {
       values = [];
       ref = self.options.keys;
@@ -983,6 +980,21 @@ NHGraph = (function(superClass) {
         }
       });
     }
+    dom = null;
+    if (this.parent_obj.parent_obj.options.ranged) {
+      d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
+      d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
+      dom = [(d0 > 0 ? d0 : 0), d1];
+    } else {
+      dom = [self.axes.y.min, self.axes.y.max];
+    }
+    this.axes.y.scale = nh_graphs.scale.linear().domain(dom).range([top_offset + this.style.dimensions.height, top_offset]);
+    self = this;
+    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
+    if (!this.style.axis.y.hide) {
+      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
+      this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
+    }
     if (this.options.label != null) {
       y_label = this.axes.y.scale(this.axes.y.min) - (this.style.label_text_height * (this.options.keys.length + 1));
       this.drawables.background.obj.append('text').text(this.options.label).attr({
@@ -990,7 +1002,6 @@ NHGraph = (function(superClass) {
         'y': y_label,
         'class': 'label'
       });
-      self = this;
       this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
         var raw;
         raw = self.parent_obj.parent_obj.data.raw;
