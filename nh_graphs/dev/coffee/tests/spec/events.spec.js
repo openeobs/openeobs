@@ -27,7 +27,6 @@ describe('Events', function() {
         rangify = document.createElement('input');
         rangify.setAttribute('id', 'rangify');
         rangify.setAttribute('type', 'checkbox');
-        rangify.setAttribute('checked', true);
         test_area.appendChild(rangify);
 
         if (graphlib === null) {
@@ -109,6 +108,8 @@ describe('Events', function() {
         graphlib.context = context;
         graphlib.data.raw = ews_data.multi_partial;
         graphlib.options.controls.rangify = rangify;
+        graphlib.options.controls.rangify.checked = true;
+        graphlib.options.ranged = true;
     });
 
     afterEach(function () {

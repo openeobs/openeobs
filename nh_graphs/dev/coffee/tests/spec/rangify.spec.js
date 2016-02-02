@@ -2,7 +2,7 @@
 /*
   Created by Jon Wyatt on 18/10/15
  */
-describe('Events', function() {
+describe('Rangify', function() {
 
     var context, focus, graphlib, pulse_graph, score_graph, test_area, bp_graph, rangify;
     graphlib = null;
@@ -106,6 +106,8 @@ describe('Events', function() {
         graphlib.context = context;
         graphlib.data.raw = ews_data.multi_partial;
         graphlib.options.controls.rangify = rangify;
+        graphlib.options.controls.rangify.checked = true;
+        graphlib.options.ranged = true;
     });
 
     afterEach(function () {
@@ -152,23 +154,108 @@ describe('Events', function() {
         }
     });
 
-  describe("Properties", function() {
-    beforeEach(function() {
-      graphlib.init();
+    describe("Properties", function() {
+
+        beforeEach(function() {
+          graphlib.init();
+        });
+        it("nhgraphlib.graph has ranged_extent property", function() {
+          expect(bp_graph.axes.y.ranged_extent).toBeDefined();
+        });
+        it("nhgraphlib.graph initialises range_extent with correct range", function() {
+          expect(bp_graph.axes.y.ranged_extent[1]).toBe(120);
+        });
+        it("nhgraphlib.graph has rangify method", function() {
+          expect(bp_graph.rangify_graph).toBeDefined();
+        });
+        it("nhgraphlib has link to rangify checkbox element", function() {
+          expect(graphlib.options.controls.rangify).toBeDefined();
+        });
     });
-    it("nhgraphlib.graph has ranged_extent property", function() {
-      expect(bp_graph.axes.y.ranged_extent).toBeDefined();
+
+    describe("Ranged Default", function() {
+
+        var graphs;
+
+        beforeEach(function() {
+            graphs = [bp_graph, pulse_graph];
+        });
+
+        it("nhgraphlib.graph initialises rangified if ranged option true", function() {
+            graphlib.init();
+            graphlib.draw();
+            var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
+            for (i = 0, len = graphs.length; i < len; i++) {
+                graph = graphs[i];
+                padding = graph.style.range_padding;
+                expectedMin = graph.axes.y.ranged_extent[0] - padding;
+                expectedMax = graph.axes.y.ranged_extent[1] + padding;
+                ticks = graph.axes.obj[0][0].querySelectorAll('.tick text');
+                expect(ticks.length).toBeGreaterThan(2);
+                min = 300;
+                for (j = 0, len1 = ticks.length; j < len1; j++) {
+                    tick = ticks[j];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val < min) {
+                            min = val;
+                        }
+                    }
+                }
+                expect(min).toBeLessThan(expectedMin + 11);
+                max = 0;
+                for (k = 0, len2 = ticks.length; k < len2; k++) {
+                    tick = ticks[k];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val > max) {
+                            max = val;
+                        }
+                    }
+                }
+                expect(max).toBeGreaterThan(expectedMax - 10);
+            }
+        });
+
+        it("nhgraphlib.graph initialises not ranged if option false", function() {
+            graphlib.options.ranged = false;
+            graphlib.options.controls.rangify.checked = false;
+            graphlib.init();
+            graphlib.draw();
+
+            var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
+            for (i = 0, len = graphs.length; i < len; i++) {
+                graph = graphs[i];
+                padding = graph.style.range_padding;
+                expectedMin = graph.axes.y.min;
+                expectedMax = graph.axes.y.max;
+                ticks = graph.axes.obj[0][0].querySelectorAll('.tick text');
+                expect(ticks.length).toBeGreaterThan(2);
+                min = 300;
+                for (j = 0, len1 = ticks.length; j < len1; j++) {
+                    tick = ticks[j];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val < min) {
+                            min = val;
+                        }
+                    }
+                }
+                expect(min).toBeLessThan(expectedMin + 11);
+                max = 0;
+                for (k = 0, len2 = ticks.length; k < len2; k++) {
+                    tick = ticks[k];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val > max) {
+                            max = val;
+                        }
+                    }
+                }
+                expect(max).toBeGreaterThan(expectedMax - 10);
+            }
+        });
     });
-    it("nhgraphlib.graph initialises range_extent with correct range", function() {
-      expect(bp_graph.axes.y.ranged_extent[1]).toBe(120);
-    });
-    it("nhgraphlib.graph has rangify method", function() {
-      expect(bp_graph.rangify_graph).toBeDefined();
-    });
-    it("nhgraphlib has link to rangify checkbox element", function() {
-      expect(graphlib.options.controls.rangify).toBeDefined();
-    });
-  });
 
   describe("Events", function() {
     var graphs;
