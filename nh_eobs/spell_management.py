@@ -271,6 +271,25 @@ class nh_clinical_spellboard(orm.Model):
                 cr, uid, spell.patient_id.other_identifier, context=context)
         return all([res[r] for r in res.keys()])
 
+    def cancel_admit_button(self, cr, uid, ids, context=None):
+        """
+        Button called by view_spellboard_form view to call form to
+        cancel the admission of a patient.
+        """
+        context = self._update_context(cr, uid, ids, context=context)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Cancel Visit",
+            "res_model": "nh.clinical.cancel_admit.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "view_id": "view_cancel_admit_wizard",
+            "context": context,
+        }
+        return action
+
     def transfer_button(self, cr, uid, ids, context=None):
         """
         Button called by view_spellboard_form view to call form to
@@ -285,7 +304,26 @@ class nh_clinical_spellboard(orm.Model):
             "view_type": "form",
             "views": [(False, "form")],
             "target": "new",
-            "search_view_id": "view_transfer_wizard",
+            "view_id": "view_transfer_wizard",
+            "context": context,
+        }
+        return action
+
+    def discharge_button(self, cr, uid, ids, context=None):
+        """
+        Button called by view_spellboard_form view to call form to
+        discharge patient.
+        """
+        context = self._update_context(cr, uid, ids, context=context)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Confirm Discharge",
+            "res_model": "nh.clinical.discharge.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "view_id": "view_discharge_wizard",
             "context": context,
         }
         return action
@@ -295,7 +333,6 @@ class nh_clinical_spellboard(orm.Model):
         record = self.browse(cr, uid, ids, context=context)
         if context:
             context.update({'default_patient_id': record.patient_id.id})
-            context.update({'default_location_id': record.location_id.id})
             context.update({'default_nhs_number': record.nhs_number})
             context.update({'default_ward_id': record.ward_id.id})
         return context
@@ -308,10 +345,7 @@ class TransferPatientWizard(osv.TransientModel):
         'patient_id': fields.many2one(
             'nh.clinical.patient', 'Patient', required=True),
         'nhs_number': fields.char('NHS Number', size=200),
-        'ward_id': fields.many2one('nh.clinical.location', 'Current Ward',
-                                   required=True),
-        'location_id': fields.many2one(
-            'nh.clinical.location', 'Current Location', required=True),
+        'ward_id': fields.many2one('nh.clinical.location', 'Current Ward'),
         'transfer_location_id': fields.many2one(
             'nh.clinical.location', 'Transfer Location')
     }
@@ -329,5 +363,62 @@ class TransferPatientWizard(osv.TransientModel):
             cr, uid, record.patient_id.other_identifier,
             {'location': record.transfer_location_id.code}, context=context
         )
-
         return result
+
+
+class DischargePatientWizard(osv.TransientModel):
+
+    _name = 'nh.clinical.discharge.wizard'
+    _columns = {
+        'patient_id': fields.many2one(
+            'nh.clinical.patient', 'Patient', required=True),
+        'nhs_number': fields.char('NHS Number', size=200),
+        'ward_id': fields.many2one('nh.clinical.location', 'Current Ward'),
+    }
+
+    def discharge(self, cr, uid, ids, context=None):
+        """
+        Button called by view_discharge_wizard view to discharge
+        patient.
+        """
+
+        api = self.pool['nh.eobs.api']
+        record = self.browse(cr, uid, ids, context=context)
+
+        result = api.discharge(
+                cr, uid, record.patient_id.other_identifier,
+                {'discharge_date': dt.now().strftime(dtf)}, context=context
+        )
+        return result
+
+
+class CancelAdmitPatientWizard(osv.TransientModel):
+
+    _name = 'nh.clinical.cancel_admit.wizard'
+    _columns = {
+        'patient_id': fields.many2one(
+            'nh.clinical.patient', 'Patient', required=True),
+        'nhs_number': fields.char('NHS Number', size=200),
+        'ward_id': fields.many2one('nh.clinical.location', 'Current Ward'),
+        'transfer_location_id': fields.many2one(
+            'nh.clinical.location', 'Transfer Location')
+    }
+
+    def cancel_admit(self, cr, uid, ids, context=None):
+        """
+        Cancels the open admissions of one or more patients.
+
+        :param ids: spell ids
+        :type ids: list
+        :returns: ``True`` if successful. Otherwise ``False``
+        :rtype: bool
+        """
+
+        api = self.pool['nh.eobs.api']
+        record = self.browse(cr, uid, ids, context=context)
+
+        result = api.cancel_admit(
+                cr, uid, record.patient_id.other_identifier, context=context
+        )
+        return result
+
