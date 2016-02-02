@@ -168,6 +168,7 @@ class NHGraph extends NHGraphLib
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, ranged) ->
+    console.time('NHGraph.rangify_graph')
     if ranged
       d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
       d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
@@ -180,6 +181,7 @@ class NHGraph extends NHGraphLib
         if not (d % 1 is 0)
           return d
     ).attr('class', 'y-minor-tick')
+    console.timeEnd('NHGraph.rangify_graph')
     return
 
   # Handle window resize event

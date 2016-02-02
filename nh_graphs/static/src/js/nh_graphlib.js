@@ -172,20 +172,20 @@ NHGraphLib = (function() {
     }
   };
 
-  NHGraphLib.prototype.rangify_graphs = function(event) {
-    var graph, i, len, ranged, ref, results;
+  NHGraphLib.prototype.rangify_graphs = function() {
+    var graph, i, len, ranged, ref;
+    console.time('NHGraphLib.rangify_graphs()');
     this.options.ranged = this.options.controls.rangify.checked;
     ranged = this.options.ranged;
     if (this.is_alive()) {
       this.context.graph.rangify_graph(this.context.graph, ranged);
       ref = this.focus.graphs;
-      results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         graph = ref[i];
-        results.push(graph.rangify_graph(graph, ranged));
+        graph.rangify_graph(graph, ranged);
       }
-      return results;
     }
+    return console.timeEnd('NHGraphLib.rangify_graphs()');
   };
 
   NHGraphLib.prototype.add_listeners = function() {
@@ -457,7 +457,6 @@ NHContext = (function(superClass) {
   NHContext.prototype.handle_resize = function(self, parent_svg, event) {
     var d, new_date, ref, ref1, ref2, ref3, ref4;
     if (!event.handled) {
-      console.log('context.handle_resize called');
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
@@ -883,6 +882,7 @@ NHGraph = (function(superClass) {
 
   NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
+    console.time('NHGraph.rangify_graph');
     if (ranged) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
       d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
@@ -898,6 +898,7 @@ NHGraph = (function(superClass) {
         }
       }
     }).attr('class', 'y-minor-tick');
+    console.timeEnd('NHGraph.rangify_graph');
   };
 
   NHGraph.prototype.resize_graph = function(self, event) {

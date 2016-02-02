@@ -452,6 +452,7 @@ openerp.nh_eobs = function (instance) {
             this.render_chart();
         },
         render_chart: function(){
+
             this.model = new instance.web.Model('nh.eobs.api');
             this.o2targetModel = new instance.web.Model('nh.clinical.patient.o2target');
             this.o2levelModel = new instance.web.Model('nh.clinical.o2level');
@@ -477,6 +478,7 @@ openerp.nh_eobs = function (instance) {
             });
 
             var recData = this.model.call('get_activities_for_spell',[this.view.dataset.ids[this.view.dataset.index],'ews'], {context: this.view.dataset.context}).done(function(records){
+                console.time('EwsChartWidget.render_chart');
                 var svg = new window.NH.NHGraphLib('#chart');
 
                 $(svg.el).html('');
@@ -697,6 +699,7 @@ openerp.nh_eobs = function (instance) {
                             }
                         }, 1000);
                     }
+                    console.timeEnd('EwsChartWidget.render_chart');
 
                 }else{
                     $(svg.el).html('<p>No data available for this patient</p>');

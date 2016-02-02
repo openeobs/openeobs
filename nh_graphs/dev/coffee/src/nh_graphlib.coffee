@@ -220,12 +220,14 @@ class NHGraphLib
   # 2. Call rangify_graph on context graph
   # 3. Call rangify_graph on all focus graphs
   rangify_graphs: () ->
+    console.time('NHGraphLib.rangify_graphs()')
     @options.ranged = @options.controls.rangify.checked
     ranged = @options.ranged
     if @is_alive()
       @context.graph.rangify_graph(@context.graph, ranged)
       for graph in @focus.graphs
         graph.rangify_graph(graph, ranged)
+    console.timeEnd('NHGraphLib.rangify_graphs()')
 
   add_listeners: () ->
     # Create debounced resize event handler bound to this
