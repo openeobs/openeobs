@@ -6,203 +6,203 @@
       <field name="password">adt</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_admin'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_admin'))]" name="category_id" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- admin -->
-    <record id="nhc_def_conf_admin_oakley_user" model="res.users">
-      <field name="name">Oakley Mosciski</field>
+    <record id="nh_clinical.nhc_default_admin_user" model="res.users">
+      <field name="name">Oakley Torp</field>
       <field name="login">oakley</field>
       <field name="password">oakley</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_admin'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_admin'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wb'),ref('nhc_def_conf_location_wc'),ref('nhc_def_conf_location_wd'),ref('nhc_def_conf_location_we')]]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- senior_manager -->
     <record id="nhc_def_conf_senior_manager_sabastian_user" model="res.users">
-      <field name="name">Sabastian Harris</field>
+      <field name="name">Sabastian Krajcik</field>
       <field name="login">sabastian</field>
       <field name="password">sabastian</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_senior_manager'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_senior_manager'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wb'),ref('nhc_def_conf_location_wc')]]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_senior_manager_sage_user" model="res.users">
-      <field name="name">Sage Bayer</field>
+      <field name="name">Sage Hickle</field>
       <field name="login">sage</field>
       <field name="password">sage</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_senior_manager'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_senior_manager'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wd'),ref('nhc_def_conf_location_we')]]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_senior_manager_saint_user" model="res.users">
-      <field name="name">Saint Klocko</field>
+      <field name="name">Saint Gibson</field>
       <field name="login">saint</field>
       <field name="password">saint</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_senior_manager'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_senior_manager'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wb'),ref('nhc_def_conf_location_wc'),ref('nhc_def_conf_location_wd'),ref('nhc_def_conf_location_we')]]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- doctor -->
     <record id="nhc_def_conf_doctor_dabney_user" model="res.users">
-      <field name="name">Dabney Mayert</field>
+      <field name="name">Dabney Borer</field>
       <field name="login">dabney</field>
       <field name="password">dabney</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_doctor_dakoda_user" model="res.users">
-      <field name="name">Dakoda Konopelski</field>
+      <field name="name">Dakoda Herzog</field>
       <field name="login">dakoda</field>
       <field name="password">dakoda</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_doctor_dakota_user" model="res.users">
-      <field name="name">Dakota Emmerich</field>
+      <field name="name">Dakota Nikolaus</field>
       <field name="login">dakota</field>
       <field name="password">dakota</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_doctor_dakotah_user" model="res.users">
-      <field name="name">Dakotah Dickinson</field>
+      <field name="name">Dakotah Carter</field>
       <field name="login">dakotah</field>
       <field name="password">dakotah</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- hca -->
     <record id="nhc_def_conf_hca_haden_user" model="res.users">
-      <field name="name">Haden Maggio</field>
+      <field name="name">Haden Hansen</field>
       <field name="login">haden</field>
       <field name="password">haden</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_hca_hadley_user" model="res.users">
-      <field name="name">Hadley McGlynn</field>
+      <field name="name">Hadley Dickinson</field>
       <field name="login">hadley</field>
       <field name="password">hadley</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_hca_haiden_user" model="res.users">
-      <field name="name">Haiden Kreiger</field>
+      <field name="name">Haiden Howell</field>
       <field name="login">haiden</field>
       <field name="password">haiden</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_hca_hakeem_user" model="res.users">
-      <field name="name">Hakeem Nader</field>
+      <field name="name">Hakeem O'Reilly</field>
       <field name="login">hakeem</field>
       <field name="password">hakeem</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_hca_hakim_user" model="res.users">
-      <field name="name">Hakim Vandervort</field>
+      <field name="name">Hakim Bergstrom</field>
       <field name="login">hakim</field>
       <field name="password">hakim</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- nurse -->
     <record id="nhc_def_conf_nurse_najee_user" model="res.users">
-      <field name="name">Najee Predovic</field>
+      <field name="name">Najee Rolfson</field>
       <field name="login">najee</field>
       <field name="password">najee</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_nurse_nakia_user" model="res.users">
-      <field name="name">Nakia Robel</field>
+      <field name="name">Nakia Koss</field>
       <field name="login">nakia</field>
       <field name="password">nakia</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_nurse_namon_user" model="res.users">
-      <field name="name">Namon Lubowitz</field>
+      <field name="name">Namon Luettgen</field>
       <field name="login">namon</field>
       <field name="password">namon</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_nurse_napoleon_user" model="res.users">
-      <field name="name">Napoleon Friesen</field>
+      <field name="name">Napoleon Gottlieb</field>
       <field name="login">napoleon</field>
       <field name="password">napoleon</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <record id="nhc_def_conf_nurse_nash_user" model="res.users">
-      <field name="name">Nash Jerde</field>
+      <field name="name">Nash Hamill</field>
       <field name="login">nash</field>
       <field name="password">nash</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
     <!-- ward_manager -->
     <record id="nhc_def_conf_ward_manager_wade_user" model="res.users">
-      <field name="name">Wade Spinka</field>
+      <field name="name">Wade Davis</field>
       <field name="login">wade</field>
       <field name="password">wade</field>
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
-      <field name="pos_id" ref="nhc_def_conf_pos_hospital" />
+      <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
     </record>
   </data>
 </openerp>
