@@ -21,7 +21,7 @@ gulp.task('compile', function(){
 	.pipe(gulp.dest('../../src/js'))
 });
 
-gulp.task('travis_test', function(){
+gulp.task('travis_test', function(done){
 	gulp.src(['src/*.coffee'])
 	.pipe(coffeelint())
 	.pipe(coffeelint.reporter())
