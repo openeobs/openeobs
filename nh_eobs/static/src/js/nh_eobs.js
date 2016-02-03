@@ -205,6 +205,22 @@ openerp.nh_eobs = function (instance) {
     //
     //Timers are cleared at the end.
     instance.web.ListView.include({
+
+        //Method to expand groups in list view by clicking headers (called by timeout below)
+        expand_groups: function () {
+            console.log('expand_groups called');
+            var groups = $(".oe_group_header");
+            if (groups) {
+                wardboard_groups_opened = true;
+                groups.click();
+            }
+        },
+        start: function () {
+            var self = this;
+            return this._super().done(function () {
+                window.setTimeout(self.expand_groups, 1000)
+            })
+        },
         init: function (parent, dataset, view_id, options) {
 
             if (options.action) {
