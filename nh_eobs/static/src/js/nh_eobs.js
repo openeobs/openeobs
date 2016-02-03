@@ -120,9 +120,10 @@ openerp.nh_eobs = function (instance) {
     });
     instance.web.list.columns.add('button', 'instance.nh_eobs.Button');
 
-    //Customizing the help menu link to open the Neova Health website.
-    //Not sure what do_update does... Check odoo code for relevant differences.
     instance.web.UserMenu.include({
+
+        // Modified version of on_menu_ default to show tutorials menu
+        // Needs refactoring so QWeb can render list items
         on_menu_tutorials: function () {
             console.log('clicked');
             var self = this;
@@ -151,9 +152,13 @@ openerp.nh_eobs = function (instance) {
                 }, $tuts).open();
             });
         },
+
+        //Customizing the help menu link to open the Neova Health website.
         on_menu_help: function () {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },
+
+        //Not sure what do_update does... Check odoo code for relevant differences.
         do_update: function () {
             var self = this;
             var fct = function () {
@@ -203,17 +208,34 @@ openerp.nh_eobs = function (instance) {
         init: function (parent, dataset, view_id, options) {
 
             if (options.action) {
-                if (['Doctors', 'Spells', 'Hospital Wards', 'Device Categories', 'Acuity Board', 'Patients by Ward', 'Overdue Tasks', 'Doctor Tasks', 'Device Types', 'Devices', 'O2 Targets', 'User Management', 'Recently Discharged', 'Recently Transferred', 'Patients without bed', 'Wardboard', 'Active Points of Care', 'Inactive Points of Care'].indexOf(options.action.name) > -1) {
+                if (
+                    [   'Doctors',
+                        'Spells',
+                        'Hospital Wards',
+                        'Device Categories',
+                        'Acuity Board',
+                        'Patients by Ward',
+                        'Overdue Tasks',
+                        'Doctor Tasks',
+                        'Device Types',
+                        'Devices',
+                        'O2 Targets',
+                        'User Management',
+                        'Recently Discharged',
+                        'Recently Transferred',
+                        'Patients without bed',
+                        'Wardboard',
+                        'Active Points of Care',
+                        'Inactive Points of Care'
+                    ].indexOf(options.action.name) > -1) {
                     options.selectable = false;
-                }
-                ;
+                };
                 if ('Patients' != options.action.name) {
                     options.import_enabled = false;
-                }
-                ;
+                };
                 if (typeof(timing5) != 'undefined') {
                     clearInterval(timing5);
-                }
+                };
                 wardboard_groups_opened = false;
                 if (['Acuity Board', 'Patients by Ward'].indexOf(options.action.name) > -1) {
                     if (typeof(timing) != 'undefined') {
