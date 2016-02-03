@@ -40,7 +40,15 @@ gulp.task('compile', function(){
 	.pipe(gulp.dest('../../static/src/js'))
 });
 
+// Karma test runner for travis-ci
 gulp.task('karma', function (done) {
+	new Server({
+		configFile: __dirname + '/travis-karma.conf.js',
+		singleRun: true
+	}, done).start()
+});
+
+gulp.task('local_karma', function (done) {
   new Server({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
