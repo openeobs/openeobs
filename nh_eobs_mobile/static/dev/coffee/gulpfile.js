@@ -21,19 +21,19 @@ gulp.task('compile', function(){
 	.pipe(gulp.dest('../../src/js'))
 });
 
-gulp.task('travis_test', function(done){
+gulp.task('travis_compile', function(){
 	gulp.src(['src/*.coffee'])
 	.pipe(coffeelint())
 	.pipe(coffeelint.reporter())
 	.pipe(coffee({bare: true}))
 	.pipe(gulp.dest('tests/src'))
-	gulp.src(['tests/src/*.js', 'tests/lib/helpers.js','tests/lib/test_routes.js', 'tests/spec/*.js'])
-	.pipe(
-		new Server({
-    		configFile: __dirname + '/travis_karma.conf.js',
-    		singleRun: true
-  		}, done).start()
-	)
+});
+
+gulp.task('travis_test', function(done){
+	new Server({
+		configFile: __dirname + '/travis_karma.conf.js',
+		singleRun: true
+	}, done).start();
 });
 
 gulp.task('travis_test_reports', function(){
@@ -85,3 +85,4 @@ gulp.task('docs', function(){
 })
 
 gulp.task('default', ['compile']);
+gulp.task('travis', ['travis_compile', 'travis_test']);

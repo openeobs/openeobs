@@ -126,7 +126,7 @@ install:
 script:
 - if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_run_tests ; fi
 - if [ "$GRAPHJS" == "1" ] ; then gulp karma ; fi
-- if [ "$MOBJS" == "1" ] ; then gulp travis_test ; fi
+- if [ "$MOBJS" == "1" ] ; then gulp travis ; fi
 after_script:
 - coverage xml -o ${HOME}/build/NeovaHealth/openeobs/coverage.xml
 - cd ${HOME}/build/NeovaHealth/openeobs
