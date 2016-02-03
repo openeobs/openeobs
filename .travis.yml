@@ -120,7 +120,7 @@ install:
 - pip install -r requirements.txt
 - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-- travis_install_nightly
+- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
 - if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm install; fi
 script:
