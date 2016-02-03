@@ -121,6 +121,7 @@ class nh_clinical_spellboard(orm.Model):
             data['patient_id'] = patient_id[0] if patient_id else False
 
     def patient_id_change(self, cr, uid, ids, patient_id, context=None):
+	"""Fills hospital_number and nhs_number fields."""
         patient_pool = self.pool['nh.clinical.patient']
         result = {'hospital_number': False, 'nhs_number': False}
 

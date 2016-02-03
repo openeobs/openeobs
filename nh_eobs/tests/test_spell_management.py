@@ -83,18 +83,18 @@ class TestSpellManagement(SingleTransactionCase):
 
         del self.spellboard_pool._update_context
 
-    def test_update_context_updates_with_patient_id_and_location_id(self):
+    def test_update_context_updates_with_patient_id_and_context_id(self):
         cr, uid = self.cr, self.uid
 
         def mock_browse_spell_board(*args, **kwargs):
             """Returns mock NHClinicalSpellboard object."""
-            location = namedtuple('Location', ['id'])
+            ward = namedtuple('Ward', ['id'])
             patient = namedtuple('Patient', ['id'])
             spell_board = namedtuple(
-                'SpellBoard', ['patient_id', 'location_id'])
-            bed = location(1)
+                'SpellBoard', ['patient_id', 'ward_id', 'nhs_number'])
+            bed = ward(1)
             patient = patient(2)
-            return spell_board(bed, patient)
+            return spell_board(bed, patient, 'nhsnum1')
 
         context = {'name': 'me'}
         self.spellboard_pool._patch_method('browse', mock_browse_spell_board)
@@ -102,7 +102,8 @@ class TestSpellManagement(SingleTransactionCase):
         self.spellboard_pool._revert_method('browse')
 
         self.assertEqual(context['default_patient_id'], 1)
-        self.assertEqual(context['default_location_id'], 2)
+        self.assertEqual(context['default_ward_id'], 2)
+        self.assertEqual(context['default_nhs_number'], 'nhsnum1')
 
 
 class TestTransferPatientWizard(SingleTransactionCase):
@@ -139,3 +140,68 @@ class TestTransferPatientWizard(SingleTransactionCase):
             cr, uid, 2, {'location': 'A'}, context=None)
 
         del self.api.transfer
+
+
+class TestDischargePatientWizard(SingleTransactionCase):
+
+    def setUp(self):
+        super(TestDischargePatientWizard, self).setUp()
+        self.discharge_wizard = self.registry('nh.clinical.discharge.wizard')
+        self.api = self.registry('nh.eobs.api')
+    
+    def test_discharge_calls_api_discharge(self):
+        cr, uid = self.cr, self.uid
+        self.api.discharge = MagicMock(return_value=True)
+	
+        def mock_browse_discharge_wizard(*args, **kwargs):
+            """Return mock DischargePatientWizard object."""
+            patient = namedtuple('Patient', ['other_identifier'])
+            discharge_wizard = namedtuple(
+                'DischargeWizard', ['patient_id'])
+            patient = patient(2)
+            return discharge_wizard(patient)
+
+        self.discharge_wizard._patch_method(
+            'browse', mock_browse_discharge_wizard)
+
+        result = self.discharge_wizard.discharge(cr, uid, [1], context=None)
+	self.discharge_wizard._revert_method('browse')
+        
+	self.assertEqual(result, True)
+        self.assertTrue(self.api.discharge.called)
+
+        del self.api.discharge
+
+
+class TestCancelAdmitWizard(SingleTransactionCase):
+
+    def setUp(self):
+        super(TestCancelAdmitWizard, self).setUp()
+        self.visit_wizard = self.registry('nh.clinical.cancel_admit.wizard')
+        self.api = self.registry('nh.eobs.api')
+    
+    def test_cancel_visit_calls_api_cancel_admit(self):
+        cr, uid = self.cr, self.uid
+        self.api.cancel_admit = MagicMock(return_value=True)
+	
+        def mock_browse_cancel_visit_wizard(*args, **kwargs):
+            """Return mock CancelVisitWizard object."""
+            patient = namedtuple('Patient', ['other_identifier'])
+            visit_wizard = namedtuple(
+                'CancelVisitWizard', ['patient_id'])
+            patient = patient(2)
+            return visit_wizard(patient)
+
+        self.visit_wizard._patch_method(
+            'browse', mock_browse_cancel_visit_wizard)
+
+        result = self.visit_wizard.cancel_admit(cr, uid, [1], context=None)
+	self.visit_wizard._revert_method('browse')
+        
+	self.assertEqual(result, True)
+        self.api.cancel_admit.assert_called_with(cr, uid, 2, context=None)
+
+      	del self.api.cancel_admit
+
+
+
