@@ -87,6 +87,21 @@
           	action="action_show_overdue"
             sequence="7"
           	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+	
+	<menuitem name="Create Patient Visit"
+                  sequence="8"
+                  id="menu_eobs_create_patient_visit"
+                  parent="menu_eobs_category_patient_management"
+                  action="action_create_visit"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Visits In-Progress"
+                  sequence="9"
+                  id="menu_eobs_visits_in_progress"
+                  parent="menu_eobs_category_patient_management"
+                  action="action_show_spells"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
 
         <menuitem name="Ward Management"
                   sequence="3"
@@ -163,27 +178,27 @@
                   action="nh_clinical.action_nhc_doctor_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin"/>
+        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <menuitem name="Data Management"
                   sequence="1"
                   id="menu_eobs_category_data_management"
                   parent="menu_eobs_admin_top_root"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Create Patient Visit"
                   sequence="0"
                   id="menu_eobs_patients"
                   parent="menu_eobs_category_data_management"
                   action="action_create_visit"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Visits In-Progress"
                   sequence="1"
                   id="menu_eobs_spells"
                   parent="menu_eobs_category_data_management"
                   action="action_show_spells"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Locations"
                   id="menu_eobs_dev_locations"
