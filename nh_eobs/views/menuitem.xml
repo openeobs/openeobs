@@ -82,13 +82,13 @@
           	groups="nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Overdue Tasks"
-          	id="menu_eobs_overdue_activities"
-          	parent="menu_eobs_category_patient_management"
-          	action="action_show_overdue"
-            sequence="7"
-          	groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-	
-	<menuitem name="Create Patient Visit"
+                  id="menu_eobs_overdue_activities"
+                  parent="menu_eobs_category_patient_management"
+                  action="action_show_overdue"
+                  sequence="7"
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Create Patient Visit"
                   sequence="8"
                   id="menu_eobs_create_patient_visit"
                   parent="menu_eobs_category_patient_management"
@@ -101,7 +101,6 @@
                   parent="menu_eobs_category_patient_management"
                   action="action_show_spells"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
 
         <menuitem name="Ward Management"
                   sequence="3"
