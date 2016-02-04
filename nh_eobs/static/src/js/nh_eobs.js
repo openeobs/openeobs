@@ -15,6 +15,10 @@ openerp.nh_eobs = function (instance) {
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
+    // View refresh options set by ListView and KanBanView methods
+    instance.nh_eobs.refresh_interval = 5000;
+    instance.nh_eobs.refresh_timer = null;
+
     // Auto logout object - reset() sets timeout interval with provided interval
     // or default value. Displays notification 10 seconds before timeout then
     // logs out unless reset has been called again.
@@ -219,13 +223,14 @@ openerp.nh_eobs = function (instance) {
             this._super().done(function () {
                 if (self.options.action) {
                     if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
-                        console.log('timeout set');
                         window.setTimeout(self.expand_groups, 500)
                     }
                 }
             })
         },
         init: function (parent, dataset, view_id, options) {
+
+            var self = this;
 
             if (options.action) {
                 if (
@@ -257,39 +262,36 @@ openerp.nh_eobs = function (instance) {
                 //    clearInterval(timing5);
                 //};
                 //wardboard_groups_opened = false;
+
+                //Method to refresh list at set intervals in Acuity Board and Patients By Ward
                 if (['Acuity Board', 'Patients by Ward'].indexOf(options.action.name) > -1) {
-                    if (typeof(timing) != 'undefined') {
-                        clearInterval(timing);
-                    }
-                    timing = window.setInterval(function () {
-                        var button = $("a:contains('Acuity Board')");
-                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('oe_active') && $(".oe_view_manager_view_list").css('display') != 'none') {
-                            wardboard_refreshed = true;
-                            button.click();
-                        }
-                    }, 5000);
-                    //timing5 = window.setInterval(function () {
-                    //    var groups = $(".oe_group_header");
-                    //    if (!wardboard_groups_opened && groups) {
-                    //        wardboard_groups_opened = true;
-                    //        groups.click();
-                    //    }
-                    //}, 700);
+                    console.log('timeout set');
+                    instance.nh_eobs.refresh_timer = window.setInterval(function () {
+                        console.log('reload_content');
+                        self.reload_content()
+                    }, instance.nh_eobs.refresh_interval);
                 }
-                else if (options.action.name == "Patient Placement") {
-                    if (typeof(timing2) != 'undefined') {
-                        clearInterval(timing2);
+                else {
+                    if (instance.nh_eobs.refresh_timer) {
+                        console.log('timeout cleared');
+                        window.clearInterval(instance.nh_eobs.refresh_timer)
                     }
-                    timing2 = window.setInterval(function () {
-                        var button = $("a:contains('Patient Placements')");
-                        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
-                            if (refresh_placement) {
-                                button.click();
-                                refresh_placement = false;
-                            }
-                        }
-                    }, 10);
                 }
+
+                //else if (options.action.name == "Patient Placement") {
+                //    if (typeof(timing2) != 'undefined') {
+                //        clearInterval(timing2);
+                //    }
+                //    timing2 = window.setInterval(function () {
+                //        var button = $("a:contains('Patient Placements')");
+                //        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
+                //            if (refresh_placement) {
+                //                button.click();
+                //                refresh_placement = false;
+                //            }
+                //        }
+                //    }, 10);
+                //}
                 //else if (options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care") {
                 //    if (typeof(timing3) != 'undefined') {
                 //        clearInterval(timing3);
@@ -306,17 +308,17 @@ openerp.nh_eobs = function (instance) {
                 //        }
                 //    }, 10);
                 //}
-                else {
-                    if (typeof(timing) != 'undefined') {
-                        clearInterval(timing);
-                    }
-                    if (typeof(timing2) != 'undefined') {
-                        clearInterval(timing2);
-                    }
+                //else {
+                //    if (typeof(timing) != 'undefined') {
+                //        clearInterval(timing);
+                //    }
+                //    if (typeof(timing2) != 'undefined') {
+                //        clearInterval(timing2);
+                //    }
                     //if (typeof(timing3) != 'undefined') {
                     //    clearInterval(timing3);
                     //}
-                }
+                //}
             }
             ;
             this._super.apply(this, [parent, dataset, view_id, options]);
