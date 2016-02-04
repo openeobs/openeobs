@@ -148,11 +148,11 @@ class TestDischargePatientWizard(SingleTransactionCase):
         super(TestDischargePatientWizard, self).setUp()
         self.discharge_wizard = self.registry('nh.clinical.discharge.wizard')
         self.api = self.registry('nh.eobs.api')
-    
+
     def test_discharge_calls_api_discharge(self):
         cr, uid = self.cr, self.uid
         self.api.discharge = MagicMock(return_value=True)
-	
+
         def mock_browse_discharge_wizard(*args, **kwargs):
             """Return mock DischargePatientWizard object."""
             patient = namedtuple('Patient', ['other_identifier'])
@@ -165,9 +165,9 @@ class TestDischargePatientWizard(SingleTransactionCase):
             'browse', mock_browse_discharge_wizard)
 
         result = self.discharge_wizard.discharge(cr, uid, [1], context=None)
-	self.discharge_wizard._revert_method('browse')
-        
-	self.assertEqual(result, True)
+        self.discharge_wizard._revert_method('browse')
+
+        self.assertEqual(result, True)
         self.assertTrue(self.api.discharge.called)
 
         del self.api.discharge
@@ -179,11 +179,11 @@ class TestCancelAdmitWizard(SingleTransactionCase):
         super(TestCancelAdmitWizard, self).setUp()
         self.visit_wizard = self.registry('nh.clinical.cancel_admit.wizard')
         self.api = self.registry('nh.eobs.api')
-    
+
     def test_cancel_visit_calls_api_cancel_admit(self):
         cr, uid = self.cr, self.uid
         self.api.cancel_admit = MagicMock(return_value=True)
-	
+
         def mock_browse_cancel_visit_wizard(*args, **kwargs):
             """Return mock CancelVisitWizard object."""
             patient = namedtuple('Patient', ['other_identifier'])
@@ -196,12 +196,9 @@ class TestCancelAdmitWizard(SingleTransactionCase):
             'browse', mock_browse_cancel_visit_wizard)
 
         result = self.visit_wizard.cancel_admit(cr, uid, [1], context=None)
-	self.visit_wizard._revert_method('browse')
-        
-	self.assertEqual(result, True)
+        self.visit_wizard._revert_method('browse')
+
+        self.assertEqual(result, True)
         self.api.cancel_admit.assert_called_with(cr, uid, 2, context=None)
 
-      	del self.api.cancel_admit
-
-
-
+        del self.api.cancel_admit
