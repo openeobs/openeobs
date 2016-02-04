@@ -2,12 +2,12 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4, timing5, ward_dashboard_refresh;
+    var timing, timing2, timing3, timing4, ward_dashboard_refresh;
     var refresh_placement = false;
     var refresh_active_poc = false;
     var wardboard_refreshed = false;
     var _t = instance.web._t;
-    var wardboard_groups_opened = false;
+    //var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
     var kiosk_button;
@@ -206,19 +206,20 @@ openerp.nh_eobs = function (instance) {
     //Timers are cleared at the end.
     instance.web.ListView.include({
 
-        //Method to expand groups in list view by clicking headers (called by timeout below)
+        //Method to expand groups in list view by clicking headers
         expand_groups: function () {
-            console.log('expand_groups called');
             var groups = $(".oe_group_header");
-            if (groups) {
-                wardboard_groups_opened = true;
+            if (groups.length) {
                 groups.click();
             }
         },
         start: function () {
             var self = this;
             return this._super().done(function () {
-                window.setTimeout(self.expand_groups, 1000)
+                // Call custom expand_groups method if ward board list
+                if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
+                    window.setTimeout(self.expand_groups, 500)
+                }
             })
         },
         init: function (parent, dataset, view_id, options) {
@@ -249,10 +250,10 @@ openerp.nh_eobs = function (instance) {
                 if ('Patients' != options.action.name) {
                     options.import_enabled = false;
                 };
-                if (typeof(timing5) != 'undefined') {
-                    clearInterval(timing5);
-                };
-                wardboard_groups_opened = false;
+                //if (typeof(timing5) != 'undefined') {
+                //    clearInterval(timing5);
+                //};
+                //wardboard_groups_opened = false;
                 if (['Acuity Board', 'Patients by Ward'].indexOf(options.action.name) > -1) {
                     if (typeof(timing) != 'undefined') {
                         clearInterval(timing);
@@ -264,15 +265,15 @@ openerp.nh_eobs = function (instance) {
                             button.click();
                         }
                     }, 300000);
-                    timing5 = window.setInterval(function () {
-                        var groups = $(".oe_group_header");
-                        if (!wardboard_groups_opened && groups) {
-                            wardboard_groups_opened = true;
-                            groups.click();
-                        }
-                    }, 700);
+                    //timing5 = window.setInterval(function () {
+                    //    var groups = $(".oe_group_header");
+                    //    if (!wardboard_groups_opened && groups) {
+                    //        wardboard_groups_opened = true;
+                    //        groups.click();
+                    //    }
+                    //}, 700);
                 }
-                else if (options.action.name == "Patient Placements") {
+                else if (options.action.name == "Patient Placement") {
                     if (typeof(timing2) != 'undefined') {
                         clearInterval(timing2);
                     }
