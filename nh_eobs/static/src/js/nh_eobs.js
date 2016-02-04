@@ -206,19 +206,22 @@ openerp.nh_eobs = function (instance) {
     //Timers are cleared at the end.
     instance.web.ListView.include({
 
-        //Method to expand groups in list view by clicking headers
+        //Method to expand groups in list view by clicking headers if not open
         expand_groups: function () {
             var groups = $(".oe_group_header");
-            if (groups.length) {
+            var open = $(".oe_group_header .ui-icon-triangle-1-s").length;
+            if (groups.length && !open) {
                 groups.click();
             }
         },
-        start: function () {
+        reload_content: function () {
             var self = this;
-            return this._super().done(function () {
-                // Call custom expand_groups method if ward board list
-                if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
-                    window.setTimeout(self.expand_groups, 500)
+            this._super().done(function () {
+                if (self.options.action) {
+                    if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
+                        console.log('timeout set');
+                        window.setTimeout(self.expand_groups, 500)
+                    }
                 }
             })
         },
@@ -264,7 +267,7 @@ openerp.nh_eobs = function (instance) {
                             wardboard_refreshed = true;
                             button.click();
                         }
-                    }, 300000);
+                    }, 5000);
                     //timing5 = window.setInterval(function () {
                     //    var groups = $(".oe_group_header");
                     //    if (!wardboard_groups_opened && groups) {
