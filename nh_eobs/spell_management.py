@@ -126,7 +126,8 @@ class nh_clinical_spellboard(orm.Model):
         result = {'hospital_number': False, 'nhs_number': False}
 
         if patient_id:
-            patient = patient_pool.browse(cr, uid, [patient_id], context=context)
+            patient = patient_pool.browse(
+                cr, uid, [patient_id], context=context)
             result = {'hospital_number': patient.other_identifier,
                       'nhs_number': patient.patient_identifier}
         return {'value': result}
@@ -360,8 +361,8 @@ class DischargePatientWizard(osv.TransientModel):
         record = self.browse(cr, uid, ids, context=context)
 
         result = api.discharge(
-                cr, uid, record.patient_id.other_identifier,
-                {'discharge_date': dt.now().strftime(dtf)}, context=context
+            cr, uid, record.patient_id.other_identifier,
+            {'discharge_date': dt.now().strftime(dtf)}, context=context
         )
         return result
 
@@ -387,7 +388,6 @@ class CancelAdmitPatientWizard(osv.TransientModel):
         record = self.browse(cr, uid, ids, context=context)
 
         result = api.cancel_admit(
-                cr, uid, record.patient_id.other_identifier, context=context
+            cr, uid, record.patient_id.other_identifier, context=context
         )
         return result
-
