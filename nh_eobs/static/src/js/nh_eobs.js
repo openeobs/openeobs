@@ -2,9 +2,9 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing3, timing4, ward_dashboard_refresh;
+    var timing, timing2, timing4, ward_dashboard_refresh;
     var refresh_placement = false;
-    var refresh_active_poc = false;
+    //var refresh_active_poc = false;
     var wardboard_refreshed = false;
     var _t = instance.web._t;
     //var wardboard_groups_opened = false;
@@ -290,22 +290,22 @@ openerp.nh_eobs = function (instance) {
                         }
                     }, 10);
                 }
-                else if (options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care") {
-                    if (typeof(timing3) != 'undefined') {
-                        clearInterval(timing3);
-                    }
-                    timing3 = window.setInterval(function () {
-                        if (options.action.name == "Active Points of Care") {
-                            var button = $("a:contains('Active Points of Care')");
-                        } else {
-                            var button = $("a:contains('Inactive Points of Care')");
-                        }
-                        if (refresh_active_poc) {
-                            button.click();
-                            refresh_active_poc = false;
-                        }
-                    }, 10);
-                }
+                //else if (options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care") {
+                //    if (typeof(timing3) != 'undefined') {
+                //        clearInterval(timing3);
+                //    }
+                //    timing3 = window.setInterval(function () {
+                //        if (options.action.name == "Active Points of Care") {
+                //            var button = $("a:contains('Active Points of Care')");
+                //        } else {
+                //            var button = $("a:contains('Inactive Points of Care')");
+                //        }
+                //        if (refresh_active_poc) {
+                //            button.click();
+                //            refresh_active_poc = false;
+                //        }
+                //    }, 10);
+                //}
                 else {
                     if (typeof(timing) != 'undefined') {
                         clearInterval(timing);
@@ -313,9 +313,9 @@ openerp.nh_eobs = function (instance) {
                     if (typeof(timing2) != 'undefined') {
                         clearInterval(timing2);
                     }
-                    if (typeof(timing3) != 'undefined') {
-                        clearInterval(timing3);
-                    }
+                    //if (typeof(timing3) != 'undefined') {
+                    //    clearInterval(timing3);
+                    //}
                 }
             }
             ;
