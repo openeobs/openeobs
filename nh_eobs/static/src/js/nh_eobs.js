@@ -200,12 +200,14 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
+    // Sets timeout if action and view_type exist in refresh.defaults object
+    // Timeout recalls same method which reloads the view
     instance.web.ViewManager.include({
         switch_mode: function (view_type, no_store, view_options) {
 
             var action = this.action.name;
-            var defaults = instance.nh_eobs.refresh.defaults;
             var timer = instance.nh_eobs.refresh.timer;
+            var defaults = instance.nh_eobs.refresh.defaults;
             var self = this;
 
             window.clearTimeout(timer);
@@ -296,20 +298,7 @@ openerp.nh_eobs = function (instance) {
             if (this.model == 'nh.clinical.patient.observation.pbp') {
                 this.$el.html(QWeb.render('ListViewPBP', this));
             }
-            // Hack to disable Form View Button
-            if (document.querySelectorAll("a[data-view-type='form']")[0] &&
-                this.model == 'nh.clinical.wardboard') {
-                var el = document.querySelectorAll("a[data-view-type='form']")[0],
-                    elClone = el.cloneNode(true);
-                el.parentNode.replaceChild(elClone, el);
-                elClone.addEventListener('click', function (e) {
-                    if (!$(e.target).parent().hasClass('active')) {
-                        instance.web.notification.notify('Invalid', 'No patient selected, please select a patient first', false)
-                    }
-                })
-            }
         }
-
     });
 
     //Gender widget for list view that shows male/female icons depending on the
@@ -920,19 +909,6 @@ openerp.nh_eobs = function (instance) {
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
 
         on_groups_started: function () {
-            // Hack to disable Form View Button
-            if (document.querySelectorAll("a[data-view-type='form']")[0] &&
-                this.dataset.model == 'nh.clinical.wardboard') {
-                var el = document.querySelectorAll("a[data-view-type='form']")[0],
-                    elClone = el.cloneNode(true);
-                el.parentNode.replaceChild(elClone, el);
-                elClone.addEventListener('click', function (e) {
-                    if (!$(e.target).parent().hasClass('active')) {
-                        instance.web.notification.notify('Invalid', 'No patient selected, please select a patient first', false)
-                    }
-                })
-            }
-
             if (this.group_by == 'clinical_risk') {
                 var cols = this.$el.find('td.oe_kanban_column');
                 var heads = this.$el.find('td.oe_kanban_group_header');
