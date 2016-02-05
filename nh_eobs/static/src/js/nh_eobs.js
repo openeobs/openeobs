@@ -322,8 +322,7 @@ openerp.nh_eobs = function (instance) {
             } else {
                 return 'Not Given';
             }
-            ;
-        },
+        }
     });
     instance.web.list.columns.add('field.nh_gender', 'instance.nh_eobs.GenderWidget');
 
@@ -337,7 +336,7 @@ openerp.nh_eobs = function (instance) {
                     'prefix': instance.session.prefix,
                     'up': true,
                     'down': false,
-                    'same': false,
+                    'same': false
                 });
             } else if (row_data.ews_trend_string.value == 'down') {
                 return QWeb.render('nh_trendCell', {
@@ -345,7 +344,7 @@ openerp.nh_eobs = function (instance) {
                     'prefix': instance.session.prefix,
                     'up': false,
                     'down': true,
-                    'same': false,
+                    'same': false
                 });
             } else if (row_data.ews_trend_string.value == 'same') {
                 return QWeb.render('nh_trendCell', {
@@ -353,17 +352,12 @@ openerp.nh_eobs = function (instance) {
                     'prefix': instance.session.prefix,
                     'up': false,
                     'down': false,
-                    'same': true,
+                    'same': true
                 });
-            } else {
-                return row_data.ews_trend_string.value;
-                if (row_data.ews_score_string.value !== 'none') {
-                    return "Initial Value";
-                }
+            } else if (row_data.ews_score_string.value == 'none') {
                 return "Waiting 1st Observation";
-            }
-            ;
-        },
+            } else return row_data.ews_score_string.value;
+        }
     });
     instance.web.list.columns.add('field.nh_scoretrend', 'instance.nh_eobs.ScoreTrendWidget');
 
