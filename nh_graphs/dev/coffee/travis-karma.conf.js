@@ -1,4 +1,4 @@
-module.exports = function(config) {
+module.exports = function (config) {
     config.set({
         basePath: '',
 
@@ -8,8 +8,7 @@ module.exports = function(config) {
             'tests/spec/*.js'
         ],
 
-        exclude: [
-        ],
+        exclude: [],
 
         hostname: 'localhost',
         port: 9876,
@@ -45,8 +44,8 @@ module.exports = function(config) {
 
         // optionally, configure the reporter
         coverageReporter: {
-          type : 'html',
-          dir : 'coverage/'
+            type: 'html',
+            dir: 'coverage/'
         }
     })
 }
