@@ -16,10 +16,10 @@ openerp.nh_eobs = function (instance) {
         defaults: {
             'Acuity Board': {
                 'kanban': 30000,
-                'list': 5000
+                'list': 30000
             },
             'Patients by Ward': {
-                'list': 5000
+                'list': 30000
             }
         },
         timer: null
@@ -206,11 +206,13 @@ openerp.nh_eobs = function (instance) {
             var action = this.action.name;
             var defaults = instance.nh_eobs.refresh.defaults;
             var timer = instance.nh_eobs.refresh.timer;
+            var self = this;
 
             window.clearTimeout(timer);
 
             if (defaults[action]) {
                 if (defaults[action][view_type]) {
+                    console.log('refresh timer set');
 
                     instance.nh_eobs.refresh.timer = window.setTimeout(
                         function () {
@@ -223,20 +225,9 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
+    //Expands groups in list view by clicking headers
     //Removes the checkboxes on the list view opened by all the listed actions.
     //Removes the 'Import' option for the 'Patients' action.
-    //
-    //Acuity Board and Patients by Ward: Sets a refresh timer that will click
-    //on the menu item again to update the view. Sets another timer (timing5)
-    //only relevant for the list view that automatically opens up the group by
-    //by clicking on the group headers. (As Odoo does not offer this option by
-    //default, at least not in the version we use, that may be fixed in the
-    //latest one but we'd need to investigate it)
-    //
-    //Patient Placements: refresh timer setup. May be dead code...
-    //Active/Inactive Points of Care: definitely dead code. Actions were removed.
-    //
-    //Timers are cleared at the end.
     instance.web.ListView.include({
 
         //Method to expand groups in list view by clicking headers if not open
@@ -252,7 +243,7 @@ openerp.nh_eobs = function (instance) {
             this._super().done(function () {
                 if (self.options.action) {
                     if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
-                        window.setTimeout(self.expand_groups, 500)
+                        window.setTimeout(self.expand_groups, 250)
                     }
                 }
             })
@@ -288,28 +279,17 @@ openerp.nh_eobs = function (instance) {
             ;
             this._super.apply(this, [parent, dataset, view_id, options]);
         },
-        select_record: function (index, view) {
-            // called when selecting the row
-
-            view = view || index == null ? 'form' : 'form';
-            this.dataset.index = index;
-            if (this.fields_view.name != "NH Clinical Placement Tree View") {
-                _.delay(_.bind(function () {
-                    this.do_switch_view(view);
-                }, this));
-            }
-        },
-
-        // ?deprecated
-        do_button_action: function (name, id, callback) {
-            // called when pressing a button on row
-            this.handle_button(name, id, callback);
-            if (name == "switch_active_status") {
-                refresh_active_poc = true;
-            }
-        },
-
-
+        //select_record: function (index, view) {
+        //    // called when selecting the row
+        //
+        //    view = view || index == null ? 'form' : 'form';
+        //    this.dataset.index = index;
+        //    if (this.fields_view.name != "NH Clinical Placement Tree View") {
+        //        _.delay(_.bind(function () {
+        //            this.do_switch_view(view);
+        //        }, this));
+        //    }
+        //},
         load_list: function (data) {
             this._super(data);
             //if its Postural Blood Pressure Tree view then render it's customized template
@@ -332,11 +312,6 @@ openerp.nh_eobs = function (instance) {
 
     });
 
-    //instance.web.ListView.List.include({
-    //    row_clicked: function(e, view){
-    //        if()
-    //    }
-    //})
 
     // ? redundant, solvable with XML options
     //Customized Many2One widget (drop down list) that removes the option to
