@@ -30,12 +30,12 @@ class TestApiDemo(TransactionCase):
         )
         self.assertEqual(len(result), 28)
 
-    def test_get_patient_hospital_numbers_by_ward_not_placed(self):
-        cr, uid = self.cr, self.uid
-        result = self.demo_loader._get_hospital_numbers_by_ward_not_placed(
-            cr, uid, 'A'
-        )
-        self.assertEqual(len(result), 8)
+    # def test_get_patient_hospital_numbers_by_ward_not_placed(self):
+    #     cr, uid = self.cr, self.uid
+    #     result = self.demo_loader._get_hospital_numbers_by_ward_not_placed(
+    #         cr, uid, 'A'
+    #     )
+    #     self.assertEqual(len(result), 8)
 
     def test_discharge_patients_completes_spell_patients_on_given_ward(self):
         cr, uid = self.cr, self.uid

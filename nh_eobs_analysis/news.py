@@ -10,15 +10,11 @@ class nh_eobs_news_report(osv.Model):
     _auto = False
     _columns = {
         'user_id': fields.many2one('res.users', 'Taken By', readonly=True),
-        # 'obs_type': fields.char('Type', readonly=True),
         'date_scheduled': fields.datetime('Date Scheduled', readonly=True),
         'date_terminated': fields.datetime('Date Taken', readonly=True),
-        # 'location_id': fields.many2one('nh.clinical.location', 'Location',
-        #                                readonly=True),
         'ward_id': fields.many2one('nh.clinical.location', 'Ward',
                                    readonly=True),
         'location_str': fields.char('Location', readonly=True),
-        # 'trigger_type': fields.char('Trigger Type', readonly=True),
         'score': fields.char('Obtained Score', readonly=True),
         'clinical_risk': fields.char('Obtained Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),
@@ -28,7 +24,6 @@ class nh_eobs_news_report(osv.Model):
         'minutes_early': fields.float('Minutes Early', digits=(16, 0),
                                       readonly=True, group_operator="avg"),
         'staff_type': fields.char('Staff Type', readonly=True),
-        # 'partial_reason': fields.char('Reason', readonly=True),
         'previous_risk': fields.char('Previous Clinical Risk', readonly=True),
         'previous_score': fields.char('Previous Score', readonly=True),
         'trend_up': fields.integer('# Trend Up', readonly=True),
