@@ -46,6 +46,7 @@ describe('Background', function() {
         focus.graphs.push(graph);
         graphlib.focus = focus;
         graphlib.data.raw = ews_data.single_record;
+        graphlib.options.ranged = false;
     });
 
     afterEach(function() {
@@ -517,6 +518,15 @@ describe('Background', function() {
             graphlib.init();
             graphlib.draw();
             expect(document.querySelectorAll('.measurement').length).toBe(2);
+        });
+
+        it("displays the label next to the graph", function () {
+            var label;
+            graph.options.label = 'RR';
+            graphlib.init();
+            label = document.querySelectorAll('.background .label');
+            expect(+label[0].getAttribute('x')).toBe(388);
+            expect(+label[0].getAttribute('y')).toBe(162);
         });
     });
 

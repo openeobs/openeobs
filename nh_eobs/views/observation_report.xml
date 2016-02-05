@@ -301,6 +301,7 @@
                     <div class="col-xs-12 row">
                         <div id="chart" style="width: 825px; height: 885px;"></div>
                         <script type="text/javascript" src="/nh_graphs/static/lib/js/d3.js"></script>
+                        <script type="text/javascript" src="/nh_graphs/static/lib/js/helper.js"></script>
                         <script type="text/javascript" src="/nh_graphs/static/src/js/nh_graphlib.js"></script>
                         <script type="text/javascript">var obs_data = <t t-raw="ews_data"/>;</script>
                         <script type="text/javascript" t-att-src="draw_graph_js"></script>

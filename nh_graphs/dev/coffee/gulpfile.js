@@ -1,6 +1,6 @@
 var gulp = require('gulp'),
 coffeelint = require('gulp-coffeelint'),
-karma = require('gulp-karma'),
+Server = require('karma').Server,
 notify = require('gulp-notify'),
 concat = require('gulp-concat'),
 docco = require('gulp-docco'),
@@ -31,8 +31,6 @@ gulp.task('sauce_stop', function() {
 	});
 });
 
-var Server = require('karma').Server;
-
 gulp.task('compile', function(){
 	gulp.src(['src/*.coffee'])
 	.pipe(coffeelint())
@@ -42,26 +40,34 @@ gulp.task('compile', function(){
 	.pipe(gulp.dest('../../static/src/js'))
 });
 
+// Karma test runner for travis-ci
 gulp.task('karma', function (done) {
+	new Server({
+		configFile: __dirname + '/travis-karma.conf.js',
+		singleRun: true
+	}, done).start()
+});
+
+gulp.task('local_karma', function (done) {
   new Server({
     configFile: __dirname + '/karma.conf.js',
     singleRun: true
   }, done).start()
 });
 
-gulp.task('test', function(){
-	gulp.src(['src/*.coffee'])
-	.pipe(coffeelint())
-	.pipe(coffeelint.reporter())
-	.pipe(coffee({bare: true}))
-	.pipe(gulp.dest('tests/src'))
-
-	gulp.src(['tests/src/*.js', 'tests/lib/*.js', 'tests/spec/*.js'])
-	.pipe(karma({
-		configFile: 'karma.conf.js',
-		action: 'run'
-	}))
-});
+//gulp.task('test', function(){
+//	gulp.src(['src/*.coffee'])
+//	.pipe(coffeelint())
+//	.pipe(coffeelint.reporter())
+//	.pipe(coffee({bare: true}))
+//	.pipe(gulp.dest('tests/src'))
+//
+//	gulp.src(['tests/src/*.js', 'tests/lib/*.js', 'tests/spec/*.js'])
+//	.pipe(karma({
+//		configFile: 'karma.conf.js',
+//		action: 'run'
+//	}))
+//});
 
 gulp.task('docs', function(){
 	gulp.src(['src/*.coffee'])

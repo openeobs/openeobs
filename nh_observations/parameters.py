@@ -268,7 +268,7 @@ class nh_clinical_patient_weight_monitoring(orm.Model):
     def _get_value(self, cr, uid, ids, fn, args, context=None):
         result = dict.fromkeys(ids, False)
         for r in self.read(cr, uid, ids, ['status'], context=context):
-            result[r['id']] = 'On' if r['status'] else 'Off'
+            result[r['id']] = 'Yes' if r['status'] else 'No'
         return result
 
     _columns = {

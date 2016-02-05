@@ -21,7 +21,7 @@ addons:
   postgresql: "9.3"
 env:
   global:
-  - VERSION="8.0" LINT_CHECK="0" TRANSIFEX="0"
+  - VERSION="8.0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0"
   matrix:
   - LINT_CHECK="1" TESTS="0"
 
@@ -71,6 +71,12 @@ env:
     INCLUDE="nh_vips"
     VERSION="openeobs-8-12"
 
+# Test nh_graph GraphLib JS
+  - GRAPHJS="1"
+
+# Test nh_eob_mobile NHMobile JS
+  - MOBJS="1"
+
 # Check all the observation types together
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
@@ -114,9 +120,13 @@ install:
 - pip install -r requirements.txt
 - git clone --depth=1 https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-- travis_install_nightly
+- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
+- if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
+- if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm install; fi
 script:
-- travis_run_tests
+- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_run_tests ; fi
+- if [ "$GRAPHJS" == "1" ] ; then gulp karma ; fi
+- if [ "$MOBJS" == "1" ] ; then gulp travis ; fi
 after_script:
 - coverage xml -o ${HOME}/build/NeovaHealth/openeobs/coverage.xml
 - cd ${HOME}/build/NeovaHealth/openeobs

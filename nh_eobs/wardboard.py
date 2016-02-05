@@ -1348,7 +1348,7 @@ ews0 as(
                 end as next_diff_interval,
                 activity.rank
             from wb_ews_ranked activity
-            inner join nh_clinical_patient_observation_ews ews
+            left join nh_clinical_patient_observation_ews ews
                 on activity.data_id = ews.id
             where activity.rank = 1 and activity.state = 'scheduled'
 );

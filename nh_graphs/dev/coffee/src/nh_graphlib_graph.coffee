@@ -277,19 +277,23 @@ class NHGraph extends NHGraphLib
         else return null
       )
 
-    # Check ranged option
-    dom = null
-    if @.parent_obj.parent_obj.options.ranged
-      d0 = self.axes.y.ranged_extent[0]-self.style.range_padding
-      d1 = self.axes.y.ranged_extent[1]+self.style.range_padding
-      dom = [(if d0 > 0 then d0 else 0), d1]
-    else
-      dom = [self.axes.y.min, self.axes.y.max]
-
-    @.axes.y.scale = nh_graphs.scale.linear()
+    # Create ranged and not ranged scaled
+    d0 = self.axes.y.ranged_extent[0] - self.style.range_padding
+    d1 = self.axes.y.ranged_extent[1] + self.style.range_padding
+    dom = [(if d0 > 0 then d0 else 0), d1]
+    scaleRanged = nh_graphs.scale.linear()
     .domain(dom)
-    .range([top_offset+@style.dimensions.height, top_offset])
-    self = @
+    .range([top_offset + @style.dimensions.height, top_offset])
+    scaleNot = nh_graphs.scale.linear()
+    .domain([self.axes.y.min, self.axes.y.max])
+    .range([top_offset + @style.dimensions.height, top_offset])
+
+    # Use ranged scale if NHGraphlib.options.ranged is true
+    if this.parent_obj.parent_obj.options.ranged
+      @.axes.y.scale = scaleRanged
+    else
+      @.axes.y.scale = scaleNot
+
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
     .tickFormat(if @.style.axis.step > 0 then \
       nh_graphs.format(",." + @.style.axis.step + "f") else \
@@ -299,9 +303,10 @@ class NHGraph extends NHGraphLib
       .call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
 
+    # Label positioning uses non-ranged scale
     if @.options.label?
-      y_label = @.axes.y.scale(@.axes.y.min) -
-        (@.style.label_text_height*(@.options.keys.length+1))
+      y_label = scaleNot(@.axes.y.min) -
+        (@.style.label_text_height * (@.options.keys.length + 1))
       @.drawables.background.obj.append('text').text(@.options.label).attr({
         'x': @.style.dimensions.width + @.style.label_text_height,
         'y': y_label,
@@ -323,8 +328,8 @@ class NHGraph extends NHGraphLib
       ).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
         'y': (d, i) ->
-          self.axes.y.scale(self.axes.y.min) -
-            (self.style.label_text_height*(self.options.keys.length-i))
+          scaleNot(self.axes.y.min) -
+            (self.style.label_text_height * (self.options.keys.length - i))
         ,'class': 'measurement'
       })
 

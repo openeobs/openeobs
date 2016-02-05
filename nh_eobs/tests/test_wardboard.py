@@ -77,7 +77,7 @@ class TestWardboard(SingleTransactionCase):
                       'context_ids': [[4, cls.eobs_context_id]]}
         ) for i in range(3)]
         cls.hca_uid = cls.user_pool.create(
-            cr, uid, {'name': 'HCA0', 'login': 'hca0', 'password': 'hca0',
+            cr, uid, {'name': 'HCA0', 'login': 'thca0', 'password': 'hca0',
                       'groups_id': [[4, cls.hca_group_id]],
                       'location_ids': [[5]]})
         cls.nurse_uid = cls.user_pool.create(
