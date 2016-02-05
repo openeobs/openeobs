@@ -400,7 +400,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         {
             'name': 'flow_rate',
             'type': 'float',
-            'label': 'Flow Rate',
+            'label': 'Flow Rate (l/min)',
             'min': 0,
             'max': 100.0,
             'digits': [3, 1],
@@ -421,7 +421,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         {
             'name': 'concentration',
             'type': 'integer',
-            'label': 'Concentration',
+            'label': 'Concentration (%)',
             'min': 0,
             'max': 100,
             'initially_hidden': True,
