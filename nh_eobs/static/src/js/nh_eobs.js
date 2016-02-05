@@ -194,6 +194,42 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
+    instance.nh_eobs.refresh = {
+        defaults: {
+            'Acuity Board': {
+                'kanban': 30000,
+                'list': 5000
+            },
+            'Patients by Ward': {
+                'list': 5000
+            }
+        },
+        timer: null
+    };
+
+    instance.web.ViewManager.include({
+        switch_mode: function (view_type, no_store, view_options) {
+
+            var action = this.action.name;
+            var defaults = instance.nh_eobs.refresh.defaults;
+            var timer = instance.nh_eobs.refresh.timer;
+
+            window.clearTimeout(timer);
+
+            if (defaults[action]) {
+                if (defaults[action][view_type]) {
+
+                    instance.nh_eobs.refresh.timer = window.setTimeout(
+                        function () {
+                            self.switch_mode(view_type, no_store, view_options)
+                        }, defaults[action][view_type]
+                    )
+                }
+            }
+            return this._super(view_type, no_store, view_options);
+        }
+    });
+
     //Removes the checkboxes on the list view opened by all the listed actions.
     //Removes the 'Import' option for the 'Patients' action.
     //
@@ -258,67 +294,21 @@ openerp.nh_eobs = function (instance) {
                 if ('Patients' != options.action.name) {
                     options.import_enabled = false;
                 };
-                //if (typeof(timing5) != 'undefined') {
-                //    clearInterval(timing5);
-                //};
-                //wardboard_groups_opened = false;
 
-                //Method to refresh list at set intervals in Acuity Board and Patients By Ward
-                if (['Acuity Board', 'Patients by Ward'].indexOf(options.action.name) > -1) {
-                    console.log('timeout set');
-                    instance.nh_eobs.refresh_timer = window.setInterval(function () {
-                        console.log('reload_content');
-                        self.reload_content()
-                    }, instance.nh_eobs.refresh_interval);
-                }
-                else {
-                    if (instance.nh_eobs.refresh_timer) {
-                        console.log('timeout cleared');
-                        window.clearInterval(instance.nh_eobs.refresh_timer)
+                if (options.action.name == "Patient Placement") {
+                    if (typeof(timing2) != 'undefined') {
+                        clearInterval(timing2);
                     }
+                    pat_placed_timer = window.setInterval(function () {
+                        var button = $("a:contains('Patient Placements')");
+                        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
+                            if (refresh_placement) {
+                                button.click();
+                                refresh_placement = false;
+                            }
+                        }
+                    }, 10);
                 }
-
-                //else if (options.action.name == "Patient Placement") {
-                //    if (typeof(timing2) != 'undefined') {
-                //        clearInterval(timing2);
-                //    }
-                //    timing2 = window.setInterval(function () {
-                //        var button = $("a:contains('Patient Placements')");
-                //        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
-                //            if (refresh_placement) {
-                //                button.click();
-                //                refresh_placement = false;
-                //            }
-                //        }
-                //    }, 10);
-                //}
-                //else if (options.action.name == "Active Points of Care" || options.action.name == "Inactive Points of Care") {
-                //    if (typeof(timing3) != 'undefined') {
-                //        clearInterval(timing3);
-                //    }
-                //    timing3 = window.setInterval(function () {
-                //        if (options.action.name == "Active Points of Care") {
-                //            var button = $("a:contains('Active Points of Care')");
-                //        } else {
-                //            var button = $("a:contains('Inactive Points of Care')");
-                //        }
-                //        if (refresh_active_poc) {
-                //            button.click();
-                //            refresh_active_poc = false;
-                //        }
-                //    }, 10);
-                //}
-                //else {
-                //    if (typeof(timing) != 'undefined') {
-                //        clearInterval(timing);
-                //    }
-                //    if (typeof(timing2) != 'undefined') {
-                //        clearInterval(timing2);
-                //    }
-                    //if (typeof(timing3) != 'undefined') {
-                    //    clearInterval(timing3);
-                    //}
-                //}
             }
             ;
             this._super.apply(this, [parent, dataset, view_id, options]);
