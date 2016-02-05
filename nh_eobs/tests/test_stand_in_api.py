@@ -2,7 +2,7 @@ from openerp.tests.common import TransactionCase
 
 
 class TestStandInApi(TransactionCase):
-    
+
     def setUp(self):
         super(TestStandInApi, self).setUp()
         cr, uid = self.cr, self.uid
