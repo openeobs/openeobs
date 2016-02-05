@@ -312,56 +312,6 @@ openerp.nh_eobs = function (instance) {
 
     });
 
-
-    // ? redundant, solvable with XML options
-    //Customized Many2One widget (drop down list) that removes the option to
-    //create a new instance of the object referenced by the list.
-    instance.nh_eobs.NHMany2One = instance.web.form.FieldMany2One.extend({
-        display_string: function (str) {
-            this._super(str);
-            this.$('.oe_m2o_cm_button').css({'display': 'none'});
-        },
-        get_search_result: function (search_val) {
-            var self = this;
-            var dataset = new instance.web.DataSet(this, this.field.relation, self.build_context());
-            var blacklist = this.get_search_blacklist();
-            this.last_query = search_val;
-
-            return this.orderer.add(dataset.name_search(
-                search_val, new instance.web.CompoundDomain(self.build_domain(), [["id", "not in", blacklist]]),
-                'ilike', this.limit + 1, self.build_context())).then(function (data) {
-                self.last_search = data;
-                // possible selections for the m2o
-                var values = _.map(data, function (x) {
-                    x[1] = x[1].split("\n")[0];
-                    return {
-                        label: _.str.escapeHTML(x[1]),
-                        value: x[1],
-                        name: x[1],
-                        id: x[0],
-                    };
-                });
-
-                // search more... if more results that max
-                if (values.length > self.limit) {
-                    values = values.slice(0, self.limit);
-                    values.push({
-                        label: _t("Search More..."),
-                        action: function () {
-                            dataset.name_search(search_val, self.build_domain(), 'ilike', false).done(function (data) {
-                                self._search_create_popup("search", data);
-                            });
-                        },
-                        classname: 'oe_m2o_dropdown_option'
-                    });
-                }
-
-                return values;
-            });
-        }
-    });
-    instance.web.form.widgets.add('nh_many2one', 'instance.nh_eobs.NHMany2One');
-
     //Gender widget for list view that shows male/female icons depending on the
     //field value
     instance.nh_eobs.GenderWidget = instance.web.list.Column.extend({

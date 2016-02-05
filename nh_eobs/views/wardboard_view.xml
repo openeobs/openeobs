@@ -109,8 +109,9 @@
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
-                                                                             ('id','!=',bed_src_location_id)]" widget="nh_many2one"
-                                required="1"/>
+                                                                             ('id','!=',bed_src_location_id)]"
+                               no_open="1" no_create_edit="1" widget="many2one"
+                               required="1"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -124,9 +125,23 @@
                     <group string="Device Details">
                         <field name="patient_id" readonly="1"/>
                         <field name="location"/>
-                        <field name="device_category_id" on_change="onchange_device_category_id(device_category_id)" widget="nh_many2one"/>
-                        <field name="device_type_id" on_change="onchange_device_type_id(device_type_id)" required="1" widget="nh_many2one"/>
-                        <field name="device_id" invisible="1" domain="[('is_available','=',1)]" on_change="onchange_device_id(device_id)" widget="nh_many2one"/>
+                        <field name="device_category_id"
+                               on_change="onchange_device_category_id(device_category_id)"
+                               options="{'no_create_edit': True, 'no_open': True}"
+                               widget="many2one"/>
+                        <field name="device_type_id"
+                               on_change="onchange_device_type_id(device_type_id)"
+                               required="1"
+                               no_open="1"
+                               options="{'no_create_edit': True, 'no_open': True}"
+                               widget="many2one"/>
+                        <field name="device_id"
+                               invisible="1"
+                               domain="[('is_available','=',1)]"
+                               on_change="onchange_device_id(device_id)"
+                               no_open="1"
+                               options="{'no_create_edit': True, 'no_quick_create': True}"
+                               widget="many2one"/>
                     </group>
                     <footer>
                         <button name="do_start" type="object" string="Start"/>
