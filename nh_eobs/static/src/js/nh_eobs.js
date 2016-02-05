@@ -2,12 +2,8 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var printing = false;
-    var timing, timing2, timing4, ward_dashboard_refresh;
-    var refresh_placement = false;
-    //var refresh_active_poc = false;
-    var wardboard_refreshed = false;
+    var printing_timer;
     var _t = instance.web._t;
-    //var wardboard_groups_opened = false;
     var kiosk_mode = false;
     var kiosk_t;
     var kiosk_button;
@@ -15,9 +11,19 @@ openerp.nh_eobs = function (instance) {
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
-    // View refresh options set by ListView and KanBanView methods
-    instance.nh_eobs.refresh_interval = 5000;
-    instance.nh_eobs.refresh_timer = null;
+    // Refresh interval defaults, used by ViewManager.switch_mode to set timeout
+    instance.nh_eobs.refresh = {
+        defaults: {
+            'Acuity Board': {
+                'kanban': 30000,
+                'list': 5000
+            },
+            'Patients by Ward': {
+                'list': 5000
+            }
+        },
+        timer: null
+    };
 
     // Auto logout object - reset() sets timeout interval with provided interval
     // or default value. Displays notification 10 seconds before timeout then
@@ -194,19 +200,6 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
-    instance.nh_eobs.refresh = {
-        defaults: {
-            'Acuity Board': {
-                'kanban': 30000,
-                'list': 5000
-            },
-            'Patients by Ward': {
-                'list': 5000
-            }
-        },
-        timer: null
-    };
-
     instance.web.ViewManager.include({
         switch_mode: function (view_type, no_store, view_options) {
 
@@ -265,9 +258,6 @@ openerp.nh_eobs = function (instance) {
             })
         },
         init: function (parent, dataset, view_id, options) {
-
-            var self = this;
-
             if (options.action) {
                 if (
                     [   'Doctors',
@@ -294,27 +284,10 @@ openerp.nh_eobs = function (instance) {
                 if ('Patients' != options.action.name) {
                     options.import_enabled = false;
                 };
-
-                if (options.action.name == "Patient Placement") {
-                    if (typeof(timing2) != 'undefined') {
-                        clearInterval(timing2);
-                    }
-                    pat_placed_timer = window.setInterval(function () {
-                        var button = $("a:contains('Patient Placements')");
-                        if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
-                            if (refresh_placement) {
-                                button.click();
-                                refresh_placement = false;
-                            }
-                        }
-                    }, 10);
-                }
             }
             ;
             this._super.apply(this, [parent, dataset, view_id, options]);
-            wardboard_refreshed = false;
         },
-
         select_record: function (index, view) {
             // called when selecting the row
 
@@ -491,9 +464,14 @@ openerp.nh_eobs = function (instance) {
                 self.force_disabled = false;
                 self.check_disable();
             });
+            // Hack to refresh list view after confirming placement
             if (this.string == "Confirm Placement") {
-                refresh_placement = true;
-                console.log(this);
+                window.setTimeout(function () {
+                    var button = $("a:contains('Patient Placements')");
+                    if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
+                        button.click();
+                    }
+                }, 250);
             }
         },
     });
@@ -739,15 +717,15 @@ openerp.nh_eobs = function (instance) {
                     );
 
                     if (printing) {
-                        if (typeof(timing4) != 'undefined') {
-                            clearInterval(timing4);
+                        if (typeof(printing_timer) != 'undefined') {
+                            clearInterval(printing_timer);
                         }
-                        timing4 = window.setInterval(function () {
+                        printing_timer = window.setInterval(function () {
                             if (printing) {
                                 window.print();
                                 printing = false;
                                 graph_lib.svg.printing = false;
-                                clearInterval(timing4);
+                                clearInterval(printing_timer);
                             }
                         }, 1000);
                     }
@@ -1086,21 +1064,6 @@ openerp.nh_eobs = function (instance) {
                 }
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
-            }
-            if (this.options.action.name == 'Ward Dashboard') {
-                if (typeof(ward_dashboard_refresh) == 'undefined') {
-                    ward_dashboard_refresh = window.setInterval(function () {
-                        var button = $("a:contains('Ward Dashboard SQL')");
-                        if ($(".ui-dialog").length == 0 && button.parent('li').hasClass('active') && $(".oe_view_manager_view_kanban").css('display') != 'none') {
-                            button.click();
-                        }
-                    }, 60000);
-                }
-            }
-            else {
-                if (typeof(ward_dashboard_refresh) != 'undefined') {
-                    clearInterval(ward_dashboard_refresh);
-                }
             }
         }
     });
