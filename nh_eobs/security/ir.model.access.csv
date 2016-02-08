@@ -4,7 +4,6 @@ base_group_access_workload,admin:access_workload,model_nh_activity_workload,nh_c
 base_group_access_placement,admin:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_overdue,admin:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_doctor_activities,admin:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_base,1,0,0,0
-base_group_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_ward_dashboard,admin:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_base,1,0,0,0
 base_group_access_bed_dashboard,admin:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_base,1,0,0,0
 ,,,,,,,
@@ -13,7 +12,6 @@ admin_access_workload,admin:access_workload,model_nh_activity_workload,nh_clinic
 admin_access_placement,admin:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_overdue,admin:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_doctor_activities,admin:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_admin,1,1,1,0
-admin_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_ward_dashboard,admin:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_admin,1,1,1,0
 admin_access_bed_dashboard,admin:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_admin,1,1,1,0
 ,,,,,,,
@@ -22,7 +20,6 @@ dev_access_workload,dev:access_workload,model_nh_activity_workload,nh_clinical.g
 dev_access_placement,dev:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_overdue,dev:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_doctor_activities,dev:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_dev,1,1,1,1
-dev_access_spellboard,dev:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_dev,1,1,1,1
 dev_access_ward_dashboard,dev:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_dev,1,1,1,0
 dev_access_bed_dashboard,dev:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_dev,1,1,1,0
 ,,,,,,,
@@ -31,7 +28,6 @@ wm_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinica
 wm_access_placement,manager:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_overdue,manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_ward_manager,1,1,1,0
-wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_ward_dashboard,manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 wm_access_bed_dashboard,manager:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
 ,,,,,,,
@@ -40,7 +36,6 @@ senior_manager_access_workload,senior_manager:access_workload,model_nh_activity_
 senior_manager_access_placement,senior_manager:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_senior_manager,1,0,0,0
 senior_manager_access_overdue,senior_manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_senior_manager,1,0,0,0
 senior_manager_access_doctor_activities,senior_manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_senior_manager,1,0,0,0
-senior_manager_access_spellboard,senior_manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_senior_manager,0,0,0,0
 senior_manager_access_ward_dashboard,senior_manager:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_senior_manager,1,1,1,0
 senior_manager_access_bed_dashboard,senior_manager:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_senior_manager,1,1,1,0
 ,,,,,,,
@@ -49,7 +44,6 @@ adt_access_workload,manager:access_workload,model_nh_activity_workload,nh_clinic
 adt_access_placement,manager:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_overdue,manager:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_doctor_activities,manager:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_adt,1,1,1,0
-adt_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_ward_dashboard,adt:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_adt,1,1,1,0
 adt_access_bed_dashboard,adt:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_adt,1,1,1,0
 ,,,,,,,
@@ -58,7 +52,6 @@ kiosk_access_workload,kiosk:access_workload,model_nh_activity_workload,nh_clinic
 kiosk_access_placement,kiosk:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_overdue,kiosk:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_doctor_activities,kiosk:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_kiosk,1,0,0,0
-kiosk_access_spellboard,kiosk:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_ward_dashboard,kiosk:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_kiosk,1,0,0,0
 kiosk_access_bed_dashboard,kiosk:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_kiosk,1,0,0,0
 ,,,,,,,
@@ -67,7 +60,6 @@ hca_access_workload,hca:access_workload,model_nh_activity_workload,nh_clinical.g
 hca_access_placement,hca:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_hca,0,0,0,0
 hca_access_overdue,hca:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_hca,0,0,0,0
 hca_access_doctor_activities,hca:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_hca,0,0,0,0
-hca_access_spellboard,hca:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_hca,0,0,0,0
 hca_access_ward_dashboard,hca:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_hca,1,1,1,0
 hca_access_bed_dashboard,hca:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_hca,1,1,1,0
 ,,,,,,,
@@ -76,7 +68,6 @@ nurse_access_workload,nurse:access_workload,model_nh_activity_workload,nh_clinic
 nurse_access_placement,nurse:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_nurse,0,0,0,0
 nurse_access_overdue,nurse:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_nurse,0,0,0,0
 nurse_access_doctor_activities,nurse:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_nurse,0,0,0,0
-nurse_access_spellboard,nurse:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_nurse,0,0,0,0
 nurse_access_ward_dashboard,nurse:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_nurse,1,1,1,0
 nurse_access_bed_dashboard,nurse:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_nurse,1,1,1,0
 ,,,,,,,
@@ -85,6 +76,5 @@ doctor_access_workload,doctor:access_workload,model_nh_activity_workload,nh_clin
 doctor_access_placement,doctor:access_placement,model_nh_clinical_placement,nh_clinical.group_nhc_doctor,0,0,0,0
 doctor_access_overdue,doctor:access_overdue,model_nh_clinical_overdue,nh_clinical.group_nhc_doctor,0,0,0,0
 doctor_access_doctor_activities,doctor:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_doctor,0,0,0,0
-doctor_access_spellboard,doctor:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_doctor,0,0,0,0
 doctor_access_ward_dashboard,doctor:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_doctor,1,1,1,0
 doctor_access_bed_dashboard,doctor:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_doctor,1,1,1,0

@@ -13,4 +13,3 @@ from . import test_workload
 # from . import test_palliative_status_tour
 # from . import test_staff_allocation_tours
 from . import test_stand_in_api
-from . import test_spell_management
