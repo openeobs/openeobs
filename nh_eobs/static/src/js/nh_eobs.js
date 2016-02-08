@@ -268,18 +268,15 @@ openerp.nh_eobs = function (instance) {
         //Method to expand groups in list view by clicking headers if not open
         reload_content: function () {
             var self = this;
-            console.log(this);
             this._super().done(function () {
-                if (self.options.action) {
-                    if (self.grouped) {
-                        window.setTimeout(function () {
-                            var groups = $(".oe_group_header");
-                            var open = $(".oe_group_header .ui-icon-triangle-1-s").length;
-                            if (groups.length && !open) {
-                                groups.click();
-                            }
-                        }, 250)
-                    }
+                if (self.grouped) {
+                    window.setTimeout(function () {
+                        var groups = $(".oe_group_header");
+                        var open = $(".oe_group_header .ui-icon-triangle-1-s").length;
+                        if (groups.length && !open) {
+                            groups.click();
+                        }
+                    }, 250)
                 }
             })
         },
