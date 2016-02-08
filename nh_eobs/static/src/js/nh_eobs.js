@@ -226,7 +226,10 @@ openerp.nh_eobs = function (instance) {
         // Timeout recalls same method which reloads the view
         switch_mode: function (view_type, no_store, view_options) {
 
-            var action = this.action.name;
+            var action = null;
+            if (this.action) {
+                action = this.action.name
+            }
             var timer = instance.nh_eobs.refresh.timer;
             var defaults = instance.nh_eobs.refresh.defaults;
             var self = this;
