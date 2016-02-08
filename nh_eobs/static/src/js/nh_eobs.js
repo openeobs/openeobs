@@ -136,23 +136,20 @@ openerp.nh_eobs = function (instance) {
             console.log('clicked');
             var self = this;
             self.rpc("/web/webclient/version_info", {}).done(function (res) {
-                var $tuts = $(openerp.qweb.render("UserMenu.tutorials"));
-                $tuts.find('a.nursing_shift_change').click(function (e) {
-                    e.preventDefault();
-                    openerp.Tour.run('nursing_shift_change');
-                });
-                $tuts.find('a.nursing_reallocation').click(function (e) {
-                    e.preventDefault();
-                    openerp.Tour.run('nursing_reallocation');
-                });
-                $tuts.find('a.palliative_care').click(function (e) {
-                    e.preventDefault();
-                    openerp.Tour.run('palliative_care_flag');
-                });
-                $tuts.find('a.olap_tutorial').click(function (e) {
-                    e.preventDefault();
-                    openerp.Tour.run('olap_tutorial');
-                });
+                var tours = instance.Tour.tours,
+                    ar = [];
+
+                for (var prop in tours) {
+                    if (tours[prop].users) {
+                        ar.push(tours[prop])
+                    }
+                }
+                ;
+                var context = {
+                    tours: ar
+                };
+                var $tuts = $(QWeb.render("UserMenu.tutorials", context));
+
                 new instance.web.Dialog(this, {
                     size: 'large',
                     dialogClass: 'oe_act_window',
@@ -198,9 +195,10 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
-    // Sets timeout if action and view_type exist in refresh.defaults object
-    // Timeout recalls same method which reloads the view
+
     instance.web.ViewManager.include({
+        // Sets timeout if action and view_type exist in refresh.defaults object
+        // Timeout recalls same method which reloads the view
         switch_mode: function (view_type, no_store, view_options) {
 
             var action = this.action.name;
@@ -222,6 +220,15 @@ openerp.nh_eobs = function (instance) {
                 }
             }
             return this._super(view_type, no_store, view_options);
+        },
+
+        //'nh.clinical.allocating' views will be opened in edit mode by default.
+        //would be read mode otherwise.
+        do_create_view: function (view_type) {
+            if (this.dataset.model === 'nh.clinical.allocating') {
+                this.views[view_type].options.initial_mode = 'edit';
+            }
+            return this._super(view_type);
         }
     });
 
@@ -231,19 +238,20 @@ openerp.nh_eobs = function (instance) {
     instance.web.ListView.include({
 
         //Method to expand groups in list view by clicking headers if not open
-        expand_groups: function () {
-            var groups = $(".oe_group_header");
-            var open = $(".oe_group_header .ui-icon-triangle-1-s").length;
-            if (groups.length && !open) {
-                groups.click();
-            }
-        },
+
         reload_content: function () {
             var self = this;
+            console.log(this);
             this._super().done(function () {
                 if (self.options.action) {
-                    if (['Acuity Board', 'Patients by Ward'].indexOf(self.options.action.name) != -1) {
-                        window.setTimeout(self.expand_groups, 250)
+                    if (self.grouped) {
+                        window.setTimeout(function () {
+                            var groups = $(".oe_group_header");
+                            var open = $(".oe_group_header .ui-icon-triangle-1-s").length;
+                            if (groups.length && !open) {
+                                groups.click();
+                            }
+                        }, 250)
                     }
                 }
             })
@@ -723,7 +731,7 @@ openerp.nh_eobs = function (instance) {
                     d3.select(svg.el).append("text").text("No data available for this patient");
                 }
             });
-        },
+        }
     });
     instance.web.form.widgets.add('nh_bschart', 'instance.nh_eobs.BloodSugarChartWidget');
 

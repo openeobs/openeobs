@@ -27,26 +27,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><a class="nursing_shift_change" href="">Nursing Staff Shift Change</a></td>
-                            <td>Describes the steps the nurse in charge should take at the beginning of their shift in order to de-allocate the previous shift's nursing staff and allocate the next.</td>
-                            <td>3 - 5 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="nursing_reallocation" href="">Nursing Staff Re-Allocation</a></td>
-                            <td>Shows how to make adjustments to nursing staff during a shift, e.g. if one HCA finishes their shift and their beds need to be allocated to a new member of staff.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="palliative_care" href="">Palliative Care Status Change</a></td>
-                            <td>Demonstrates how changing a patients palliative care status removes any scheduled observation tasks they had in the overdue tasks list.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="olap_tutorial" href="">OLAP Tutorial</a></td>
-                            <td>Introduces the NEWS Alanysis / OLAP tool for analysing data.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
+                        <t t-foreach="tours" t-as="tour">
+                            <tr>
+                                <td>
+                                    <a t-att-class="tour.id"
+                                       t-attf-onclick="openerp.Tour.run('{{ tour.id }}')">
+                                        <t t-esc="tour.name"/>
+                                    </a>
+                                </td>
+                                <td>
+                                    <t t-esc="tour.description"/>
+                                </td>
+                                <td>
+                                    <t t-esc="tour.duration"/>
+                                </td>
+                            </tr>
+                        </t>
                     </tbody>
                 </table>
             </div>
