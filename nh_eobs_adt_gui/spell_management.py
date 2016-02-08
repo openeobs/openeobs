@@ -224,7 +224,7 @@ class nh_clinical_spellboard(orm.Model):
                 res[spell.id] = api.admit_update(
                     cr, uid, spell.patient_id.other_identifier,
                     {'location': spell.location_id.code,
-                     'code': vals.get('code'),
+                     'code': spell.code,
                      'ref_doctor_ids': vals.get('ref_doctor_ids'),
                      'con_doctor_ids': vals.get('con_doctor_ids')
                      }, context=context)
