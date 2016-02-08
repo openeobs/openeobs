@@ -1,8 +1,6 @@
 openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
-    var printing = false;
-    var printing_timer;
     var _t = instance.web._t;
     var kiosk_mode = false;
     var kiosk_t;
@@ -381,7 +379,7 @@ openerp.nh_eobs = function (instance) {
                     }
                 }, 250);
             }
-        },
+        }
     });
     instance.web.form.tags.add('button', 'instance.nh_eobs.WidgetButton');
 
@@ -398,7 +396,6 @@ openerp.nh_eobs = function (instance) {
             this.dataset.parent_view = this.view;
             this.dataset.child_name = this.name;
             this.ranged = true;
-            var self = this
         },
         set_value: function (value_) {
             this.set({'value': value_});
@@ -412,9 +409,6 @@ openerp.nh_eobs = function (instance) {
             var vid = this.view.dataset.context.active_id;
             var self = this;
 
-            if (typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true") {
-                printing = true;
-            }
             $('.modal-dialog .paged_form_view_header #o2_target_header').remove();
             this.o2targetModel.call('get_last', [this.view.datarecord.id]).done(function (o2targetRecords) {
                 var o2levelid = o2targetRecords
@@ -588,13 +582,14 @@ openerp.nh_eobs = function (instance) {
 
 
                     var tabular_obs = new window.NH.NHTable();
-                    tabular_obs.keys = [{
-                        key: 'avpu_text',
-                        title: 'AVPU'
-                    }, {
-                        key: 'oxygen_administration_device',
-                        title: 'On Supplemental O2'
-                    }, {key: 'inspired_oxygen', title: 'Inspired Oxygen'}];
+                    tabular_obs.keys = [
+                        {key: 'avpu_text', title: 'AVPU'},
+                        {
+                            key: 'oxygen_administration_device',
+                            title: 'On Supplemental O2'
+                        },
+                        {key: 'inspired_oxygen', title: 'Inspired Oxygen'}
+                    ];
                     tabular_obs.title = 'Tabular values';
                     var focus = new window.NH.NHFocus();
                     var context = new window.NH.NHContext();
@@ -623,21 +618,6 @@ openerp.nh_eobs = function (instance) {
                             self.ranged = svg.options.controls.rangify.checked
                         }
                     );
-
-                    if (printing) {
-                        if (typeof(printing_timer) != 'undefined') {
-                            clearInterval(printing_timer);
-                        }
-                        printing_timer = window.setInterval(function () {
-                            if (printing) {
-                                window.print();
-                                printing = false;
-                                graph_lib.svg.printing = false;
-                                clearInterval(printing_timer);
-                            }
-                        }, 1000);
-                    }
-
                 } else {
                     $(svg.el).html('<p>No data available for this patient</p>');
                     //d3.select(svg.el).append("text").text("No data available for this patient");
@@ -791,7 +771,6 @@ openerp.nh_eobs = function (instance) {
                         return d['weight'];
                     });
 
-
                     var w_graph = new window.NH.NHGraph();
                     w_graph.options.keys = ['weight'];
                     w_graph.options.label = 'W';
@@ -813,7 +792,6 @@ openerp.nh_eobs = function (instance) {
                     svg.data.raw = obs;
                     svg.init();
                     svg.draw();
-
 
                 } else {
                     d3.select(svg.el).append("text").text("No data available for this patient");
