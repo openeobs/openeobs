@@ -115,13 +115,6 @@
                   action="action_show_ward_dashboard"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Locations"
-                  id="menu_eobs_locations"
-                  sequence="6"
-                  parent="menu_eobs_category_ward_management"
-                  action="action_show_locations_dev"
-                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
-
         <!--<menuitem name="Shift Management"-->
                   <!--id="menu_eobs_user_management_v2"-->
                   <!--sequence="7"-->
@@ -163,39 +156,45 @@
                   action="nh_clinical.action_nhc_doctor_allocation"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
-
         <menuitem name="Data Management"
-                  sequence="1"
+                  sequence="4"
                   id="menu_eobs_category_data_management"
-                  parent="menu_eobs_admin_top_root"
-                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
+                  parent="menu_eobs_top_root"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Locations"
-                  id="menu_eobs_dev_locations"
-                  sequence="2"
+                  id="menu_eobs_data_locations"
+                  sequence="1"
                   parent="menu_eobs_category_data_management"
                   action="action_show_locations_dev"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
+        <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
+
+        <menuitem name="Data Management"
+                  sequence="1"
+                  id="menu_eobs_category_data_management_administration"
+                  parent="menu_eobs_admin_top_root"
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
+
         <menuitem name="Doctors"
                   sequence="3"
                   id="menu_eobs_doctors"
-                  parent="menu_eobs_category_data_management"
+                  parent="menu_eobs_category_data_management_administration"
                   action="nh_clinical.action_show_doctors"
                   groups="nh_clinical.group_nhc_dev"/>
 
         <menuitem name="Manage O2 Targets"
                   sequence="4"
                   id="menu_eobs_o2_targets"
-                  parent="menu_eobs_category_data_management"
+                  parent="menu_eobs_category_data_management_administration"
                   action="action_show_o2_targets"
                   groups="nh_clinical.group_nhc_dev"/>
 
         <menuitem name="Cancel Notifications"
                   id="menu_eobs_cancel_notifications"
                   sequence="5"
-                  parent="menu_eobs_category_data_management"
+                  parent="menu_eobs_category_data_management_administration"
                   action="action_nhc_cancel_notifications"
                   groups="nh_clinical.group_nhc_dev,base.user_root"/>
 

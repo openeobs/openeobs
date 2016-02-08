@@ -20,5 +20,19 @@
                   parent="menu_eobs_category_visit_management"
                   action="action_show_spells"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Patients"
+                  id="menu_eobs_data_patients"
+                  sequence="2"
+                  parent="nh_eobs.menu_eobs_category_data_management"
+                  action="nh_clinical.action_patient"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Patient Visits"
+                  id="menu_eobs_data_spells"
+                  sequence="3"
+                  parent="nh_eobs.menu_eobs_category_data_management"
+                  action="action_show_spells_admin"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
     </data>
 </openerp>

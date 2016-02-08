@@ -30,6 +30,20 @@
             </field>
         </record>
 
+        <record model="ir.ui.view" id="view_spellboard_tree_admin">
+            <field name="name">Spell Tree View</field>
+            <field name="model">nh.clinical.spellboard</field>
+            <field name="arch" type="xml">
+                <tree string="Spell Tree View" version="7.0" delete="0">
+                   <field name="patient_id"/>
+                   <field name="code"/>
+                   <field name="location_id"/>
+                   <field name="ward_id"/>
+                   <field name="date_started"/>
+                </tree>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_spellboard_form">
             <field name="name">Spell Form View</field>
             <field name="model">nh.clinical.spellboard</field>
@@ -48,6 +62,42 @@
                             <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
                             <field name="date_started"/>
                             <field name="code" attrs="{'readonly': True}"/>
+                        </group>
+                        <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
+                            <page string="Referring Doctors">
+                                <group>
+                                    <field name="ref_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page string="Consulting Doctors">
+                                <group>
+                                    <field name="con_doctor_ids" nolabel="1"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_spellboard_form_admin">
+            <field name="name">Spell Form View</field>
+            <field name="model">nh.clinical.spellboard</field>
+            <field name="arch" type="xml">
+                <form string="Spell Form View" version="7.0" delete="0">
+                    <sheet>
+                        <button name="cancel_admit_button" string="Cancel Visit" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="transfer_button" string="Transfer" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager"  attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
+                        <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
+                        <group>
+                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}" />
+                            <field name="state" attrs="{'invisible': True}" />
+                            <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
+                            <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}" />
+                            <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
+                            <field name="date_started"/>
+                            <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                         </group>
                         <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
                             <page string="Referring Doctors">
@@ -169,12 +219,37 @@
             </field>
         </record>
 
+
+        <record model="ir.actions.act_window" id="action_show_spells_admin">
+            <field name="name">Patient Visits</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">nh.clinical.spellboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_spellboard_tree_admin"/>
+            <field name="domain">[['state','not in',['completed','cancelled']]]</field>
+            <field name="search_view_id" ref="view_spellboard_search"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_spellboard_admin_tree">
+            <field eval="1" name="sequence"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_spellboard_tree_admin"/>
+            <field name="act_window_id" ref="action_show_spells_admin"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="act_view_spellboard_admin_form">
+            <field eval="2" name="sequence"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_spellboard_form_admin"/>
+            <field name="act_window_id" ref="action_show_spells_admin"/>
+        </record>
+
         <record model="ir.actions.act_window" id="action_show_spells">
             <field name="name">Visits In-Progress</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">nh.clinical.spellboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="view_spellboard_form"/>
             <field name="domain">[['state','not in',['completed','cancelled']]]</field>
             <field name="search_view_id" ref="view_spellboard_search"/>
         </record>
