@@ -39,6 +39,7 @@ NHGraphLib = (function() {
           landscape: 5
         }
       },
+      ranged: null,
       controls: {
         date: {
           start: null,
@@ -49,6 +50,10 @@ NHGraphLib = (function() {
           end: null
         },
         rangify: null
+      },
+      handler: {
+        rangify: null,
+        resize: null
       }
     };
     this.el = element ? element : null;
@@ -155,17 +160,62 @@ NHGraphLib = (function() {
     }
   };
 
-  NHGraphLib.prototype.redraw_resize = function(self, event) {
-    var context_event, ref, ref1, ref2, ref3;
-    if (!event.handled && document.querySelectorAll(self.el).length) {
-      self.style.dimensions.width = ((ref = nh_graphs.select(self.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (self.style.margin.left + self.style.margin.right);
-      if ((ref3 = self.obj) != null) {
-        ref3.attr('width', self.style.dimensions.width);
+  NHGraphLib.prototype.redraw_resize = function(event) {
+    var ref, ref1, ref2, ref3;
+    if (this.is_alive() && !event.handled) {
+      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      if ((ref3 = this.obj) != null) {
+        ref3.attr('width', this.style.dimensions.width);
       }
-      context_event = document.createEvent('HTMLEvents');
-      context_event.initEvent('context_resize', true, true);
-      window.dispatchEvent(context_event);
+      this.context.handle_resize(this.context, this.obj, event);
       event.handled = true;
+    }
+  };
+
+  NHGraphLib.prototype.rangify_graphs = function() {
+    var graph, i, len, ranged, ref;
+    this.options.ranged = this.options.controls.rangify.checked;
+    ranged = this.options.ranged;
+    if (this.is_alive()) {
+      this.context.graph.rangify_graph(this.context.graph, ranged);
+      ref = this.focus.graphs;
+      for (i = 0, len = ref.length; i < len; i++) {
+        graph = ref[i];
+        graph.rangify_graph(graph, ranged);
+      }
+    }
+  };
+
+  NHGraphLib.prototype.add_listeners = function() {
+    var rangify;
+    if (typeof _ !== "undefined" && _ !== null) {
+      this.options.handler.resize = _.debounce(this.redraw_resize.bind(this), 250);
+    } else {
+      this.options.handler.resize = this.redraw_resize.bind(this);
+    }
+    window.addEventListener('resize', this.options.handler.resize);
+    rangify = this.options.controls.rangify;
+    this.options.handler.rangify = this.rangify_graphs.bind(this);
+    if (rangify != null) {
+      rangify.addEventListener('click', this.options.handler.rangify);
+    }
+  };
+
+  NHGraphLib.prototype.remove_listeners = function() {
+    var rangify;
+    window.removeEventListener('resize', this.options.handler.resize);
+    rangify = this.options.controls.rangify;
+    if (rangify != null) {
+      rangify.removeEventListener('click', this.options.handler.rangify);
+    }
+  };
+
+  NHGraphLib.prototype.is_alive = function() {
+    if (this.obj[0][0].baseURI) {
+      return true;
+    } else {
+      this.remove_listeners();
+      return false;
     }
   };
 
@@ -222,9 +272,7 @@ NHGraphLib = (function() {
           self.mobile_time_end_change(self, event);
         });
       }
-      window.addEventListener('resize', function(event) {
-        self.redraw_resize(self, event);
-      });
+      this.add_listeners();
     } else {
       throw new Error('No element specified');
     }
@@ -409,16 +457,15 @@ NHContext = (function(superClass) {
   }
 
   NHContext.prototype.handle_resize = function(self, parent_svg, event) {
-    var d, graph_event, new_date, ref, ref1, ref2, ref3, ref4;
+    var d, new_date, ref, ref1, ref2, ref3, ref4;
     if (!event.handled) {
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;
       }
-      graph_event = document.createEvent('HTMLEvents');
-      graph_event.initEvent('focus_resize', true, true);
-      window.dispatchEvent(graph_event);
+      self.graph.resize_graph(self.graph, event);
+      self.parent_obj.focus.handle_resize(self.parent_obj.focus, event);
       if (self.parent_obj.options.mobile.is_mob) {
         new_date = new Date(self.axes.x.max);
         if (self.parent_obj.is_landscape()) {
@@ -510,9 +557,6 @@ NHContext = (function(superClass) {
       });
       this.graph.drawables.brush.append("g").attr("class", "x brush").call(this.brush).selectAll("rect").attr("y", 0).attr("height", this.graph.style.dimensions.height);
       self = this;
-      window.addEventListener('context_resize', function(event) {
-        return self.handle_resize(self, parent_svg, event);
-      });
     } else {
       throw new Error('Context init being called before SVG initialised');
     }
@@ -664,10 +708,7 @@ NHFocus = (function() {
         this.style.dimensions.height += this.style.title_height;
       }
       parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
-      self = this;
-      return window.addEventListener('focus_resize', function(event) {
-        return self.handle_resize(self, event);
-      });
+      return self = this;
     } else {
       throw new Error('Focus init being called before SVG initialised');
     }
@@ -841,9 +882,9 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
-  NHGraph.prototype.rangify_graph = function(self, event) {
+  NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
-    if (event.target.checked) {
+    if (ranged) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
       d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
       self.axes.y.scale.domain([(d0 > 0 ? d0 : 0), d1]);
@@ -868,11 +909,10 @@ NHGraph = (function(superClass) {
       ref.range()[1] = self.style.dimensions.width;
     }
     self.redraw(self.parent_obj);
-    event.handled = true;
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, j, k, key, left_offset, len, len1, line_self, ob, rangify, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -914,13 +954,7 @@ NHGraph = (function(superClass) {
     }
     this.obj.attr('height', this.style.dimensions.height);
     this.obj.append("defs").append("clipPath").attr("class", "clip").attr('id', this.options.keys.join('-') + '-clip').append("rect").attr("width", this.style.dimensions.width).attr("height", this.style.dimensions.height + 3).attr("y", top_offset).attr("x", left_offset);
-    this.axes.y.scale = nh_graphs.scale.linear().domain([this.axes.y.min, this.axes.y.max]).range([top_offset + this.style.dimensions.height, top_offset]);
     self = this;
-    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
-    if (!this.style.axis.y.hide) {
-      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
-      this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
-    }
     if (self.options.keys.length > 1) {
       values = [];
       ref = self.options.keys;
@@ -946,14 +980,28 @@ NHGraph = (function(superClass) {
         }
       });
     }
+    d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
+    d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
+    dom = [(d0 > 0 ? d0 : 0), d1];
+    scaleRanged = nh_graphs.scale.linear().domain(dom).range([top_offset + this.style.dimensions.height, top_offset]);
+    scaleNot = nh_graphs.scale.linear().domain([self.axes.y.min, self.axes.y.max]).range([top_offset + this.style.dimensions.height, top_offset]);
+    if (this.parent_obj.parent_obj.options.ranged) {
+      this.axes.y.scale = scaleRanged;
+    } else {
+      this.axes.y.scale = scaleNot;
+    }
+    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
+    if (!this.style.axis.y.hide) {
+      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
+      this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
+    }
     if (this.options.label != null) {
-      y_label = this.axes.y.scale(this.axes.y.min) - (this.style.label_text_height * (this.options.keys.length + 1));
+      y_label = scaleNot(this.axes.y.min) - (this.style.label_text_height * (this.options.keys.length + 1));
       this.drawables.background.obj.append('text').text(this.options.label).attr({
         'x': this.style.dimensions.width + this.style.label_text_height,
         'y': y_label,
         'class': 'label'
       });
-      self = this;
       this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
         var raw;
         raw = self.parent_obj.parent_obj.data.raw;
@@ -973,7 +1021,7 @@ NHGraph = (function(superClass) {
       }).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
         'y': function(d, i) {
-          return self.axes.y.scale(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
+          return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
         },
         'class': 'measurement'
       });
@@ -1005,15 +1053,6 @@ NHGraph = (function(superClass) {
         return self.options.normal.max = 0;
       }
     })(this);
-    window.addEventListener('graph_resize', function(event) {
-      return self.resize_graph(self, event);
-    });
-    rangify = self.parent_obj.parent_obj.options.controls.rangify;
-    if (rangify != null) {
-      rangify.addEventListener('click', function(event) {
-        return self.rangify_graph(self, event);
-      });
-    }
   };
 
   NHGraph.prototype.draw = function(parent_obj) {

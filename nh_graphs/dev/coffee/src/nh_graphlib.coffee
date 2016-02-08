@@ -43,6 +43,8 @@ class NHGraphLib
     # device rotation
     # - Controls: collects the inputs used for date_start, date_end, time_start,
     # time_end and rangify checkbox
+    # - Handler: Holds handler function's bound to this so that they can be
+    # removed when graph is no longer being displayed
     @options = {
       mobile: {
         is_mob: false,
@@ -51,6 +53,7 @@ class NHGraphLib
           landscape: 5
         }
       },
+      ranged: null,
       controls: {
         date: {
           start: null,
@@ -61,6 +64,10 @@ class NHGraphLib
           end: null
         },
         rangify: null
+      },
+      handler: {
+        rangify: null,
+        resize: null
       }
     }
     # Handle the DOM element to draw SVG into
@@ -198,17 +205,59 @@ class NHGraphLib
   # 1. Get the dimensions of main element
   # 2. Set the attribute for the object
   # 3. ping off a resize event to the context to handle this lower down
-  redraw_resize: (self, event) ->
-    if !event.handled && document.querySelectorAll(self.el).length
-      self.style.dimensions.width = \
-        nh_graphs.select(self.el)?[0]?[0]?.clientWidth -
-        (self.style.margin.left + self.style.margin.right)
-      self.obj?.attr('width', self.style.dimensions.width)
-      context_event = document.createEvent('HTMLEvents')
-      context_event.initEvent('context_resize', true, true)
-      window.dispatchEvent(context_event)
+  redraw_resize: (event) ->
+    if @is_alive() and !event.handled
+      @style.dimensions.width = \
+        nh_graphs.select(@el)?[0]?[0]?.clientWidth -
+        (@style.margin.left + @style.margin.right)
+      @obj?.attr('width', @style.dimensions.width)
+      @.context.handle_resize(@.context, @.obj, event)
       event.handled = true
     return
+
+  # Handle rangify checkbox click event
+  # 1. Check graphlib element is in DOM (remove_listeners if not)
+  # 2. Call rangify_graph on context graph
+  # 3. Call rangify_graph on all focus graphs
+  rangify_graphs: () ->
+    @options.ranged = @options.controls.rangify.checked
+    ranged = @options.ranged
+    if @is_alive()
+      @context.graph.rangify_graph(@context.graph, ranged)
+      for graph in @focus.graphs
+        graph.rangify_graph(graph, ranged)
+    return
+
+  add_listeners: () ->
+    # Create debounced resize event handler bound to this
+    if _?
+      @.options.handler.resize = _.debounce(
+        @redraw_resize.bind(@),
+        250
+      )
+    else
+      @.options.handler.resize = @redraw_resize.bind(@)
+    window.addEventListener('resize', @options.handler.resize)
+
+    # Create rangify event handler bound to this and add listener
+    rangify = @options.controls.rangify
+    @options.handler.rangify = @rangify_graphs.bind(@)
+    rangify?.addEventListener('click', @options.handler.rangify)
+    return
+
+  remove_listeners: () ->
+    window.removeEventListener('resize', @options.handler.resize)
+    rangify = this.options.controls.rangify
+    rangify?.removeEventListener('click', this.options.handler.rangify)
+    return
+
+  # Checks baseURI property of object (empty string if not present)
+  is_alive: () ->
+    if this.obj[0][0].baseURI
+      return true
+    else
+      @remove_listeners()
+      return false
 
   # Handle the creation of the graph objects and add event listeners
   # 1. Make sure we actually have an element to draw graphs into otherwise throw
@@ -269,10 +318,7 @@ class NHGraphLib
         self.mobile_time_end_change(self, event)
         return
       )
-      window.addEventListener('resize', (event) ->
-        self.redraw_resize(self, event)
-        return
-      )
+      this.add_listeners()
       return
     else
       throw new Error('No element specified')

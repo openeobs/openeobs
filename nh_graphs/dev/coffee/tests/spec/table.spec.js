@@ -136,11 +136,9 @@ describe('Table', function() {
                 expect(table.parent_obj).toBe(focus)
             });
 
-
-
-            xit("doesn't add title if not defined",function() {
-                expect(false).toBe(true)
-            });
+            //xit("doesn't add title if not defined",function() {
+            //    expect(false).toBe(true)
+            //});
 
             it("appends table element to NHGraphLib.el with class of 'nhtable'",function() {
                 var tables = document.querySelectorAll(graphlib.el + ' .nhtable');

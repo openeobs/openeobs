@@ -438,17 +438,11 @@ openerp.nh_eobs = function (instance) {
             this.dataset.o2m = this;
             this.dataset.parent_view = this.view;
             this.dataset.child_name = this.name;
+            this.ranged = true;
             var self = this
         },
         set_value: function(value_){
             this.set({'value': value_});
-            $('#rangify').on('mouseup', function(e){
-               if($('#rangify').attr('checked')){
-                   ranged_chart = false;
-               }else{
-                   ranged_chart = true;
-               }
-            });
             this.render_chart();
         },
         render_chart: function(){
@@ -458,9 +452,6 @@ openerp.nh_eobs = function (instance) {
             this.wardboard_model = new instance.web.Model('nh.clinical.wardboard');
             var vid = this.view.dataset.context.active_id;
         	var self = this;
-
-
-
 
             if(typeof(this.view.dataset.context.printing) !== "undefined" && this.view.dataset.context.printing === "true"){
                 printing = true;
@@ -655,34 +646,18 @@ openerp.nh_eobs = function (instance) {
                     svg.focus = focus;
                     svg.context = context;
                     svg.options.controls.rangify = document.getElementById('rangify');
+                    svg.options.controls.rangify.checked = self.ranged;
+                    svg.options.ranged = self.ranged;
                     svg.data.raw = obs;
                     svg.init();
                     svg.draw();
-                    if(ranged_chart == null){
-                        if($('#rangify:checked').length < 1){
-                            $('#rangify').click();
-                        }else{
-                            $('#rangify').click();
-                            $('#rangify').click();
-                        }
-                    }else{
-                        if(ranged_chart){
-                            if($('#rangify:checked').length < 1){
-                                $('#rangify').click();
-                            }else{
-                                $('#rangify').click();
-                                $('#rangify').click();
-                            }
-                        }else{
-                            if($('#rangify:checked').length < 1){
-                                $('#rangify').click();
-                                $('#rangify').click();
-                            }else{
-                                $('#rangify').click();
-                            }
-                        }
-                    }
 
+                    svg.options.controls.rangify.addEventListener(
+                        'click',
+                        function () {
+                            self.ranged = svg.options.controls.rangify.checked
+                        }
+                    );
 
                     if(printing){
                         if (typeof(timing4) != 'undefined'){

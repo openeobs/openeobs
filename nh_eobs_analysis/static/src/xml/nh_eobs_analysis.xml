@@ -1,0 +1,9 @@
+<templates>
+
+    <t t-extend="field_selection">
+        <t t-jquery="li.graph-dropdown-submenu li:contains(Day)" t-operation="before">
+            <li><a href="#" class="field-selection" t-att-data-field-id="field.id" t-att-data-id="header_id" data-interval="hour">Hour</a></li>
+        </t>
+    </t>
+
+</templates>
