@@ -10,7 +10,7 @@
         id: 'palliative_care_flag',
         name: _t("Palliative Care Status Change"),
         description: 'Demonstrates how changing a patients palliative care status removes any scheduled observation tasks they had in the overdue tasks list.',
-        users: ['nurse', 'doctor'],
+        users: ['Nurse', 'Doctor'],
         duration: "2 - 3 mins",
         path: '/web',
         mode: 'tour',

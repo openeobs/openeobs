@@ -11,7 +11,7 @@
         id: 'olap_tutorial',
         name: _t("OLAP Tutorial"),
         description: "Introduces the NEWS Alanysis / OLAP tool for analysing data.",
-        users: ['wm', 'sm', 'admin'],
+        users: ['Ward Manager', 'Senior Manager', 'Admin'],
         duration: "2 - 3 mins",
         path: '/web',
         mode: 'tour',

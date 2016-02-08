@@ -23,6 +23,16 @@ openerp.nh_eobs = function (instance) {
         timer: null
     };
 
+    // Function to get the user groups the user belongs to and add it to the
+    // session object for use by tutorials menu
+    (function () {
+        var model = new instance.web.Model('res.users');
+        model.call('get_groups_string', [], {}).done(function (user_groups) {
+            console.log('User belongs to: ' + user_groups);
+            instance.session.user_groups = user_groups;
+        });
+    }());
+
     // Auto logout object - reset() sets timeout interval with provided interval
     // or default value. Displays notification 10 seconds before timeout then
     // logs out unless reset has been called again.
@@ -133,20 +143,31 @@ openerp.nh_eobs = function (instance) {
         // Modified version of on_menu_ default to show tutorials menu
         // Needs refactoring so QWeb can render list items
         on_menu_tutorials: function () {
-            console.log('clicked');
             var self = this;
             self.rpc("/web/webclient/version_info", {}).done(function (res) {
                 var tours = instance.Tour.tours,
                     ar = [],
                     context = {},
-                    status = 'nurse';
+                    user_status = instance.session.user_groups;
 
-                // Create array of tours
+                // Create array of tours based on user status
                 for (var prop in tours) {
                     if (tours[prop].users) {
                         var auth_users = tours[prop].users;
-                        if (auth_users.indexOf(status) !== -1) {
-                            ar.push(tours[prop])
+
+                        // User status is usually a single string
+                        if (user_status.length == 1) {
+                            if (auth_users.indexOf(user_status[0]) !== -1) {
+                                ar.push(tours[prop])
+                            }
+                        }
+                        // Sometimes a user belongs to more than one group
+                        else {
+                            for (var i = 0; i < user_status.length; i++) {
+                                if (auth_users.indexOf(user_status[i])) {
+                                    ar.push(tours[prop])
+                                }
+                            }
                         }
                     }
                 };
