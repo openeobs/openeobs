@@ -373,7 +373,7 @@ openerp.nh_eobs = function (instance) {
             // Hack to refresh list view after confirming placement
             if (this.string == "Confirm Placement") {
                 window.setTimeout(function () {
-                    var button = $("a:contains('Patient Placements')");
+                    var button = $("li.active:contains('Patients without bed')");
                     if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
                         button.click();
                     }
