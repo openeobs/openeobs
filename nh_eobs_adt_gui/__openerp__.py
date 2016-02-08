@@ -1,11 +1,11 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
 {
-    'name': 'NH eObs Pilot',
+    'name': 'NH eObs ADT GUI',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
-    'summary': '',
+    'summary': 'Permits ADT Operations through the GUI',
     'description': """     """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
