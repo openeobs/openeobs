@@ -100,4 +100,3 @@ class TestCancelAdmitWizard(SingleTransactionCase):
         self.api.cancel_admit.assert_called_with(cr, uid, 2, context=None)
 
         del self.api.cancel_admit
-

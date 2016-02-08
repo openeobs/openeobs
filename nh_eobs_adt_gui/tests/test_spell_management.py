@@ -104,4 +104,3 @@ class TestSpellManagement(SingleTransactionCase):
         self.assertEqual(context['default_patient_id'], 1)
         self.assertEqual(context['default_ward_id'], 2)
         self.assertEqual(context['default_nhs_number'], 'nhsnum1')
-

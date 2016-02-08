@@ -312,4 +312,3 @@ class nh_clinical_spellboard(orm.Model):
             context.update({'default_nhs_number': record.nhs_number})
             context.update({'default_ward_id': record.ward_id.id})
         return context
-

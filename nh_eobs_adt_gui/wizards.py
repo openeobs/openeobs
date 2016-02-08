@@ -81,4 +81,3 @@ class CancelAdmitPatientWizard(osv.TransientModel):
             cr, uid, record.patient_id.other_identifier, context=context
         )
         return result
-
