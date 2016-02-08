@@ -17,3 +17,4 @@
     'installable': True,
     'active': False,
 }
+
