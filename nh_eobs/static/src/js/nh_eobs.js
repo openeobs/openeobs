@@ -137,17 +137,21 @@ openerp.nh_eobs = function (instance) {
             var self = this;
             self.rpc("/web/webclient/version_info", {}).done(function (res) {
                 var tours = instance.Tour.tours,
-                    ar = [];
+                    ar = [],
+                    context = {},
+                    status = 'nurse';
 
+                // Create array of tours
                 for (var prop in tours) {
                     if (tours[prop].users) {
-                        ar.push(tours[prop])
+                        var auth_users = tours[prop].users;
+                        if (auth_users.indexOf(status) !== -1) {
+                            ar.push(tours[prop])
+                        }
                     }
-                }
-                ;
-                var context = {
-                    tours: ar
                 };
+                context.tours = ar;
+
                 var $tuts = $(QWeb.render("UserMenu.tutorials", context));
 
                 new instance.web.Dialog(this, {
@@ -238,7 +242,6 @@ openerp.nh_eobs = function (instance) {
     instance.web.ListView.include({
 
         //Method to expand groups in list view by clicking headers if not open
-
         reload_content: function () {
             var self = this;
             console.log(this);
