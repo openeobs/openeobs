@@ -1425,6 +1425,19 @@ openerp.nh_eobs = function (instance) {
     });
 
     instance.web.FormView.include({
+
+        // Hide 'More' and 'Duplicate' top menu options in patient form for
+        // hassle free pilots
+        load_form: function (data) {
+            var self = this;
+            if (this.dataset.model === 'nh.clinical.patient') {
+                return this._super(data).done(function () {
+                    self.$sidebar.hide();
+                })
+            }
+            return this._super(data)
+        },
+
         on_button_save: function(e) {
             if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
@@ -1440,10 +1453,12 @@ openerp.nh_eobs = function (instance) {
                         modal_view.reinitialize();
                     }
                 });
-            } else {
+            }
+            else {
                 return this._super(e);
             }
         },
+
         on_button_cancel: function(e) {
             if (this.dataset.model === 'nh.clinical.allocating'){
                 var self = this;
