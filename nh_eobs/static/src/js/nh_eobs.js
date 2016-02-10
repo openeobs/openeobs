@@ -1458,17 +1458,6 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
-    //'nh.clinical.allocating' views will be opened in edit mode by default.
-    //would be read mode otherwise.
-    instance.web.ViewManager.include({
-        do_create_view: function (view_type) {
-            if (this.dataset.model === 'nh.clinical.allocating') {
-                this.views[view_type].options.initial_mode = 'edit';
-            }
-            return this._super(view_type);
-        }
-    });
-
     //'nh.clinical.allocating' List view handling. But not sure what this is
     //exactly acomplishing...
     // ? Prevents disabling of cell button on click
