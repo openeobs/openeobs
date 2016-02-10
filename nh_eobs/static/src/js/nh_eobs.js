@@ -196,36 +196,47 @@ openerp.nh_eobs = function (instance) {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },
 
-        //Not sure what do_update does... Check odoo code for relevant differences.
         do_update: function () {
-            var self = this;
-            var fct = function () {
-                var $avatar = self.$el.find('.oe_topbar_avatar');
-                $avatar.attr('src', $avatar.data('default-src'));
-                if (!self.session.uid)
-                    return;
-                var func = new instance.web.Model("res.users").get_func("read");
-                return self.alive(func(self.session.uid, ["name", "company_id"])).then(function (res) {
-                    var topbar_name = res.name;
-                    if (instance.session.debug)
-                        topbar_name = _.str.sprintf("%s (%s)", topbar_name, instance.session.db);
-                    if (res.company_id[0] > 1)
-                        topbar_name = _.str.sprintf("%s (%s)", topbar_name, res.company_id[1]);
-                    self.$el.find('.oe_topbar_name').text(topbar_name);
-                    if (!instance.session.debug) {
-                        topbar_name = _.str.sprintf("%s (%s)", topbar_name, instance.session.db);
-                    }
-                    var avatar_src = self.session.url('/web/binary/image', {
-                        model: 'res.users',
-                        field: 'image_small',
-                        id: self.session.uid
-                    });
-                    $avatar.attr('src', avatar_src);
-                });
-            };
-            this.update_promise = this.update_promise.then(fct, fct);
-            $('li.odoo_support_contact').hide()
+            this._super();
+            $('li.odoo_support_contact').hide();
+            $('ul.oe_systray').hide()
         }
+
+        //Not sure what do_update does... Check odoo code for relevant differences.
+        // 2 changes:
+        //  - openerp.web.bus.trigger('resize') call removed - ?why
+        //  - $('li.odoo_support_contact').hide() - remove menu item
+        //do_update: function () {
+        //    var self = this;
+        //    var fct = function () {
+        //        var $avatar = self.$el.find('.oe_topbar_avatar');
+        //        $avatar.attr('src', $avatar.data('default-src'));
+        //        if (!self.session.uid)
+        //            return;
+        //        var func = new instance.web.Model("res.users").get_func("read");
+        //        return self.alive(func(self.session.uid, ["name", "company_id"])).then(function (res) {
+        //            var topbar_name = res.name;
+        //            if (instance.session.debug)
+        //                topbar_name = _.str.sprintf("%s (%s)", topbar_name, instance.session.db);
+        //            if (res.company_id[0] > 1)
+        //                topbar_name = _.str.sprintf("%s (%s)", topbar_name, res.company_id[1]);
+        //            self.$el.find('.oe_topbar_name').text(topbar_name);
+        //            if (!instance.session.debug) {
+        //                topbar_name = _.str.sprintf("%s (%s)", topbar_name, instance.session.db);
+        //            }
+        //            var avatar_src = self.session.url('/web/binary/image', {
+        //                model: 'res.users',
+        //                field: 'image_small',
+        //                id: self.session.uid
+        //            });
+        //            $avatar.attr('src', avatar_src);
+        //
+        //            openerp.web.bus.trigger('resize');  // Re-trigger the reflow logic
+        //        });
+        //    };
+        //    this.update_promise = this.update_promise.then(fct, fct);
+        //    //$('li.odoo_support_contact').hide();
+        //}
     });
 
 
