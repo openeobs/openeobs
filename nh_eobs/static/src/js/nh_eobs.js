@@ -1458,30 +1458,14 @@ openerp.nh_eobs = function (instance) {
         }
     });
 
-    //'nh.clinical.allocating' List view handling. But not sure what this is
-    //exactly acomplishing...
-    // ? Prevents disabling of cell button on click
+    // List view handling. Prevents disabling of cell button on clicking NEWS
+    // Chart or NEWS table buttons
     instance.web.ListView.List.include({
         init: function (group, opts) {
             var self = this;
             this._super(group, opts);
             if (this.dataset.model === 'nh.clinical.allocating' || this.dataset.model === 'nh.clinical.wardboard') {
                 this.$current = $('<tbody>')
-                    .delegate('input[readonly=readonly]', 'click', function (e) {
-                        e.preventDefault();
-                    })
-                    .delegate('th.oe_list_record_selector', 'click', function (e) {
-                        e.stopPropagation();
-                        var selection = self.get_selection();
-                        var checked = $(e.currentTarget).find('input').prop('checked');
-                        $(self).trigger(
-                            'selected', [selection.ids, selection.records, !checked]);
-                    })
-                    .delegate('td.oe_list_record_delete button', 'click', function (e) {
-                        e.stopPropagation();
-                        var $row = $(e.target).closest('tr');
-                        $(self).trigger('deleted', [[self.row_id($row)]]);
-                    })
                     .delegate('td.oe_list_field_cell button', 'click', function (e) {
                         e.stopPropagation();
                         var $target = $(e.currentTarget),
@@ -1499,19 +1483,6 @@ openerp.nh_eobs = function (instance) {
                             return self.reload_record(self.records.get(id));
                         }]);
                     })
-                    .delegate('a', 'click', function (e) {
-                        e.stopPropagation();
-                    })
-                    .delegate('tr', 'click', function (e) {
-                        var row_id = self.row_id(e.currentTarget);
-                        if (row_id) {
-                            e.stopPropagation();
-                            if (!self.dataset.select_id(row_id)) {
-                                throw new Error(_t("Could not find id in dataset"));
-                            }
-                            self.row_clicked(e);
-                        }
-                    });
             }
         }
     });
