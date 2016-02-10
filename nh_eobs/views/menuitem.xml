@@ -95,25 +95,25 @@
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Activity Workload"
-        	id="menu_eobs_activity_workload"
-            sequence="3"
-        	parent="menu_eobs_category_ward_management"
-            action="act_activity_workload_kanban"
-            groups="nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Account Administration"
-                  id="menu_eobs_user_management"
-                  sequence="4"
+                  id="menu_eobs_activity_workload"
+                  sequence="3"
                   parent="menu_eobs_category_ward_management"
-                  action="nh_clinical.action_nhc_user_management_wm"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  action="act_activity_workload_kanban"
+                  groups="nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Ward Dashboard"
                   id="menu_eobs_ward_dashboard_"
-                  sequence="5"
+                  sequence="4"
                   parent="menu_eobs_category_ward_management"
                   action="action_show_ward_dashboard"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Account Administration"
+                  id="menu_eobs_user_management"
+                  sequence="5"
+                  parent="menu_eobs_category_ward_management"
+                  action="nh_clinical.action_nhc_user_management_wm"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <!--<menuitem name="Shift Management"-->
                   <!--id="menu_eobs_user_management_v2"-->

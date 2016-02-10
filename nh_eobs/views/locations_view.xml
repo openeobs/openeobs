@@ -119,7 +119,7 @@
                                 <field name="type" on_change="onchange_type(usage,type)" required="1"/>
                                 <field name="usage" on_change="onchange_usage(usage)" required="1"/>
                                 <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
-                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"  attrs="{'invisible': True}"/>
                             </group>
                         </group>
                         <notebook>
@@ -131,7 +131,7 @@
                                         <field name="type"/>
                                         <field name="usage"/>
                                         <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
-                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': True}"/>
                                     </tree>
                                 </field>
                             </page>
