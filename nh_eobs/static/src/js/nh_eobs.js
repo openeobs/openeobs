@@ -57,7 +57,8 @@ openerp.nh_eobs = function (instance) {
                 function () {
                     instance.web.notification.warn(
                         'Logging Out',
-                        'You are about to be logged out due to inactivity. Close this notification to continue your session.',
+                        'You are about to be logged out due to inactivity. ' +
+                        'Close this notification to continue your session.',
                         true
                     ).element.find('.ui-notify-close').click(
                         // Required as click event not propagated to window.
@@ -83,27 +84,27 @@ openerp.nh_eobs = function (instance) {
     window.addEventListener('click', instance.nh_eobs.Logout.reset.bind(instance.nh_eobs.Logout));
 
     // ? Redundant - Ref to nh_open_form in poc management is commented out
-    instance.web.NHTreeView = instance.web.TreeView.extend({
-
-        activate: function (id) {
-            var self = this;
-            if ('nh_open_form' in this.dataset.context) {
-                var form_id = this.dataset.context['nh_open_form'];
-                return self.do_action({
-                    type: 'ir.actions.act_window',
-                    res_model: self.dataset.model,
-                    res_id: id,
-                    views: [[form_id, 'form']],
-                    target: 'current',
-                    view_id: form_id,
-                    context: this.dataset.context
-                });
-            }
-            return this._super(id);
-        }
-    });
-
-    instance.web.views.add('tree', 'instance.web.NHTreeView');
+    //instance.web.NHTreeView = instance.web.TreeView.extend({
+    //
+    //    activate: function (id) {
+    //        var self = this;
+    //        if ('nh_open_form' in this.dataset.context) {
+    //            var form_id = this.dataset.context['nh_open_form'];
+    //            return self.do_action({
+    //                type: 'ir.actions.act_window',
+    //                res_model: self.dataset.model,
+    //                res_id: id,
+    //                views: [[form_id, 'form']],
+    //                target: 'current',
+    //                view_id: form_id,
+    //                context: this.dataset.context
+    //            });
+    //        }
+    //        return this._super(id);
+    //    }
+    //});
+    //
+    //instance.web.views.add('tree', 'instance.web.NHTreeView');
 
     //If the provided widget is our customized 'act_button' one, it will
     //render the button differently. Notice the 'active' and 'inactive' values.
