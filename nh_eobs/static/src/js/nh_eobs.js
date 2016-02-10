@@ -2,9 +2,6 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var _t = instance.web._t;
-    var kiosk_mode = false;
-    var kiosk_t;
-    var kiosk_button;
     var modal_view = null;
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
@@ -20,6 +17,14 @@ openerp.nh_eobs = function (instance) {
                 'list': 30000
             }
         },
+        timer: null
+    };
+
+    // Kiosk mode variables
+    instance.nh_eobs.kiosk = {
+        mode: false,
+        button: null,
+        interval: 15000,
         timer: null
     };
 
@@ -141,7 +146,7 @@ openerp.nh_eobs = function (instance) {
     instance.web.UserMenu.include({
 
         // Modified version of on_menu_ default to show tutorials menu relevant
-        // to user
+        // to user (WI-2237)
         on_menu_tutorials: function () {
             var self = this;
             self.rpc("/web/webclient/version_info", {}).done(function (res) {
@@ -249,6 +254,11 @@ openerp.nh_eobs = function (instance) {
                     )
                 }
             }
+
+            if (view_type !== 'kanban') {
+                window.clearInterval(instance.nh_eobs.kiosk.timer)
+            }
+
             return this._super(view_type, no_store, view_options);
         },
 
@@ -898,39 +908,34 @@ openerp.nh_eobs = function (instance) {
             if (this.view_id) {
                 this.save();
             }
-
-
-            //if (this.$el.is('.oe_form_dirty')) {
-            //    if (!confirm(_t("Warning, the record has been modified, your changes will be discarded.\n\nAre you sure you want to leave this page ?"))) {
-            //        return false;
-            //    }
-            //    this.$el.removeClass('oe_form_dirty');
-            //}
             return true;
-        },
-    })
+        }
+    });
 
     //Kanban view visual customizations (coloured backgrounds for the patient
     //board columns). Manages the refresh timer for the Kanban board too.
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
 
         on_groups_started: function () {
+            var kiosk = instance.nh_eobs.kiosk;
+
+            // Add clinical_risk classes to kanban columns for colour coding
             if (this.group_by == 'clinical_risk') {
+
                 var cols = this.$el.find('td.oe_kanban_column');
                 var heads = this.$el.find('td.oe_kanban_group_header');
                 var titles = this.$el.find('span.oe_kanban_group_title_vertical');
                 var cards = this.$el.find('div.oe_kanban_card');
-                console.log($(cards));
-                class_map = {
+
+                var class_map = {
                     "No Score Yet": "none",
                     "High Risk": "high",
                     "Medium Risk": "medium",
                     "Low Risk": "low",
                     "No Risk": "no"
-                }
+                };
                 for (i = 0; i < heads.length; i++) {
                     column_string = $(titles[i]).text().trim();
-                    console.log(column_string);
                     col_class = 'nhclinical_kanban_column_clinical_risk_' + class_map[column_string];
                     $(heads[i]).addClass(col_class);
                     $(cols[i]).addClass(col_class);
@@ -938,36 +943,45 @@ openerp.nh_eobs = function (instance) {
                 for (i = 0; i < cards.length; i++) {
                     $(cards[i]).addClass("nhclinical_kanban_card_clinical_risk");
                 }
-
             }
             this._super();
-            if (this.options.action.name == "Kiosk Board" || this.options.action.name == "Kiosk Workload NEWS" || this.options.action.name == "Kiosk Workload Other Tasks") {
+
+            // Kiosk mode view rotation
+            if (this.options.action.name == "Kiosk Board" ||
+                this.options.action.name == "Kiosk Workload NEWS" ||
+                this.options.action.name == "Kiosk Workload Other Tasks") {
+
+                // Hide the side menu
                 $(".oe_leftbar").attr("style", "");
                 $(".oe_leftbar").addClass("nh_eobs_hide");
                 $(".oe_searchview").hide();
-                kiosk_mode = true;
-                if (typeof(kiosk_t) != 'undefined') {
-                    clearInterval(kiosk_t);
+
+                kiosk.mode = true;
+
+                if (kiosk.timer !== null) {
+                    clearInterval(kiosk.timer);
                 }
-                kiosk_t = window.setInterval(function () {
-                    if (typeof(kiosk_button) == 'undefined') {
-                        kiosk_button = $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
-                    } else if (kiosk_button.text().indexOf('Kiosk Patients Board') > 0) {
-                        kiosk_button = $('li:contains(Kiosk Workload NEWS) .oe_menu_leaf');
-                    } else if (kiosk_button.text().indexOf('Kiosk Workload NEWS') > 0) {
-                        kiosk_button = $('li:contains(Kiosk Workload Other Tasks) .oe_menu_leaf');
+
+                kiosk.timer = window.setInterval(function () {
+                    if (kiosk.button == null) {
+                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
+                    } else if (kiosk.button.text().indexOf('Kiosk Patients Board') > 0) {
+                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
+                    } else if (kiosk.button.text().indexOf('Kiosk Workload NEWS') > 0) {
+                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload Other Tasks)');
                     } else {
-                        kiosk_button = $('li:contains(Kiosk Patients Board) .oe_menu_leaf');
+                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Patients Board)');
                     }
-                    if (kiosk_mode) {
-                        kiosk_button.click();
+                    if (kiosk.mode) {
+                        kiosk.button.click();
                     }
-                }, 15000);
+                }, kiosk.interval);
             }
             else {
-                kiosk_mode = false;
-                if (typeof(kiosk_t) != 'undefined') {
-                    clearInterval(kiosk_t);
+                kiosk.mode = false;
+
+                if (kiosk.timer !== null) {
+                    clearInterval(kiosk.timer);
                 }
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
@@ -978,57 +992,58 @@ openerp.nh_eobs = function (instance) {
 
     //Most of the code is the default Odoo just copied over. Has a change to
     //manage the Menu hiding when the user is logged in in Kiosk mode.
-    instance.web.Menu.include({
-        open_menu: function (id) {
-            this.current_menu = id;
-            this.session.active_id = id;
-            var $clicked_menu, $sub_menu, $main_menu;
-            $clicked_menu = this.$el.add(this.$secondary_menus).find('a[data-menu=' + id + ']');
-            this.trigger('open_menu', id, $clicked_menu);
-
-            if (this.$secondary_menus.has($clicked_menu).length) {
-                $sub_menu = $clicked_menu.parents('.oe_secondary_menu');
-                $main_menu = this.$el.find('a[data-menu=' + $sub_menu.data('menu-parent') + ']');
-            } else {
-                $sub_menu = this.$secondary_menus.find('.oe_secondary_menu[data-menu-parent=' + $clicked_menu.attr('data-menu') + ']');
-                $main_menu = $clicked_menu;
-            }
-
-            // Activate current main menu
-            this.$el.find('.active').removeClass('active');
-            $main_menu.parent().addClass('active');
-
-            // Show current sub menu
-            this.$secondary_menus.find('.oe_secondary_menu').hide();
-            $sub_menu.show();
-
-            // Hide/Show the leftbar menu depending of the presence of sub-items
-            if (!kiosk_mode) {
-                this.$secondary_menus.parent('.oe_leftbar').toggle(!!$sub_menu.children().length);
-            }
-
-            // Activate current menu item and show parents
-            this.$secondary_menus.find('.active').removeClass('active');
-
-            if ($main_menu !== $clicked_menu) {
-                if (!kiosk_mode) {
-                    $clicked_menu.parents().show();
-                }
-                if ($clicked_menu.is('.oe_menu_toggler')) {
-                    $clicked_menu.toggleClass('oe_menu_opened').siblings('.oe_secondary_submenu:first').toggle();
-                } else {
-                    $clicked_menu.parent().addClass('active');
-                }
-            }
-            // add a tooltip to cropped menu items
-            this.$secondary_menus.find('.oe_secondary_submenu li a span').each(function () {
-                $(this).tooltip(this.scrollWidth > this.clientWidth ? {
-                    title: $(this).text().trim(),
-                    placement: 'right'
-                } : 'destroy');
-            });
-        }
-    });
+    //instance.web.Menu.include({
+    //    open_menu: function (id) {
+    //        var kiosk = instance.nh_eobs.kiosk;
+    //        this.current_menu = id;
+    //        this.session.active_id = id;
+    //        var $clicked_menu, $sub_menu, $main_menu;
+    //        $clicked_menu = this.$el.add(this.$secondary_menus).find('a[data-menu=' + id + ']');
+    //        this.trigger('open_menu', id, $clicked_menu);
+    //
+    //        if (this.$secondary_menus.has($clicked_menu).length) {
+    //            $sub_menu = $clicked_menu.parents('.oe_secondary_menu');
+    //            $main_menu = this.$el.find('a[data-menu=' + $sub_menu.data('menu-parent') + ']');
+    //        } else {
+    //            $sub_menu = this.$secondary_menus.find('.oe_secondary_menu[data-menu-parent=' + $clicked_menu.attr('data-menu') + ']');
+    //            $main_menu = $clicked_menu;
+    //        }
+    //
+    //        // Activate current main menu
+    //        this.$el.find('.active').removeClass('active');
+    //        $main_menu.parent().addClass('active');
+    //
+    //        // Show current sub menu
+    //        this.$secondary_menus.find('.oe_secondary_menu').hide();
+    //        $sub_menu.show();
+    //
+    //        // Hide/Show the leftbar menu depending of the presence of sub-items
+    //        if (!kiosk.mode) {
+    //            this.$secondary_menus.parent('.oe_leftbar').toggle(!!$sub_menu.children().length);
+    //        }
+    //
+    //        // Activate current menu item and show parents
+    //        this.$secondary_menus.find('.active').removeClass('active');
+    //
+    //        if ($main_menu !== $clicked_menu) {
+    //            if (!kiosk.mode) {
+    //                $clicked_menu.parents().show();
+    //            }
+    //            if ($clicked_menu.is('.oe_menu_toggler')) {
+    //                $clicked_menu.toggleClass('oe_menu_opened').siblings('.oe_secondary_submenu:first').toggle();
+    //            } else {
+    //                $clicked_menu.parent().addClass('active');
+    //            }
+    //        }
+    //        // add a tooltip to cropped menu items
+    //        this.$secondary_menus.find('.oe_secondary_submenu li a span').each(function () {
+    //            $(this).tooltip(this.scrollWidth > this.clientWidth ? {
+    //                title: $(this).text().trim(),
+    //                placement: 'right'
+    //            } : 'destroy');
+    //        });
+    //    }
+    //});
     // Function to handle the time to next observation
     // Displays (overdue)? [0-9]* days [0-2][0-9]:[0-5][0-9]
     // Takes the date string returned by Odoo
