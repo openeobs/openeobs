@@ -177,9 +177,8 @@ class nh_eobs_api(orm.AbstractModel):
         """
         Gets :class:`user<base.res_users>` information `name`, `id`
         and `number of patients responsible for`) of each user who
-        shares responsibility for a
-        :class:`patient<base.nh_clinical_patient>` or patients as the
-        user calling the method (``uid``).
+        is responsible for any location located in any of the wards
+        the user calling the method is responsible for.
 
         :param uid: id of user calling method
         :type uid: int
@@ -203,9 +202,9 @@ class nh_eobs_api(orm.AbstractModel):
                 cr, uid, [['id', 'child_of', ward_id]])
         share_groups = ['NH Clinical Ward Manager Group',
                         'NH Clinical Nurse Group', 'NH Clinical HCA Group']
-        while len(share_groups) > 0 and share_groups[0] not in groups:
-            share_groups.remove(share_groups[0])
-        domain = [['id', '!=', uid], ['groups_id.name', 'in', share_groups],
+        domain = [['id', '!=', uid],
+                  ['groups_id.name', 'in',
+                   list(set(groups).intersection(share_groups))],
                   ['location_ids', 'in', location_ids]]
         user_ids = user_pool.search(cr, uid, domain, context=context)
         for user_id in user_ids:

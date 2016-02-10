@@ -912,7 +912,7 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -980,23 +980,23 @@ NHGraph = (function(superClass) {
         }
       });
     }
-    dom = null;
+    d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
+    d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
+    dom = [(d0 > 0 ? d0 : 0), d1];
+    scaleRanged = nh_graphs.scale.linear().domain(dom).range([top_offset + this.style.dimensions.height, top_offset]);
+    scaleNot = nh_graphs.scale.linear().domain([self.axes.y.min, self.axes.y.max]).range([top_offset + this.style.dimensions.height, top_offset]);
     if (this.parent_obj.parent_obj.options.ranged) {
-      d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
-      d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
-      dom = [(d0 > 0 ? d0 : 0), d1];
+      this.axes.y.scale = scaleRanged;
     } else {
-      dom = [self.axes.y.min, self.axes.y.max];
+      this.axes.y.scale = scaleNot;
     }
-    this.axes.y.scale = nh_graphs.scale.linear().domain(dom).range([top_offset + this.style.dimensions.height, top_offset]);
-    self = this;
     this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
     if (!this.style.axis.y.hide) {
       this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
       this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
     }
     if (this.options.label != null) {
-      y_label = this.axes.y.scale(this.axes.y.min) - (this.style.label_text_height * (this.options.keys.length + 1));
+      y_label = scaleNot(this.axes.y.min) - (this.style.label_text_height * (this.options.keys.length + 1));
       this.drawables.background.obj.append('text').text(this.options.label).attr({
         'x': this.style.dimensions.width + this.style.label_text_height,
         'y': y_label,
@@ -1021,7 +1021,7 @@ NHGraph = (function(superClass) {
       }).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
         'y': function(d, i) {
-          return self.axes.y.scale(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
+          return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
         },
         'class': 'measurement'
       });
