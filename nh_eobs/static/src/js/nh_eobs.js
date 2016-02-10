@@ -140,38 +140,40 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.UserMenu.include({
 
-        // Modified version of on_menu_ default to show tutorials menu
-        // Needs refactoring so QWeb can render list items
+        // Modified version of on_menu_ default to show tutorials menu relevant
+        // to user
         on_menu_tutorials: function () {
             var self = this;
             self.rpc("/web/webclient/version_info", {}).done(function (res) {
                 var tours = instance.Tour.tours,
-                    ar = [],
-                    context = {},
+                    context = {
+                        tours: []
+                    },
                     user_status = instance.session.user_groups;
 
-                // Create array of tours based on user status
+                // Create array of tours appropriate to user status
                 for (var prop in tours) {
                     if (tours[prop].users) {
                         var auth_users = tours[prop].users;
+                        var include = false;
 
                         // User status is usually a single string
                         if (user_status.length == 1) {
                             if (auth_users.indexOf(user_status[0]) !== -1) {
-                                ar.push(tours[prop])
+                                include = true
                             }
                         }
                         // Sometimes a user belongs to more than one group
                         else {
                             for (var i = 0; i < user_status.length; i++) {
-                                if (auth_users.indexOf(user_status[i])) {
-                                    ar.push(tours[prop])
+                                if (auth_users.indexOf(user_status[i]) !== -1) {
+                                    include = true
                                 }
                             }
                         }
+                        if (include) context.tours.push(tours[prop])
                     }
                 };
-                context.tours = ar;
 
                 var $tuts = $(QWeb.render("UserMenu.tutorials", context));
 
