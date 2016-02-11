@@ -173,7 +173,7 @@ NHMobileShare = (function(superClass) {
           cover = document.getElementById('cover');
           document.getElementsByTagName('body')[0].removeChild(cover);
           popup.parentNode.removeChild(popup);
-          can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Cancel</a>';
+          can_btn = '<a href="#" data-action="close" ' + 'data-target="share_success">Close</a>';
           share_msg = '<p>' + server_data.desc + data.shared_with.join(', ') + '</p>';
           btns = [can_btn];
           return new window.NH.NHModal('share_success', server_data.title, share_msg, btns, 0, body);
@@ -232,12 +232,12 @@ NHMobileShare = (function(superClass) {
           ti = pt_el.getElementsByClassName('taskInfo')[0];
           ti.innerHTML = '<br>';
         }
-        can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Cancel</a>';
+        can_btn = '<a href="#" data-action="close" ' + 'data-target="claim_success">Close</a>';
         claim_msg = '<p>' + server_data.desc + '</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_success', server_data.title, claim_msg, btns, 0, body);
       } else {
-        can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Cancel</a>';
+        can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Close</a>';
         claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);

@@ -150,7 +150,7 @@ class NHMobileShare extends NHMobile
           document.getElementsByTagName('body')[0].removeChild(cover)
           popup.parentNode.removeChild(popup)
           can_btn = '<a href="#" data-action="close" '+
-            'data-target="share_success">Cancel</a>'
+            'data-target="share_success">Close</a>'
           share_msg = '<p>'+ server_data.desc +
             data.shared_with.join(', ') + '</p>'
           btns = [can_btn]
@@ -184,14 +184,14 @@ class NHMobileShare extends NHMobile
           ti = pt_el.getElementsByClassName('taskInfo')[0]
           ti.innerHTML = '<br>'
         can_btn = '<a href="#" data-action="close" '+
-            'data-target="claim_success">Cancel</a>'
+            'data-target="claim_success">Close</a>'
         claim_msg = '<p>' + server_data.desc + '</p>'
         btns = [can_btn]
         new window.NH.NHModal('claim_success', server_data.title,
           claim_msg, btns, 0, body)
       else
         can_btn = '<a href="#" data-action="close" data-target="claim_error"'+
-          '>Cancel</a>'
+          '>Close</a>'
         claim_msg = '<p>There was an error claiming back your'+
           ' patients, please contact your Ward Manager</p>'
         btns = [can_btn]
