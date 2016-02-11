@@ -2,8 +2,12 @@ openerp.nh_eobs = function (instance) {
 
     var QWeb = instance.web.qweb;
     var _t = instance.web._t;
+
+    // Used to store reference to parent modal so can be refreshed by child
+    // modals on save/discard when allocating
     var modal_view = null;
-    // regex to sort out Odoo's idiotic timestamp format
+
+    // regex to sort out Odoo's idiotic timestamp format (used by graphs)
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
     // Refresh interval and kiosk mode interval defaults, used by ViewManager
@@ -409,22 +413,18 @@ openerp.nh_eobs = function (instance) {
     });
     instance.web.list.columns.add('field.nh_scoretrend', 'instance.nh_eobs.ScoreTrendWidget');
 
-    // Refreshes list view after confirming placement by setting variable true
-    // May become obsolete if list view refresh method is refactored
+    // Refreshes list view after confirming placement
     instance.nh_eobs.WidgetButton = instance.web.form.WidgetButton.extend({
         on_click: function () {
-            var self = this;
-            this.force_disabled = true;
-            this.check_disable();
-            this.execute_action().always(function () {
-                self.force_disabled = false;
-                self.check_disable();
-            });
+            this._super();
             // Hack to refresh list view after confirming placement
             if (this.string == "Confirm Placement") {
                 window.setTimeout(function () {
                     var button = $("li.active:contains('Patients without bed')");
-                    if ($(".ui-dialog").length == 0 && $(".oe_view_manager_view_list").css('display') != 'none') {
+                    if ($(".ui-dialog").length == 0 &&
+                        button.length &&
+                        $(".oe_view_manager_view_list").css('display') != 'none'
+                    ) {
                         button.click();
                     }
                 }, 250);
