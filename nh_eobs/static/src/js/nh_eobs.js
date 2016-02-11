@@ -6,9 +6,10 @@ openerp.nh_eobs = function (instance) {
     // regex to sort out Odoo's idiotic timestamp format
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
-    // Refresh interval defaults, used by ViewManager.switch_mode to set timeout
-    instance.nh_eobs.refresh = {
-        defaults: {
+    // Refresh interval and kiosk mode interval defaults, used by ViewManager
+    // and KanBanView to set timeout (and to store internal timer refs)
+    instance.nh_eobs.defaults = {
+        refresh: {
             'Acuity Board': {
                 'kanban': 30000,
                 'list': 30000
@@ -17,15 +18,10 @@ openerp.nh_eobs = function (instance) {
                 'list': 30000
             }
         },
-        timer: null
-    };
-
-    // Kiosk mode variables
-    instance.nh_eobs.kiosk = {
-        mode: false,
-        button: null,
-        interval: 15000,
-        timer: null
+        kiosk: {
+            interval: 15000
+        },
+        logout: 1200000 //Inactivity auto-logout time (20mins)
     };
 
     // Function to get the user groups the user belongs to and add it to the
@@ -33,7 +29,6 @@ openerp.nh_eobs = function (instance) {
     (function () {
         var model = new instance.web.Model('res.users');
         model.call('get_groups_string', [], {}).done(function (user_groups) {
-            console.log('User belongs to: ' + user_groups);
             instance.session.user_groups = user_groups;
         });
     }());
@@ -42,11 +37,12 @@ openerp.nh_eobs = function (instance) {
     // or default value. Displays notification 10 seconds before timeout then
     // logs out unless reset has been called again.
     instance.nh_eobs.Logout = {
-        default: 1200000, // 20mins
         ref: null, // Used to store the timeout reference if set
         reset: function (time) {
-            var self = this;
-            // If called by mouse click time param is passed event object
+            var self = this,
+                interval = instance.nh_eobs.defaults.logout;
+
+            // When called by mouse click time param is passed event object
             if (typeof time !== 'number') {
                 time = null;
             }
@@ -72,7 +68,7 @@ openerp.nh_eobs = function (instance) {
                             });
                     }, 10000);
                 },
-                (time || this.default) - 10000
+                (time || interval) - 10000
             );
         }
     };
@@ -196,16 +192,16 @@ openerp.nh_eobs = function (instance) {
             window.open('http://www.neovahealth.co.uk', '_blank');
         },
 
+        // Hide the support menu item and odoo messaging button
         do_update: function () {
             this._super();
             $('li.odoo_support_contact').hide();
             $('ul.oe_systray').hide()
         }
 
-        //Not sure what do_update does... Check odoo code for relevant differences.
-        // 2 changes:
-        //  - openerp.web.bus.trigger('resize') call removed - ?why
-        //  - $('li.odoo_support_contact').hide() - remove menu item
+        //2 changes:
+        // - openerp.web.bus.trigger('resize') call removed - ?why
+        // - $('li.odoo_support_contact').hide() - remove menu item
         //do_update: function () {
         //    var self = this;
         //    var fct = function () {
@@ -231,17 +227,16 @@ openerp.nh_eobs = function (instance) {
         //            });
         //            $avatar.attr('src', avatar_src);
         //
-        //            openerp.web.bus.trigger('resize');  // Re-trigger the reflow logic
         //        });
         //    };
         //    this.update_promise = this.update_promise.then(fct, fct);
-        //    //$('li.odoo_support_contact').hide();
+        //    $('li.odoo_support_contact').hide();
         //}
     });
 
 
     instance.web.ViewManager.include({
-        // Sets timeout if action and view_type exist in refresh.defaults object
+        // Sets timeout if action and view_type exist in defaults.refresh object
         // Timeout recalls same method which reloads the view
         switch_mode: function (view_type, no_store, view_options) {
 
@@ -249,26 +244,25 @@ openerp.nh_eobs = function (instance) {
             if (this.action) {
                 action = this.action.name
             }
-            var timer = instance.nh_eobs.refresh.timer;
-            var defaults = instance.nh_eobs.refresh.defaults;
+
+            var defaults = instance.nh_eobs.defaults.refresh;
             var self = this;
 
-            window.clearTimeout(timer);
+            window.clearTimeout(instance.nh_eobs.defaults.refresh._timer);
 
-            if (defaults[action]) {
-                if (defaults[action][view_type]) {
-                    console.log('refresh timer set');
-
-                    instance.nh_eobs.refresh.timer = window.setTimeout(
-                        function () {
-                            self.switch_mode(view_type, no_store, view_options)
-                        }, defaults[action][view_type]
-                    )
-                }
+            if (defaults[action] && defaults[action][view_type]) {
+                instance.nh_eobs.defaults.refresh._timer = window.setTimeout(
+                    function () {
+                        self.switch_mode(view_type, no_store, view_options)
+                    }, defaults[action][view_type]
+                )
             }
 
-            if (view_type !== 'kanban') {
-                window.clearInterval(instance.nh_eobs.kiosk.timer)
+            // Clear kiosk interval timer.
+            if (view_type !== 'kanban' &&
+                instance.nh_eobs.defaults.kiosk._timer) {
+                window.clearInterval(instance.nh_eobs.defaults.kiosk._timer);
+                instance.nh_eobs.defaults.kiosk._timer = null
             }
 
             return this._super(view_type, no_store, view_options);
@@ -929,7 +923,7 @@ openerp.nh_eobs = function (instance) {
     instance.nh_eobs.KanbanView = instance.web_kanban.KanbanView.extend({
 
         on_groups_started: function () {
-            var kiosk = instance.nh_eobs.kiosk;
+            var kiosk = instance.nh_eobs.defaults.kiosk;
 
             // Add clinical_risk classes to kanban columns for colour coding
             if (this.group_by == 'clinical_risk') {
@@ -968,32 +962,32 @@ openerp.nh_eobs = function (instance) {
                 $(".oe_leftbar").addClass("nh_eobs_hide");
                 $(".oe_searchview").hide();
 
-                kiosk.mode = true;
+                kiosk._active = true;
 
-                if (kiosk.timer !== null) {
-                    clearInterval(kiosk.timer);
+                if (kiosk._timer) {
+                    clearInterval(kiosk._timer);
                 }
 
-                kiosk.timer = window.setInterval(function () {
-                    if (kiosk.button == null) {
-                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
-                    } else if (kiosk.button.text().indexOf('Kiosk Patients Board') > 0) {
-                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
-                    } else if (kiosk.button.text().indexOf('Kiosk Workload NEWS') > 0) {
-                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Workload Other Tasks)');
+                kiosk._timer = window.setInterval(function () {
+                    if (kiosk._button == null) {
+                        kiosk._button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
+                    } else if (kiosk._button.text().indexOf('Kiosk Patients Board') > 0) {
+                        kiosk._button = $('span.oe_menu_text:contains(Kiosk Workload NEWS)');
+                    } else if (kiosk._button.text().indexOf('Kiosk Workload NEWS') > 0) {
+                        kiosk._button = $('span.oe_menu_text:contains(Kiosk Workload Other Tasks)');
                     } else {
-                        kiosk.button = $('span.oe_menu_text:contains(Kiosk Patients Board)');
+                        kiosk._button = $('span.oe_menu_text:contains(Kiosk Patients Board)');
                     }
-                    if (kiosk.mode) {
-                        kiosk.button.click();
+                    if (kiosk._active) {
+                        kiosk._button.click();
                     }
                 }, kiosk.interval);
             }
             else {
-                kiosk.mode = false;
+                kiosk._active = false;
 
-                if (kiosk.timer !== null) {
-                    clearInterval(kiosk.timer);
+                if (kiosk._timer) {
+                    clearInterval(kiosk._timer);
                 }
                 $(".oe_leftbar").addClass("nh_eobs_show");
                 $(".oe_searchview").show();
@@ -1471,7 +1465,7 @@ openerp.nh_eobs = function (instance) {
     });
 
     // List view handling. Prevents disabling of cell button on clicking NEWS
-    // Chart or NEWS table buttons
+    // Chart or NEWS table buttons. Only changes are what is commented out.
     instance.web.ListView.List.include({
         init: function (group, opts) {
             var self = this;
@@ -1489,7 +1483,6 @@ openerp.nh_eobs = function (instance) {
                             return;
                         }
                         //$target.attr('disabled', 'disabled');
-
                         $(self).trigger('action', [field.toString(), record_id, function (id) {
                             //$target.removeAttr('disabled');
                             return self.reload_record(self.records.get(id));
