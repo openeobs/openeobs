@@ -15,7 +15,16 @@ openerp.nh_eobs_analysis = function (instance) {
                 return el.field;
             });
 
-            var self = this;
+            // Hack to determine stacked vs grouped status as Odoo always passes
+            // 'group' in pivot_options
+            var bar_ui = null;
+            if (graph.$el.find('g.nv-series:contains("Grouped")').length) {
+                bar_ui = graph.$el
+                    .find('g.nv-series:contains("Grouped")')
+                    .attr('class')
+                    .indexOf('disabled') !== -1 ? 'stack' : 'group';
+            }
+
             if (!this.view.view_manager.action || !this.$el.find("select").val()) {
                 this.do_warn(_t("Can't find dashboard action"));
                 return;
@@ -31,6 +40,7 @@ openerp.nh_eobs_analysis = function (instance) {
                 heatmap_mode: graph.heatmap_mode,
                 mode: graph.mode,
                 measures: measures,
+                bar_ui: bar_ui,
                 group_by: instance.web.pyeval.eval('groupbys', data.groupbys || [])
             });
 
@@ -75,6 +85,7 @@ openerp.nh_eobs_analysis = function (instance) {
                 this.heatmap_mode = options.context.heatmap_mode;
                 this.mode = options.context.mode;
                 this.pivot_options.col_groupby = options.context.col_group_by;
+                this.bar_ui = options.context.bar_ui;
                 this.visible_ui = false;
             }
         },

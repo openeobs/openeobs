@@ -86,7 +86,7 @@ NHMobileShareInvite = (function(superClass) {
           return results;
         })())[0];
         invite.parentNode.removeChild(invite);
-        btns = ['<a href="#" data-action="close" data-target="invite_success"' + '>Cancel</a>'];
+        btns = ['<a href="#" data-action="close" data-target="invite_success"' + '>Close</a>'];
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
@@ -100,7 +100,7 @@ NHMobileShareInvite = (function(superClass) {
         invite_modal.parentNode.removeChild(invite_modal);
         return new window.NH.NHModal('invite_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
-        btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Cancel</a>'];
+        btns = ['<a href="#" data-action="close" data-target="invite_error"' + '>Close</a>'];
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];
@@ -140,7 +140,7 @@ NHMobileShareInvite = (function(superClass) {
           return results;
         })())[0];
         invite.parentNode.removeChild(invite);
-        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
+        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Close</a>'];
         covers = document.getElementsByClassName('cover');
         for (j = 0, len = covers.length; j < len; j++) {
           cover = covers[j];
@@ -154,7 +154,7 @@ NHMobileShareInvite = (function(superClass) {
         invite_modal.parentNode.removeChild(invite_modal);
         return new window.NH.NHModal('reject_success', server_data.title, '<p>' + server_data.desc + '</p>', btns, 0, body);
       } else {
-        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Cancel</a>'];
+        btns = ['<a href="#" data-action="close" data-target="reject_success"' + '>Close</a>'];
         covers = document.getElementsByClassName('cover');
         for (k = 0, len1 = covers.length; k < len1; k++) {
           cover = covers[k];

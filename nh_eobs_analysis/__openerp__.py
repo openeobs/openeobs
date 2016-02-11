@@ -16,7 +16,9 @@
         'views/menuitem.xml',
         'views/static_resources.xml',
         'security/ir.model.access.csv'],
-    'qweb': [],
+    'qweb': [
+        'static/src/xml/nh_eobs_analysis.xml'
+    ],
     'application': True,
     'installable': True,
     'active': False,
