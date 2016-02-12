@@ -5,7 +5,7 @@
       <field name="code">B</field>
       <field name="type">poc</field>
       <field name="usage">ward</field>
-      <field name="parent_id" ref="nhc_def_conf_location_guh" />
+      <field name="parent_id" ref="nh_clinical.nhc_location_default_hospital" />
       <field eval="[[6, False, [ref('nh_eobs.nh_eobs_context')]]]" name="context_ids" />
     </record>
     <record id="nhc_def_conf_location_wb_b1" model="nh.clinical.location">

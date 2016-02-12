@@ -7,7 +7,7 @@ openerp.nh_eobs = function (instance) {
     // modals on save/discard when allocating
     var modal_view = null;
 
-    // regex to sort out Odoo's idiotic timestamp format (used by graphs)
+    // regex to sort out Odoo's timestamp format (used by graphs)
     var date_regex = new RegExp('([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9]) ([0-9][0-9]):([0-9][0-9]):([0-9][0-9])');
 
     // Refresh interval and kiosk mode interval defaults, used by ViewManager
@@ -1501,4 +1501,90 @@ openerp.nh_eobs = function (instance) {
             }
         }
     });
+
+    // Adding date format dropdown to CSV import options (WI-2119)
+    // setTimeout = temp fix as import.js not loading before nh_eobs.js
+    window.setTimeout(function () {
+
+        var _lt = instance.web._lt,
+            _t = instance.web._t;
+
+        instance.web.DataImport.include({
+            opts: [
+                {name: 'dateformat', label: _lt("Date format:"), value: 'YMD'},
+                {name: 'encoding', label: _lt("Encoding:"), value: 'utf-8'},
+                {name: 'separator', label: _lt("Separator:"), value: ','},
+                {name: 'quoting', label: _lt("Quoting:"), value: '"'}
+            ],
+            start: function () {
+                var self = this;
+                this.setup_encoding_picker();
+                this.setup_separator_picker();
+                this.setup_dateformat_picker(); // Add call to custom method
+
+                return $.when(
+                    this._super(),
+                    this.Import.call('create', [{
+                        'res_model': this.res_model
+                    }]).done(function (id) {
+                        self.id = id;
+                        self.$('input[name=import_id]').val(id);
+                    })
+                )
+            },
+
+            // Modified version of setup_seperator_picker
+            setup_dateformat_picker: function () {
+                this.$('input.oe_import_dateformat').select2({
+                    width: '160px',
+                    query: function (q) {
+                        var suggestions = [
+                            {id: 'YMD', text: _t('Year Month Day')},
+                            {id: 'DMY', text: _t('Day Month Year')},
+                            {id: 'MDY', text: _t('Month Day Year')}
+                        ];
+                        if (q.term) {
+                            suggestions.unshift({id: q.term, text: q.term});
+                        }
+                        q.callback({results: suggestions});
+                    },
+                    initSelection: function (e, c) {
+                        return c({id: 'YMD', text: _t('Year Month Day')});
+                    },
+                    // Removes search box from drop down
+                    minimumResultsForSearch: Infinity
+                });
+            }
+        })
+    },2000);
+
+    // Over ride default year range in date picker to show years up to 115 ago
+    $.datepicker.setDefaults({yearRange: '-115:+0'});
+
+    instance.web.DateTimeWidget.include({
+        on_picker_select: function(text, instance_) {
+            var date = this.picker('getDate');
+            this.$input
+                .val(date ? this.format_client(date) : '')
+                .change()
+                .focus();
+
+            // If datepicker is being used for date of birth
+            if (this.$input.attr('name') === 'dob') {
+
+                // Calculate age from date selected
+                var agems = Date.now() - date.getTime();
+                var age = Math.abs(new Date(agems).getUTCFullYear() - 1970);
+
+                // Add an age div after the picker or change the text if already
+                // present
+                if (!document.getElementById('age')) {
+                    $(this.$el).after('<div id="age" style="display:inline;margin-left:20px;">' + age + ' years old</div>');
+                }
+                else {
+                    $('#age').text(age + ' years old')
+                }
+            }
+        }
+    })
 }

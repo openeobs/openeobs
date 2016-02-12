@@ -54,7 +54,7 @@ class TestPBP(common.SingleTransactionCase):
         cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
         cls.adt_id = cls.users_pool.search(
             cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']),
-                      ('pos_id', '=', cls.pos_id)])[0]
+                      ('pos_ids', 'in', [cls.pos_id])])[0]
 
     def test_postural_blood_pressure_monitoring(self):
         cr, uid = self.cr, self.uid

@@ -114,12 +114,12 @@
                         </div>
                         <group>
                             <group name="parent" col="4">
-                                <field name="parent_id" string="Upper point of care"/>
-                                <field name="code"/>
-                                <field name="type"/>
-                                <field name="usage"/>
-                                <field name="pos_id" string="Point of Service"/>
-                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                                <field name="parent_id" string="Upper point of care" on_change="onchange_parent_id(usage,parent_id)"  domain="[['code','!=','GDL0987654321']]"/>
+                                <field name="code" required="1"/>
+                                <field name="type" on_change="onchange_type(usage,type)" required="1"/>
+                                <field name="usage" on_change="onchange_usage(usage)" required="1"/>
+                                <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"  attrs="{'invisible': True}"/>
                             </group>
                         </group>
                         <notebook>
@@ -130,8 +130,8 @@
                                         <field name="code"/>
                                         <field name="type"/>
                                         <field name="usage"/>
-                                        <field name="pos_id" string="Point of Service"/>
-                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags"/>
+                                        <field name="pos_id" string="Point of Service" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                                        <field name="context_ids" string="Clinical Contexts" widget="many2many_tags" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible': True}"/>
                                     </tree>
                                 </field>
                             </page>
@@ -164,6 +164,7 @@
             <field name="res_model">nh.clinical.location</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
+            <field name="domain">[['code','!=','GDL0987654321']]</field>
             <field name="search_view_id" ref="view_eobs_location_search"/>
         </record>
 

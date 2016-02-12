@@ -2,19 +2,17 @@
 """
 Defines models used for `Open eObs` spellboard UI.
 """
-from openerp.osv import orm, fields, osv
-from datetime import datetime as dt
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+import re
 import logging
+
+from openerp.osv import orm, fields, osv
 
 _logger = logging.getLogger(__name__)
 
 
 class nh_clinical_spellboard(orm.Model):
     """
-    Extends :class:`spell<spell.nh_clinical_spell>`, joining it with
-    :class:`activity<activity.nh_activity>` to provide additional
-    information related to the spell.
+    Provides patient spell information and operations for the GUI.
     """
 
     _name = "nh.clinical.spellboard"
@@ -46,9 +44,9 @@ class nh_clinical_spellboard(orm.Model):
                                        'Current Location', required=True),
         'ward_id': fields.function(
             _get_ward_id, type='many2one', relation='nh.clinical.location',
-            string='Ward'),
+            string='Admission Location'),
         'pos_id': fields.many2one('nh.clinical.pos', 'Point of Service'),
-        'code': fields.char("Code", size=20),
+        'code': fields.char("Admission Code", size=20),
         'start_date': fields.datetime("Admission Date"),
         'move_date': fields.datetime("Last Movement Date"),
         'ref_doctor_ids': fields.many2many(
@@ -57,6 +55,13 @@ class nh_clinical_spellboard(orm.Model):
         'con_doctor_ids': fields.many2many(
             'nh.clinical.doctor', 'con_doctor_spell_rel', 'spell_id',
             'doctor_id', "Consulting Doctors"),
+        'hospital_number': fields.char('Hospital Number', size=200),
+        'nhs_number': fields.char('NHS Number', size=200)
+    }
+
+    _defaults = {
+        'code': lambda s, cr, uid, c: s.pool['ir.sequence'].next_by_code(
+            cr, uid, 'nh.clinical.spell', context=c),
     }
 
     def init(self, cr):
@@ -72,19 +77,63 @@ class nh_clinical_spellboard(orm.Model):
                         spell.pos_id as pos_id,
                         spell.code as code,
                         spell.start_date as start_date,
-                        spell.move_date as move_date
+                        spell.move_date as move_date,
+                        patient.other_identifier as hospital_number,
+                        patient.patient_identifier as nhs_number
                     from nh_activity spell_activity
                     inner join nh_clinical_spell spell
                         on spell.activity_id = spell_activity.id
+                    inner join nh_clinical_patient patient
+                        on spell.patient_id = patient.id
                     where spell_activity.data_model = 'nh.clinical.spell'
                 )
         """ % (self._table, self._table))
 
+    def format_data(self, data):
+        """
+        Removes any non alphanumeric symbols from hospital number
+        and NHS number fields.
+        """
+        for field in data.keys():
+            if field == 'hospital_number' or field == 'nhs_number':
+                non_alphanumeric = re.compile(r'[\W_]+')
+                data[field] = non_alphanumeric.sub('', data[field])
+
+    def fetch_patient_id(self, cr, uid, data, context=None):
+        """
+        Fetch the patient_id from the provided Hospital Number or NHS Number.
+        """
+        if not context:
+            context = dict()
+        patient_api = self.pool['nh.clinical.patient']
+        if data.get('hospital_number'):
+            patient_id = patient_api.search(
+                cr, uid,
+                [['other_identifier', '=', data.get('hospital_number')]],
+                context=context)
+            data['patient_id'] = patient_id[0] if patient_id else False
+        elif data.get('nhs_number'):
+            patient_id = patient_api.search(
+                cr, uid,
+                [['patient_identifier', '=', data.get('nhs_number')]],
+                context=context)
+            data['patient_id'] = patient_id[0] if patient_id else False
+
+    def patient_id_change(self, cr, uid, ids, patient_id, context=None):
+        """Fills hospital_number and nhs_number fields."""
+        patient_pool = self.pool['nh.clinical.patient']
+        result = {'hospital_number': False, 'nhs_number': False}
+
+        if patient_id:
+            patient = patient_pool.browse(
+                cr, uid, [patient_id], context=context)
+            result = {'hospital_number': patient.other_identifier,
+                      'nhs_number': patient.patient_identifier}
+        return {'value': result}
+
     def create(self, cr, uid, vals, context=None):
         """
-        Extends :meth:`create()<openerp.models.Model.create>`. Admits
-        :class:`patient<base.nh_clinical_patient>` or raises an
-        exception.
+        Admits a patients or raises an exception.
 
         :param vals: must contain keys ``patient_id``, ``location_id``,
             ``code``, ``start_date``, ``ref_doctor_ids`` and
@@ -94,7 +143,11 @@ class nh_clinical_spellboard(orm.Model):
         :returns: id of new record
         :rtype: int
         """
-
+        self.format_data(vals)
+        if vals.get('hospital_number') or vals.get('nhs_number'):
+            self.fetch_patient_id(cr, uid, vals, context=context)
+            if not vals.get('patient_id'):
+                raise orm.except_orm('Validation Error!', 'Patient not found!')
         api = self.pool['nh.eobs.api']
         patient_pool = self.pool['nh.clinical.patient']
         location_pool = self.pool['nh.clinical.location']
@@ -171,45 +224,10 @@ class nh_clinical_spellboard(orm.Model):
                 res[spell.id] = api.admit_update(
                     cr, uid, spell.patient_id.other_identifier,
                     {'location': spell.location_id.code,
-                     'code': vals.get('code'),
+                     'code': spell.code,
                      'ref_doctor_ids': vals.get('ref_doctor_ids'),
                      'con_doctor_ids': vals.get('con_doctor_ids')
                      }, context=context)
-        return all([res[r] for r in res.keys()])
-
-    def cancel(self, cr, uid, ids, context=None):
-        """
-        Cancels the open admissions of one or more patients.
-
-        :param ids: spell ids
-        :type ids: list
-        :returns: ``True`` if successful. Otherwise ``False``
-        :rtype: bool
-        """
-
-        api = self.pool['nh.eobs.api']
-        res = {}
-        for spell in self.browse(cr, uid, ids, context=context):
-            res[spell.id] = api.cancel_admit(
-                cr, uid, spell.patient_id.other_identifier, context=context)
-        return all([res[r] for r in res.keys()])
-
-    def discharge(self, cr, uid, ids, context=None):
-        """
-        Discharges one or more patients.
-
-        :param ids: spell ids
-        :type ids: list
-        :returns: ``True`` if successful. Otherwise ``False``
-        :rtype: bool
-        """
-
-        api = self.pool['nh.eobs.api']
-        res = {}
-        for spell in self.browse(cr, uid, ids, context=context):
-            res[spell.id] = api.discharge(
-                cr, uid, spell.patient_id.other_identifier,
-                {'discharge_date': dt.now().strftime(dtf)}, context=context)
         return all([res[r] for r in res.keys()])
 
     def cancel_discharge(self, cr, uid, ids, context=None):
@@ -228,3 +246,69 @@ class nh_clinical_spellboard(orm.Model):
             res[spell.id] = api.cancel_discharge(
                 cr, uid, spell.patient_id.other_identifier, context=context)
         return all([res[r] for r in res.keys()])
+
+    def cancel_admit_button(self, cr, uid, ids, context=None):
+        """
+        Button called by view_spellboard_form view to call form to
+        cancel the admission of a patient.
+        """
+        context = self._update_context(cr, uid, ids, context=context)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Cancel Visit",
+            "res_model": "nh.clinical.cancel_admit.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "view_id": "view_cancel_admit_wizard",
+            "context": context,
+        }
+        return action
+
+    def transfer_button(self, cr, uid, ids, context=None):
+        """
+        Button called by view_spellboard_form view to call form to
+        transfer patient.
+        """
+        context = self._update_context(cr, uid, ids, context=context)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Transfer Patient",
+            "res_model": "nh.clinical.transfer.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "view_id": "view_transfer_wizard",
+            "context": context,
+        }
+        return action
+
+    def discharge_button(self, cr, uid, ids, context=None):
+        """
+        Button called by view_spellboard_form view to call form to
+        discharge patient.
+        """
+        context = self._update_context(cr, uid, ids, context=context)
+        action = {
+            "type": "ir.actions.act_window",
+            "name": "Confirm Discharge",
+            "res_model": "nh.clinical.discharge.wizard",
+            "view_mode": "form",
+            "view_type": "form",
+            "views": [(False, "form")],
+            "target": "new",
+            "view_id": "view_discharge_wizard",
+            "context": context,
+        }
+        return action
+
+    def _update_context(self, cr, uid, ids, context=None):
+        """Updates context with patient_id and location_id."""
+        record = self.browse(cr, uid, ids, context=context)
+        if context:
+            context.update({'default_patient_id': record.patient_id.id})
+            context.update({'default_nhs_number': record.nhs_number})
+            context.update({'default_ward_id': record.ward_id.id})
+        return context
