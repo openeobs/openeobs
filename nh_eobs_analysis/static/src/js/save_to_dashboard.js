@@ -9,6 +9,7 @@ openerp.nh_eobs_analysis = function (instance) {
             // Get measures array from pivot table class
             var formView = this.__parentedParent.__parentedParent.__parentedChildren[2];
             var graph = formView.__parentedChildren[0];
+            var self = this;
 
             // Convert to simple array of strings
             var measures = graph.pivot.measures.map(function (el) {
