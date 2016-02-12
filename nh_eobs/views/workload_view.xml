@@ -109,10 +109,10 @@
             </field>
         </record>     
         <record model="ir.actions.act_window" id="act_activity_workload_kanban">
-            <field name="name">Activity Workload</field>
+            <field name="name">Workload</field>
             <field name="res_model">nh.activity.workload</field>
             <field name="view_mode">kanban</field>
-			<field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','completed']],['user_ids','in',uid]]</field>
+            <field name="domain">[['date_scheduled','!=',False],['state','not in',['cancelled','completed']],['user_ids','in',uid]]</field>
             <field name="context">{'search_default_observations_news':1}</field>
             <field name="search_view_id" ref="view_activity_workload_search"/>
         </record>  
