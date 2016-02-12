@@ -156,6 +156,13 @@ describe('Events', function() {
         }
     });
 
+    describe("Dependencies", function () {
+
+        it("Function has bind method available", function () {
+            expect(typeof Function.prototype.bind).toBe('function')
+        });
+    });
+
     describe("add_listeners", function() {
 
         beforeEach(function () {

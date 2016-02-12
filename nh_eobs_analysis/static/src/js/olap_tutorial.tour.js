@@ -9,8 +9,11 @@
         combo = openerp.Tour.templates.combo;
     openerp.Tour.register({
         id: 'olap_tutorial',
-        name: "Tutorial demonstrating the features of the NEWS Analysis OLAP tool",
-        path: '/web?debug=',
+        name: _t("OLAP Tutorial"),
+        description: "Introduces the NEWS Alanysis / OLAP tool for analysing data.",
+        users: ['Ward Manager', 'Senior Manager', 'Admin'],
+        duration: "2 - 3 mins",
+        path: '/web',
         mode: 'tour',
         steps: [
             {

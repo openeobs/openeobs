@@ -92,7 +92,7 @@ class NHMobileShareInvite extends NHMobile
           i.getAttribute('data-invite-id') is activity_id)[0]
         invite.parentNode.removeChild(invite)
         btns = ['<a href="#" data-action="close" data-target="invite_success"'+
-        '>Cancel</a>']
+        '>Close</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
           ### istanbul ignore else ###
@@ -105,7 +105,7 @@ class NHMobileShareInvite extends NHMobile
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="invite_error"'+
-        '>Cancel</a>']
+        '>Close</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
           ### istanbul ignore else ###
@@ -135,7 +135,7 @@ class NHMobileShareInvite extends NHMobile
           i.getAttribute('data-invite-id') is activity_id)[0]
         invite.parentNode.removeChild(invite)
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
-        '>Cancel</a>']
+        '>Close</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
           ### istanbul ignore else ###
@@ -148,7 +148,7 @@ class NHMobileShareInvite extends NHMobile
           btns, 0, body)
       else
         btns = ['<a href="#" data-action="close" data-target="reject_success"'+
-        '>Cancel</a>']
+        '>Close</a>']
         covers = document.getElementsByClassName('cover')
         for cover in covers
           ### istanbul ignore else ###
