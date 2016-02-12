@@ -111,7 +111,7 @@ class TestOlapViewDimensions(TransactionCase):
         """
         self.assertTrue('staff_type' in self.olap,
                         'Staff Type not in OLAP model')
- 
+
     def test_has_dimension_clinical_risk_for_previous_observation(self):
         """
         Test that the OLAP view has a dimension for the clinical risk of the
