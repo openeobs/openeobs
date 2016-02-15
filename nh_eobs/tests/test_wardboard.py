@@ -60,7 +60,8 @@ class TestWardboard(SingleTransactionCase):
 
         cls.adt_uid = cls.user_pool.create(
             cr, uid, {'name': 'Admin 0', 'login': 'user_000',
-                      'pos_id': cls.pos_id, 'password': 'user_000',
+                      'pos_ids': [[6, 0, [cls.pos_id]]],
+                      'password': 'user_000',
                       'groups_id': [[4, cls.admin_group_id]]})
         cls.ward_id = cls.location_pool.create(
             cr, uid, {'name': 'Ward0', 'code': 'W0', 'usage': 'ward',

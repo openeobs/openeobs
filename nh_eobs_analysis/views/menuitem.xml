@@ -3,7 +3,7 @@
     <data>
         <menuitem name="My Dashboard"
                   id="menu_eobs_my_dashboard"
-                  sequence="0"
+                  sequence="3"
                   parent="nh_eobs.menu_eobs_category_ward_management"
                   action="open_my_dashboard_action"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>

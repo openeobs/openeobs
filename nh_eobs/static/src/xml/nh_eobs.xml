@@ -6,8 +6,10 @@
                 <li><a href="#" data-menu="settings">Preferences</a></li>
                 <li><a href="#" data-menu="about">About Odoo</a></li>
                 <li><a href="#" data-menu="help">Help</a></li>
-                <li><a href="#" data-menu="logout">Log out</a></li>
                 <li><a href="#" data-menu="tutorials">Tutorials</a></li>
+                <li>
+                    <a href="#" data-menu="logout">Log out</a>
+                </li>
             </ul>
         </t>
     </t>
@@ -15,40 +17,43 @@
     <div t-name="UserMenu.tutorials">
         <div class="container-fluid">
             <div class="tutorials_dialog">
-                <p>
-                    Select a tutorial from the list below:
-                </p>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="col-lg-3 col-md-3">Title</th>
-                            <th class="col-lg-7 col-md-7">Description</th>
-                            <th class="col-lg-2 col-md-2">Duration</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><a class="nursing_shift_change" href="">Nursing Staff Shift Change</a></td>
-                            <td>Describes the steps the nurse in charge should take at the beginning of their shift in order to de-allocate the previous shift's nursing staff and allocate the next.</td>
-                            <td>3 - 5 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="nursing_reallocation" href="">Nursing Staff Re-Allocation</a></td>
-                            <td>Shows how to make adjustments to nursing staff during a shift, e.g. if one HCA finishes their shift and their beds need to be allocated to a new member of staff.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="palliative_care" href="">Palliative Care Status Change</a></td>
-                            <td>Demonstrates how changing a patients palliative care status removes any scheduled observation tasks they had in the overdue tasks list.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
-                        <tr>
-                            <td><a class="olap_tutorial" href="">OLAP Tutorial</a></td>
-                            <td>Introduces the NEWS Alanysis / OLAP tool for analysing data.</td>
-                            <td>2 - 3 mins</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <t t-if="tours.length">
+                    <p>
+                        Select a tutorial from the list below:
+                    </p>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th class="col-lg-3 col-md-3">Title</th>
+                                <th class="col-lg-7 col-md-7">Description</th>
+                                <th class="col-lg-2 col-md-2">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="tours" t-as="tour">
+                                <tr>
+                                    <td>
+                                        <a t-att-class="tour.id"
+                                           t-attf-onclick="openerp.Tour.run('{{ tour.id }}')">
+                                            <t t-esc="tour.name"/>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <t t-esc="tour.description"/>
+                                    </td>
+                                    <td>
+                                        <t t-esc="tour.duration"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+                <t t-if="!tours.length">
+                    <p>
+                        Your user group currently has no tutorials available
+                    </p>
+                </t>
             </div>
         </div>
     </div>
@@ -263,6 +268,33 @@
         </t>
         <t t-jquery=".oe_view_manager > .oe_view_manager_wrapper" t-operation="after">
             <div style="padding: 15px 0 15px 15px;" class="oe_view_manager_buttons"/>
+        </t>
+    </t>
+
+    <t t-extend="ImportView">
+        <t t-jquery="div.oe_import_with_file.oe_padding" t-operation="replace">
+            <div class="oe_import_with_file oe_padding">
+                <h2>Map your data to Open eObs</h2>
+                <div title="If the model uses openchatter, history tracking
+                            will set up subscriptions and send notifications
+                            during the import, but lead to a slower import.">
+                    <input type="checkbox" id="oe_import_tracking"
+                           checked="checked"/>
+                    <label for="oe_import_tracking">
+                        Track history during import
+                    </label>
+                </div>
+                <input type="checkbox" class="oe_import_has_header"
+                       id="oe_import_has_header" checked="checked"/>
+                <label for="oe_import_has_header">The first row of the
+                file contains the label of the column</label>
+                <p class="oe_import_noheaders">If the file contains
+                the column names, the system can try auto-detecting the
+                field corresponding to the column. This makes imports
+                simpler especially when the file has many columns.</p>
+                <div class="oe_import_error_report"></div>
+                <table class="table-striped table-bordered oe_import_grid" />
+            </div>
         </t>
     </t>
 

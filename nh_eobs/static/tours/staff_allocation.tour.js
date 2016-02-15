@@ -8,7 +8,10 @@
     var _t = openerp._t;
     openerp.Tour.register({
         id: 'nursing_shift_change',
-        name: _t("Nursing staff shift change tutorial (Winifred)"),
+        name: _t("Nursing Staff Shift Change"),
+        description: "Describes the steps the nurse in charge should take at the beginning of their shift in order to de-allocate the previous shift's nursing staff and allocate the next.",
+        users: ['Ward Manager', 'Admin'],
+        duration: "3 - 4 mins",
         path: '/web',
         mode: 'tour',
         steps: [
@@ -118,7 +121,10 @@
     });
     openerp.Tour.register({
         id: 'nursing_reallocation',
-        name: _t("Re-allocating nursing staff during shift (Winifred)"),
+        name: _t("Nursing Staff Re-Allocation"),
+        description: "Shows how to make adjustments to nursing staff during a shift, e.g. if one HCA finishes their shift and their beds need to be allocated to a new member of staff.",
+        users: ['Ward Manager', 'Admin'],
+        duration: "2 - 3 mins",
         path: '/web',
         mode: 'tour',
         steps: [

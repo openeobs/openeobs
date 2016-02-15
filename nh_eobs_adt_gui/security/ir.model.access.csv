@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+base_group_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_base,1,0,0,0
+admin_access_spellboard,admin:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_admin,1,1,1,0
+dev_access_spellboard,dev:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_dev,1,1,1,1
+wm_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_ward_manager,1,1,1,0
+senior_manager_access_spellboard,senior_manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_senior_manager,0,0,0,0
+adt_access_spellboard,manager:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_adt,1,1,1,0
+kiosk_access_spellboard,kiosk:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_kiosk,1,0,0,0
+hca_access_spellboard,hca:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_hca,0,0,0,0
+nurse_access_spellboard,nurse:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_nurse,0,0,0,0
+doctor_access_spellboard,doctor:access_spellboard,model_nh_clinical_spellboard,nh_clinical.group_nhc_doctor,0,0,0,0

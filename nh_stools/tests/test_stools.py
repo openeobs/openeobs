@@ -53,7 +53,7 @@ class TestBristolStools(common.SingleTransactionCase):
         cls.adt_id = cls.users_pool.search(
             cr, uid,
             [('groups_id.name', 'in', ['NH Clinical ADT Group']),
-             ('pos_id', '=', cls.pos_id)])[0]
+             ('pos_ids', 'in', [cls.pos_id])])[0]
 
     def test_bristol_stools(self):
         cr, uid = self.cr, self.uid

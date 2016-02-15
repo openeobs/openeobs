@@ -594,7 +594,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             cr, uid, [('pos_id', '=', pos_id)])[0]
 
         adt_uid = self.create(
-            cr, uid, 'res.users', 'user_adt', {'pos_id': pos_id})
+            cr, uid, 'res.users', 'user_adt', {'pos_ids': [[6, 0, [pos_id]]]})
 
         if context:
             context_ids = context_pool.search(

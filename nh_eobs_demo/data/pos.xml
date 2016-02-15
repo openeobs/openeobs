@@ -1,31 +1,15 @@
 <openerp>
-  <data>
-    <record id="nhc_def_conf_location_guh" model="nh.clinical.location">
-      <field name="name">GUH POS Location</field>
+  <data noupdate="1">
+    <record id="nh_clinical.nhc_location_default_hospital" model="nh.clinical.location">
+      <field name="name">Greenfield University Hospital</field>
       <field name="code">GUH</field>
       <field name="type">pos</field>
       <field name="usage">hospital</field>
     </record>
-    <record id="nhc_def_conf_location_lot_admission" model="nh.clinical.location">
-      <field name="name">Admission Location</field>
-      <field name="code">ADML-GUH</field>
-      <field name="type">structural</field>
-      <field name="usage">room</field>
-      <field name="parent_id" ref="nhc_def_conf_location_guh" />
-    </record>
-    <record id="nhc_def_conf_location_lot_discharge" model="nh.clinical.location">
-      <field name="name">Discharge Location</field>
-      <field name="code">DISL-GUH</field>
-      <field name="type">structural</field>
-      <field name="usage">room</field>
-      <field name="parent_id" ref="nhc_def_conf_location_guh" />
-    </record>
-    <record id="nhc_def_conf_pos_hospital" model="nh.clinical.pos">
+    <record id="nh_clinical.nhc_location_default_pos" model="nh.clinical.pos">
       <field name="name">Greenfield University Hospital</field>
-      <field name="location_id" ref="nhc_def_conf_location_guh" />
+      <field name="location_id" ref="nh_clinical.nhc_location_default_hospital" />
       <field name="company_id" ref="base.main_company" />
-      <field name="lot_admission_id" ref="nhc_def_conf_location_lot_admission" />
-      <field name="lot_discharge_id" ref="nhc_def_conf_location_lot_discharge" />
     </record>
   </data>
 </openerp>
