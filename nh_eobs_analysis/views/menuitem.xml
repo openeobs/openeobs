@@ -3,13 +3,13 @@
     <data>
         <menuitem name="My Dashboard"
                   id="menu_eobs_my_dashboard"
-                  sequence="4"
+                  sequence="3"
                   parent="nh_eobs.menu_eobs_category_ward_management"
                   action="open_my_dashboard_action"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="NEWS Analysis (last 8 days)" id="menu_eobs_news_report"
-                  sequence="4"
+                  sequence="3"
                   parent="nh_eobs.menu_eobs_category_ward_management"
                   action="action_nh_eobs_news_report_pivot"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>

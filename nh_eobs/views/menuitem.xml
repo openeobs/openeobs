@@ -115,13 +115,6 @@
                   action="action_show_ward_dashboard"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Locations"
-                  id="menu_eobs_locations"
-                  sequence="6"
-                  parent="menu_eobs_category_ward_management"
-                  action="action_show_locations"
-                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
-
        <menuitem name="Open eObs Users"
                   id="menu_eobs_admin_user_management"
                   sequence="8"
