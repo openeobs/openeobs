@@ -326,7 +326,11 @@ openerp.nh_eobs = function (instance) {
                     ].indexOf(options.action.name) > -1) {
                     options.selectable = false;
                 };
-                if ('Patients' != options.action.name) {
+                if (
+                    [   'Patients',
+                        'Patient Visits',
+                        'Locations'
+                    ].indexOf(options.action.name) == -1) {
                     options.import_enabled = false;
                 };
             }
