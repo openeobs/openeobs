@@ -122,7 +122,7 @@ install:
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
 - if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
-- if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm install; fi
+- if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm cache clean; npm install; fi
 script:
 - if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_run_tests ; fi
 - if [ "$GRAPHJS" == "1" ] ; then gulp karma ; fi
