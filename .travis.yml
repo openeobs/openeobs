@@ -137,9 +137,7 @@ after_script:
 
 - echo "Test result is ${TRAVIS_TEST_RESULT}" 
 - echo "Pipeline status is ${RUN_PIPELINE}"
-- echo "${TRAVIS_REPO_SLUG} ${TRAVIS_BUILD_NUMBER} ${TRAVIS_BRANCH} ${TRAVIS_COMMIT}" >> test_file.xml
 - printf '{"branch":"%s","commit":"%s","pull_request":"%s","repository":{"name":"%s"}}' "$TRAVIS_BRANCH" "$TRAVIS_COMMIT" "$TRAVIS_PULL_REQUEST" "$TRAVIS_REPO_SLUG" > json.file
 - pwd
 - ls ./
-- ls ${HOME}/build/NeovaHealth/openeobs
-- if [ "$TRAVIS_TEST_RESULT" == "0" -a "$RUN_PIPELINE" == "1" ]; then curl -v ${TARGET_URL}:8080/$TARGET_JOB --user $TARGET_USER:$TARGET_PASSWORD -F json_file=@./json.file -F coverage_file=@/home/travis/build/NeovaHealth/openeobs/coverage.xml -F test_report_file=@./test_report.xml -F json='{"parameter":[{"name":"json_payload","file":"json_file"}, {"name":"test_report","file":"test_report_file"}, {"name":"coverage_report","file":"coverage_file"}]}'; fi
+- if [ "$TRAVIS_TEST_RESULT" == "0" -a "$RUN_PIPELINE" == "1" ]; then curl -v ${TARGET_URL}:8080/$TARGET_JOB --user $TARGET_USER:$TARGET_PASSWORD -F json_file=@./json.file -F coverage_file=@./coverage.xml -F json='{"parameter":[{"name":"json_payload","file":"json_file"}, {"name":"coverage_report","file":"coverage_file"}]}'; fi
