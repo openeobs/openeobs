@@ -21,12 +21,12 @@ addons:
   postgresql: "9.3"
 env:
   global:
-  - VERSION="8.0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0"
+  - VERSION="8.0" RUN_PIPELINE="0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0"
   matrix:
   - LINT_CHECK="1" TESTS="0"
 
 # Check all the observation types separately
-  - ODOO_REPO="valdecdev/odoo" TESTS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" RUN_PIPELINE="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,xml_test_output"
     INCLUDE="nh_ews"
     VERSION="openeobs-8-12"
@@ -94,7 +94,7 @@ env:
     INCLUDE="nh_eobs_mobile"
     VERSION="openeobs-8-12"
 
-  - ODOO_REPO="valdecdev/odoo" TESTS="1"
+  - ODOO_REPO="valdecdev/odoo" TESTS="1" RUN_PIPELINE="1"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
     INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile"
     VERSION="openeobs-8-12"
@@ -134,3 +134,10 @@ after_script:
 - for rep in ${HOME}/tests/*.xml; do cat "$rep" | grep -v "<?xml " >> test_report.xml;
   done
 - echo "</testsuites>" >> test_report.xml
+
+- echo "Test result is ${TRAVIS_TEST_RESULT}" 
+- echo "Pipeline status is ${RUN_PIPELINE}"
+- printf '{"branch":"%s","commit":"%s","pull_request":"%s","repository":{"name":"%s"}}' "$TRAVIS_BRANCH" "$TRAVIS_COMMIT" "$TRAVIS_PULL_REQUEST" "$TRAVIS_REPO_SLUG" > json.file
+- pwd
+- ls ./
+- if [ "$TRAVIS_TEST_RESULT" == "0" -a "$RUN_PIPELINE" == "1" ]; then curl -v ${TARGET_URL}:8080/$TARGET_JOB --user $TARGET_USER:$TARGET_PASSWORD -F json_file=@./json.file -F coverage_file=@./coverage.xml -F json='{"parameter":[{"name":"json_payload","file":"json_file"}, {"name":"coverage_report","file":"coverage_file"}]}'; fi
