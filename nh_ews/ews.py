@@ -634,10 +634,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 self._name, self._POLICY['frequencies'][case], context=context)
         return res
 
-    def change_activity_frequency(self, cr, uid, activity_id, name, minutes,
+    def change_activity_frequency(self, cr, uid, patient_id, name, minutes,
                                   context=None):
         api_pool = self.pool['nh.clinical.api']
-        return api_pool.change_activity_frequency(cr, uid, activity_id,
+        return api_pool.change_activity_frequency(cr, uid, patient_id,
                                                   name, minutes,
                                                   context=context)
 
