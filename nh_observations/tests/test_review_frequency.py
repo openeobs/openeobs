@@ -1,6 +1,5 @@
 # coding: utf-8
 from openerp.tests.common import SingleTransactionCase
-from mock import MagicMock
 
 
 class TestReviewFrequency(SingleTransactionCase):
@@ -8,7 +7,8 @@ class TestReviewFrequency(SingleTransactionCase):
     @classmethod
     def setUpClass(cls):
         super(TestReviewFrequency, cls).setUpClass()
-        cls.review_frequency_pool = cls.registry('nh.clinical.notification.frequency')
+        cls.review_frequency_pool = \
+            cls.registry('nh.clinical.notification.frequency')
         cls.activity_pool = cls.registry('nh.activity')
 
         def mock_ews_id(*args, **kwargs):
