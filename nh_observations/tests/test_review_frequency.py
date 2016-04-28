@@ -157,13 +157,32 @@ class TestReviewFrequency(SingleTransactionCase):
             ]
         )
 
-    def test_no_ews(self):
 
-        def mock_no_ews_id(*args, **kwargs):
+class TestReviewFrequencyNoEWS(SingleTransactionCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super(TestReviewFrequencyNoEWS, cls).setUpClass()
+        cls.review_frequency_pool = \
+            cls.registry('nh.clinical.notification.frequency')
+        cls.activity_pool = cls.registry('nh.activity')
+
+        def mock_ews_id(*args, **kwargs):
             return []
 
-        self.activity_pool._patch_method('search', mock_no_ews_id)
-        self.activity_pool._patch_method('browse', mock_no_ews_id)
+        cls.activity_pool._patch_method('search', mock_ews_id)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.activity_pool._revert_method('search')
+        super(TestReviewFrequencyNoEWS, cls).tearDownClass()
+
+    def setUp(self):
+        super(TestReviewFrequencyNoEWS, self).setUp()
+        self.activity = self.activity_pool.new(self.cr, self.uid, {
+            'data_model': 'nh.clinical.patient.observation'})
+
+    def test_no_ews(self):
 
         form_description = self.review_frequency_pool.get_form_description(
             self.cr, self.uid, 1, context=None)
