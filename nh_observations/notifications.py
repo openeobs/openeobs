@@ -151,12 +151,8 @@ class nh_clinical_notification_frequency(orm.Model):
     ]
 
     def get_form_description(self, cr, uid, patient_id, context=None):
-        # frequencies = [(15, 'Every 15 Minutes'), (30, 'Every 30 Minutes'),
-        #                (60, 'Every Hour'), (120, 'Every 2 Hours'),
-        #                (240, 'Every 4 Hours'), (360, 'Every 6 Hours'),
-        #                (480, 'Every 8 Hours')]
-        flist = copy.deepcopy(frequencies)
-        fd = copy.deepcopy(self._form_description)
+        freq_list = copy.deepcopy(frequencies)
+        form_desc = copy.deepcopy(self._form_description)
         activity_pool = self.pool['nh.activity']
         ews_ids = activity_pool.search(
             cr, uid,
@@ -167,15 +163,17 @@ class nh_clinical_notification_frequency(orm.Model):
                 ['state', '=', 'scheduled']
             ], order='sequence desc', context=context)
         if ews_ids:
-            f = activity_pool.browse(cr, uid, ews_ids[0],
-                                     context=context).data_ref.frequency
-            for freq_tuple in frequencies:
-                if freq_tuple[0] > f:
-                    flist.remove(freq_tuple)
-        for field in fd:
+            get_current_freq = activity_pool.browse(cr, uid, ews_ids[0],
+                                     context=context)
+            if get_current_freq:
+                current_freq = get_current_freq.data_ref.frequency
+                for freq_tuple in frequencies:
+                    if freq_tuple[0] > current_freq:
+                        freq_list.remove(freq_tuple)
+        for field in form_desc:
             if field['name'] == 'frequency':
-                field['selection'] = flist
-        return fd
+                field['selection'] = freq_list
+        return form_desc
 
 
 class nh_clinical_notification_doctor_assessment(orm.Model):
