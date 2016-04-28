@@ -164,8 +164,8 @@ class nh_clinical_notification_frequency(orm.Model):
             ], order='sequence desc', context=context)
         if ews_ids:
             get_current_freq = activity_pool.browse(cr, uid, ews_ids[0],
-                                     context=context)
-            if get_current_freq:
+                                                    context=context)
+            if get_current_freq and get_current_freq.data_ref:
                 current_freq = get_current_freq.data_ref.frequency
                 for freq_tuple in frequencies:
                     if freq_tuple[0] > current_freq:
