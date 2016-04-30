@@ -343,7 +343,7 @@ class ObservationReport(models.AbstractModel):
         )
         patient = self.process_patient_height_weight(patient, height_weight)
 
-        monitoring_dict = self.monitoring_dict
+        monitoring_dict = copy.deepcopy(self.monitoring_dict)
 
         monitoring = self.get_activity_data_from_dict(
             monitoring_dict,
