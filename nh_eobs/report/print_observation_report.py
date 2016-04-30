@@ -15,6 +15,15 @@ class ObservationReport(models.AbstractModel):
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
 
+    monitoring_dict = {
+        'targeto2': 'nh.clinical.patient.o2target',
+        'mrsa_history': 'nh.clinical.patient.mrsa',
+        'diabetes_history': 'nh.clinical.patient.diabetes',
+        'palliative_care_history': 'nh.clinical.patient.palliative_care',
+        'post_surgery_history': 'nh.clinical.patient.post_surgery',
+        'critical_care_history': 'nh.clinical.patient.critical_care'
+    }
+
     def get_activity_data(self, spell_id, model, start_time, end_time):
         cr, uid = self._cr, self._uid
         act_pool = self.pool['nh.activity']
@@ -334,14 +343,7 @@ class ObservationReport(models.AbstractModel):
         )
         patient = self.process_patient_height_weight(patient, height_weight)
 
-        monitoring_dict = {
-            'targeto2': 'nh.clinical.patient.o2target',
-            'mrsa_history': 'nh.clinical.patient.mrsa',
-            'diabetes_history': 'nh.clinical.patient.diabetes',
-            'palliative_care_history': 'nh.clinical.patient.palliative_care',
-            'post_surgery_history': 'nh.clinical.patient.post_surgery',
-            'critical_care_history': 'nh.clinical.patient.critical_care'
-        }
+        monitoring_dict = self.monitoring_dict
 
         monitoring = self.get_activity_data_from_dict(
             monitoring_dict,
