@@ -156,10 +156,10 @@ class ObservationReport(models.AbstractModel):
             time_generated
         )
 
-    def get_ews_observations(self, data):
+    def get_ews_observations(self, data, spell_activity_id):
         cr, uid = self._cr, self._uid
         ews_model = 'nh.clinical.patient.observation.ews'
-        ews = self.get_model_data(data.spell_id,
+        ews = self.get_model_data(spell_activity_id,
                                   ews_model,
                                   data.start_time, data.end_time)
         for observation in ews:
@@ -321,7 +321,7 @@ class ObservationReport(models.AbstractModel):
         patient['dob'] = helpers.convert_db_date_to_context_date(
             cr, uid, datetime.strptime(patient['dob'], dtf),
             '%d/%m/%Y', context=None)
-        ews = self.get_ews_observations(data)
+        ews = self.get_ews_observations(data, spell_activity_id)
         json_data = []
         table_ews = []
         for activity in ews:
