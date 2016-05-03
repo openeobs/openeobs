@@ -6,7 +6,7 @@ class NHMobileForm extends NHMobile
   constructor: () ->
     # find the form on the page
     @form = document.getElementsByTagName('form')?[0]
-    @form_timeout = 240*1000
+    @form_timeout = 600*1000
     ptn_name = document.getElementById('patientName')
     @patient_name_el = ptn_name.getElementsByTagName('a')[0]
     @patient_name = () ->
