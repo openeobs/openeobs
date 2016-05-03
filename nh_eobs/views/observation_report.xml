@@ -723,9 +723,9 @@
                                 <tbody>
                                     <t t-foreach="transfer_history" t-as="transfer">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="transfer['date_terminated']"/></td>
-                                            <td class="col-xs-2"><t t-esc="transfer['bed']"/></td>
-                                            <td class="col-xs-7"><t t-esc="transfer['ward']"/></td>
+                                            <td class="col-xs-3"><t t-if="'date_terminated' in transfer"><t t-esc="transfer['date_terminated']"/></t></td>
+                                            <td class="col-xs-2"><t t-if="'bed' in transfer"><t t-esc="transfer['bed']"/></t></td>
+                                            <td class="col-xs-7"><t t-if="'ward' in transfer"><t t-esc="transfer['ward']"/></t></td>
                                         </tr>
                                     </t>
                                 </tbody>
