@@ -406,7 +406,7 @@ NHMobileForm = (function(superClass) {
     this.validate = bind(this.validate, this);
     var ptn_name, ref, self;
     this.form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
-    this.form_timeout = 240 * 1000;
+    this.form_timeout = 600 * 1000;
     ptn_name = document.getElementById('patientName');
     this.patient_name_el = ptn_name.getElementsByTagName('a')[0];
     this.patient_name = function() {
