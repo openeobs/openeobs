@@ -28,7 +28,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
     _name = 'nh.clinical.patient.observation.ews'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['respiration_rate', 'indirect_oxymetry_spo2',
-                 'body_temperature', 'blood_pressure_systolic', 'pulse_rate']
+                 'body_temperature', 'blood_pressure_systolic', 'pulse_rate',
+                 'avpu_text', 'blood_pressure_diastolic',
+                 'oxygen_administration_flag']
     _num_fields = ['respiration_rate', 'indirect_oxymetry_spo2',
                    'body_temperature', 'blood_pressure_systolic',
                    'blood_pressure_diastolic', 'pulse_rate', 'flow_rate',
