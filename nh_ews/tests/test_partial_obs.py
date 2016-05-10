@@ -21,9 +21,9 @@ class TestPartialObservation(SingleTransactionCase):
     standard_combinations = list(product(*standard_values.values()))
 
     ews_keys = ['respiration_rate', 'indirect_oxymetry_spo2',
-            'oxygen_administration_flag', 'body_temperature',
-            'blood_pressure_systolic', 'blood_pressure_diastolic',
-            'pulse_rate', 'avpu_text']
+                'oxygen_administration_flag', 'body_temperature',
+                'blood_pressure_systolic', 'blood_pressure_diastolic',
+                'pulse_rate', 'avpu_text']
 
     @classmethod
     def setUpClass(cls):
@@ -35,7 +35,9 @@ class TestPartialObservation(SingleTransactionCase):
     def test_partial_obs(self):
         for combo in self.standard_combinations:
             def mock_ews_read(*args, **kwargs):
-                none_values = '[' + ', '.join(["'" + self.ews_keys[i] + "'" for i, j in enumerate(combo) if not j]) + ']'
+                none_values = '[' + ', '.join(
+                    ["'" + self.ews_keys[i] + "'" for i, j in enumerate(combo)
+                     if not j]) + ']'
                 return [
                     {
                         'id': '1',
@@ -51,7 +53,8 @@ class TestPartialObservation(SingleTransactionCase):
                     }
                 ]
             self.ews_pool._patch_method('read', mock_ews_read)
-            partial = self.ews_pool._is_partial(self.cr, self.uid, 1, None, None)['1']
+            partial = self.ews_pool._is_partial(self.cr, self.uid, 1, None,
+                                                None)['1']
             self.ews_pool._revert_method('read')
             if [self.ews_keys[i] for i, j in enumerate(combo) if not j]:
                 self.assertTrue(partial)
