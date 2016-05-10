@@ -222,7 +222,6 @@ class TestEWS(common.SingleTransactionCase):
                 self.assertFalse(
                     frequency_ids,
                     msg='Review frequency notification triggered')
-
             if nurse_notifications:
                 for n in nurse_notifications:
                     domain = [
