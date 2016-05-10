@@ -79,6 +79,45 @@ class nh_clinical_patient_observation_ews(orm.Model):
                      'groups': ['hca']}]],
                'risk': ['None', 'Low', 'Medium', 'High']}
 
+    def _is_partial(self, cr, uid, ids, field, args, context=None):
+        ids = ids if isinstance(ids, (tuple, list)) else [ids]
+        if not self._required:
+            return {id: False for id in ids}
+        res = {}
+        for obs in self.read(cr, uid, ids, ['none_values',
+                                            'oxygen_administration_flag',
+                                            'device_id',
+                                            'flow_rate',
+                                            'cpap_peep',
+                                            'niv_epap',
+                                            'niv_backup',
+                                            'niv_ipap',
+                                            'concentration'], context):
+            partial = bool(set(self._required) & set(eval(obs['none_values'])))
+            suppl_oxygen = obs.get('oxygen_administration_flag')
+            if not partial and suppl_oxygen:
+                device_id = obs.get('device_id', None)
+                if device_id:
+                    flow = obs.get('flow_rate', None)
+                    concentration = obs.get('concentration', None)
+                    if not flow and not concentration:
+                        partial = True
+                    if device_id[1] == 'CPAP' and not obs.get('cpap_peep'):
+                        partial = True
+                    if device_id[1] == 'NIV BiPAP':
+                        ipap = obs.get('niv_ipap')
+                        epap = obs.get('niv_epap')
+                        backup = obs.get('niv_backup')
+                        if not ipap or not epap or not backup:
+                            partial = True
+                else:
+                    partial = True
+            res.update(
+                {
+                    obs['id']: partial
+                })
+        return res
+
     def calculate_score(self, ews_data):
         """
         Computes the score and clinical risk values based on the NEWS
@@ -606,6 +645,11 @@ class nh_clinical_patient_observation_ews(orm.Model):
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         spell_activity_id = activity.parent_id.id
         self.handle_o2_devices(cr, uid, activity_id, context=context)
+
+        # redo the partialness?
+        partial = activity.data_ref._is_partial(activity.data_ref.ids, None)\
+            .get(activity.data_ref._ids[0])
+        activity.data_ref.update({'is_partial': partial})
 
         # TRIGGER NOTIFICATIONS
         if not activity.data_ref.is_partial:
