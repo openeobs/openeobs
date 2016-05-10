@@ -181,7 +181,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context):
-            if ews.is_partial:
+            partial = \
+                self._is_partial(cr, uid, ews.id, None, None).get(ews.id)
+            if partial:
                 res[ews.id] = {'score': False, 'three_in_one': False,
                                'clinical_risk': 'Unknown'}
             else:
@@ -646,8 +648,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         spell_activity_id = activity.parent_id.id
         self.handle_o2_devices(cr, uid, activity_id, context=context)
 
-        # redo the partialness?
-        partial = activity.data_ref._is_partial(activity.data_ref.ids, None)\
+        partial = activity.data_ref._is_partial(activity.data_ref.ids, None) \
             .get(activity.data_ref._ids[0])
         activity.data_ref.update({'is_partial': partial})
 
