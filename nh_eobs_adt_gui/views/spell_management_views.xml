@@ -91,12 +91,12 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" attrs="{'readonly': True}" options="{'no_open': True}" />
+                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}" />
-                            <field name="ward_id" attrs="{'readonly': True}" options="{'no_open': True}"/>
-                            <field name="date_started"/>
+                            <field name="location_id" placeholder="Select Ward" string="Admission Location" widget="selection" options="{'no_open': True}" domain="[['usage', '=', 'ward']]"/>
+                            <field name="start_date" widget="datetime"/>
                             <field name="code" attrs="{'readonly': True}" options="{'no_open': True}"/>
                         </group>
                         <notebook groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">
