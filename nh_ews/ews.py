@@ -653,7 +653,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         activity.data_ref.update({'is_partial': partial})
 
         # TRIGGER NOTIFICATIONS
-        if not activity.data_ref.is_partial:
+        if not partial:
             api_pool.trigger_notifications(cr, uid, {
                 'notifications': self._POLICY['notifications'][case],
                 'parent_id': spell_activity_id,
@@ -671,7 +671,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             cr, SUPERUSER_ID,
             {'creator_id': activity_id, 'parent_id': spell_activity_id},
             {'patient_id': activity.data_ref.patient_id.id})
-        if activity.data_ref.is_partial:
+        if partial:
             activity_pool.schedule(
                 cr, uid, next_activity_id,
                 date_scheduled=activity.date_scheduled, context=context)
