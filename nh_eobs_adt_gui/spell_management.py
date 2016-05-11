@@ -165,6 +165,12 @@ class nh_clinical_spellboard(orm.Model):
             'ref_doctor_ids': vals.get('ref_doctor_ids'),
             'con_doctor_ids': vals.get('con_doctor_ids')
         }, context=context)
+        api.admit_update(cr, uid, patient['other_identifier'], {
+            'date_started': vals.get('start_date'),
+            'start_date': vals.get('start_date'),
+            'patient_identifier': patient['patient_identifier'],
+            'location': location['code'],
+        })
         spell_activity_id = activity_pool.search(
             cr, uid, [['patient_id', '=', vals.get('patient_id')],
                       ['state', 'not in', ['completed', 'cancelled']],
@@ -172,6 +178,10 @@ class nh_clinical_spellboard(orm.Model):
             context=context)
         if not spell_activity_id:
             osv.except_osv('Error!', 'Spell does not exist after admission!')
+        activity_pool.write(cr, uid, spell_activity_id,
+                            {
+                                'date_started': vals.get('start_date')
+                            })
         return spell_activity_id
 
     def read(self, cr, uid, ids, fields=None, context=None,
