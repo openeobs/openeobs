@@ -68,6 +68,10 @@
     height: 25px;
 }
 
+.nhc_wardboard th > .oe_list_record_selector, .nhc_wardboard .oe_list_record_selector > input{
+    display: none;
+}
+
 .nh_eobs_overdue .oe_list_content td.oe_number{
     text-align: left !important;
 }

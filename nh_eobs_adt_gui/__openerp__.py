@@ -12,6 +12,7 @@
     'depends': ['nh_eobs'],
     'data': ['views/spell_management_views.xml',
              'views/menuitem.xml',
+             'views/spell_patient_views.xml',
              'security/ir.model.access.csv'],
     'application': True,
     'installable': True,

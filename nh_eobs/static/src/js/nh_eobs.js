@@ -1484,7 +1484,7 @@ openerp.nh_eobs = function (instance) {
         init: function (group, opts) {
             var self = this;
             this._super(group, opts);
-            if (this.dataset.model === 'nh.clinical.allocating' || this.dataset.model === 'nh.clinical.wardboard') {
+            if (this.dataset.model === 'nh.clinical.allocating') {
                 this.$current = $('<tbody>')
                     .delegate('td.oe_list_field_cell button', 'click', function (e) {
                         e.stopPropagation();
@@ -1496,14 +1496,41 @@ openerp.nh_eobs = function (instance) {
                         if ($target.attr('disabled')) {
                             return;
                         }
-                        //$target.attr('disabled', 'disabled');
                         $(self).trigger('action', [field.toString(), record_id, function (id) {
-                            //$target.removeAttr('disabled');
                             return self.reload_record(self.records.get(id));
                         }]);
                     })
             }
+            if (this.dataset.model === 'nh.clinical.wardboard') {
+                this.$current = $('<tbody>')
+                    .undelegate('td.oe_list_field_cell button', 'click')
+                    .delegate('td.oe_list_field_cell button', 'click', function (e) {
+                        e.stopPropagation();
+                        var $target = $(e.currentTarget),
+                            field = $target.closest('td').data('field'),
+                            $row = $target.closest('tr'),
+                            record_id = self.row_id($row);
+
+                        if ($target.attr('disabled')) {
+                            return;
+                        }
+                        $(self).trigger('action', [field.toString(), record_id, function (id) {
+                            return self.reload_record(self.records.get(id));
+                        }]);
+                    }).delegate('tr', 'click', function (e) {
+                        var row_id = self.row_id(e.currentTarget);
+                        if (row_id) {
+                            e.stopPropagation();
+                            if (!self.dataset.select_id(row_id)) {
+                                throw new Error(_t("Could not find id in dataset"));
+                            }
+                            self.row_clicked(e);
+                        }
+                    });
+            }
+
         }
+
     });
 
     // Adding date format dropdown to CSV import options (WI-2119)

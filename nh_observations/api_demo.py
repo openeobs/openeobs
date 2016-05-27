@@ -147,7 +147,10 @@ class nh_clinical_api_demo(orm.AbstractModel):
             adt_register_pool = self.pool['nh.clinical.adt.patient.register']
             adt_admit_pool = self.pool['nh.clinical.adt.patient.admit']
             reg_activity_ids = [adt_register_pool.create_activity(
-                cr, adt_uid, {}, {'other_identifier': 'hn_'+wcode+str(j)}
+                cr, adt_uid, {}, {
+                    'family_name': 'Testersen ' + str(j),
+                    'given_name': 'Test',
+                    'other_identifier': 'hn_'+wcode+str(j)}
             ) for j in range(patient_admit_count)]
             [activity_pool.complete(cr, adt_uid, register_act_id)
              for register_act_id in reg_activity_ids]

@@ -53,7 +53,7 @@ class TestApiDemo(TransactionCase):
         locations = [patient.current_location_id for patient in patients]
         self.assertEqual(len(locations), 2)
         for location in locations:
-            self.assertEqual(location.code, 'DISL-GUH')
+            self.assertIn(location.code, ['DISL-GUH', 'GDL0987654321'])
 
         # check spell is now completed
         for patient_id in patient_ids:

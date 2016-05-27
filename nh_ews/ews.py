@@ -118,6 +118,22 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 })
         return res
 
+    def _is_partial_search(self, cr, uid, obj, name, args, domain=None,
+                           context=None):
+            arg1, op, arg2 = args[0]
+            arg2 = bool(arg2)
+            all_ids = self.search(cr, uid, [])
+            is_partial_map = self._is_partial(
+                cr, uid, all_ids, 'is_partial', None, context=context)
+            partial_ews_ids = [key for key, value in is_partial_map.items()
+                               if value]
+            if arg2:
+                return [('id', 'in', [ews_id for ews_id in all_ids
+                                      if ews_id in partial_ews_ids])]
+            else:
+                return [('id', 'in', [ews_id for ews_id in all_ids
+                                      if ews_id not in partial_ews_ids])]
+
     def calculate_score(self, ews_data):
         """
         Computes the score and clinical risk values based on the NEWS
@@ -256,6 +272,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 'nh.clinical.patient.observation.ews': (
                     lambda self, cr, uid, ids, ctx: ids, [], 10)
             }),
+        'is_partial': fields.function(_is_partial, type='boolean',
+                                      fnct_search=_is_partial_search,
+                                      string='Is Partial?'),
         'respiration_rate': fields.integer('Respiration Rate'),
         'indirect_oxymetry_spo2': fields.integer('O2 Saturation'),
         'oxygen_administration_flag': fields.boolean(
@@ -648,12 +667,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         spell_activity_id = activity.parent_id.id
         self.handle_o2_devices(cr, uid, activity_id, context=context)
 
-        partial = activity.data_ref._is_partial(activity.data_ref.ids, None) \
-            .get(activity.data_ref._ids[0])
-        activity.data_ref.update({'is_partial': partial})
-
         # TRIGGER NOTIFICATIONS
-        if not partial:
+        if not activity.data_ref.is_partial:
             api_pool.trigger_notifications(cr, uid, {
                 'notifications': self._POLICY['notifications'][case],
                 'parent_id': spell_activity_id,
@@ -671,7 +686,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             cr, SUPERUSER_ID,
             {'creator_id': activity_id, 'parent_id': spell_activity_id},
             {'patient_id': activity.data_ref.patient_id.id})
-        if partial:
+        if activity.data_ref.is_partial:
             activity_pool.schedule(
                 cr, uid, next_activity_id,
                 date_scheduled=activity.date_scheduled, context=context)
