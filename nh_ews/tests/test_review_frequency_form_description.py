@@ -2,11 +2,11 @@
 from openerp.tests.common import SingleTransactionCase
 
 
-class TestReviewFrequency(SingleTransactionCase):
+class TestReviewFrequencyFormDesc(SingleTransactionCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestReviewFrequency, cls).setUpClass()
+        super(TestReviewFrequencyFormDesc, cls).setUpClass()
         cls.review_frequency_pool = \
             cls.registry('nh.clinical.notification.frequency')
         cls.activity_pool = cls.registry('nh.activity')
@@ -18,16 +18,16 @@ class TestReviewFrequency(SingleTransactionCase):
     @classmethod
     def tearDownClass(cls):
         cls.activity_pool._revert_method('search')
-        super(TestReviewFrequency, cls).tearDownClass()
+        super(TestReviewFrequencyFormDesc, cls).tearDownClass()
 
     def setUp(self):
-        super(TestReviewFrequency, self).setUp()
+        super(TestReviewFrequencyFormDesc, self).setUp()
         self.activity = self.activity_pool.new(self.cr, self.uid, {
             'data_model': 'nh.clinical.patient.observation'})
 
     def tearDown(self):
         self.activity_pool._revert_method('browse')
-        super(TestReviewFrequency, self).tearDown()
+        super(TestReviewFrequencyFormDesc, self).tearDown()
 
     def setUpMock(self, frequency):
         def mock_activity_browse(*args, **kwargs):

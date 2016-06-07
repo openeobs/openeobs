@@ -12,7 +12,6 @@ notifications inherit is also included here.
 from openerp.osv import orm, fields
 from openerp.addons.nh_observations.parameters import frequencies
 import logging
-import copy
 
 _logger = logging.getLogger(__name__)
 
@@ -84,9 +83,8 @@ class nh_clinical_notification_frequency(orm.Model):
         'observation': fields.text('Observation Model', required=True),
         'frequency': fields.selection(frequencies, 'Frequency')
     }
-    _notifications = [{'model': 'medical_team', 'groups': ['nurse']}]
+    _notifications = []
 
-    # This code depends on EWS being installed... wrong place to have it.
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         review_frequency = activity_pool.browse(
@@ -99,32 +97,13 @@ class nh_clinical_notification_frequency(orm.Model):
         obs_ids = activity_pool.search(
             cr, uid, domain, order='create_date desc, id desc',
             context=context)
-        obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
-        obs_pool = self.pool[review_frequency.data_ref.observation]
-        obs_pool.write(
-            cr, uid, obs.data_ref.id,
-            {'frequency': review_frequency.data_ref.frequency},
-            context=context)
-        creator = review_frequency.creator_id
-        creator_type = creator.data_ref._name
-        parent_type = creator.creator_id.data_ref._name \
-            if creator.creator_id else False
-        clinical_risk = creator.creator_id.data_ref.clinical_risk \
-            if parent_type == 'nh.clinical.patient.observation.ews' else False
-
-        trigger = creator_type == 'nh.clinical.notification.assessment' and \
-            parent_type == 'nh.clinical.patient.observation.ews' and \
-            clinical_risk == 'Low'
-        if trigger:
-            api_pool = self.pool['nh.clinical.api']
-            api_pool.trigger_notifications(cr, uid, {
-                'notifications': self._notifications,
-                'parent_id': review_frequency.parent_id.id,
-                'creator_id': activity_id,
-                'patient_id': review_frequency.data_ref.patient_id.id,
-                'model': review_frequency.data_ref.observation,
-                'group': 'nurse'
-            }, context=context)
+        if obs_ids:
+            obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
+            obs_pool = self.pool[review_frequency.data_ref.observation]
+            obs_pool.write(
+                cr, uid, obs.data_ref.id,
+                {'frequency': review_frequency.data_ref.frequency},
+                context=context)
         return super(nh_clinical_notification_frequency, self).complete(
             cr, uid, activity_id, context=context)
 
@@ -149,31 +128,6 @@ class nh_clinical_notification_frequency(orm.Model):
             ],
         }
     ]
-
-    def get_form_description(self, cr, uid, patient_id, context=None):
-        freq_list = copy.deepcopy(frequencies)
-        form_desc = copy.deepcopy(self._form_description)
-        activity_pool = self.pool['nh.activity']
-        ews_ids = activity_pool.search(
-            cr, uid,
-            [
-                ['patient_id', '=', patient_id],
-                ['parent_id.state', '=', 'started'],
-                ['data_model', '=', 'nh.clinical.patient.observation.ews'],
-                ['state', '=', 'scheduled']
-            ], order='sequence desc', context=context)
-        if ews_ids:
-            get_current_freq = activity_pool.browse(cr, uid, ews_ids[0],
-                                                    context=context)
-            if get_current_freq and get_current_freq.data_ref:
-                current_freq = get_current_freq.data_ref.frequency
-                for freq_tuple in frequencies:
-                    if freq_tuple[0] > current_freq:
-                        freq_list.remove(freq_tuple)
-        for field in form_desc:
-            if field['name'] == 'frequency':
-                field['selection'] = freq_list
-        return form_desc
 
 
 class nh_clinical_notification_doctor_assessment(orm.Model):

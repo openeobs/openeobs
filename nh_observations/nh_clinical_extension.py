@@ -70,6 +70,40 @@ class nh_clinical_api_extension(orm.AbstractModel):
         :rtype: bool
         """
         activity_pool = self.pool['nh.activity']
+        domain = [
+            ('patient_id', '=', patient_id),
+            ('state', 'not in', ['completed', 'cancelled']),
+            ('data_model', '=', activity_type)
+        ]
+        activity_ids = activity_pool.search(cr, uid, domain,
+                                            order='create_date desc, id desc',
+                                            context=context)
+        if activity_ids:
+            obs = activity_pool.browse(cr, uid, activity_ids[0],
+                                       context=context)
+            obs_pool = self.pool[activity_type]
+            obs_pool.write(cr, uid, obs.data_ref.id, {'frequency': frequency},
+                           context=context)
+        return True
+
+    def change_activity_frequency_notification(self, cr, uid, patient_id,
+                                               activity_type, frequency,
+                                               context=None):
+        """
+        Creates and completes a new
+        :mod:`rev frequency<notifications.nh_clinical_notification_frequency>`
+        task to update the frequency of the specified activity type.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id.
+        :type patient_id: int
+        :param activity_type: activity type ``_name`` attribute
+        :type activity_type: str
+        :param frequency: new frequency in minutes
+        :type frequency: int
+        :returns: ``True``
+        :rtype: bool
+        """
+        activity_pool = self.pool['nh.activity']
         spell_pool = self.pool['nh.clinical.spell']
         change_freq_pool = self.pool['nh.clinical.notification.frequency']
         domain = [
@@ -77,11 +111,11 @@ class nh_clinical_api_extension(orm.AbstractModel):
             ('state', '=', 'completed'),
             ('data_model', '=', activity_type)
         ]
-        activity_ids = activity_pool.search(
-            cr, uid, domain, order='create_date desc, id desc',
-            context=context)
-        spell_id = spell_pool.get_by_patient_id(
-            cr, uid, patient_id, context=context)
+        activity_ids = activity_pool.search(cr, uid, domain,
+                                            order='create_date desc, id desc',
+                                            context=context)
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id,
+                                                context=context)
         spell = spell_pool.browse(cr, uid, spell_id, context=context)
         if not activity_ids:
             creator_id = False
@@ -89,12 +123,9 @@ class nh_clinical_api_extension(orm.AbstractModel):
             creator_id = activity_ids[0]
         frequency_activity_id = change_freq_pool.create_activity(
             cr, SUPERUSER_ID,
-            {
-                'creator_id': creator_id, 'parent_id': spell.activity_id.id
-            }, {
-                'patient_id': patient_id, 'observation': activity_type,
-                'frequency': frequency
-            })
+            {'creator_id': creator_id, 'parent_id': spell.activity_id.id},
+            {'patient_id': patient_id, 'observation': activity_type,
+             'frequency': frequency})
         return activity_pool.complete(
             cr, uid, frequency_activity_id, context=context)
 

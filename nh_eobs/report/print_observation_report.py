@@ -156,6 +156,29 @@ class ObservationReport(models.AbstractModel):
             time_generated
         )
 
+    def get_triggered_actions(self, cr, uid, activity_id, activity_list=None):
+        """
+        Recursively get the triggered actions of the activity passed to it
+        and then it's children and so on
+        :param activity_id: The current activity under inspection
+        :param activity_list: the list to use
+        :return: list of activity ids
+        """
+        if not activity_list:
+            activity_list = []
+        activity_pool = self.pool['nh.activity']
+        created_ids = activity_pool.search(
+            cr, uid, [
+                ['creator_id', '=', activity_id],
+                ['data_model', '!=', 'nh.clinical.patient.observation.ews']
+            ])
+        if created_ids:
+            activity_list += created_ids
+            for created_id in created_ids:
+                self.get_triggered_actions(cr, uid, created_id,
+                                           activity_list=activity_list)
+        return activity_list
+
     def get_ews_observations(self, data, spell_activity_id):
         cr, uid = self._cr, self._uid
         ews_model = 'nh.clinical.patient.observation.ews'
@@ -163,8 +186,6 @@ class ObservationReport(models.AbstractModel):
                                   ews_model,
                                   data.start_time, data.end_time)
         for observation in ews:
-            triggered_actions_ids = self.pool['nh.activity'].search(
-                cr, uid, [['creator_id', '=', observation['id']]])
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
                 self.pretty_date_format
@@ -179,13 +200,9 @@ class ObservationReport(models.AbstractModel):
             observation['values']['o2_target'] = False
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
-            triggered_actions = []
-            for activity in self.pool['nh.activity'].read(
-                    cr, uid, triggered_actions_ids):
-                if activity['data_model'] != ews_model:
-                    triggered_actions.append(activity)
-            observation['triggered_actions'] = triggered_actions
-            for t in observation['triggered_actions']:
+            triggered_actions = self.pool['nh.activity'].read(
+                cr, uid, self.get_triggered_actions(observation['id']))
+            for t in triggered_actions:
                 ds = t.get('date_started', False)
                 dt = t.get('date_terminated', False)
                 if ds:
@@ -202,6 +219,7 @@ class ObservationReport(models.AbstractModel):
                             datetime.strptime(t['date_terminated'], dtf),
                             self.pretty_date_format
                         )
+            observation['triggered_actions'] = triggered_actions
         return ews
 
     @staticmethod
@@ -241,11 +259,13 @@ class ObservationReport(models.AbstractModel):
         start_time = False
         end_time = False
         if data.start_time:
-            start_time = datetime.strptime(data.start_time, dtf)
-            data.start_time = start_time
+            if isinstance(data.start_time, str):
+                start_time = datetime.strptime(data.start_time, dtf)
+                data.start_time = start_time
         if data.end_time:
-            end_time = datetime.strptime(data.end_time, dtf)
-            data.end_time = end_time
+            if isinstance(data.end_time, str):
+                end_time = datetime.strptime(data.end_time, dtf)
+                data.end_time = end_time
 
         # - get the start and end date of spell
         spell_start = helpers.convert_db_date_to_context_date(

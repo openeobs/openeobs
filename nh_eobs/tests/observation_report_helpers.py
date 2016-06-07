@@ -1,5 +1,4 @@
 from openerp.tests.common import TransactionCase
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from datetime import timedelta
 from datetime import datetime
 import copy
@@ -386,7 +385,7 @@ class ObservationReportHelpers(TransactionCase):
         r = r_model.browse(cr, uid, r_model.search(cr, uid, domain))
         self.report_model = 'report.%s' % r.report_name
         try:
-            registry(self.report_model)
+            self.report_pool = registry(self.report_model)
         except KeyError:
             self.failureException('Unable to load Observation Report')
 
@@ -584,6 +583,11 @@ class ObservationReportHelpers(TransactionCase):
         def company_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.company_name_values)
 
+        def mock_triggered_actions(*args, **kwargs):
+            return [18]
+
+        self.report_pool._patch_method('get_triggered_actions',
+                                       mock_triggered_actions)
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
         self.activity_pool._patch_method('search', activity_pool_mock_search)
@@ -618,15 +622,8 @@ class ObservationReportHelpers(TransactionCase):
         self.partner_pool._patch_method('read', partner_pool_mock_read)
         self.company_pool._patch_method('read', company_pool_mock_read)
         self.spell_id = 1
-
-        self.start_time = datetime.strftime(
-            datetime.now() + timedelta(days=5),
-            dtf
-        )
-        self.end_time = datetime.strftime(
-            datetime.now() + timedelta(days=5),
-            dtf
-        )
+        self.start_time = datetime.now() + timedelta(days=5)
+        self.end_time = datetime.now() + timedelta(days=5)
 
     def tearDown(self):
         self.spell_pool._revert_method('read')
@@ -655,4 +652,5 @@ class ObservationReportHelpers(TransactionCase):
         self.partner_pool._revert_method('read')
         self.company_pool._revert_method('read')
         self.o2level_pool._revert_method('browse')
+        self.report_pool._revert_method('get_triggered_actions')
         super(ObservationReportHelpers, self).tearDown()

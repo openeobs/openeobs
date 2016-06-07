@@ -828,18 +828,18 @@
                                                                     <table class="compact-data col-xs-12">
                                                                         <tr>
                                                                             <td colspan="2" class="header col-xs-12">
-                                                                                <h4><t t-esc="task['summary']"/></h4>
+                                                                                <h4><t t-if="'summary' in task and task['summary']"><t t-esc="task['summary']"/></t></h4>
                                                                             </td>
                                                                         </tr>
-                                                                        <t t-if="task['notes']">
+                                                                        <t t-if="'notes' in task and task['notes']">
                                                                             <tr>
                                                                                 <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
                                                                             </tr>
                                                                         </t>
                                                                         <tr>
-                                                                            <td class="col-xs-6"><t t-if="task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                                                                            <td class="col-xs-6"><t t-if="task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
-                                                                                <t t-if="task['date_terminated']==False">
+                                                                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
+                                                                            <td class="col-xs-6"><t t-if="'date_terminated' in task and task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
+                                                                                <t t-if="'date_terminated' in task and task['date_terminated']==False">
                                                                                         Task still in progress
                                                                                 </t>
                                                                             </td>

@@ -1,6 +1,7 @@
 from . import observation_report_helpers as helpers
 from bs4 import BeautifulSoup
 from datetime import datetime
+from openerp.osv import fields
 
 
 class TestObservationTableRendering(helpers.ObservationReportHelpers):
@@ -51,7 +52,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.ews_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -198,7 +201,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.ews_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -452,7 +457,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.weight_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -500,7 +507,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.gcs_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -556,7 +565,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.blood_sugar_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -602,7 +613,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.pain_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -654,7 +667,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.blood_product_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -724,7 +739,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.stools_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -870,7 +887,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.pbp_data['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -952,7 +971,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.o2target_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -1025,7 +1046,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Inserted',
                          'Incorrect inserted table header')
         date_start = self.o2target_values['date_started']
-        test_date_start = datetime.strptime(date_start, self.odoo_date_format)\
+        test_date_start = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_start, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(inserted_column.text,
                          test_date_start,
@@ -1091,7 +1114,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Inserted',
                          'Incorrect inserted table header')
         date_start = self.o2target_values['date_started']
-        test_date_start = datetime.strptime(date_start, self.odoo_date_format)\
+        test_date_start = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_start, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(inserted_column.text,
                          test_date_start,
@@ -1100,7 +1125,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Removed',
                          'Incorrect removed table header')
         date_term = self.o2target_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(removed_column.text,
                          test_date_term,
@@ -1153,7 +1180,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         date_term = self.move_values['date_terminated']
-        test_date_term = datetime.strptime(date_term, self.odoo_date_format)\
+        test_date_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(date_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_date_term,
@@ -1254,7 +1283,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'User',
                          'Incorrect user table header')
         mrsa_term = self.mrsa_values['date_terminated']
-        test_mrsa_term = datetime.strptime(mrsa_term, self.odoo_date_format)\
+        test_mrsa_term = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(mrsa_term, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(mrsa_date.text,
                          test_mrsa_term,
@@ -1269,10 +1300,11 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.mrsa_values['terminate_uid'][1],
                          'Incorrect mrsa user table header')
         diabetes_term = self.diabetes_values['date_terminated']
-        test_diabetes_term = datetime.strptime(
-            diabetes_term,
-            self.odoo_date_format
-        ).strftime(self.pretty_date_format)
+        test_diabetes_term = fields.datetime.context_timestamp(
+            self.cr, self.uid, datetime.strptime(
+                diabetes_term,
+                self.odoo_date_format
+            )).strftime(self.pretty_date_format)
         self.assertEqual(diabetes_date.text,
                          test_diabetes_term,
                          'Incorrect diabetes date table column')
@@ -1286,10 +1318,11 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.diabetes_values['terminate_uid'][1],
                          'Incorrect diabetes user table header')
         palliative_care_term = self.palliative_care_values['date_terminated']
-        test_palliative_care_term = datetime.strptime(
-            palliative_care_term,
-            self.odoo_date_format
-        ).strftime(self.pretty_date_format)
+        test_palliative_care_term = fields.datetime.context_timestamp(
+            self.cr, self.uid, datetime.strptime(
+                palliative_care_term,
+                self.odoo_date_format
+            )).strftime(self.pretty_date_format)
         self.assertEqual(palliative_care_date.text,
                          test_palliative_care_term,
                          'Incorrect palliative_care date table column')
@@ -1307,10 +1340,11 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.palliative_care_values['terminate_uid'][1],
                          'Incorrect palliative_care user table header')
         post_surgery_term = self.post_surgery_values['date_terminated']
-        test_post_surgery_term = datetime.strptime(
-            post_surgery_term,
-            self.odoo_date_format
-        ).strftime(self.pretty_date_format)
+        test_post_surgery_term = fields.datetime.context_timestamp(
+            self.cr, self.uid, datetime.strptime(
+                post_surgery_term,
+                self.odoo_date_format
+            )).strftime(self.pretty_date_format)
         self.assertEqual(post_surgery_date.text,
                          test_post_surgery_term,
                          'Incorrect post_surgery date table column')
@@ -1328,10 +1362,11 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          self.post_surgery_values['terminate_uid'][1],
                          'Incorrect post_surgery user table header')
         critical_care_term = self.critical_care_values['date_terminated']
-        test_critical_care_term = datetime.strptime(
-            critical_care_term,
-            self.odoo_date_format
-        ).strftime(self.pretty_date_format)
+        test_critical_care_term = fields.datetime.context_timestamp(
+            self.cr, self.uid, datetime.strptime(
+                critical_care_term,
+                self.odoo_date_format
+            )).strftime(self.pretty_date_format)
         self.assertEqual(critical_care_date.text,
                          test_critical_care_term,
                          'Incorrect critical_care date table column')
@@ -1390,7 +1425,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect ews date table header')
         ews_date = self.ews_values['date_terminated']
-        test_ews_date = datetime.strptime(ews_date, self.odoo_date_format)\
+        test_ews_date = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(ews_date, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(date_column.text,
                          test_ews_date,
@@ -1427,7 +1464,9 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
             'Incorrect action user table row'
         )
         act_date = self.triggered_ews_data['date_terminated']
-        test_act_date = datetime.strptime(act_date, self.odoo_date_format)\
+        test_act_date = fields.datetime.context_timestamp(
+            self.cr, self.uid,
+            datetime.strptime(act_date, self.odoo_date_format))\
             .strftime(self.pretty_date_format)
         self.assertEqual(action_date.text.strip(),
                          'Date: {0}'.format(test_act_date),
