@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <!-- Form View for Open-eObs Settings -->
+        <record id="nh_eobs_settings" model="ir.ui.view">
+            <field name="name">Open-eObs Settings</field>
+            <field name="model">nh.clinical.config.settings</field>
+            <field name="arch" type="xml">
+                <form string="Open-eObs Configuration" class="oe_form_configuration">
+                    <header>
+                        <button string="Save" type="object"
+                            name="execute" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" type="object"
+                            name="cancel" class="oe_link"/>
+                    </header>
+                    <sheet>
+                        <group string="General" colspan="4" col="2">
+                            <field name="discharge_transfer_period" string="Days to keep patients in Discharge/Transfer lists"/>
+                            <!--<field name="workload_bucket_period" string="Time (in minutes) between buckets in Workload view"/>-->
+                            <field name="activity_period" string="Activity List Period (in minutes)"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action to load Open-eObs settings page -->
+        <record id="nh_eobs_settings_action" model="ir.actions.act_window">
+            <field name="name">Open-eObs Settings</field>
+            <field name="res_model">nh.clinical.config.settings</field>
+            <field name="view_id" ref="nh_eobs_settings"/>
+            <field name="view_mode">form</field>
+            <field name="target">inline</field>
+        </record>
+
+        <!-- Add Open-eObs settings to menu -->
+        <menuitem id="nh_eobs_settings_menu" name="Open-eObs Settings" parent="base.menu_config" action="nh_eobs_settings_action"/>
+    </data>
+</openerp>

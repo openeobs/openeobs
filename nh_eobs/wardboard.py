@@ -4,8 +4,10 @@
 Defines models for the `Wardboard` view.
 """
 from openerp.osv import orm, fields, osv
-import logging
 from openerp import SUPERUSER_ID
+import logging
+from . import sql_statements as nh_eobs_sql
+
 
 _logger = logging.getLogger(__name__)
 
@@ -1158,6 +1160,14 @@ class nh_clinical_wardboard(orm.Model):
         return True
 
     def init(self, cr):
+        settings_pool = self.pool['nh.clinical.settings']
+        dt_period = \
+            settings_pool.get_setting(cr, 1, 'discharge_transfer_period')
+        last_discharge_users = \
+            nh_eobs_sql.get_last_discharge_users('{0}d'.format(dt_period))
+        last_transfer_users = \
+            nh_eobs_sql.get_last_transfer_users('{0}d'.format(dt_period))
+        wardboard = nh_eobs_sql.get_wardboard('{0}d'.format(dt_period))
         cr.execute("""
 
 drop view if exists wb_activity_ranked cascade;
@@ -1507,172 +1517,12 @@ create or replace view last_movement_users as(
     group by spell.id
 );
 
-create or replace view last_discharge_users as(
-    select
-        activity.spell_id as spell_id,
-        array_agg(distinct users.id) as user_ids,
-        array_agg(distinct users2.id) as ward_user_ids
-    from wb_spell_ranked activity
-    inner join wb_discharge_ranked discharge
-        on discharge.parent_id = activity.id
-        and discharge.rank = 1 and discharge.state = 'completed'
-    inner join nh_clinical_patient_discharge discharge_data
-        on discharge_data.id = discharge.data_id
-    inner join nh_clinical_location location
-        on location.id = discharge_data.location_id
-    inner join ward_locations wl on wl.id = location.id
-    left join user_location_rel ulrel on ulrel.location_id = location.id
-    left join res_users users on users.id = ulrel.user_id
-    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
-    left join res_users users2 on users2.id = ulrel2.user_id
-    where now() at time zone 'UTC' - discharge.date_terminated < interval '3d'
-    and activity.rank = 1 and activity.state = 'completed'
-    group by activity.spell_id
-);
+create or replace view last_discharge_users as({last_discharge_users});
 
-create or replace view last_transfer_users as(
-    select
-        activity.spell_id as spell_id,
-        array_agg(distinct users.id) as user_ids,
-        array_agg(distinct users2.id) as ward_user_ids
-    from wb_spell_ranked activity
-    inner join wb_transfer_ranked transfer
-        on transfer.parent_id = activity.id and transfer.rank = 1
-        and transfer.state = 'completed'
-    inner join nh_clinical_patient_transfer transfer_data
-        on transfer_data.id = transfer.data_id
-    inner join nh_clinical_location location
-        on location.id = transfer_data.origin_loc_id
-    inner join ward_locations wl on wl.id = location.id
-    left join user_location_rel ulrel on ulrel.location_id = location.id
-    left join res_users users on users.id = ulrel.user_id
-    left join user_location_rel ulrel2 on ulrel2.location_id = wl.ward_id
-    left join res_users users2 on users2.id = ulrel2.user_id
-    where now() at time zone 'UTC' - transfer.date_terminated < interval '3d'
-    and activity.state = 'started' and activity.rank = 1
-    group by activity.spell_id
-);
+create or replace view last_transfer_users as({last_transfer_users});
 
 create or replace view
-nh_clinical_wardboard as(
-    select distinct
-        spell.id as id,
-        spell.patient_id as patient_id,
-        spell_activity.id as spell_activity_id,
-        spell_activity.date_started as spell_date_started,
-        spell_activity.date_terminated as spell_date_terminated,
-        spell.pos_id,
-        spell.code as spell_code,
-        spell_activity.state as spell_state,
-        case
-            when extract(days from justify_hours(now() at time zone 'UTC'
-                - spell_activity.date_started)) > 0 then extract(days from
-                justify_hours(now() at time zone 'UTC' -
-                spell_activity.date_started)) || ' day(s) '
-            else ''
-        end || to_char(justify_hours(now() at time zone 'UTC' -
-            spell_activity.date_started), 'HH24:MI') time_since_admission,
-        spell.move_date,
-        patient.family_name,
-        patient.given_name,
-        patient.middle_names,
-        case
-            when patient.given_name is null then ''
-            else upper(substring(patient.given_name from 1 for 1))
-        end as initial,
-        coalesce(patient.family_name, '') || ', ' ||
-            coalesce(patient.given_name, '') || ' ' ||
-            coalesce(patient.middle_names,'') as full_name,
-        location.name as location,
-        location.id as location_id,
-        wlocation.ward_id as ward_id,
-        patient.sex,
-        patient.dob,
-        patient.other_identifier as hospital_number,
-        case char_length(patient.patient_identifier) = 10
-            when true then substring(patient.patient_identifier from 1 for 3)
-                || ' ' || substring(patient.patient_identifier from 4 for 3) ||
-                ' ' || substring(patient.patient_identifier from 7 for 4)
-            else patient.patient_identifier
-        end as nhs_number,
-        extract(year from age(now(), patient.dob)) as age,
-        ews0.next_diff_polarity ||
-        case
-            when ews0.date_scheduled is not null then
-              case when extract(days from (greatest(now() at time zone 'UTC',
-                ews0.date_scheduled) - least(now() at time zone 'UTC',
-                ews0.date_scheduled))) > 0
-                then extract(days from (greatest(now() at time zone 'UTC',
-                    ews0.date_scheduled) - least(now() at time zone 'UTC',
-                    ews0.date_scheduled))) || ' day(s) '
-                else '' end ||
-              to_char(justify_hours(greatest(now() at time zone 'UTC',
-                ews0.date_scheduled) - least(now() at time zone 'UTC',
-                ews0.date_scheduled)), 'HH24:MI') || ' hours'
-            else to_char((interval '0s'), 'HH24:MI')
-        end as next_diff,
-        case ews0.frequency < 60
-            when true then ews0.frequency || ' min(s)'
-            else ews0.frequency/60 || ' hour(s) ' || ews0.frequency -
-                ews0.frequency/60*60 || ' min(s)'
-        end as frequency,
-        ews0.date_scheduled,
-        case when ews1.id is null then 'none' else ews1.score::text end
-            as ews_score_string,
-        ews1.score as ews_score,
-        case
-            when ews1.id is not null and ews2.id is not null
-                and (ews1.score - ews2.score) = 0 then 'same'
-            when ews1.id is not null and ews2.id is not null
-                and (ews1.score - ews2.score) > 0 then 'up'
-            when ews1.id is not null and ews2.id is not null
-                and (ews1.score - ews2.score) < 0 then 'down'
-            when ews1.id is null and ews2.id is null then 'none'
-            when ews1.id is not null and ews2.id is null then 'first'
-            when ews1.id is null and ews2.id is not null then 'no latest'
-        end as ews_trend_string,
-        case when ews1.id is null then 'NoScore' else ews1.clinical_risk end
-            as clinical_risk,
-        ews1.score - ews2.score as ews_trend,
-        param.height,
-        param.o2target_level_id as o2target,
-        case when param.mrsa then 'yes' else 'no' end as mrsa,
-        case when param.diabetes then 'yes' else 'no' end as diabetes,
-        case when pbp.status then 'yes' else 'no' end as pbp_monitoring,
-        case when weight.status then 'yes' else 'no' end as weight_monitoring,
-        case when param.status then 'yes' else 'no' end as palliative_care,
-        case
-            when param.post_surgery and param.post_surgery_date > now() -
-                interval '4h' then 'yes'
-            else 'no'
-        end as post_surgery,
-        case
-            when param.critical_care and param.critical_care_date > now() -
-                interval '24h' then 'yes'
-            else 'no'
-        end as critical_care,
-        param.uotarget_vol,
-        param.uotarget_unit,
-        consulting_doctors.names as consultant_names,
-        case
-            when spell_activity.date_terminated > now() - interval '3d'
-                and spell_activity.state = 'completed' then true
-            else false
-        end as recently_discharged
-
-    from nh_clinical_spell spell
-    inner join nh_activity spell_activity
-        on spell_activity.id = spell.activity_id
-    inner join nh_clinical_patient patient on spell.patient_id = patient.id
-    left join nh_clinical_location location on location.id = spell.location_id
-    left join ews1 on spell.id = ews1.spell_id
-    left join ews2 on spell.id = ews2.spell_id
-    left join ews0 on spell.id = ews0.spell_id
-    left join ward_locations wlocation on wlocation.id = location.id
-    left join consulting_doctors on consulting_doctors.spell_id = spell.id
-    left join weight on weight.spell_id = spell.id
-    left join pbp pbp on pbp.spell_id = spell.id
-    left join param on param.spell_id = spell.id
-    order by location.name
-);
-""")
+nh_clinical_wardboard as({wardboard});
+""".format(last_discharge_users=last_discharge_users,
+           last_transfer_users=last_transfer_users,
+           wardboard=wardboard))

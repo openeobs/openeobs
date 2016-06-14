@@ -225,7 +225,7 @@
                         <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
@@ -868,7 +868,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_discharged" >
-            <field name="name">Discharged in the last 72 hours</field>
+            <field name="name">Recently Discharged</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
@@ -891,7 +891,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_wardboard_transferred">
-            <field name="name">Transferred in the last 72 hours</field>
+            <field name="name">Recently Transferred</field>
             <field name="res_model">nh.clinical.wardboard</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>

@@ -1,20 +1,26 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import os
+
+# Misc Tests
 from . import test_helpers
-from . import test_observation_report_data_dict
 from . import test_workload
+
+# Test Observation Reports
+from . import test_observation_report_data_dict
 from . import test_observation_report
 from . import test_observation_report_create_filter
 from . import test_observation_report_structure
 from . import test_observation_table_structure
 from . import test_observation_report_get_triggered_actions
-if not os.environ.get('TRAVIS'):
-    # Due to the inability to install nh_eobs_demo before Travis tests this
-    # test can only be run locally - TODO: Fix this!
-    from . import test_staff_allocation_integration
-    from . import test_staff_allocation_multi_ward
-    from . import test_staff_reallocation_integration
-    from . import test_staff_reallocation_multi_ward
+
+# Test Settings
+from . import test_api_get_activities_settings
+from . import test_eobs_settings
+from . import test_wardboard_discharge_transfer_settings
+
+# Test SQL statements
+from . import test_sql_statements
+
+# Disabled tests
 # from . import test_api
 # from . import test_api_demo
 # from . import test_wardboard

@@ -78,3 +78,5 @@ doctor_access_overdue,doctor:access_overdue,model_nh_clinical_overdue,nh_clinica
 doctor_access_doctor_activities,doctor:access_doctor_activities,model_nh_clinical_doctor_activities,nh_clinical.group_nhc_doctor,0,0,0,0
 doctor_access_ward_dashboard,doctor:access_ward_dashboard,model_nh_eobs_ward_dashboard,nh_clinical.group_nhc_doctor,1,1,1,0
 doctor_access_bed_dashboard,doctor:access_bed_dashboard,model_nh_eobs_bed_dashboard,nh_clinical.group_nhc_doctor,1,1,1,0
+,,,,,,,
+access_nh_clinical_settings,access_nh_clinical_settings,model_nh_clinical_settings,,1,1,1,1

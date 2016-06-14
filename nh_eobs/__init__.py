@@ -1,4 +1,6 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from . import settings
+from . import sql_statements
 from . import wardboard
 from . import workload
 from . import placement

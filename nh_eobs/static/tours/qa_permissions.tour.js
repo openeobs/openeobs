@@ -50,11 +50,11 @@
             },
             {
                 title: "They can't see the last discharged patient list",
-                waitNot: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: "They can't see the last transferred patient list",
-                waitNot: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: "They can manage user accounts",
@@ -188,11 +188,11 @@
             },
             {
                 title: _t("They can't see the last discharged patient list"),
-                waitNot: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: _t("They can't see the last transferred patient list"),
-                waitNot: "span.oe_menu_text:contains('Transferred (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Transferred')"
             },
             {
                 title: _t("They can't manage user accounts"),
@@ -287,11 +287,11 @@
             },
             {
                 title: _t("They can't see the last discharged patient list"),
-                waitNot: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: _t("They can't see the last transferred patient list"),
-                waitNot: "span.oe_menu_text:contains('Transferred (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Transferred')"
             },
             {
                 title: _t("They can't manage user accounts"),
@@ -406,11 +406,11 @@
             },
             {
                 title: _t("They can't see the last discharged patient list"),
-                waitNot: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: _t("They can't see the last transferred patient list"),
-                waitNot: "span.oe_menu_text:contains('Transferred (last 72 hours)')"
+                waitNot: "span.oe_menu_text:contains('Recently Transferred')"
             },
             {
                 title: _t("They can't manage user accounts"),
@@ -484,11 +484,11 @@
             },
             {
                 title: _t("They can see the last discharged patient list"),
-                waitFor: "span.oe_menu_text:contains('Discharged (last 72 hours)')"
+                waitFor: "span.oe_menu_text:contains('Recently Discharged')"
             },
             {
                 title: _t("They can see the last transferred patient list"),
-                waitFor: "span.oe_menu_text:contains('Transferred (last 72 hours)')"
+                waitFor: "span.oe_menu_text:contains('Recently Transferred')"
             },
             {
                 title: _t("They can see the ward dashboard"),

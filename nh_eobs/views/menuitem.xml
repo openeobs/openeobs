@@ -53,14 +53,14 @@
                   sequence="2"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Discharged (last 72 hours)"
+        <menuitem name="Recently Discharged"
                   id="menu_eobs_discharged_patients"
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard_discharged"
                   sequence="3"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <menuitem name="Transferred (last 72 hours)"
+        <menuitem name="Recently Transferred"
                   id="menu_eobs_transferred_patients"
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard_transferred"

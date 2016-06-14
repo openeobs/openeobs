@@ -237,11 +237,14 @@ class nh_eobs_api(orm.AbstractModel):
             for specific attributes returned for each activity
         :rtype: list
         """
+        settings_pool = self.pool['nh.clinical.settings']
+        activity_period = settings_pool.get_setting(cr, uid, 'activity_period')
+        activity_time = dt.now()+td(minutes=activity_period)
 
         domain = [('id', 'in', ids)] if ids else [
             ('state', 'not in', ['completed', 'cancelled']), '|',
-            ('date_scheduled', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
-            ('date_deadline', '<=', (dt.now()+td(minutes=60)).strftime(DTF)),
+            ('date_scheduled', '<=', activity_time.strftime(DTF)),
+            ('date_deadline', '<=', activity_time.strftime(DTF)),
             ('user_ids', 'in', [uid]),
             '|', ('user_id', '=', False), ('user_id', '=', uid)
         ]
