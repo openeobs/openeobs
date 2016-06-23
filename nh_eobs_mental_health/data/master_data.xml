@@ -3,7 +3,7 @@
     <data noupdate="1">
         <!-- Workload Buckets -->
         <record model="nh.clinical.settings.workload" id="workload_bucket_480_plus_remain">
-            <field name="name">480+ minutes remain</field>
+            <field name="name">361+ minutes remain</field>
             <field name="sequence">1</field>
         </record>
 
@@ -28,7 +28,7 @@
         </record>
 
         <record model="nh.clinical.settings.workload" id="workload_bucket_240_plus_late">
-            <field name="name">240+ minutes late</field>
+            <field name="name">121+ minutes late</field>
             <field name="sequence">6</field>
         </record>
 
