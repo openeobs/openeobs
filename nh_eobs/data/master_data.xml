@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+        <record id="nh_eobs_context" model="nh.clinical.context">
+            <field name="name">eobs</field>
+            <field name="models">['nh.clinical.location']</field>
+        </record>
+        <record id="prescribe_url" model="ir.config_parameter">
+            <field name="key">nh.eobs.prescribe.url</field>
+            <field name="value">http://openep.thinkmed.marand.si:8181/rest/htmldocument/view?config=%7b%22language%22:%22en%22,%22theme%22:%22fresh%22,%22debug%22:false,%22header%22:%7b%22url%22:%22%22,%22context%22:%22rest%22,%22controller%22:%22medications%22%7d,%22view%22:%22therapyView%22,%22data%22:%7b%22paneMode%22:%22FLOW%22,%22userId%22:6127355,%22currentUserAsCareProfessional%22:%7b%22name%22:%22Jeremy%20Hunt%22,%20%22id%22:10%7d,%22patientId%22:1,%22editAllowed%22:true,%22orgTemplatesEditAllowed%22:true%7d%7d&amp;debug=true</field>
+        </record>
+
+        <!-- Workload Buckets -->
+        <record model="nh.clinical.settings.workload" id="workload_bucket_46_plus_remain">
+            <field name="name">46+ minutes remain</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_31_45_remain">
+            <field name="name">31-45 minutes remain</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_16_30_remain">
+            <field name="name">16-30 minutes remain</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_0_15_remain">
+            <field name="name">0-15 minutes remain</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_1_15_late">
+            <field name="name">1-15 minutes late</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_16_plus_late">
+            <field name="name">16+ minutes late</field>
+            <field name="sequence">6</field>
+        </record>
+
+        <!-- Open-eObs Settings Object -->
+        <record model="nh.clinical.settings" id="openeobs_settings_defaults">
+            <field name="activity_period">60</field>
+            <field name="discharge_transfer_period">3</field>
+            <field name="workload_bucket_period" eval="[(6, 0, [ref('workload_bucket_46_plus_remain'),ref('workload_bucket_31_45_remain'),ref('workload_bucket_16_30_remain'),ref('workload_bucket_0_15_remain'),ref('workload_bucket_1_15_late'),ref('workload_bucket_16_plus_late')])]"></field>
+        </record>
+
+        <record model="nh.clinical.config.settings" id="openeobs_config_settings_defaults">
+            <field name="activity_period">60</field>
+            <field name="discharge_transfer_period">3</field>
+            <field name="workload_bucket_period" eval="[(6, 0, [ref('workload_bucket_46_plus_remain'),ref('workload_bucket_31_45_remain'),ref('workload_bucket_16_30_remain'),ref('workload_bucket_0_15_remain'),ref('workload_bucket_1_15_late'),ref('workload_bucket_16_plus_late')])]"></field>
+        </record>
+    </data>
+</openerp>

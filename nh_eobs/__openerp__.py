@@ -15,7 +15,7 @@
                 'nh_pbp',
                 'nh_stools',
                 'nh_graphs'],
-    'data': ['eobs_data.xml',
+    'data': ['data/master_data.xml',
              'observation_report.xml',
              'wizard/cancel_notifications_view.xml',
              'wizard/print_observation_report_view.xml',

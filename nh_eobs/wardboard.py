@@ -6,7 +6,6 @@ Defines models for the `Wardboard` view.
 from openerp.osv import orm, fields, osv
 from openerp import SUPERUSER_ID
 import logging
-from . import sql_statements as nh_eobs_sql
 
 
 _logger = logging.getLogger(__name__)
@@ -1161,6 +1160,7 @@ class nh_clinical_wardboard(orm.Model):
 
     def init(self, cr):
         settings_pool = self.pool['nh.clinical.settings']
+        nh_eobs_sql = self.pool['nh.clinical.sql']
         dt_period = \
             settings_pool.get_setting(cr, 1, 'discharge_transfer_period')
         last_discharge_users = \

@@ -1,13 +1,18 @@
 from openerp.tests.common import TransactionCase
-import openerp.addons.nh_eobs.sql_statements as nh_eobs_sql
 
 
 class TestSqlStatements(TransactionCase):
 
+    def setUp(self):
+        super(TestSqlStatements, self).setUp()
+        self.sql_pool = self.registry('nh.clinical.sql')
+        self.settings_pool = self.registry('nh.clinical.settings')
+        self.workload_pool = self.registry('nh.clinical.settings.workload')
+
     def test_last_discharge_users(self):
         test_sql = ' '.join(
             [sql.strip() for sql in
-             nh_eobs_sql.get_last_discharge_users('3d').split('\n') if sql])
+             self.sql_pool.get_last_discharge_users('3d').split('\n') if sql])
         proper_sql = 'SELECT activity.spell_id AS spell_id, ' \
                      'array_agg(DISTINCT users.id) AS user_ids, ' \
                      'array_agg(DISTINCT users2.id) AS ward_user_ids FROM ' \
@@ -34,7 +39,7 @@ class TestSqlStatements(TransactionCase):
     def test_last_transfer_users(self):
         test_sql = ' '.join(
             [sql.strip() for sql in
-             nh_eobs_sql.get_last_transfer_users('3d').split('\n') if sql])
+             self.sql_pool.get_last_transfer_users('3d').split('\n') if sql])
         proper_sql = 'SELECT activity.spell_id AS spell_id, ' \
                      'array_agg(DISTINCT users.id) AS user_ids, ' \
                      'array_agg(DISTINCT users2.id) AS ward_user_ids FROM ' \
@@ -60,7 +65,7 @@ class TestSqlStatements(TransactionCase):
     def test_wardboard(self):
         test_sql = ' '.join(
             [sql.strip() for sql in
-             nh_eobs_sql.get_wardboard('10d').split('\n') if sql])
+             self.sql_pool.get_wardboard('10d').split('\n') if sql])
         proper_sql = 'SELECT DISTINCT spell.id AS id, spell.patient_id AS ' \
                      'patient_id, spell_activity.id AS spell_activity_id, ' \
                      'spell_activity.date_started AS spell_date_started, ' \
@@ -159,4 +164,109 @@ class TestSqlStatements(TransactionCase):
                      'spell.id LEFT JOIN pbp pbp ON pbp.spell_id = ' \
                      'spell.id LEFT JOIN param ON param.spell_id = ' \
                      'spell.id ORDER BY location.name'
+        self.assertEqual(test_sql, proper_sql)
+
+    def test_workload_case_generator(self):
+        """
+        Test that when given a list of valid workload buckets it generates a
+        list of case statements
+        """
+        buckets = [{'sequence': 1, 'name': '46+ minutes remain'},
+                   {'sequence': 2, 'name': '45-31 minutes remain'},
+                   {'sequence': 3, 'name': '16+ minutes late'}]
+        cases = self.sql_pool.generate_workload_cases(buckets)
+        self.assertEqual(cases[0], 'WHEN proximity > 46 THEN 1')
+        self.assertEqual(cases[1], 'WHEN proximity BETWEEN 45 AND 31 THEN 2')
+        self.assertEqual(cases[2], 'WHEN proximity < -16 THEN 3')
+
+    def test_workload_case_generator_raises(self):
+        """
+        Test that the when given a list that has an invalid bucket it raises
+        an exception
+        """
+        buckets = [{'sequence': 1, 'name': 'a minutes remain'}]
+        with self.assertRaises(ValueError) as case_err:
+            self.sql_pool.generate_workload_cases(buckets)
+        self.assertEqual(case_err.exception.message,
+                         'Time period in position 1 is invalid')
+
+    def test_workload_sql_view_cases(self):
+        """
+        Test that the SQL view renders the cases in the select
+        """
+        buckets = [{'sequence': 1, 'name': '46+ minutes remain'},
+                   {'sequence': 2, 'name': '45-31 minutes remain'},
+                   {'sequence': 3, 'name': '16+ minutes late'}]
+
+        test_sql = ' '.join(
+            [sql.strip() for sql in
+             self.sql_pool.get_workload(buckets).split('\n') if sql])
+        proper_sql = 'WITH activity AS ( ' \
+                     'SELECT activity.id AS id, spell.id AS activity_id, ' \
+                     'extract (EPOCH FROM (coalesce(activity.date_scheduled,' \
+                     ' activity.date_deadline) - now() AT TIME ZONE \'UTC\')' \
+                     ')::INT/60 AS proximity, activity.summary AS summary, ' \
+                     'activity.state AS state, activity.user_id AS user_id, ' \
+                     'coalesce(activity.date_scheduled, ' \
+                     'activity.date_deadline) AS date_scheduled, ' \
+                     'activity.data_model AS data_model, ' \
+                     'patient.other_identifier AS patient_other_id, ' \
+                     'patient.patient_identifier AS nhs_number, ' \
+                     'patient.family_name AS family_name, ' \
+                     'CASE WHEN patient.given_name IS NULL THEN \'\' ELSE ' \
+                     'upper(substring(patient.given_name FROM 1 FOR 1)) ' \
+                     'END AS initial, ward.id AS ward_id FROM nh_activity ' \
+                     'activity INNER JOIN nh_clinical_patient patient ' \
+                     'ON activity.patient_id = patient.id INNER JOIN ' \
+                     'nh_clinical_location bed ON activity.location_id = ' \
+                     'bed.id INNER JOIN nh_clinical_location ward ON ' \
+                     'bed.parent_id = ward.id INNER JOIN nh_activity spell ' \
+                     'ON spell.data_model = \'nh.clinical.spell\' AND ' \
+                     'spell.patient_id = activity.patient_id WHERE ' \
+                     'activity.state != \'completed\' AND activity.state !=' \
+                     ' \'cancelled\' AND spell.state = \'started\') SELECT ' \
+                     'id, activity_id, CASE WHEN proximity > 46 THEN 1 ' \
+                     'WHEN proximity BETWEEN 45 AND 31 THEN 2 ' \
+                     'WHEN proximity < -16 THEN 3 ELSE NULL ' \
+                     'END AS proximity_interval, summary, state, user_id, ' \
+                     'date_scheduled, data_model, patient_other_id, ' \
+                     'nhs_number, ward_id, family_name, initial FROM activity'
+        self.assertEqual(test_sql, proper_sql)
+
+    def test_workload_sql_view_no_cases(self):
+        """
+        Test that the SQL view renders the cases in the select
+        """
+        buckets = []
+        test_sql = ' '.join(
+            [sql.strip() for sql in
+             self.sql_pool.get_workload(buckets).split('\n') if sql])
+        proper_sql = 'WITH activity AS ( ' \
+                     'SELECT activity.id AS id, spell.id AS activity_id, ' \
+                     'extract (EPOCH FROM (coalesce(activity.date_scheduled,' \
+                     ' activity.date_deadline) - now() AT TIME ZONE \'UTC\')' \
+                     ')::INT/60 AS proximity, activity.summary AS summary, ' \
+                     'activity.state AS state, activity.user_id AS user_id, ' \
+                     'coalesce(activity.date_scheduled, ' \
+                     'activity.date_deadline) AS date_scheduled, ' \
+                     'activity.data_model AS data_model, ' \
+                     'patient.other_identifier AS patient_other_id, ' \
+                     'patient.patient_identifier AS nhs_number, ' \
+                     'patient.family_name AS family_name, ' \
+                     'CASE WHEN patient.given_name IS NULL THEN \'\' ELSE ' \
+                     'upper(substring(patient.given_name FROM 1 FOR 1)) ' \
+                     'END AS initial, ward.id AS ward_id FROM nh_activity ' \
+                     'activity INNER JOIN nh_clinical_patient patient ' \
+                     'ON activity.patient_id = patient.id INNER JOIN ' \
+                     'nh_clinical_location bed ON activity.location_id = ' \
+                     'bed.id INNER JOIN nh_clinical_location ward ON ' \
+                     'bed.parent_id = ward.id INNER JOIN nh_activity spell ' \
+                     'ON spell.data_model = \'nh.clinical.spell\' AND ' \
+                     'spell.patient_id = activity.patient_id WHERE ' \
+                     'activity.state != \'completed\' AND activity.state !=' \
+                     ' \'cancelled\' AND spell.state = \'started\') SELECT ' \
+                     'id, activity_id, 10 AS proximity_interval, summary, ' \
+                     'state, user_id, date_scheduled, data_model, ' \
+                     'patient_other_id, nhs_number, ward_id, family_name, ' \
+                     'initial FROM activity'
         self.assertEqual(test_sql, proper_sql)

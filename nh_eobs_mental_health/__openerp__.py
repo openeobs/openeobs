@@ -10,7 +10,7 @@
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_eobs'],
-    'data': [],
+    'data': ['data/master_data.xml'],
     'qweb': [],
     'application': True,
     'installable': True,

@@ -13,6 +13,7 @@ from . import test_staff_reallocation_multi_ward
 # Test Settings
 from . import test_api_get_activities_settings_integration
 from . import test_wardboard_discharge_transfer_settings_integration
+from . import test_workload_bucket_settings_integration
 
 # Disabled tests
 # from . import test_demo

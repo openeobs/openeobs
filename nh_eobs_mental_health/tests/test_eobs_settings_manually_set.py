@@ -8,6 +8,7 @@ class TestEobsSettings(SingleTransactionCase):
         super(TestEobsSettings, cls).setUpClass()
         cls.settings_pool = cls.registry('nh.clinical.settings')
         cls.config_pool = cls.registry('nh.clinical.config.settings')
+        cls.workload_pool = cls.registry('nh.clinical.settings.workload')
 
         def mock_settings_read(*args, **kwargs):
             context = kwargs.get('context')
@@ -29,20 +30,46 @@ class TestEobsSettings(SingleTransactionCase):
             if context and context.get('test') == 'wizard':
                 return cls.config_pool.new(cls.cr, cls.uid, {
                     'discharge_transfer_period': 10,
-                    'workload_bucket_period': 120,
+                    'workload_bucket_period': [],
                     'activity_period': 600,
                 })
             return mock_config_browse.origin(*args, **kwargs)
 
+        def mock_config_read(*args, **kwargs):
+            context = kwargs.get('context')
+            if context and context.get('test') == 'wizard':
+                return [{
+                    'discharge_transfer_period': 10,
+                    'workload_bucket_period': [1, 2, 3],
+                    'activity_period': 600
+                }]
+            return []
+
+        def mock_workload_read(*args, **kwargs):
+            context = kwargs.get('context')
+            if context and context.get('test') == 'wizard':
+                return [
+                    {'sequence': 1, 'name': '480+ minutes remain'},
+                    {'sequence': 2, 'name': '241-360 minutes remain'},
+                    {'sequence': 3, 'name': '121-240 minutes remain'},
+                    {'sequence': 4, 'name': '0-120 minutes remain'},
+                    {'sequence': 5, 'name': '1-120 minutes late'},
+                    {'sequence': 6, 'name': '240+ minutes late'}
+                ]
+
         cls.settings_pool._patch_method('read', mock_settings_read)
         cls.settings_pool._patch_method('write', mock_settings_write)
         cls.config_pool._patch_method('browse', mock_config_browse)
+        cls.config_pool._patch_method('read', mock_config_read)
+        cls.workload_pool._patch_method('read', mock_workload_read)
 
     @classmethod
     def tearDownClass(cls):
         cls.settings_pool._revert_method('read')
         cls.settings_pool._revert_method('write')
         cls.config_pool._revert_method('browse')
+        cls.config_pool._revert_method('read')
+        cls.workload_pool._revert_method('read')
         super(TestEobsSettings, cls).tearDownClass()
 
     def test_init_non_manual(self):

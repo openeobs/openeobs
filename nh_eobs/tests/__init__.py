@@ -16,6 +16,7 @@ from . import test_observation_report_get_triggered_actions
 from . import test_api_get_activities_settings
 from . import test_eobs_settings
 from . import test_wardboard_discharge_transfer_settings
+from . import test_workload_bucket_settings
 
 # Test SQL statements
 from . import test_sql_statements

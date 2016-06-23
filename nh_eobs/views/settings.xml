@@ -18,8 +18,13 @@
                     <sheet>
                         <group string="General" colspan="4" col="2">
                             <field name="discharge_transfer_period" string="Days to keep patients in Discharge/Transfer lists"/>
-                            <!--<field name="workload_bucket_period" string="Time (in minutes) between buckets in Workload view"/>-->
                             <field name="activity_period" string="Activity List Period (in minutes)"/>
+                            <field name="workload_bucket_period" string="Time (in minutes) between buckets in Workload view" widget="many2many">
+                            <tree string="Bucket order" editable="bottom">
+                                <field name="sequence" widget="handle"/>
+			                    <field name="name"/>
+			                </tree>
+                            </field>
                         </group>
                     </sheet>
                 </form>

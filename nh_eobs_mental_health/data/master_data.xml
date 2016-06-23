@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<openerp>
+    <data noupdate="1">
+        <!-- Workload Buckets -->
+        <record model="nh.clinical.settings.workload" id="workload_bucket_480_plus_remain">
+            <field name="name">480+ minutes remain</field>
+            <field name="sequence">1</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_241_360_remain">
+            <field name="name">241-360 minutes remain</field>
+            <field name="sequence">2</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_121_240_remain">
+            <field name="name">121-240 minutes remain</field>
+            <field name="sequence">3</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_0_120_remain">
+            <field name="name">0-120 minutes remain</field>
+            <field name="sequence">4</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_1_120_late">
+            <field name="name">1-120 minutes late</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <record model="nh.clinical.settings.workload" id="workload_bucket_240_plus_late">
+            <field name="name">240+ minutes late</field>
+            <field name="sequence">6</field>
+        </record>
+
+        <record model="nh.clinical.settings" id="openeobs_settings_defaults">
+            <field name="activity_period">360</field>
+            <field name="discharge_transfer_period">10</field>
+            <field name="workload_bucket_period" eval="[(6, 0, [ref('workload_bucket_480_plus_remain'),ref('workload_bucket_241_360_remain'),ref('workload_bucket_121_240_remain'),ref('workload_bucket_0_120_remain'),ref('workload_bucket_1_120_late'),ref('workload_bucket_240_plus_late')])]"></field>
+        </record>
+
+        <record model="nh.clinical.config.settings" id="openeobs_config_settings_defaults">
+            <field name="activity_period">360</field>
+            <field name="discharge_transfer_period">10</field>
+            <field name="workload_bucket_period" eval="[(6, 0, [ref('workload_bucket_480_plus_remain'),ref('workload_bucket_241_360_remain'),ref('workload_bucket_121_240_remain'),ref('workload_bucket_0_120_remain'),ref('workload_bucket_1_120_late'),ref('workload_bucket_240_plus_late')])]"></field>
+        </record>
+    </data>
+</openerp>
