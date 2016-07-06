@@ -26,10 +26,10 @@ env:
   - LINT_CHECK="1" TESTS="0"
 
 # Test nh_graph GraphLib JS
-  - GRAPHJS="1"
+#  - GRAPHJS="1"
 
 # Test nh_eob_mobile NHMobile JS
-  - MOBJS="1"
+#  - MOBJS="1"
 
 # Check all the observation types together
   - ODOO_REPO="valdecdev/odoo" TESTS="1"
