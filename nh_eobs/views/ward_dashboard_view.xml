@@ -91,7 +91,7 @@
                             <page string="Patients Waiting">
                                 <field name="waiting_patient_ids">
                                     <tree version="7.0" editable="0" create="0">
-                                        <field name="display_name" readonly="1"/>
+                                        <field name="name" readonly="1"/>
                                         <field name="other_identifier" readonly="1"/>
                                         <field name="patient_identifier" readonly="1"/>
                                     </tree>
