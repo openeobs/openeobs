@@ -51,7 +51,7 @@ route_list = [
     Route('calculate_obs_score',
           '/observation/score/<observation>/', methods=['POST']),
 
-    Route('json_partial_reasons', '/ews/partial_reasons/'),
+    Route('json_partial_reasons', '/<observation>/partial_reasons/'),
     Route('routes', '/routes/')
 ]
 
@@ -453,13 +453,15 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
     @http.route(**route_manager.expose_route('json_partial_reasons'))
     def get_partial_reasons(self, *args, **kw):
-        ews_pool = request.registry('nh.clinical.patient.observation.ews')
+        observation = kw.get('observation')
+        obs_pool = request.registry(
+            'nh.clinical.patient.observation.{0}'.format(observation))
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
             title='Reason for partial observation',
             description='Please state reason for submitting '
                         'partial observation',
-            data=ews_pool._partial_reasons
+            data=obs_pool._partial_reasons
         )
         return request.make_response(
             response_json,
