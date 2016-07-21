@@ -248,6 +248,19 @@ class nh_eobs_api(orm.AbstractModel):
             ('user_ids', 'in', [uid]),
             '|', ('user_id', '=', False), ('user_id', '=', uid)
         ]
+        return self.collect_activities(cr, uid, domain, context=context)
+
+    def collect_activities(self, cr, uid, domain, context=None):
+        """
+        Get activities from the database for a given domain
+        :param cr: odoo cursor
+        :param uid: user to perform search as
+        :param domain: domain to look for
+        :param context: odoo context
+        :returns: list of dictionaries containing activities. See source
+            for specific attributes returned for each activity
+        :rtype: list
+        """
         activity_pool = self.pool['nh.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
