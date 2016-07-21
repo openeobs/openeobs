@@ -949,14 +949,14 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].register(
             cr, uid, patient_id, data, context=context)
 
-    def admit(self, cr, uid, patient_id, data, context=None):
+    def admit(self, cr, uid, hospital_number, data, context=None):
         """
         Extends :meth:`admit()<api.nh_clinical_api.admit>`,
         admitting a patient into a specified
         :class:`location<base.nh_clinical_location>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that must contain a
             ``location`` key
         :type data: dict
@@ -965,7 +965,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].admit(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
         return res
 
     def admit_update(self, cr, uid, patient_id, data, context=None):
