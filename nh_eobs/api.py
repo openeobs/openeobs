@@ -708,7 +708,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of patient dictionaries
         :rtype: list
         """
-
         if ids:
             domain = [
                 ('patient_id', 'in', ids),
@@ -724,7 +723,17 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', 'nh.clinical.spell'),
                 ('user_ids', 'in', [uid]),  # filter user responsibility
             ]
+        return self.collect_patients(cr, uid, domain, context=context)
 
+    def collect_patients(self, cr, uid, domain, context=None):
+        """
+        Collect patients for a given domain and return SQL output
+        :param cr: odoo cursor
+        :param uid: user ID for user doing operation
+        :param domain: search domain to use
+        :param context: ODoo context
+        :return: list of dicts
+        """
         activity_pool = self.pool['nh.activity']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
