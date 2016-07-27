@@ -757,9 +757,11 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.display_partial_reasons = function(self) {
-    var form_type;
+    var form_type, observation, partials_url;
     form_type = self.form.getAttribute('data-source');
-    return Promise.when(this.call_resource(this.urls.json_partial_reasons())).then(function(rdata) {
+    observation = self.form.getAttribute('data-type');
+    partials_url = this.urls.json_partial_reasons(observation);
+    return Promise.when(this.call_resource(partials_url)).then(function(rdata) {
       var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
       server_data = rdata[0];
       data = server_data.data;

@@ -786,7 +786,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
                     var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
                     var promise = new Promise();
-                    if (url == 'http://localhost:8069/mobile/ews/partial_reasons/') {
+                    if (url == 'http://localhost:8069/mobile/test/partial_reasons/') {
                         var partial_reasons = new NHMobileData({
                             status: 'success',
                             title: 'Reason for partial observation',

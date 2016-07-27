@@ -277,7 +277,9 @@ class NHMobileForm extends NHMobile
 
   display_partial_reasons: (self) =>
     form_type = self.form.getAttribute('data-source')
-    Promise.when(@call_resource(@.urls.json_partial_reasons())).then (rdata) ->
+    observation = self.form.getAttribute('data-type')
+    partials_url = @.urls.json_partial_reasons(observation)
+    Promise.when(@call_resource(partials_url)).then (rdata) ->
       server_data = rdata[0]
       data = server_data.data
       options = ''
