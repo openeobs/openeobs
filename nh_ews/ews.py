@@ -152,13 +152,22 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         score = 0
         three_in_one = False
-        resp_rate = ews_data.get('respiration_rate')
-        oxy_sat = ews_data.get('indirect_oxymetry_spo2')
-        temp = ews_data.get('body_temperature')
-        bp_sys = ews_data.get('blood_pressure_systolic')
-        pulse = ews_data.get('pulse_rate')
-        suppl_oxy = ews_data.get('oxygen_administration_flag')
-        avpu = ews_data.get('avpu', '')
+        if isinstance(ews_data, dict):
+            resp_rate = ews_data.get('respiration_rate')
+            oxy_sat = ews_data.get('indirect_oxymetry_spo2')
+            temp = ews_data.get('body_temperature')
+            bp_sys = ews_data.get('blood_pressure_systolic')
+            pulse = ews_data.get('pulse_rate')
+            suppl_oxy = ews_data.get('oxygen_administration_flag')
+            avpu = ews_data.get('avpu_text', '')
+        else:
+            resp_rate = ews_data.respiration_rate
+            oxy_sat = ews_data.indirect_oxymetry_spo2
+            temp = ews_data.body_temperature
+            bp_sys = ews_data.blood_pressure_systolic
+            pulse = ews_data.pulse_rate
+            suppl_oxy = ews_data.oxygen_administration_flag
+            avpu = ews_data.avpu_text
 
         if resp_rate:
             aux = int(self._RR_RANGES['scores'][bisect.bisect_left(
