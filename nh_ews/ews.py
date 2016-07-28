@@ -152,39 +152,50 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         score = 0
         three_in_one = False
+        resp_rate = ews_data.get('respiration_rate')
+        oxy_sat = ews_data.get('indirect_oxymetry_spo2')
+        temp = ews_data.get('body_temperature')
+        bp_sys = ews_data.get('blood_pressure_systolic')
+        pulse = ews_data.get('pulse_rate')
+        suppl_oxy = ews_data.get('oxygen_administration_flag')
+        avpu = ews_data.get('avpu', '')
 
-        aux = int(self._RR_RANGES['scores'][bisect.bisect_left(
-            self._RR_RANGES['ranges'], ews_data['respiration_rate'])])
-        three_in_one = three_in_one or aux == 3
-        score += aux
+        if resp_rate:
+            aux = int(self._RR_RANGES['scores'][bisect.bisect_left(
+                self._RR_RANGES['ranges'], resp_rate)])
+            three_in_one = three_in_one or aux == 3
+            score += aux
 
-        aux = int(self._O2_RANGES['scores'][bisect.bisect_left(
-            self._O2_RANGES['ranges'], ews_data['indirect_oxymetry_spo2'])])
-        three_in_one = three_in_one or aux == 3
-        score += aux
+        if oxy_sat:
+            aux = int(self._O2_RANGES['scores'][bisect.bisect_left(
+                self._O2_RANGES['ranges'], oxy_sat)])
+            three_in_one = three_in_one or aux == 3
+            score += aux
 
-        aux = int(self._BT_RANGES['scores'][bisect.bisect_left(
-            self._BT_RANGES['ranges'], ews_data['body_temperature'])])
-        three_in_one = three_in_one or aux == 3
-        score += aux
+        if temp:
+            aux = int(self._BT_RANGES['scores'][bisect.bisect_left(
+                self._BT_RANGES['ranges'], temp)])
+            three_in_one = three_in_one or aux == 3
+            score += aux
 
-        aux = int(self._BP_RANGES['scores'][bisect.bisect_left(
-            self._BP_RANGES['ranges'], ews_data['blood_pressure_systolic'])])
-        three_in_one = three_in_one or aux == 3
-        score += aux
+        if bp_sys:
+            aux = int(self._BP_RANGES['scores'][bisect.bisect_left(
+                self._BP_RANGES['ranges'], bp_sys)])
+            three_in_one = three_in_one or aux == 3
+            score += aux
 
-        aux = int(self._PR_RANGES['scores'][bisect.bisect_left(
-            self._PR_RANGES['ranges'], ews_data['pulse_rate'])])
-        three_in_one = three_in_one or aux == 3
-        score += aux
+        if pulse:
+            aux = int(self._PR_RANGES['scores'][bisect.bisect_left(
+                self._PR_RANGES['ranges'], pulse)])
+            three_in_one = three_in_one or aux == 3
+            score += aux
 
-        if 'oxygen_administration_flag' in ews_data and \
-                ews_data['oxygen_administration_flag']:
-            score += 2 if ews_data['oxygen_administration_flag'] else 0
+        if suppl_oxy:
+            score += 2
 
-        score += 3 if ews_data['avpu_text'] in ['V', 'P', 'U'] else 0
-        three_in_one = True if ews_data['avpu_text'] in ['V', 'P', 'U'] \
-            else three_in_one
+        if avpu in ['V', 'P', 'U']:
+            score += 3
+            three_in_one = True
 
         case = int(self._POLICY['case'][bisect.bisect_left(
             self._POLICY['ranges'], score)])
