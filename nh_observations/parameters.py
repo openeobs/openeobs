@@ -20,20 +20,6 @@ from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 _logger = logging.getLogger(__name__)
 
-frequencies = [
-    (15, 'Every 15 Minutes'),
-    (30, 'Every 30 Minutes'),
-    (60, 'Every Hour'),
-    (120, 'Every 2 Hours'),
-    (240, 'Every 4 Hours'),
-    (360, 'Every 6 Hours'),
-    (480, 'Every 8 Hours'),
-    (600, 'Every 10 Hours'),
-    (720, 'Every 12 Hours'),
-    (1440, 'Every Day')
-]
-
-
 class nh_clinical_patient_mrsa(orm.Model):
     """
     Represents the action of setting the

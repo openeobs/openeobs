@@ -10,7 +10,7 @@ The abstract definition of a notification from which all other
 notifications inherit is also included here.
 """
 from openerp.osv import orm, fields
-from openerp.addons.nh_observations.parameters import frequencies
+from openerp.addons.nh_observations import frequencies
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ class nh_clinical_notification_frequency(orm.Model):
     _description = 'Review Frequency'
     _columns = {
         'observation': fields.text('Observation Model', required=True),
-        'frequency': fields.selection(frequencies, 'Frequency')
+        'frequency': fields.selection(frequencies.as_list(), 'Frequency')
     }
     _notifications = []
 
@@ -111,7 +111,7 @@ class nh_clinical_notification_frequency(orm.Model):
         {
             'name': 'frequency',
             'type': 'selection',
-            'selection': frequencies,
+            'selection': frequencies.as_list(),
             'label': 'Observation frequency',
             'initially_hidden': False,
             'on_change': [

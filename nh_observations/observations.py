@@ -9,7 +9,7 @@ The abstract definition of an observation from which all other
 observations inherit is also included here.
 """
 from openerp.osv import orm, fields, osv
-from openerp.addons.nh_observations.parameters import frequencies
+from openerp.addons.nh_observations import frequencies
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import SUPERUSER_ID
@@ -97,7 +97,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                                       string='Is Partial?'),
         'none_values': fields.text('Non-updated required fields'),
         'null_values': fields.text('Non-updated numeric fields'),
-        'frequency': fields.selection(frequencies, 'Frequency'),
+        'frequency': fields.selection(frequencies.as_list(), 'Frequency'),
         'partial_reason': fields.selection(_partial_reasons,
                                            'Reason if partial observation')
     }

@@ -5,7 +5,7 @@
 Warning Score policy triggers.
 """
 from openerp.osv import orm
-from openerp.addons.nh_observations.parameters import frequencies
+from openerp.addons.nh_observations import frequencies
 import logging
 import copy
 _logger = logging.getLogger(__name__)
@@ -121,6 +121,7 @@ class NHClinicalNotificationFrequency(orm.Model):
                     creator_type = creator.data_ref._name
                     parent_type = parent.data_ref._name
 
+                    # TODO Does this condition need to be here? Can we create notifications for all models?
                     if creator_type == 'nh.clinical.notification.assessment' \
                         and parent_type == 'nh.clinical.patient.observation' \
                             '.ews' and clinical_risk == 'Low':
@@ -137,7 +138,7 @@ class NHClinicalNotificationFrequency(orm.Model):
         return res
 
     def get_form_description(self, cr, uid, patient_id, context=None):
-        freq_list = copy.deepcopy(frequencies)
+        freq_list = copy.deepcopy(frequencies.as_list())
         form_desc = copy.deepcopy(self._form_description)
         activity_pool = self.pool['nh.activity']
         ews_ids = activity_pool.search(
@@ -153,7 +154,7 @@ class NHClinicalNotificationFrequency(orm.Model):
                                                     context=context)
             if get_current_freq and get_current_freq.data_ref:
                 current_freq = get_current_freq.data_ref.frequency
-                for freq_tuple in frequencies:
+                for freq_tuple in frequencies.as_list():
                     if freq_tuple[0] > current_freq:
                         freq_list.remove(freq_tuple)
         for field in form_desc:

@@ -174,7 +174,9 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 d_values = {
                     'patient_id': values.get('patient_id')
                 }
-                if n['model'] == 'frequency' or n['model'] == 'select_frequency':
+                if n['model'] == 'frequency' \
+                        or n['model'] == 'select_frequency' \
+                        or n['model'] == 'weekly_frequency_agreed':
                     activity_pool = self.pool['nh.activity']
                     domain = [
                         ('patient_id', '=', values.get('patient_id')),
