@@ -425,13 +425,14 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         # Route Manager
         route_under_test = route_manager.get_route('json_partial_reasons')
         self.assertIsInstance(route_under_test, Route)
+        url_under_test = route_under_test.url.replace('<observation>', 'ews')
 
         # Access the route
         test_resp = requests.get(
             '{0}{1}{2}'.format(
                 route_manager.BASE_URL,
                 route_manager.URL_PREFIX,
-                route_under_test.url
+                url_under_test
             ),
             cookies=self.auth_resp.cookies
         )
