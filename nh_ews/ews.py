@@ -169,6 +169,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
             suppl_oxy = ews_data.oxygen_administration_flag
             avpu = ews_data.avpu_text
 
+        # If empty observation being evaluated then return None for all values
+        if not any([resp_rate, oxy_sat, temp, bp_sys, pulse, suppl_oxy, avpu]):
+            return {'score': None, 'three_in_one': None, 'clinical_risk': None}
+
         if resp_rate:
             aux = int(self._RR_RANGES['scores'][bisect.bisect_left(
                 self._RR_RANGES['ranges'], resp_rate)])
