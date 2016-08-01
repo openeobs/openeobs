@@ -18,7 +18,9 @@ import logging
 from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+
 _logger = logging.getLogger(__name__)
+
 
 class nh_clinical_patient_mrsa(orm.Model):
     """

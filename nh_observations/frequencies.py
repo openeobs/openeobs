@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A single place for different frequency values to be read from.
 Values are tuples with the time in minutes and a description.
@@ -14,6 +15,7 @@ DAILY = (1440, 'Daily')
 TWICE_WEEKLY = (5040, 'Twice weekly')
 WEEKLY = (10080, 'Weekly')
 
+
 def as_list():
     return [
         EVERY_15_MINUTES,
@@ -28,6 +30,7 @@ def as_list():
         TWICE_WEEKLY,
         WEEKLY
     ]
+
 
 def minutes_only():
     return [minutes for minutes, _ in as_list()]

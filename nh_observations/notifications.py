@@ -1,5 +1,5 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `notifications.py` defines a set of activity types to serve as
 informative reminders for the users that some action needs to take

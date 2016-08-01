@@ -121,7 +121,8 @@ class NHClinicalNotificationFrequency(orm.Model):
                     creator_type = creator.data_ref._name
                     parent_type = parent.data_ref._name
 
-                    # TODO Does this condition need to be here? Can we create notifications for all models?
+                    # TODO Does this condition need to be here?
+                    # TODO Can we create notifications for all models?
                     if creator_type == 'nh.clinical.notification.assessment' \
                         and parent_type == 'nh.clinical.patient.observation' \
                             '.ews' and clinical_risk == 'Low':
