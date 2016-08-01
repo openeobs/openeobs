@@ -22,12 +22,12 @@ class NHEobsMentalHealthSettings(orm.Model):
         existing_rec = self.read(cr, 1, 1, context=context)
         mental_health_buckets = workload_pool.search(cr, 1, [
             ['name', 'in', [
-                '360+ minutes remain',
+                '361+ minutes remain',
                 '241-360 minutes remain',
                 '121-240 minutes remain',
                 '0-120 minutes remain',
                 '1-120 minutes late',
-                '120+ minutes late'
+                '121+ minutes late'
             ]]])
         defaults = self._defaults
         bucket_objs = workload_pool.read(cr, 1, mental_health_buckets)

@@ -1,6 +1,7 @@
 from openerp.tests.common import SingleTransactionCase
 from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+import re
 
 
 class TestWorkloadIntegration(SingleTransactionCase):
@@ -16,6 +17,7 @@ class TestWorkloadIntegration(SingleTransactionCase):
         self.settings_pool = self.registry('nh.clinical.settings')
         self.config_pool = self.registry('nh.clinical.config.settings')
         self.location_pool = self.registry('nh.clinical.location')
+        self.sql_pool = self.registry('nh.clinical.sql')
 
         # Find activities that would show up on the workload board for ward
         # manager
@@ -42,68 +44,52 @@ class TestWorkloadIntegration(SingleTransactionCase):
         if len(activities) < 7:
             raise ValueError('Not enough activities found for test')
 
-        # Set up datetimes for test
-        remain_60 = (datetime.now() + timedelta(minutes=60)).strftime(DTF)
-        remain_40 = (datetime.now() + timedelta(minutes=40)).strftime(DTF)
-        remain_20 = (datetime.now() + timedelta(minutes=20)).strftime(DTF)
-        remain_10 = (datetime.now() + timedelta(minutes=10)).strftime(DTF)
-        remain_0 = datetime.now().strftime(DTF)
-        late_10 = (datetime.now() - timedelta(minutes=10)).strftime(DTF)
-        late_20 = (datetime.now() - timedelta(minutes=20)).strftime(DTF)
+        # Get buckets for test
+        workload_buckets = self.settings_pool.read(
+            cr, uid, 1, ['workload_bucket_period'])\
+            .get('workload_bucket_period')
+        buckets = self.buckets_pool.read(cr, uid, workload_buckets)
+        if len(buckets) < 6:
+            raise ValueError('Buckets not set correctly')
 
+        pattern = re.compile(self.sql_pool.WORKLOAD_BUCKET_EXTRACT)
+        self.activities = []
+        for index, bucket in enumerate(buckets):
+            period = bucket.get('name')
+            match = pattern.match(period).groups()
+            mins = int(match[0])
+            if mins == 0:
+                self.zero_mins = index + 1
+            mins += 2
+            if match[2] == 'late':
+                dt = (datetime.now() - timedelta(minutes=mins)).strftime(DTF)
+            else:
+                dt = (datetime.now() + timedelta(minutes=mins)).strftime(DTF)
+            activity = activities[index]
+            self.activity_pool.write(cr, uid, activity, {
+                'date_scheduled': dt, 'date_deadline': dt})
+            self.activities.append(activity)
+
+        # Set up datetimes for test
+        remain_0 = datetime.now().strftime(DTF)
         # Set the activities to have the dates
-        activity_60_remain = activities[0]
-        self.activity_pool.write(cr, uid, activity_60_remain, {
-            'date_scheduled': remain_60, 'date_deadline': remain_60})
-        activity_40_remain = activities[1]
-        self.activity_pool.write(cr, uid, activity_40_remain, {
-            'date_scheduled': remain_40, 'date_deadline': remain_40})
-        activity_20_remain = activities[2]
-        self.activity_pool.write(cr, uid, activity_20_remain, {
-            'date_scheduled': remain_20, 'date_deadline': remain_20})
-        activity_10_remain = activities[3]
-        self.activity_pool.write(cr, uid, activity_10_remain, {
-            'date_scheduled': remain_10, 'date_deadline': remain_10})
-        activity_0_remain = activities[4]
+        activity_0_remain = activities[len(buckets)]
         self.activity_pool.write(cr, uid, activity_0_remain, {
             'date_scheduled': remain_0, 'date_deadline': remain_0})
-        activity_10_late = activities[5]
-        self.activity_pool.write(cr, uid, activity_10_late, {
-            'date_scheduled': late_10, 'date_deadline': late_10})
-        activity_20_late = activities[6]
-        self.activity_pool.write(cr, uid, activity_20_late, {
-            'date_scheduled': late_20, 'date_deadline': late_20})
-
-        # Set to self so can reference later
-        self.activity_60_remain = activity_60_remain
-        self.activity_40_remain = activity_40_remain
-        self.activity_20_remain = activity_20_remain
-        self.activity_10_remain = activity_10_remain
-        self.activity_0_remain = activity_0_remain
-        self.activity_10_late = activity_10_late
-        self.activity_20_late = activity_20_late
+        self.activities.append(activity_0_remain)
 
 
 class TestWorkloadInitial(TestWorkloadIntegration):
 
     def test_initial_board(self):
         cr, uid = self.cr, self.uid
-        workload = self.workload_pool.read(cr, uid, [
-            self.activity_60_remain,
-            self.activity_40_remain,
-            self.activity_20_remain,
-            self.activity_10_remain,
-            self.activity_0_remain,
-            self.activity_10_late,
-            self.activity_20_late
-        ])
-        self.assertEqual(workload[0].get('proximity_interval'), 1)
-        self.assertEqual(workload[1].get('proximity_interval'), 2)
-        self.assertEqual(workload[2].get('proximity_interval'), 3)
-        self.assertEqual(workload[3].get('proximity_interval'), 4)
-        self.assertEqual(workload[4].get('proximity_interval'), 4)
-        self.assertEqual(workload[5].get('proximity_interval'), 5)
-        self.assertEqual(workload[6].get('proximity_interval'), 6)
+        workload = self.workload_pool.read(cr, uid, self.activities)
+        for index, activity in enumerate(workload):
+            if index != len(self.activities) - 1:
+                self.assertEqual(activity.get('proximity_interval'), index + 1)
+            else:
+                self.assertEqual(activity.get('proximity_interval'),
+                                 self.zero_mins)
 
 # class TestWorkloadChanged(TestWorkloadIntegration):
 #
