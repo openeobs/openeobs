@@ -93,7 +93,11 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
                     (datetime.now() - timedelta(days=5)).strftime(DTF)
             })
         wizard = self.config_pool.create(
-            cr, uid, {'discharge_transfer_period': 3})
+            cr, uid, {
+                'discharge_transfer_period': 3,
+                'workload_bucket_period': [[6, 0, []]],
+                'activity_period': 1
+            })
         self.config_pool.set_discharge_transfer_period(cr, uid, wizard)
         wardboard = self.wardboard_pool.read(cr, self.ward_manager,
                                              self.patient.get('id'))
@@ -148,7 +152,11 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
                     (datetime.now() - timedelta(days=15)).strftime(DTF)
             })
         wizard = self.config_pool.create(
-            cr, uid, {'discharge_transfer_period': 10})
+            cr, uid, {
+                'discharge_transfer_period': 10,
+                'workload_bucket_period': [[6, 0, []]],
+                'activity_period': 1
+            })
         self.config_pool.set_discharge_transfer_period(cr, uid, wizard)
         wardboard = self.wardboard_pool.read(cr, self.ward_manager,
                                              self.patient.get('id'))
