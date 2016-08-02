@@ -1,7 +1,8 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 from openerp.tests.common import SingleTransactionCase
 
 from openerp.addons.nh_observations import frequencies
+
 
 class TestReviewFrequencyFormDesc(SingleTransactionCase):
 
