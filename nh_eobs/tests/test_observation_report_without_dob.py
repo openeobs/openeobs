@@ -26,11 +26,12 @@ class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
         """
 
         report_model, cr, uid = self.report_model, self.cr, self.uid
-        report_test = test_reports.try_report(cr, uid, report_model, [],
-                                              data={
-                                                  'spell_id': self.spell_id,
-                                                  'start_time': None,
-                                                  'end_time': None
-                                              })
+        report_test = test_reports.try_report(
+            cr, uid, report_model, [],
+            data={
+                'spell_id': self.spell_id,
+                'start_time': None,
+                'end_time': None
+            })
         self.assertEqual(report_test, True,
                          'Unable to print Observation Report')
