@@ -4,7 +4,6 @@ from openerp.addons.nh_eobs_api.routing import ResponseJSON
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from . import api_test_common
 import logging
-import openerp.tests
 import requests
 
 test_logger = logging.getLogger(__name__)
