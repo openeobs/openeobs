@@ -5,10 +5,13 @@
 standard behaviour and policy triggers based on the UK NEWS standard.
 """
 from openerp.osv import orm, fields
+from openerp import SUPERUSER_ID
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+
 import logging
 import bisect
-from openerp import SUPERUSER_ID
 import copy
+from datetime import datetime as dt
 
 _logger = logging.getLogger(__name__)
 
@@ -828,6 +831,11 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :return: ``False``
         or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
         """
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        # No ongoing spell to get an obs for so just return straight away.
+        if not spell_id:
+            return False
         domain = [['patient_id', '=', patient_id],
                   ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                   ['state', '=', 'completed'],
@@ -856,3 +864,15 @@ class nh_clinical_patient_observation_ews(orm.Model):
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:
             return last_obs_activity.data_ref
+
+    def can_decrease_obs_frequency(self, cr, uid, patient_id, threshold_value,
+                                   context=None):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_start_date = spell_pool.get_spell_start_date(cr, uid, patient_id,
+                                                           context=context)
+        last_obs = self.get_last_obs(cr, uid, patient_id)
+
+        present = dt.strptime(last_obs['date_terminated'], dtf) \
+            if last_obs else dt.now()
+        spell_start_delta = present - spell_start_date
+        return spell_start_delta.days >= threshold_value
