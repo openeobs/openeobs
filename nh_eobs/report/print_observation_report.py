@@ -340,7 +340,7 @@ class ObservationReport(models.AbstractModel):
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient['dob'] = helpers.convert_db_date_to_context_date(
             cr, uid, datetime.strptime(patient['dob'], dtf),
-            '%d/%m/%Y', context=None)if patient.get('dob', False) else ''
+            '%d/%m/%Y', context=None)
         ews = self.get_ews_observations(data, spell_activity_id)
         json_data = []
         table_ews = []
