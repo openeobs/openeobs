@@ -1,8 +1,8 @@
-from observation_report_helpers import ObservationReportHelpers
+from . import observation_report_helpers
 from openerp.tools import test_reports
 
 
-class TestObsReportNoDOB(ObservationReportHelpers):
+class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
 
     def setUp(self):
         super(TestObsReportNoDOB, self).setUp()
