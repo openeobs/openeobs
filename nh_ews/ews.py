@@ -808,6 +808,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :rtype: int
         """
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
+        if not last_obs_activity:
+            return False
         case = int(self._POLICY['case'][bisect.bisect_left(
             self._POLICY['ranges'], last_obs_activity.data_ref.score)])
         case = 2 if last_obs_activity.data_ref.three_in_one and case < 3 \
@@ -815,6 +817,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return case
 
     def get_last_obs_activity(self, cr, uid, patient_id, context=None):
+        """ Get the activity for the last observation made for the given
+        patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False``
+        or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
+        """
         domain = [['patient_id', '=', patient_id],
                   ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                   ['state', '=', 'completed'],
@@ -826,8 +839,20 @@ class nh_clinical_patient_observation_ews(orm.Model):
             context=context)
         if ews_ids:
             return activity_pool.browse(cr, uid, ews_ids[0], context=context)
+        else:
+            return False
 
     def get_last_obs(self, cr, uid, patient_id, context=None):
+        """ Get the last observation made for the given patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False`` or :class:`observation<openeobs.nh_observations.
+        observations.nh_clinical_patient_observation>`
+        """
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:
             return last_obs_activity.data_ref
