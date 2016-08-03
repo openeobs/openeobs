@@ -129,6 +129,11 @@ class nh_clinical_notification_frequency(orm.Model):
         }
     ]
 
+    def set_form_description_frequencies(self, available_frequencies):
+        frequency = [field for field in self._form_description if
+                     field['name'] == 'frequency'][0]
+        frequency['selection'] = available_frequencies
+
 
 class nh_clinical_notification_doctor_assessment(orm.Model):
     """
