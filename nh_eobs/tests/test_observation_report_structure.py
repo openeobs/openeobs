@@ -365,3 +365,107 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
             'Actions Triggered',
             'Incorrect Actions table header'
         )
+
+    def test_08_start_date_prints_full_report(self):
+        """
+        Test that the full report is printed when a start date is given and
+        ews _only is not set
+        """
+        report_data = {
+            'spell_id': 1,
+            'start_date': datetime(1987, 12, 26),
+        }
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        table_section_headers = beautiful_report.select('h3')
+        self.assertEqual(
+            len(table_section_headers),
+            14,
+            'Incorrect number of tables'
+        )
+        ews_values_header = table_section_headers[0]
+        weight_values_header = table_section_headers[1]
+        gcs_values_header = table_section_headers[2]
+        blood_sugar_values_header = table_section_headers[3]
+        pain_values_header = table_section_headers[4]
+        blood_product_values_header = table_section_headers[5]
+        bristol_stools_values_header = table_section_headers[6]
+        pbp_values_header = table_section_headers[7]
+        target_header = table_section_headers[8]
+        active_device_header = table_section_headers[9]
+        device_history_header = table_section_headers[10]
+        transfer_header = table_section_headers[11]
+        monitoring_header = table_section_headers[12]
+        actions_header = table_section_headers[13]
+        self.assertEqual(
+            ews_values_header.text,
+            'NEWS Values',
+            'Incorrect NEWS table header'
+        )
+        self.assertEqual(
+            weight_values_header.text,
+            'Weight Values',
+            'Incorrect Weight table header'
+        )
+        self.assertEqual(
+            gcs_values_header.text,
+            'GCS Values',
+            'Incorrect GCS table header'
+        )
+        self.assertEqual(
+            blood_sugar_values_header.text,
+            'Blood Sugar Values',
+            'Incorrect Blood Sugar table header'
+        )
+        self.assertEqual(
+            pain_values_header.text,
+            'Pain Score Values',
+            'Incorrect pain table header'
+        )
+        self.assertEqual(
+            blood_product_values_header.text,
+            'Blood Product Values',
+            'Incorrect Blood Product table header'
+        )
+        self.assertEqual(
+            bristol_stools_values_header.text,
+            'Bristol Stools Values',
+            'Incorrect Bristol Stools table header'
+        )
+        self.assertEqual(
+            pbp_values_header.text,
+            'Postural Blood Pressure Values',
+            'Incorrect PBP table header'
+        )
+        self.assertEqual(
+            target_header.text,
+            'O2 Target Values',
+            'Incorrect O2 Target table header'
+        )
+        self.assertEqual(
+            active_device_header.text,
+            'Active Device Sessions',
+            'Incorrect active device table header'
+        )
+        self.assertEqual(
+            device_history_header.text,
+            'Device Session History',
+            'Incorrect device history table header'
+        )
+        self.assertEqual(
+            transfer_header.text,
+            'Transfer History',
+            'Incorrect transfer history table header'
+        )
+        self.assertEqual(
+            monitoring_header.text,
+            'Patient Monitoring Exceptions',
+            'Incorrect Monitoring table header'
+        )
+        self.assertEqual(
+            actions_header.text,
+            'Actions Triggered',
+            'Incorrect Actions table header'
+        )
