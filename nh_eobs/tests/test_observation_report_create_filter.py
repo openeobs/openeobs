@@ -48,7 +48,7 @@ class TestObservationReport(TransactionCase):
         )
         self.assertEqual(
             str(start_filter),
-            "['date_started', '>=', '{0}']".format(
+            "['date_terminated', '>=', '{0}']".format(
                 datetime.strftime(self.start_date, dtf)
             ),
             'Incorrect date start filter created'
@@ -86,7 +86,7 @@ class TestObservationReport(TransactionCase):
         )
         self.assertEqual(
             str(start_filter),
-            "['date_started', '>=', '{0}']".format(
+            "['date_terminated', '>=', '{0}']".format(
                 datetime.strftime(self.start_date, dtf)
             ),
             'Incorrect date start filter created'
@@ -132,7 +132,7 @@ class TestObservationReport(TransactionCase):
         )
         self.assertEqual(
             str(start_filter),
-            "['date_started', '>=', '{0}']".format(
+            "['date_terminated', '>=', '{0}']".format(
                 datetime.strftime(self.start_date, dtf)
             ),
             'Incorrect date start filter created'
@@ -260,7 +260,7 @@ class TestObservationReport(TransactionCase):
         )
         self.assertEqual(
             str(start_filter),
-            "['date_started', '>=', '{0}']".format(
+            "['date_terminated', '>=', '{0}']".format(
                 datetime.strftime(self.start_date, dtf)
             ),
             'Incorrect date start filter created'
