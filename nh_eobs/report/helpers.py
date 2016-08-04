@@ -58,9 +58,9 @@ def create_search_filter(spell_activity_id, model, start_date, end_date):
                   ['data_model', '=', model], ['state', '=', 'completed']]
     if start_date:
         if isinstance(start_date, datetime):
-            filter.append(['date_started', '>=', start_date.strftime(dtf)])
+            filter.append(['date_terminated', '>=', start_date.strftime(dtf)])
         elif isinstance(start_date, str):
-            filter.append(['date_started', '>=', start_date])
+            filter.append(['date_terminated', '>=', start_date])
 
     if end_date:
         if isinstance(end_date, datetime):
