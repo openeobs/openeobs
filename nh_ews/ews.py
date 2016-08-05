@@ -5,10 +5,13 @@
 standard behaviour and policy triggers based on the UK NEWS standard.
 """
 from openerp.osv import orm, fields
+from openerp import SUPERUSER_ID
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+
 import logging
 import bisect
-from openerp import SUPERUSER_ID
 import copy
+from datetime import datetime as dt
 
 _logger = logging.getLogger(__name__)
 
@@ -678,9 +681,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         groups_pool = self.pool['res.groups']
         api_pool = self.pool['nh.clinical.api']
         activity = activity_pool.browse(cr, uid, activity_id, context=context)
-        case = int(self._POLICY['case'][bisect.bisect_left(
-            self._POLICY['ranges'], activity.data_ref.score)])
-        case = 2 if activity.data_ref.three_in_one and case < 3 else case
+
         hcagroup_ids = groups_pool.search(
             cr, uid, [('users', 'in', [uid]),
                       ('name', '=', 'NH Clinical HCA Group')])
@@ -691,16 +692,18 @@ class nh_clinical_patient_observation_ews(orm.Model):
         spell_activity_id = activity.parent_id.id
         self.handle_o2_devices(cr, uid, activity_id, context=context)
 
-        # TRIGGER NOTIFICATIONS
+        # trigger notifications
         if not activity.data_ref.is_partial:
-            api_pool.trigger_notifications(cr, uid, {
-                'notifications': self._POLICY['notifications'][case],
-                'parent_id': spell_activity_id,
-                'creator_id': activity_id,
-                'patient_id': activity.data_ref.patient_id.id,
-                'model': self._name,
-                'group': group
-            }, context=context)
+            notifications = self.get_notifications(cr, uid, activity)
+            if len(notifications) > 0:
+                api_pool.trigger_notifications(cr, uid, {
+                    'notifications': notifications,
+                    'parent_id': spell_activity_id,
+                    'creator_id': activity_id,
+                    'patient_id': activity.data_ref.patient_id.id,
+                    'model': self._name,
+                    'group': group
+                }, context=context)
 
         res = super(nh_clinical_patient_observation_ews, self).complete(
             cr, uid, activity_id, context)
@@ -715,10 +718,36 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 cr, uid, next_activity_id,
                 date_scheduled=activity.date_scheduled, context=context)
         else:
+            case = self.get_case(activity.data_ref)
             self.change_activity_frequency(
                 cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
                 self._name, case, context=context)
         return res
+
+    def get_notifications(self, cr, uid, activity):
+        """
+        Get notifications that should be triggered upon completion of the
+        passed activity for an EWS observation.
+
+        :param activity: activity referencing an EWS observation
+        :return: a list of dictionaries representing notifications
+        :rtype: list
+        """
+        case = self.get_case(activity.data_ref)
+        return self._POLICY['notifications'][case]
+
+    def get_case(self, observation):
+        """
+        Return an integer based on the clinical risk of the observation
+        to be used as an index when accessing elements of :py:attr:`_POLICY`.
+
+        :param observation: EWS observation
+        :return: case
+        :rtype: int
+        """
+        case = int(self._POLICY['case'][bisect.bisect_left(
+            self._POLICY['ranges'], observation.score)])
+        return 2 if observation.three_in_one and case < 3 else case
 
     def change_activity_frequency(self, cr, uid, patient_id, name, case,
                                   context=None):
@@ -805,18 +834,69 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :returns: ``False`` or the acuity case
         :rtype: int
         """
+        last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
+        if not last_obs_activity:
+            return False
+        case = int(self._POLICY['case'][bisect.bisect_left(
+            self._POLICY['ranges'], last_obs_activity.data_ref.score)])
+        case = 2 if last_obs_activity.data_ref.three_in_one and case < 3 \
+            else case
+        return case
+
+    def get_last_obs_activity(self, cr, uid, patient_id, context=None):
+        """ Get the activity for the last observation made for the given
+        patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False``
+        or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
+        """
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        # No ongoing spell to get an obs for so just return straight away.
+        if not spell_id:
+            return False
         domain = [['patient_id', '=', patient_id],
                   ['data_model', '=', 'nh.clinical.patient.observation.ews'],
                   ['state', '=', 'completed'],
                   ['parent_id.state', '=', 'started']]
+
         activity_pool = self.pool['nh.activity']
         ews_ids = activity_pool.search(
             cr, uid, domain, order='date_terminated desc, sequence desc',
             context=context)
-        if not ews_ids:
+        if ews_ids:
+            return activity_pool.browse(cr, uid, ews_ids[0], context=context)
+        else:
             return False
-        activity = activity_pool.browse(cr, uid, ews_ids[0], context=context)
-        case = int(self._POLICY['case'][bisect.bisect_left(
-            self._POLICY['ranges'], activity.data_ref.score)])
-        case = 2 if activity.data_ref.three_in_one and case < 3 else case
-        return case
+
+    def get_last_obs(self, cr, uid, patient_id, context=None):
+        """ Get the last observation made for the given patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False`` or :class:`observation<openeobs.nh_observations.
+        observations.nh_clinical_patient_observation>`
+        """
+        last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
+        if last_obs_activity:
+            return last_obs_activity.data_ref
+
+    def can_decrease_obs_frequency(self, cr, uid, patient_id, threshold_value,
+                                   context=None):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_start_date = spell_pool.get_spell_start_date(cr, uid, patient_id,
+                                                           context=context)
+        last_obs = self.get_last_obs(cr, uid, patient_id)
+
+        present = dt.strptime(last_obs['date_terminated'], dtf) \
+            if last_obs else dt.now()
+        spell_start_delta = present - spell_start_date
+        return spell_start_delta.days >= threshold_value

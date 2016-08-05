@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from openerp.tests.common import SingleTransactionCase
 import __builtin__
 
