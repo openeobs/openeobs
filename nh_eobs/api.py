@@ -248,6 +248,19 @@ class nh_eobs_api(orm.AbstractModel):
             ('user_ids', 'in', [uid]),
             '|', ('user_id', '=', False), ('user_id', '=', uid)
         ]
+        return self.collect_activities(cr, uid, domain, context=context)
+
+    def collect_activities(self, cr, uid, domain, context=None):
+        """
+        Get activities from the database for a given domain
+        :param cr: odoo cursor
+        :param uid: user to perform search as
+        :param domain: domain to look for
+        :param context: odoo context
+        :returns: list of dictionaries containing activities. See source
+            for specific attributes returned for each activity
+        :rtype: list
+        """
         activity_pool = self.pool['nh.activity']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
@@ -695,7 +708,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of patient dictionaries
         :rtype: list
         """
-
         if ids:
             domain = [
                 ('patient_id', 'in', ids),
@@ -711,7 +723,17 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', 'nh.clinical.spell'),
                 ('user_ids', 'in', [uid]),  # filter user responsibility
             ]
+        return self.collect_patients(cr, uid, domain, context=context)
 
+    def collect_patients(self, cr, uid, domain, context=None):
+        """
+        Collect patients for a given domain and return SQL output
+        :param cr: odoo cursor
+        :param uid: user ID for user doing operation
+        :param domain: search domain to use
+        :param context: ODoo context
+        :return: list of dicts
+        """
         activity_pool = self.pool['nh.activity']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
@@ -949,14 +971,14 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].register(
             cr, uid, patient_id, data, context=context)
 
-    def admit(self, cr, uid, patient_id, data, context=None):
+    def admit(self, cr, uid, hospital_number, data, context=None):
         """
         Extends :meth:`admit()<api.nh_clinical_api.admit>`,
         admitting a patient into a specified
         :class:`location<base.nh_clinical_location>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that must contain a
             ``location`` key
         :type data: dict
@@ -965,7 +987,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].admit(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
         return res
 
     def admit_update(self, cr, uid, patient_id, data, context=None):

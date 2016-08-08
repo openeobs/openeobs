@@ -6,20 +6,35 @@ from openerp.osv import fields
 
 class TestObservationTableRendering(helpers.ObservationReportHelpers):
 
+    DEFAULT_EWS_ONLY_DATA = {
+        'spell_id': 1,
+        'start_date': None,
+        'end_date': None,
+        'ews_only': True
+    }
+
+    DEFAULT_FULL_DATA = {
+        'spell_id': 1,
+        'start_date': None,
+        'end_date': None,
+        'ews_only': False
+    }
+
+    def get_bs_report(self, report_args=None):
+        if report_args:
+            report_data = report_args
+        else:
+            report_data = self.DEFAULT_EWS_ONLY_DATA
+        report_obj = self.registry(self.report_model)
+        report_html = report_obj.render_html(
+            self.cr, self.uid, [], data=report_data, context=None)
+        return BeautifulSoup(report_html, 'html.parser')
+
     def test_01_ews_table_structure(self):
         """
         Test that the EWS table is rendering correctly when all data present
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[0]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -116,16 +131,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
 
         self.o2target_id = []
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[0]
         table = header.findNext('table')
         table_columns = table.select('td')
@@ -141,16 +147,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
 
         self.ews_values['oxygen_administration_flag'] = 0
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[0]
         table = header.findNext('table')
         table_columns = table.select('td')
@@ -171,16 +168,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -236,16 +224,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -270,16 +249,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -303,16 +273,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -337,16 +298,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -371,16 +323,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 0
         self.ews_values['niv_epap'] = 6
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -404,16 +347,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_ipap'] = 5
         self.ews_values['niv_epap'] = 0
 
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h4')[0]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
@@ -429,16 +363,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the weight table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -475,16 +400,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the gcs table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[2]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -537,16 +453,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the blood sugar table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[3]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -583,16 +490,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the pain score table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[4]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -637,16 +535,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the blood product table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[5]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -691,16 +580,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the bristol stools table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[6]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -839,16 +719,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the postural blood pressure table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
         header = beautiful_report.select('h3')[7]
         table = header.findNext('table')
         thead = table.select('thead')[0]
@@ -941,16 +812,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the target oxygen table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -996,16 +858,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the active device session table is rendering correctly
         """
         self.device_session_values['date_terminated'] = None
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[2]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -1058,16 +911,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the device session history table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[3]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -1150,16 +994,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the transfer history table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[4]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -1204,16 +1039,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the transfer history table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[5]
         table = header.findNext('table')
         table_headers = table.select('th')
@@ -1388,16 +1214,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         Test that the triggered actions table is rendering correctly
         """
-        report_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': True
-        }
-        report_obj = self.registry(self.report_model)
-        report_html = report_obj.render_html(
-            self.cr, self.uid, [], data=report_data, context=None)
-        beautiful_report = BeautifulSoup(report_html, 'html.parser')
+        beautiful_report = self.get_bs_report()
         header = beautiful_report.select('h3')[6]
         table = header.findNext('table')
         table_headers = table.select('th')

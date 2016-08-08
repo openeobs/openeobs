@@ -212,10 +212,10 @@ var frontend_routes = {}; (function(_root){
    }
     
     _nS('json_partial_reasons');
-   _root.json_partial_reasons = function(){
+   _root.json_partial_reasons = function(observation){
 	   return _wA({
 		   method: 'GET',
-		   url: base_url+'ews/partial_reasons/'
+		   url: base_url+ (function(k,v){ return v })('observation', observation)+'/partial_reasons/'
 	   })
    }
     

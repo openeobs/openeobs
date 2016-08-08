@@ -1,5 +1,5 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 `nh_clinical_extension.py` extends several NH Clinical classes to add
 relevant observations related functionality.
@@ -174,7 +174,9 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 d_values = {
                     'patient_id': values.get('patient_id')
                 }
-                if n['model'] == 'frequency':
+                if n['model'] in ['frequency',
+                                  'select_frequency',
+                                  'weekly_frequency']:
                     activity_pool = self.pool['nh.activity']
                     domain = [
                         ('patient_id', '=', values.get('patient_id')),
