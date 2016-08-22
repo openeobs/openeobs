@@ -481,46 +481,50 @@
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
-        <record id="nhc_def_conf_ward_manager_winifred_user" model="res.users">
+        <!--delete id="nhc_def_conf_ward_manager_winifred_user" model="res.users"/-->
+        <record id="nhc_def_conf_shift_coordinator_winifred_user" model="res.users">
             <field name="name">Winifred Kirrin</field>
             <field name="login">winifred</field>
             <field name="password">winifred</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
-            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]"/>
+            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
-        <record id="nhc_def_conf_ward_manager_walter_user" model="res.users">
+        <!--delete id="nhc_def_conf_ward_manager_walter_user" model="res.users"/-->
+        <record id="nhc_def_conf_shift_coordinator_walter_user" model="res.users">
             <field name="name">Walter Smith</field>
             <field name="login">walter</field>
             <field name="password">walter</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
-            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]"/>
+            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wb')]]]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
-        <record id="nhc_def_conf_ward_manager_whitney_user" model="res.users">
+        <!--delete id="nhc_def_conf_ward_manager_whitney_user" model="res.users"/-->
+        <record id="nhc_def_conf_shift_coordinator_whitney_user" model="res.users">
             <field name="name">Whitney Williams</field>
             <field name="login">whitney</field>
             <field name="password">whitney</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
-            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]"/>
+            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wc')]]]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>
 
-        <record id="nhc_def_conf_ward_manager_william_user" model="res.users">
+        <!--delete id="nhc_def_conf_ward_manager_william_user" model="res.users"/-->
+        <record id="nhc_def_conf_shift_coordinator_william_user" model="res.users">
             <field name="name">William Roberts</field>
             <field name="login">william</field>
             <field name="password">william</field>
             <field name="tz">Europe/London</field>
-            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]"/>
-            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]"/>
+            <field name="groups_id" eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]"/>
+            <field name="category_id" eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]"/>
             <field name="location_ids" eval="[[6, False, [ref('nhc_def_conf_location_wd')]]]"/>
             <field name="pos_id" ref="nhc_def_conf_pos_hospital"/>
         </record>

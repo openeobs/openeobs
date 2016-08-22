@@ -254,14 +254,14 @@
       <field eval="[[6, False, [ref('nhc_def_conf_location_we_b28'),ref('nhc_def_conf_location_we_b29'),ref('nhc_def_conf_location_we_b30')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
-    <!-- Ward E: ward_manager -->
-    <record id="nhc_def_conf_ward_manager_wallace_user" model="res.users">
+    <!-- Ward E: shift_coordinator -->
+    <record id="nhc_def_conf_shift_coordinator_wallace_user" model="res.users">
       <field name="name">Wallace Hamill</field>
       <field name="login">wallace</field>
       <field name="password">wallace</field>
       <field name="tz">Europe/London</field>
-      <field eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]" name="groups_id" />
-      <field eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]" name="category_id" />
+      <field eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]" name="groups_id" />
+      <field eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_we')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>

@@ -338,7 +338,7 @@
 	                        					'name','in',['NH Clinical HCA Group',
 	                        					'NH Clinical Nurse Group',
 	                        					'NH Clinical Doctor Group',
-	                        					'NH Clinical Ward Manager Group'
+	                        					'NH Clinical Shift Coordinator Group'
 	                        					] ]]"/>
 	                    </group>
                         <field name="location_ids" readonly="0"/>
@@ -364,7 +364,7 @@
             <field name="domain" eval="[['groups_id','in',[ref('nh_clinical.group_nhc_hca'),
 														  ref('nh_clinical.group_nhc_nurse'),
 														  ref('nh_clinical.group_nhc_doctor'),
-														  ref('nh_clinical.group_nhc_ward_manager'),
+														  ref('nh_clinical.group_nhc_shift_coordinator'),
 															  ]]]"/>
         </record>
         <record model="ir.actions.act_window.view" id="act_nhc_user_tree_view">

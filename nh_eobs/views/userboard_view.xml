@@ -11,7 +11,7 @@
                         <group colspan="4" col="2">
                             <field name="hca"/>
                             <field name="nurse"/>
-                            <field name="ward_manager"/>
+                            <field name="shift_coordinator"/>
                             <field name="senior_manager"/>
                             <field name="doctor"/>
                             <field name="kiosk"/>

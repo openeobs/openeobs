@@ -222,11 +222,11 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
-                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button name="wardboard_patient_placement" string="Move Patient"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button name="wardboard_swap_beds" string="Swap Beds"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
@@ -473,8 +473,8 @@
                                     <ul class="oe_dropdown_menu">
                                         <li><a name="wardboard_chart" type="object">NEWS Chart</a></li>
                                         <li><a name="wardboard_ews" type="object">NEWS List</a></li>
-                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Move Patient</a></li>
-                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Swap Beds</a></li>
+                                        <li><a name="wardboard_patient_placement"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Move Patient</a></li>
+                                        <li><a name="wardboard_swap_beds"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev">Swap Beds</a></li>
                                     </ul>
                                 </div>
                                 <div class="oe_kanban_content">
@@ -606,8 +606,8 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Form View" version="7.0" create="0" delete="0">
                     <header>
-                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button name="open_previous_spell" string="Previous Admission"  type="object" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                        <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>

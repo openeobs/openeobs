@@ -49,13 +49,13 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.nurses = nurses
         self.nurse = nurses[0]
 
-        ward_managers = self.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        shift_coordinators = self.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [self.ward]]
         ])
-        if not ward_managers:
-            raise ValueError('Unable to find Ward Managers to use for test')
-        self.ward_manager = ward_managers[0]
+        if not shift_coordinators:
+            raise ValueError('Unable to find Shift Coordinators to use for test')
+        self.shift_coordinator = shift_coordinators[0]
 
         senior_managers = self.user_pool.search(cr, uid, [
             ['groups_id.name', '=', 'NH Clinical Senior Manager Group'],
@@ -72,14 +72,14 @@ class TestStaffReallocationIntegration(TransactionCase):
         if not doctors:
             raise ValueError('Unable to find Doctor to use for test')
         self.doctors = doctors
-        self.wizard = self.allocation_pool.create(self.cr, self.ward_manager,
+        self.wizard = self.allocation_pool.create(self.cr, self.shift_coordinator,
                                                   {})
 
     def check_user_groups(self, group, locations):
         groups_to_name = {
             'hca': 'NH Clinical HCA Group',
             'nurse': 'NH Clinical Nurse Group',
-            'ward_manager': 'NH Clinical Ward Manager Group',
+            'shift_coordinator': 'NH Clinical Shift Coordinator Group',
             'senior_manager': 'NH Clinical Senior Manager Group',
             'doctor': 'NH Clinical Doctor Group'
         }
@@ -98,10 +98,10 @@ class TestStaffReallocationIntegration(TransactionCase):
         cr, uid = self.cr, self.uid
 
         # TODO: Add a follower to a patient to ensure it get removed
-        self.allocation_pool.write(cr, self.ward_manager, self.wizard, {
+        self.allocation_pool.write(cr, self.shift_coordinator, self.wizard, {
             'user_ids': self.nurses.remove(self.nurse)
         })
-        self.allocation_pool.reallocate(cr, self.ward_manager, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
 
         wizard = self.allocation_pool.read(cr, uid, self.wizard,
                                            ['stage', 'allocating_ids'])
@@ -120,7 +120,7 @@ class TestStaffReallocationIntegration(TransactionCase):
         - Stage is changed to allocation
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.ward_manager, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
         wizard = self.allocation_pool.read(cr, uid, self.wizard, ['stage'])
         self.assertEqual(wizard.get('stage'), 'allocation')
 
@@ -131,28 +131,28 @@ class TestStaffReallocationIntegration(TransactionCase):
         locations in the wizard
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.ward_manager, self.wizard)
-        self.allocation_pool.complete(cr, self.ward_manager, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.complete(cr, self.shift_coordinator, self.wizard)
         resp_allocations = self.resp_allocation_pool.search(
             cr, uid, [['responsible_user_id', 'in', [self.nurse, self.hca]]])
         for resp_allocation in self.resp_allocation_pool.read(
                 cr, uid, resp_allocations, ['location_ids']):
             self.assertIn(self.bed, resp_allocation.get('location_ids'))
 
-    def test_ward_manager_uses_twice(self):
+    def test_shift_coordinator_uses_twice(self):
         """
         Test that on completing that the wizard now:
         - create responsibility allocation activities for the users and
         locations in the wizard
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.ward_manager, self.wizard)
-        self.allocation_pool.complete(cr, self.ward_manager, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.complete(cr, self.shift_coordinator, self.wizard)
 
-        wizard_2 = self.allocation_pool.create(cr, self.ward_manager, {})
-        self.allocation_pool.reallocate(cr, self.ward_manager, wizard_2)
-        self.allocation_pool.complete(cr, self.ward_manager, wizard_2)
+        wizard_2 = self.allocation_pool.create(cr, self.shift_coordinator, {})
+        self.allocation_pool.reallocate(cr, self.shift_coordinator, wizard_2)
+        self.allocation_pool.complete(cr, self.shift_coordinator, wizard_2)
 
-        wm_loc = self.user_pool.read(cr, uid, self.ward_manager,
+        wm_loc = self.user_pool.read(cr, uid, self.shift_coordinator,
                                      ['location_ids'])
         self.assertIn(self.ward, wm_loc.get('location_ids'))

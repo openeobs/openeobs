@@ -218,7 +218,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         group_pool = self.pool['res.groups']
         location_pool = self.pool['nh.clinical.location']
         users = [
-            ('ward_manager', 'NH Clinical Ward Manager Group'),
+            ('shift_coordinator', 'NH Clinical Shift Coordinator Group'),
             ('nurse', 'NH Clinical Nurse Group'),
             ('hca', 'NH Clinical HCA Group'),
             ('jnr_doctor', 'NH Clinical Junior Doctor Group'),
@@ -263,7 +263,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     location_ids[0])
                 assign_groups = [user[1], 'Employee']
 
-                if user_type in ('ward_manager', 'admin'):
+                if user_type in ('shift_coordinator', 'admin'):
                     assign_groups.append('Contact Creation')
                 if user_type in ('nurse', 'hca'):
                     locations = location_ids[1:]
@@ -563,7 +563,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         users parameter expects a dictionary with the following format:
             {
-                'ward_managers': {
+                'shift_coordinators': {
                     'name': ['login', 'ward_code']
                 },
                 'nurses': {
@@ -620,20 +620,20 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         # USERS
         if not users:
-            users = {'ward_managers': {}, 'nurses': {}, 'hcas': {}}
+            users = {'shift_coordinators': {}, 'nurses': {}, 'hcas': {}}
             for w in wards:
-                users['ward_managers']['WM'+w] = ['WM'+w, w]
+                users['shift_coordinators']['WM'+w] = ['WM'+w, w]
                 users['nurses']['N'+w] = ['N'+w, bed_codes[w]]
                 users['hcas']['H'+w] = ['H'+w, bed_codes[w]]
 
-        if users.get('ward_managers'):
+        if users.get('shift_coordinators'):
             wm_ids = {}
-            for wm in users['ward_managers'].keys():
+            for wm in users['shift_coordinators'].keys():
                 wid = location_pool.search(
-                    cr, uid, [('code', '=', users['ward_managers'][wm][1])])
+                    cr, uid, [('code', '=', users['shift_coordinators'][wm][1])])
                 wm_ids[wm] = self.create(
-                    cr, uid, 'res.users', 'user_ward_manager',
-                    {'name': wm, 'login': users['ward_managers'][wm][0],
+                    cr, uid, 'res.users', 'user_shift_coordinator',
+                    {'name': wm, 'login': users['shift_coordinators'][wm][0],
                      'location_ids': [[6, False, wid]]})
 
         if users.get('nurses'):
@@ -688,7 +688,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             wmuid = user_pool.search(
                 cr, uid,
                 [('location_ids', 'in', [wid]),
-                 ('groups_id.name', 'in', ['NH Clinical Ward Manager Group'])])
+                 ('groups_id.name', 'in', ['NH Clinical Shift Coordinator Group'])])
             wmuid = uid if not wmuid else wmuid[0]
             placement_activity_ids = activity_pool.search(cr, uid, [
                 ('data_model', '=', 'nh.clinical.patient.placement'),
@@ -812,7 +812,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         d_ids = {}
         for w in range(wards):
             wm_ids[str(w)] = self.create(
-                cr, uid, 'res.users', 'user_ward_manager',
+                cr, uid, 'res.users', 'user_shift_coordinator',
                 {'name': 'WM'+str(w), 'login': 'WM'+str(w),
                  'password': 'WM'+str(w),
                  'location_ids': [[6, False, [ward_ids[w]]]]}

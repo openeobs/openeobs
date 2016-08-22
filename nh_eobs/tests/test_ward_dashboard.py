@@ -37,7 +37,7 @@ class TestWardDashboard(SingleTransactionCase):
         cls.nurse_role_id = cls.category_pool.search(
             cr, uid, [['name', '=', 'Nurse']])[0]
         cls.wm_role_id = cls.category_pool.search(
-            cr, uid, [['name', '=', 'Ward Manager']])[0]
+            cr, uid, [['name', '=', 'Shift Coordinator']])[0]
         cls.dr_role_id = cls.category_pool.search(
             cr, uid, [['name', '=', 'Doctor']])[0]
 

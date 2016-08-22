@@ -28,7 +28,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         users parameter expects a dictionary with the following format:
             {
-                'ward_managers': {
+                'shift_coordinators': {
                     'name': ['login', 'ward_code']
                 },
                 'nurses': {
@@ -85,21 +85,21 @@ class nh_clinical_api_demo(orm.AbstractModel):
 
         # USERS
         if not users:
-            users = {'ward_managers': {}, 'nurses': {}}
+            users = {'shift_coordinators': {}, 'nurses': {}}
             for w in wards:
-                users['ward_managers']['WM'+w] = ['WM'+w, w]
+                users['shift_coordinators']['WM'+w] = ['WM'+w, w]
                 users['nurses']['N'+w] = ['N'+w, bed_codes[w]]
 
-        if users.get('ward_managers'):
+        if users.get('shift_coordinators'):
             wm_ids = {}
-            for wm in users['ward_managers'].keys():
+            for wm in users['shift_coordinators'].keys():
                 wid = location_pool.search(
-                    cr, uid, [('code', '=', users['ward_managers'][wm][1])])
+                    cr, uid, [('code', '=', users['shift_coordinators'][wm][1])])
                 wm_ids[wm] = self.create(
-                    cr, uid, 'res.users', 'user_ward_manager',
+                    cr, uid, 'res.users', 'user_shift_coordinator',
                     {
                         'name': wm,
-                        'login': users['ward_managers'][wm][0],
+                        'login': users['shift_coordinators'][wm][0],
                         'location_ids': [[6, False, wid]]
                     })
 
@@ -167,7 +167,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
             wmuid = user_pool.search(
                 cr, uid,
                 [('location_ids', 'in', [wid]),
-                 ('groups_id.name', 'in', ['NH Clinical Ward Manager Group'])])
+                 ('groups_id.name', 'in', ['NH Clinical Shift Coordinator Group'])])
             wmuid = uid if not wmuid else wmuid[0]
             admit_ids = self.pool['nh.clinical.adt.patient.admit'].search(
                 cr, uid, [['location_id', '=', wid]])

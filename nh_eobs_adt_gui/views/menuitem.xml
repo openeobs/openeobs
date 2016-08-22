@@ -5,21 +5,21 @@
                   sequence="5"
                   id="menu_eobs_category_visit_management"
                   parent="nh_eobs.menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Create Patient Visit"
                   sequence="1"
                   id="menu_eobs_create_patient_visit"
                   parent="menu_eobs_category_visit_management"
                   action="action_create_visit"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Visits In-Progress"
                   sequence="2"
                   id="menu_eobs_visits_in_progress"
                   parent="menu_eobs_category_visit_management"
                   action="action_show_spells"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patients"
                   id="menu_eobs_data_patients"

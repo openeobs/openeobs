@@ -2,7 +2,7 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 base_group_access_news_report,admin:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_base,1,0,0,0
 admin_group_access_news_report,admin:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_admin,1,1,1,0
 dev_group_access_news_report,dev:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_dev,1,1,1,1
-wm_group_access_news_report,manager:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_ward_manager,1,1,1,0
+wm_group_access_news_report,manager:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_shift_coordinator,1,1,1,0
 senior_manager_group_access_news_report,senior_manager:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_senior_manager,1,1,1,0
 adt_group_access_news_report,adt:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_adt,1,1,1,0
 kiosk_group_access_news_report,kiosk:access_news_report,model_nh_eobs_news_report,nh_clinical.group_nhc_kiosk,1,0,0,0

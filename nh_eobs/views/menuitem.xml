@@ -31,48 +31,48 @@
                   groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Open eObs" sequence="10" id="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patient Management"
                   sequence="1"
                   id="menu_eobs_category_patient_management"
                   parent="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Acuity Board"
                   id="menu_eobs_patients_board"
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard"
                   sequence="1"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patients by Ward"
                   id="menu_eobs_patients_by_ward"
                   parent="menu_eobs_category_patient_management"
                   action="action_patients_by_ward"
                   sequence="2"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Recently Discharged"
                   id="menu_eobs_discharged_patients"
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard_discharged"
                   sequence="3"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Recently Transferred"
                   id="menu_eobs_transferred_patients"
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard_transferred"
                   sequence="4"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Patients without bed"
                   id="menu_eobs_placements"
                   sequence="5"
                   parent="menu_eobs_category_patient_management"
                   action="action_show_placements"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Doctor Tasks"
                   id="menu_eobs_doctor_activities"
@@ -86,34 +86,34 @@
                   parent="menu_eobs_category_patient_management"
                   action="action_show_overdue"
                   sequence="7"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Ward Management"
                   sequence="3"
                   id="menu_eobs_category_ward_management"
                   parent="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
 
         <menuitem name="Workload"
                   id="menu_eobs_activity_workload"
                   sequence="2"
                   parent="menu_eobs_category_ward_management"
                   action="act_activity_workload_kanban"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Account Administration"
                   id="menu_eobs_user_management"
                   sequence="4"
                   parent="menu_eobs_category_ward_management"
                   action="nh_clinical.action_nhc_user_management_wm"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Ward Dashboard"
                   id="menu_eobs_ward_dashboard_"
                   sequence="4"
                   parent="menu_eobs_category_ward_management"
                   action="action_show_ward_dashboard"
-                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
        <menuitem name="Open eObs Users"
                   id="menu_eobs_admin_user_management"
@@ -126,28 +126,28 @@
                   sequence="4"
                   id="menu_eobs_category_shift_management"
                   parent="menu_eobs_top_root"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Nursing Shift Change"
                   id="menu_eobs_nursing_shift_management"
                   sequence="0"
                   parent="menu_eobs_category_shift_management"
                   action="nh_clinical.action_nhc_staff_allocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Nursing Re-Allocation"
                   id="menu_eobs_nursing_reallocate"
                   sequence="1"
                   parent="menu_eobs_category_shift_management"
                   action="nh_clinical.action_nhc_staff_reallocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Medical Shift Change"
                   id="menu_eobs_medical_shift_management"
                   sequence="2"
                   parent="menu_eobs_category_shift_management"
                   action="nh_clinical.action_nhc_doctor_allocation"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_shift_coordinator,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Administration" sequence="11" id="menu_eobs_admin_top_root" groups="nh_clinical.group_nhc_dev"/>
 

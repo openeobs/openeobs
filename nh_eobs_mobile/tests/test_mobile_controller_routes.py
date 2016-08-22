@@ -145,7 +145,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         group_list = [
             'NH Clinical HCA Group',
             'NH Clinical Nurse Group',
-            'NH Clinical Ward Manager Group'
+            'NH Clinical Shift Coordinator Group'
         ]
         for group_name in group_list:
             login_name = self._get_user_belonging_to_group(group_name)
@@ -174,7 +174,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         group_list = [
             'NH Clinical HCA Group',
             'NH Clinical Nurse Group',
-            'NH Clinical Ward Manager Group'
+            'NH Clinical Shift Coordinator Group'
         ]
         for group_name in group_list:
             login_name = self._get_user_belonging_to_group(group_name)
@@ -203,7 +203,7 @@ class TestMobileControllerRouting(tests.common.HttpCase):
         group_list = [
             'NH Clinical HCA Group',
             'NH Clinical Nurse Group',
-            'NH Clinical Ward Manager Group'
+            'NH Clinical Shift Coordinator Group'
         ]
         for group_name in group_list:
             login_name = self._get_user_belonging_to_group(group_name)
