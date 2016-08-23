@@ -308,8 +308,9 @@ class TestUsers(SingleTransactionCase):
         self.assertTrue(self.userboard_admin.write(
             cr, uid, [new_shift_coordinator_id], {'nurse': True}),
             msg='Error on Userboard write')
-        shift_coordinator_user = self.users_pool.browse(cr, uid,
-                                                   new_shift_coordinator_id)
+        shift_coordinator_user = self.users_pool.browse(
+            cr, uid, new_shift_coordinator_id
+        )
         check_groups = [g.name for g in shift_coordinator_user.groups_id]
         self.assertTrue('NH Clinical Shift Coordinator Group' in check_groups,
                         msg='Shift Coordinator user does not have Shift '

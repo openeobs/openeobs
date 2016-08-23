@@ -147,4 +147,5 @@ class TestStaffReallocationIntegration(TransactionCase):
             self.ward_b_shift_coordinator,
             ['location_ids']
         )
-        self.assertIn(self.ward_b, ward_b_shift_coordinator.get('location_ids'))
+        self.assertIn(self.ward_b,
+                      ward_b_shift_coordinator.get('location_ids'))
