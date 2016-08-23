@@ -73,7 +73,8 @@ class TestStaffAllocationIntegration(TransactionCase):
             ['location_ids', 'in', [self.ward_b]]
         ])
         if not ward_a_shift_coordinator and not ward_b_shift_coordinator:
-            raise ValueError('Unable to find Shift Coordinator to use for test')
+            raise ValueError('Unable to find Shift Coordinator '
+                             'to use for test')
         self.ward_a_shift_coordinator = ward_a_shift_coordinator[0]
         self.ward_b_shift_coordinator = ward_b_shift_coordinator[0]
 
@@ -147,10 +148,10 @@ class TestStaffAllocationIntegration(TransactionCase):
         self.assertIn(self.ward_b_bed, dual_ward_hca.get('location_ids'))
 
         ward_a_shift_coordinator = self.user_pool.read(cr, uid,
-                                                  self.ward_a_shift_coordinator,
-                                                  ['location_ids'])
-        self.assertIn(self.ward_a, ward_a_shift_coordinator.get('location_ids'))
+                self.ward_a_shift_coordinator, ['location_ids'])
+        self.assertIn(self.ward_a,
+                      ward_a_shift_coordinator.get('location_ids'))
         ward_b_shift_coordinator = self.user_pool.read(cr, uid,
-                                                  self.ward_b_shift_coordinator,
-                                                  ['location_ids'])
-        self.assertIn(self.ward_b, ward_b_shift_coordinator.get('location_ids'))
+                self.ward_b_shift_coordinator, ['location_ids'])
+        self.assertIn(self.ward_b,
+                      ward_b_shift_coordinator.get('location_ids'))

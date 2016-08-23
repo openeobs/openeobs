@@ -136,13 +136,18 @@ class TestUsers(SingleTransactionCase):
                         msg='Doctor user does not have Doctor group')
         # Creating a Ward Manager
         new_shift_coordinator_id = self.userboard.create(
-            cr, uid, {'name': 'Demo Shift Coordinator', 'login': 'demoshift_coordinator',
-                      'password': 'demoshift_coordinator', 'shift_coordinator': True})
-        self.assertTrue(new_shift_coordinator_id, msg='Error on userboard create')
+            cr, uid, {'name': 'Demo Shift Coordinator',
+                      'login': 'demoshift_coordinator',
+                      'password': 'demoshift_coordinator',
+                      'shift_coordinator': True})
+        self.assertTrue(new_shift_coordinator_id,
+                        msg='Error on userboard create')
         check_user_id = self.users_pool.search(
             cr, uid, [('login', '=', 'demoshift_coordinator')])
-        self.assertTrue(check_user_id, msg='Shift Coordinator user was not created')
-        shift_coordinator_user = self.users_pool.browse(cr, uid, check_user_id[0])
+        self.assertTrue(check_user_id,
+                        msg='Shift Coordinator user was not created')
+        shift_coordinator_user = self.users_pool.browse(cr, uid,
+                                                        check_user_id[0])
         check_groups = [g.name for g in shift_coordinator_user.groups_id]
         self.assertTrue(
             'NH Clinical Shift Coordinator Group' in check_groups,
@@ -171,14 +176,14 @@ class TestUsers(SingleTransactionCase):
                                                    new_shift_coordinator_id)
         check_groups = [g.name for g in shift_coordinator_user.groups_id]
         self.assertTrue('NH Clinical Shift Coordinator Group' in check_groups,
-                        msg='Shift Coordinator user does not have Shift Coordinator '
-                            'group (after update)')
+                        msg='Shift Coordinator user does not have Shift '
+                            'Coordinator group (after update)')
         self.assertTrue('NH Clinical Nurse Group' in check_groups,
                         msg='Shift Coordinator user does not have Nurse '
                             'group (after update)')
         self.assertTrue('Contact Creation' in check_groups,
-                        msg='Shift Coordinator user does not have Contact Creation '
-                            'group (after update)')
+                        msg='Shift Coordinator user does not have Contact '
+                            'Creation group (after update)')
         # Adding Ward Manager Group
         self.assertTrue(self.userboard.write(
             cr, uid, [new_hca_id], {'shift_coordinator': True}),
@@ -189,10 +194,12 @@ class TestUsers(SingleTransactionCase):
                         msg='HCA user does not have HCA group (after update)')
         self.assertTrue(
             'NH Clinical Shift Coordinator Group' in check_groups,
-            msg='HCA user does not have Shift Coordinator group (after update)')
+            msg='HCA user does not have Shift Coordinator group (after update)'
+        )
         self.assertTrue(
             'Contact Creation' in check_groups,
-            msg='HCA user does not have Contact Creation group (after update)')
+            msg='HCA user does not have Contact Creation group (after update)'
+        )
         # Adding Doctor Group and Removing HCA Group
         self.assertTrue(self.userboard.write(
             cr, uid, [new_nurse_id], {'hca': False, 'doctor': True}),
@@ -252,13 +259,16 @@ class TestUsers(SingleTransactionCase):
         new_shift_coordinator_id = self.userboard_admin.create(
             cr, uid, {'name': 'Demo Shift Coordinator',
                       'login': 'adminshift_coordinator',
-                      'password': 'adminshift_coordinator', 'shift_coordinator': True})
+                      'password': 'adminshift_coordinator',
+                      'shift_coordinator': True})
         self.assertTrue(new_shift_coordinator_id,
                         msg='Error on userboard_admin create')
         check_user_id = self.users_pool.search(
             cr, uid, [('login', '=', 'adminshift_coordinator')])
-        self.assertTrue(check_user_id, msg='Shift Coordinator user was not created')
-        shift_coordinator_user = self.users_pool.browse(cr, uid, check_user_id[0])
+        self.assertTrue(check_user_id,
+                        msg='Shift Coordinator user was not created')
+        shift_coordinator_user = self.users_pool.browse(cr, uid,
+                                                        check_user_id[0])
         check_groups = [g.name for g in shift_coordinator_user.groups_id]
         self.assertTrue(
             'NH Clinical Shift Coordinator Group' in check_groups,
@@ -301,14 +311,14 @@ class TestUsers(SingleTransactionCase):
                                                    new_shift_coordinator_id)
         check_groups = [g.name for g in shift_coordinator_user.groups_id]
         self.assertTrue('NH Clinical Shift Coordinator Group' in check_groups,
-                        msg='Shift Coordinator user does not have Shift Coordinator '
-                            'group (after update)')
+                        msg='Shift Coordinator user does not have Shift '
+                            'Coordinator group (after update)')
         self.assertTrue('NH Clinical Nurse Group' in check_groups,
                         msg='Shift Coordinator user does not have Nurse '
                             'group (after update)')
         self.assertTrue('Contact Creation' in check_groups,
-                        msg='Shift Coordinator user does not have Contact Creation '
-                            'group (after update)')
+                        msg='Shift Coordinator user does not have Contact '
+                            'Creation group (after update)')
         # Adding Ward Manager Group
         self.assertTrue(self.userboard_admin.write(
             cr, uid, [new_hca_id], {'shift_coordinator': True}),
@@ -319,7 +329,8 @@ class TestUsers(SingleTransactionCase):
                         msg='HCA user does not have HCA group (after update)')
         self.assertTrue(
             'NH Clinical Shift Coordinator Group' in check_groups,
-            msg='HCA user does not have Shift Coordinator group (after update)')
+            msg='HCA user does not have Shift Coordinator group (after update)'
+        )
         self.assertTrue(
             'Contact Creation' in check_groups,
             msg='HCA user does not have Contact Creation group (after update)')

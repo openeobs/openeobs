@@ -630,7 +630,8 @@ class nh_clinical_api_demo(orm.AbstractModel):
             wm_ids = {}
             for wm in users['shift_coordinators'].keys():
                 wid = location_pool.search(
-                    cr, uid, [('code', '=', users['shift_coordinators'][wm][1])])
+                    cr, uid, [('code', '=',
+                               users['shift_coordinators'][wm][1])])
                 wm_ids[wm] = self.create(
                     cr, uid, 'res.users', 'user_shift_coordinator',
                     {'name': wm, 'login': users['shift_coordinators'][wm][0],
@@ -687,8 +688,12 @@ class nh_clinical_api_demo(orm.AbstractModel):
             code = location_pool.read(cr, uid, wid, ['code'])['code']
             wmuid = user_pool.search(
                 cr, uid,
-                [('location_ids', 'in', [wid]),
-                 ('groups_id.name', 'in', ['NH Clinical Shift Coordinator Group'])])
+                [('location_ids',
+                  'in',
+                  [wid]),
+                 ('groups_id.name',
+                  'in',
+                  ['NH Clinical Shift Coordinator Group'])])
             wmuid = uid if not wmuid else wmuid[0]
             placement_activity_ids = activity_pool.search(cr, uid, [
                 ('data_model', '=', 'nh.clinical.patient.placement'),
