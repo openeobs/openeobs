@@ -256,7 +256,7 @@
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_7">
                             <div class="oe_kanban_content">
                                 <div style="margin-top:5px;"><h3><b><field name="name"/></b></h3></div>
-                                <div style="margin-top:5px;">Managers:</div>
+                                <div style="margin-top:5px;">Shift Coordinators:</div>
                                 <div style="margin-top:5px;"><field name="assigned_wm_ids" widget="many2many"/></div>
                                 <div style="margin-top:5px;">Doctors:</div>
                                 <div style="margin-top:5px;"><field name="assigned_doctor_ids" widget="many2many"/></div>
@@ -364,7 +364,7 @@
             <field name="domain" eval="[['groups_id','in',[ref('nh_clinical.group_nhc_hca'),
 														  ref('nh_clinical.group_nhc_nurse'),
 														  ref('nh_clinical.group_nhc_doctor'),
-														  ref('nh_clinical.group_nhc_shift_coordinator'),
+														  ref('nh_clinical.group_nhc_ward_manager'),
 															  ]]]"/>
         </record>
         <record model="ir.actions.act_window.view" id="act_nhc_user_tree_view">

@@ -193,15 +193,14 @@
       <field eval="[[6, False, []]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
-    <!-- shift_coordinator -->
-    <!--delete id="nhc_def_conf_ward_manager_wade_user" model="res.users"/-->
-    <record id="nhc_def_conf_shift_coordinator_wade_user" model="res.users">
+    <!-- ward_manager -->
+    <record id="nhc_def_conf_ward_manager_wade_user" model="res.users">
       <field name="name">Wade Fahey</field>
       <field name="login">wade</field>
       <field name="password">wade</field>
       <field name="tz">Europe/London</field>
-      <field eval="[(4, ref('nh_clinical.group_nhc_shift_coordinator'))]" name="groups_id" />
-      <field eval="[(4, ref('nh_clinical.role_nhc_shift_coordinator'))]" name="category_id" />
+      <field eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]" name="groups_id" />
+      <field eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]" name="category_id" />
       <field eval="[[6, False, []]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
