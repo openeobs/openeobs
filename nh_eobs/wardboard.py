@@ -362,12 +362,14 @@ class nh_clinical_wardboard(orm.Model):
             toolbar=toolbar, submenu=submenu)
         if view_type == 'form' and res['fields'].get('o2target'):
             user_pool = self.pool['res.users']
-            user_ids = user_pool.search(cr, user, [
-                ['groups_id.name', 'in',
-                 ['NH Clinical Doctor Group',
-                  'NH Clinical Shift Coordinator Group']
-                ]
-            ], context=context)
+            user_ids = user_pool.search(
+                cr, user,
+                [['groups_id.name',
+                  'in',
+                  ['NH Clinical Doctor Group',
+                   'NH Clinical Shift Coordinator Group']]],
+                context=context
+            )
             res['fields']['o2target']['readonly'] = not (user in user_ids)
         return res
 

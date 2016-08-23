@@ -54,7 +54,9 @@ class TestStaffReallocationIntegration(TransactionCase):
             ['location_ids', 'in', [self.ward]]
         ])
         if not shift_coordinators:
-            raise ValueError('Unable to find Shift Coordinators to use for test')
+            raise ValueError(
+                'Unable to find Shift Coordinators to use for test'
+            )
         self.shift_coordinator = shift_coordinators[0]
 
         senior_managers = self.user_pool.search(cr, uid, [
@@ -70,9 +72,12 @@ class TestStaffReallocationIntegration(TransactionCase):
             ['location_ids', 'in', [self.ward]]
         ])
         if not doctors:
-            raise ValueError('Unable to find Doctor to use for test')
+            raise ValueError(
+                'Unable to find Doctor to use for test'
+            )
         self.doctors = doctors
-        self.wizard = self.allocation_pool.create(self.cr, self.shift_coordinator,
+        self.wizard = self.allocation_pool.create(self.cr,
+                                                  self.shift_coordinator,
                                                   {})
 
     def check_user_groups(self, group, locations):
@@ -101,7 +106,9 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.allocation_pool.write(cr, self.shift_coordinator, self.wizard, {
             'user_ids': self.nurses.remove(self.nurse)
         })
-        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.reallocate(
+            cr, self.shift_coordinator, self.wizard
+        )
 
         wizard = self.allocation_pool.read(cr, uid, self.wizard,
                                            ['stage', 'allocating_ids'])
@@ -120,7 +127,8 @@ class TestStaffReallocationIntegration(TransactionCase):
         - Stage is changed to allocation
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator,
+                                        self.wizard)
         wizard = self.allocation_pool.read(cr, uid, self.wizard, ['stage'])
         self.assertEqual(wizard.get('stage'), 'allocation')
 
@@ -131,7 +139,8 @@ class TestStaffReallocationIntegration(TransactionCase):
         locations in the wizard
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator,
+                                        self.wizard)
         self.allocation_pool.complete(cr, self.shift_coordinator, self.wizard)
         resp_allocations = self.resp_allocation_pool.search(
             cr, uid, [['responsible_user_id', 'in', [self.nurse, self.hca]]])
@@ -146,7 +155,8 @@ class TestStaffReallocationIntegration(TransactionCase):
         locations in the wizard
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.reallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.reallocate(cr, self.shift_coordinator,
+                                        self.wizard)
         self.allocation_pool.complete(cr, self.shift_coordinator, self.wizard)
 
         wizard_2 = self.allocation_pool.create(cr, self.shift_coordinator, {})

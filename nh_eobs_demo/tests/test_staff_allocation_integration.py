@@ -46,7 +46,9 @@ class TestStaffAllocationIntegration(TransactionCase):
         shift_coordinators = self.user_pool.search(cr, uid, [
             ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group']])
         if not shift_coordinators:
-            raise ValueError('Unable to find Shift Coordinators to use for test')
+            raise ValueError(
+                'Unable to find Shift Coordinators to use for test'
+            )
         self.shift_coordinator = shift_coordinators[0]
 
         senior_managers = self.user_pool.search(cr, uid, [
@@ -64,8 +66,11 @@ class TestStaffAllocationIntegration(TransactionCase):
         if not doctors:
             raise ValueError('Unable to find Doctor to use for test')
         self.doctors = doctors
-        self.wizard = self.allocation_pool.create(self.cr, self.shift_coordinator,
-                                                  {'ward_id': self.ward})
+        self.wizard = self.allocation_pool.create(
+            self.cr,
+            self.shift_coordinator,
+            {'ward_id': self.ward}
+        )
 
     def check_user_groups(self, group, locations):
         groups_to_name = {
@@ -90,7 +95,11 @@ class TestStaffAllocationIntegration(TransactionCase):
           allocated to
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.submit_ward(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.submit_ward(
+            cr,
+            self.shift_coordinator,
+            self.wizard
+        )
 
         # Get the wizard
         wizard = self.allocation_pool.read(cr, uid, self.wizard,
@@ -119,8 +128,12 @@ class TestStaffAllocationIntegration(TransactionCase):
         cr, uid = self.cr, self.uid
 
         # TODO: Add a follower to a patient to ensure it get removed
-        self.allocation_pool.submit_ward(cr, self.shift_coordinator, self.wizard)
-        self.allocation_pool.deallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.submit_ward(
+            cr, self.shift_coordinator, self.wizard
+        )
+        self.allocation_pool.deallocate(
+            cr, self.shift_coordinator, self.wizard
+        )
 
         wizard = self.allocation_pool.read(cr, uid, self.wizard,
                                            ['stage', 'location_ids',
@@ -159,13 +172,20 @@ class TestStaffAllocationIntegration(TransactionCase):
         - holding the list of user_ids from the roll call(filled in by the GUI)
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.submit_ward(cr, self.shift_coordinator, self.wizard)
-        self.allocation_pool.deallocate(cr, self.shift_coordinator, self.wizard)
+        self.allocation_pool.submit_ward(
+            cr, self.shift_coordinator, self.wizard
+        )
+        self.allocation_pool.deallocate(
+            cr, self.shift_coordinator, self.wizard
+        )
         self.allocation_pool.write(cr, uid, self.wizard, {
             'user_ids': [[6, 0, [self.hca, self.nurse]]]})
-        self.allocation_pool.submit_users(cr, self.shift_coordinator, self.wizard)
-        wizard = self.allocation_pool.read(cr, self.shift_coordinator, self.wizard,
-                                           ['stage', 'user_ids'])
+        self.allocation_pool.submit_users(
+            cr, self.shift_coordinator, self.wizard
+        )
+        wizard = self.allocation_pool.read(
+            cr, self.shift_coordinator, self.wizard, ['stage', 'user_ids']
+        )
         self.assertEqual(wizard.get('stage'), 'allocation')
         self.assertEqual(wizard.get('user_ids'), [self.hca, self.nurse])
 
@@ -176,13 +196,20 @@ class TestStaffAllocationIntegration(TransactionCase):
         locations in the wizard
         """
         cr, uid = self.cr, self.uid
-        self.allocation_pool.submit_ward(cr, self.shift_coordinator, self.wizard)
-        self.allocation_pool.deallocate(cr, self.shift_coordinator, self.wizard)
-        self.allocation_pool.write(cr, uid, self.wizard, {
-            'user_ids': [[6, 0, [self.hca, self.nurse]]]})
-        self.allocation_pool.submit_users(cr, self.shift_coordinator, self.wizard)
-        wizard = self.allocation_pool.read(cr, self.shift_coordinator, self.wizard,
-                                           ['allocating_ids'])
+        self.allocation_pool.submit_ward(
+            cr, self.shift_coordinator, self.wizard
+        )
+        self.allocation_pool.deallocate(
+            cr, self.shift_coordinator, self.wizard
+        )
+        self.allocation_pool.write(
+            cr, uid, self.wizard,
+            {'user_ids': [[6, 0, [self.hca, self.nurse]]]}
+        )
+        self.allocation_pool.submit_users(cr, self.shift_coordinator,
+                                          self.wizard)
+        wizard = self.allocation_pool.read(cr, self.shift_coordinator,
+                                           self.wizard, ['allocating_ids'])
         self.allocating_pool.write(cr, uid, wizard.get('allocating_ids')[0],
                                    {
                                        'nurse_id': self.nurse,
