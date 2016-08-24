@@ -66,9 +66,9 @@ before_install:
 - git clone https://github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
 - export PR=https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST
-- export PR_SOURCE=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo `curl -s $PR | jq -r .head.ref`; fi)
-- export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" != "false" ] && ! git rev-parse --verify $PR_SOURCE; then echo "develop"; else echo $PR_SOURCE; fi)
-- echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST, TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, PR_SOURCE=$PR_SOURCE, BRANCH=$BRANCH"
+- export BRANCH_SOURCE=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo `curl -s $PR | jq -r .head.ref`; fi)
+- export BRANCH=$(if ! git rev-parse --verify $BRANCH_SOURCE; then echo "develop"; else echo $BRANCH_SOURCE; fi)
+- echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST, TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH_SOURCE=$BRANCH_SOURCE, BRANCH=$BRANCH"
 - git checkout $BRANCH
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
