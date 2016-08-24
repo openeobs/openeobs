@@ -67,8 +67,7 @@ before_install:
 - cd NeovaHealth/nhclinical
 - export PR=https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST
 - export BRANCH=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo `curl -s $PR | jq -r .head.ref`; fi)
-- git rev-parse --verify $BRANCH
-- if [ $? -gt 0 ]; then BRANCH=$TRAVIS_BRANCH; fi
+- if ! git rev-parse --verify $BRANCH; then BRANCH=$TRAVIS_BRANCH; fi
 - echo "TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH=$BRANCH"
 - git checkout $BRANCH
 - mkdir -p ${HOME}/dependencies
