@@ -21,8 +21,6 @@ class TestNHClinicalWardBoardToggleObsStop(TransactionCase):
             }
             return output.get(test, [])
 
-
-
         def patch_wardboard_read(*args, **kwargs):
             return {
                 'spell_activity_id': (1, 'Spell/Visit'),

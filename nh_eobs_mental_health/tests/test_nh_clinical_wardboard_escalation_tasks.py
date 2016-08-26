@@ -12,7 +12,7 @@ class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
         super(TestNHClinicalWardBoardEscalationTasks, self).setUp()
         self.wardboard_model = self.registry('nh.clinical.wardboard')
         self.activity_model = self.registry('nh.activity')
-        
+
         def patch_activity_search(*args, **kwargs):
             context = kwargs.get('context', {})
             test = context.get('test', '')
