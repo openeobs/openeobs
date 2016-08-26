@@ -5,7 +5,7 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//form/header" position="after">
+                <xpath expr="//form/header" position="inside">
                     <button name="toggle_obs_stop" string="Obs Stop" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['patient_id','=',False]]}"/>
                 </xpath>
             </field>
