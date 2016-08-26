@@ -10,14 +10,8 @@ class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
 
     def setUp(self):
         super(TestNHClinicalWardBoardEscalationTasks, self).setUp()
-        self.spell_model = self.registry('nh.clinical.spell')
         self.wardboard_model = self.registry('nh.clinical.wardboard')
         self.activity_model = self.registry('nh.activity')
-        
-        def patch_spell_read(*ags, **kwargs):
-            return {
-                'activity_id': 1337,
-            }
         
         def patch_activity_search(*args, **kwargs):
             context = kwargs.get('context', {})
@@ -27,12 +21,10 @@ class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
                 'no_activities': []
             }
             return output.get(test, [])
-        
-        self.spell_model._patch_method('read', patch_spell_read)
+
         self.activity_model._patch_method('search', patch_activity_search)
 
     def tearDown(self):
-        self.spell_model._revert_method('read')
         self.activity_model._revert_method('search')
         super(TestNHClinicalWardBoardEscalationTasks, self).tearDown()
 
