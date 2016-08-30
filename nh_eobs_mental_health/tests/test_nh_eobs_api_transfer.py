@@ -72,18 +72,6 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         cls.spell_id = cls.spell_model.search(
             cr, uid, [['patient_id', '=', cls.patient_id]])[0]
 
-        def patch_spell_search(*args, **kwargs):
-            return [cls.spell_id]
-
-        # Need to patch out the spell_search as it doesn't find the newly
-        # created spell for some reason
-        cls.spell_model._patch_method('search', patch_spell_search)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.spell_model._revert_method('search')
-        super(TestNHeObsAPITransfer, cls).tearDownClass()
-
     def test_transfer_changes_flag(self):
         """
         TEst that when transferring a patient with a set obs_stop flag the flag
