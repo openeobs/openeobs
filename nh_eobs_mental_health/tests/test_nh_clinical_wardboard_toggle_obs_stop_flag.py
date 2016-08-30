@@ -1,5 +1,4 @@
 from openerp.tests.common import TransactionCase
-from openerp.osv import osv
 
 
 class TestNHClinicalWardBoardToggleObsStopFlag(TransactionCase):
@@ -33,7 +32,7 @@ class TestNHClinicalWardBoardToggleObsStopFlag(TransactionCase):
         cr, uid = self.cr, self.uid
         self.spell_model.write(cr, uid, self.spell, {'obs_stop': False})
         self.wardboard_model.toggle_obs_stop_flag(
-                cr, uid, self.spell, context={'test': 'has_activities'})
+            cr, uid, self.spell, context={'test': 'has_activities'})
         flag = self.spell_model.read(cr, uid, self.spell, ['obs_stop'])
         self.assertTrue(flag.get('obs_stop'))
 
@@ -45,6 +44,6 @@ class TestNHClinicalWardBoardToggleObsStopFlag(TransactionCase):
         cr, uid = self.cr, self.uid
         self.spell_model.write(cr, uid, self.spell, {'obs_stop': True})
         self.wardboard_model.toggle_obs_stop_flag(
-                cr, uid, self.spell, context={'test': 'has_activities'})
+            cr, uid, self.spell, context={'test': 'has_activities'})
         flag = self.spell_model.read(cr, uid, self.spell, ['obs_stop'])
         self.assertFalse(flag.get('obs_stop'))
