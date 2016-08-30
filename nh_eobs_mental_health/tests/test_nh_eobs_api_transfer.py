@@ -19,7 +19,7 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
 
         cr, uid = cls.cr, cls.uid
         hosp_id_search = cls.location_model.search(
-            cr, uid, [['code', '=', 'SLAM'], ['usage', '=', 'hospital']]
+            cr, uid, [['usage', '=', 'hospital']]
         )
         if hosp_id_search:
             cls.hospital_id = hosp_id_search[0]
@@ -39,6 +39,26 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
             'pos_ids': [[4, cls.pos_id]]
         })
 
+        cls.location_model.create(
+            cr, uid, {
+                'name': 'Ward0',
+                'code': 'W0',
+                'usage': 'ward',
+                'parent_id': cls.hospital_id,
+                'type': 'poc'
+            }
+        )
+
+        cls.location_model.create(
+            cr, uid, {
+                'name': 'Ward1',
+                'code': 'W1',
+                'usage': 'ward',
+                'parent_id': cls.hospital_id,
+                'type': 'poc'
+            }
+        )
+
         # register, admit and place patient
         cls.patient_id = cls.api_model.register(cr, uid, 'TESTHN001', {
             'family_name': 'Testersen',
@@ -46,7 +66,7 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         })
 
         cls.api_model.admit(
-            cr, uid, 'TESTHN001', {'location': '325'}
+            cr, uid, 'TESTHN001', {'location': 'W0'}
         )
 
         cls.spell_id = cls.spell_model.search(
@@ -72,6 +92,6 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         cr, uid = self.cr, self.uid
         self.spell_model.write(cr, uid, self.spell_id, {'obs_stop': True})
         self.api_model.transfer(
-            cr, uid, 'TESTHN001', {'from_location': '325', 'location': '324'})
+            cr, uid, 'TESTHN001', {'from_location': 'W0', 'location': 'W1'})
         spell = self.spell_model.read(cr, uid, self.spell_id, ['obs_stop'])
         self.assertFalse(spell.get('obs_stop', True))
