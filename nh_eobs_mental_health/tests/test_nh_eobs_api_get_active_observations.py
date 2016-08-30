@@ -6,7 +6,7 @@ class TestNHeObsAPIGetActiveObservations(SingleTransactionCase):
     Test that setting the obs_stop flag on the patient's spell means no
     observations are active for the patient
     """
-    
+
     @classmethod
     def setUpClass(cls):
         super(TestNHeObsAPIGetActiveObservations, cls).setUpClass()

@@ -1,4 +1,4 @@
-from openerp.osv import orm, fields, osv
+from openerp.osv import orm
 
 
 class NHeObsAPI(orm.AbstractModel):
