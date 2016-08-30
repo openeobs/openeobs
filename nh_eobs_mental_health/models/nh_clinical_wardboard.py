@@ -7,7 +7,7 @@ class NHClinicalWardboard(orm.Model):
     _inherit = 'nh.clinical.wardboard'
 
     def _get_obs_stop_from_spell(self, cr, uid, ids, field_name, arg,
-                                      context=None):
+                                 context=None):
         """
         Function field to return obs_stop flag from spell
         :param cr: Odoo cursor

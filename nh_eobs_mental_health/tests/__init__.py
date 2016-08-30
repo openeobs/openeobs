@@ -5,3 +5,4 @@ from . import test_nh_clinical_wardboard_escalation_tasks
 from . import test_nh_clinical_wardboard_toggle_obs_stop
 from . import test_nh_clinical_wardboard_toggle_obs_stop_flag
 from . import test_nh_eobs_api_get_active_observations
+from . import test_nh_eobs_api_transfer
