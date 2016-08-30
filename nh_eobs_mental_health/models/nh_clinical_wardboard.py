@@ -1,10 +1,30 @@
-from openerp.osv import orm, osv
+from openerp.osv import orm, osv, fields
 
 
 class NHClinicalWardboard(orm.Model):
 
     _name = 'nh.clinical.wardboard'
     _inherit = 'nh.clinical.wardboard'
+
+    def _get_obs_stop_from_spell(self, cr, uid, ids, field_name, arg,
+                                      context=None):
+        """
+        Function field to return obs_stop flag from spell
+        :param cr: Odoo cursor
+        :param uid: User ID of user doing operatoin
+        :param ids: Ids to read
+        :param field_name: name of field
+        :param arg: arguments
+        :param context: Odoo context
+        :return: obs_stop flag from spell
+        """
+        spell_model = self.pool['nh.clinical.spell']
+        flags = spell_model.read(cr, uid, ids, ['obs_stop'], context=context)
+        return dict([(rec.get('id'), rec.get('obs_stop')) for rec in flags])
+
+    _columns = {
+        'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
+    }
 
     def toggle_obs_stop(self, cr, uid, ids, context=None):
         """
