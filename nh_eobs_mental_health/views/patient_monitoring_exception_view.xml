@@ -1,0 +1,11 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_select_obs_stop_reason">
+            <field name="name">Select Obs Stop Reason</field>
+            <field name="model">nh.clinical.patient_monitoring_exception</field>
+            <field name="arch" type="xml">
+                <h1>hi</h1>
+            </field>
+        </record>
+    </data>
+</openerp>

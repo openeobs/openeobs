@@ -26,6 +26,30 @@ class NHClinicalWardboard(orm.Model):
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
     }
 
+    def prompt_user_for_obs_stop_reason(self, cr, uid, ids, context=None):
+        """
+
+        :return:
+        """
+        patient_monitoring_exception_model = \
+            self.pool['nh.clinical.patient_monitoring_exception']
+        res_id = self.pool['ir_model_data'].get_object_reference(
+            cr, uid, 'nh_eobs_mental_health', 'test_patient_monitoring_exception'
+        )[1]
+        view_id = self.pool['ir_model_data'].get_object_reference(
+            cr, uid, 'nh_eobs_mental_health', 'view_select_obs_stop_reason'
+        )[1]
+        return {
+            'name': "Choose Obs Stop Reason",
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.patient_monitoring_exception',
+            'res_id': res_id,
+            'view_mode': 'form',
+            'view_type': 'form',
+            'target': 'new',
+            'view_id': view_id
+        }
+
     def toggle_obs_stop(self, cr, uid, ids, context=None):
         """
         Handle button press on 'Stop Observations'/'Restore Observation' button
