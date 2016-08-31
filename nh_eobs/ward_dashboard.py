@@ -157,11 +157,13 @@ class nh_eobs_ward_dashboard(orm.Model):
         create or replace view
         wdb_ward_locations as(
             with recursive ward_loc(id, parent_id, path, ward_id) as (
-                select lc.id, lc.parent_id, ARRAY[lc.id] as path, lc.id as ward_id
+                select lc.id, lc.parent_id, ARRAY[lc.id] as path,
+                lc.id as ward_id
                 from nh_clinical_location as lc
                 where lc.usage = 'ward'
                 union all
-                select l.id, l.parent_id, w.path || ARRAY[l.id] as path, w.path[1]
+                select l.id, l.parent_id,
+                w.path || ARRAY[l.id] as path, w.path[1]
                     as ward_id
                 from ward_loc as w, nh_clinical_location as l
                 where l.parent_id = w.id)
