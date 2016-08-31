@@ -6,8 +6,8 @@
             <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form/header" position="inside">
-                    <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
-                    <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
                 </xpath>
                 <xpath expr="//sheet/field" position="after">
                     <field name="obs_stop" readonly="1" invisible="1"/>
