@@ -33,10 +33,10 @@ class NHClinicalWardboard(orm.Model):
         """
         patient_monitoring_exception_model = \
             self.pool['nh.clinical.patient_monitoring_exception']
-        res_id = self.pool['ir_model_data'].get_object_reference(
+        res_id = self.pool['ir.model.data'].get_object_reference(
             cr, uid, 'nh_eobs_mental_health', 'test_patient_monitoring_exception'
         )[1]
-        view_id = self.pool['ir_model_data'].get_object_reference(
+        view_id = self.pool['ir.model.data'].get_object_reference(
             cr, uid, 'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
         return {
