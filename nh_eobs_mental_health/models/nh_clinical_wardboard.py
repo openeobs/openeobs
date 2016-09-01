@@ -39,11 +39,8 @@ class NHClinicalWardboard(orm.Model):
         if isinstance(ids, list):
             ids = ids[0]
         wardboard_obj = self.read(cr, uid, ids, context=context)
-        escalation_tasks_open_warning = 'One or more escalation tasks for ' \
-                                        '{0} are not completed.'
         spell_activity_id = wardboard_obj.get('spell_activity_id')[0]
         patient = wardboard_obj.get('patient_id')
-        patient_name = patient[1]
         spell_id = spell_model.search(
             cr, uid, [['patient_id', '=', patient[0]]])
         if not spell_id:
@@ -51,9 +48,25 @@ class NHClinicalWardboard(orm.Model):
         self.toggle_obs_stop_flag(cr, uid, spell_id[0], context=context)
         if self.spell_has_open_escalation_tasks(cr, uid, spell_activity_id,
                                                 context=context):
-            raise osv.except_osv(
-                'Warning!',
-                escalation_tasks_open_warning.format(patient_name))
+            action_model = self.pool['ir.actions.act_window']
+            view_id = action_model.search(cr, uid, [
+                ['name', '=', 'Wardboard Open Escalation Tasks Exception']
+            ])
+            if view_id and isinstance(view_id, list):
+                view_id = view_id[0]
+            return {
+                'name': 'Warning!',
+                'view_type': 'form',
+                'view_mode': 'form',
+                # 'views': [(view_id, 'form')],
+                'res_model': 'nh.clinical.wardboard.exception',
+                # 'view_id': view_id,
+                'type': 'ir.actions.act_window',
+                'res_id': ids,
+                'target': 'new',
+                # 'context': {},
+            }
+
         else:
             return True
 
@@ -89,3 +102,32 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
+
+
+class PatientMonitoringException(orm.TransientModel):
+
+    _name = 'nh.clinical.wardboard.exception'
+
+    _columns = {
+        'stop_render_bug': fields.char()
+    }
+
+    _defaults = {
+        'stop_render_bug': ''
+    }
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+                        context=None, toolbar=False, submenu=False):
+        result = super(PatientMonitoringException, self)\
+            .fields_view_get(
+            cr, uid, view_id, view_type, context, toolbar, submenu)
+        active_id = context.get('active_id')
+        if active_id:
+            patient_model = self.pool['nh.clinical.patient']
+            patient_name = patient_model.read(
+                cr, uid, active_id, ['display_name']).get('display_name')
+        else:
+            patient_name = ''
+        result['arch'] = result['arch'].replace('_patient_name_',
+                                                    patient_name)
+        return result
