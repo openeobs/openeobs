@@ -128,7 +128,8 @@ class NHClinicalNotificationFrequency(orm.Model):
                             '.ews' and clinical_risk == 'Low':
                         api_pool = self.pool['nh.clinical.api']
                         api_pool.trigger_notifications(cr, uid, {
-                            'notifications': self._notifications,
+                            'notifications': self.get_notifications(
+                                cr, uid, review_frequency),
                             'parent_id': review_frequency.parent_id.id,
                             'creator_id': activity_id,
                             'patient_id':
@@ -137,6 +138,9 @@ class NHClinicalNotificationFrequency(orm.Model):
                             'group': 'nurse'
                         }, context=context)
         return res
+
+    def get_notifications(self, cr, uid, activity):
+        return self._notifications
 
     def get_form_description(self, cr, uid, patient_id, context=None):
         freq_list = copy.deepcopy(frequencies.as_list())
