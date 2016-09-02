@@ -15,23 +15,25 @@
             </field>
         </record>
 
-         <record model="ir.ui.view" id="wardboard_open_escalation_tasks_view">
-             <field name="name">Wardboard Open Escalation Tasks View</field>
-             <field name="model">nh.clinical.wardboard.exception</field>
-             <field name="arch" type="xml">
-                <form string="Warning!">
-                    <p>One or more escalation tasks for _patient_name_ are not completed. <field name="stop_render_bug"/></p>
-                </form>
-            </field>
-         </record>
+         <!--<record model="ir.ui.view" id="wardboard_open_escalation_tasks_view">-->
+             <!--<field name="name">Wardboard Open Escalation Tasks View</field>-->
+             <!--<field name="model">nh.clinical.wardboard.exception</field>-->
+             <!--<field name="arch" type="xml">-->
+                <!--<form string="Warning!" version="7.0" class="nh-exception">-->
+                    <!--<group>-->
+                        <!--<p>One or more escalation tasks for _patient_name_ are not completed.</p>-->
+                    <!--</group>-->
+                <!--</form>-->
+            <!--</field>-->
+         <!--</record>-->
 
-         <record model="ir.actions.act_window" id="wardboard_open_escalation_tasks_exception">
-            <field name="name">Wardboard Open Escalation Tasks Exception</field>
-            <field name="res_model">nh.clinical.wardboard.exception</field>
-            <field name="view_type">form</field>
-            <field name="view_mode">form</field>
-            <field name="context">{}</field>
-            <field name="target">new</field>
-        </record>
+         <!--<record model="ir.actions.act_window.view" id="wardboard_open_escalation_tasks_exception">-->
+            <!--<field name="name">Wardboard Open Escalation Tasks Exception</field>-->
+            <!--<field name="res_model">nh.clinical.wardboard.exception</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="context">{}</field>-->
+            <!--<field name="target">new</field>-->
+        <!--</record>-->
     </data>
 </openerp>
