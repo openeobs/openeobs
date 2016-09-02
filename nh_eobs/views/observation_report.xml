@@ -259,11 +259,8 @@
                                         <tr>
                                             <td class="col-xs-4"><strong>Location:</strong></td>
                                             <td class="col-xs-8">
-                                                <t t-if="'bed' in patient">
-                                                    <t t-esc="patient['bed']"/>,
-                                                </t>
-                                                <t t-if="'ward' in patient">
-                                                    <t t-esc="patient['ward']"/>
+                                                <t t-if="'location' in patient">
+                                                    <t t-esc="patient['location']"/>
                                                 </t>
                                             </td>
                                         </tr>
