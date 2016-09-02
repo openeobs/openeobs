@@ -39,7 +39,7 @@ class NHClinicalWardboard(orm.Model):
         if isinstance(ids, list):
             ids = ids[0]
         wardboard_obj = self.read(cr, uid, ids, context=context)
-        spell_activity_id = wardboard_obj.get('spell_activity_id')[0]
+        # spell_activity_id = wardboard_obj.get('spell_activity_id')[0]
         patient = wardboard_obj.get('patient_id')
         spell_id = spell_model.search(
             cr, uid, [['patient_id', '=', patient[0]]])
