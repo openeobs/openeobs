@@ -28,25 +28,31 @@ class NHClinicalWardboard(orm.Model):
 
     def prompt_user_for_obs_stop_reason(self, cr, uid, ids, context=None):
         """
-
-        :return:
+        Returns an action to the front-end that instructs it to open another
+        view in which the user can select a reason for observations to be
+        stopped.
+        :return: An action that opens another view.
+        :rtype: dict
         """
         patient_monitoring_exception_model = \
             self.pool['nh.clinical.patient_monitoring_exception']
         res_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs_mental_health', 'test_patient_monitoring_exception'
+            cr, uid, 'nh_eobs', 'acute_hospital_ed'
         )[1]
+        display_model = self.pool['nh.clinical.patient_monitoring_exception_reason_display_model']
+        display_model_id = display_model.create(cr, uid, context=context)
         view_id = self.pool['ir.model.data'].get_object_reference(
             cr, uid, 'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
         return {
-            'name': "Choose Obs Stop Reason",
+            'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.patient_monitoring_exception',
-            'res_id': res_id,
+            'res_model': 'nh.clinical.patient_monitoring_exception_reason',
+            'res_id': display_model_id,
             'view_mode': 'form',
             'view_type': 'form',
             'target': 'new',
+            'context': context,
             'view_id': view_id
         }
 

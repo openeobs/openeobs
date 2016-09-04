@@ -14,5 +14,26 @@
                 </xpath>
             </field>
         </record>
+        <!--record model="ir.actions.act_window" id="action_patient_observation_status_change">
+            <field name="name">Patient Observation Status Change</field>
+            <field name="res_model">nh.clinical.patient_monitoring_exception_reason_display_model</field>
+            <field name="view_mode">form</field>
+            <field name="view_type">form</field>
+            <field name="target">new</field>
+        </record-->
+        <!--record model="ir.ui.view" id="view_select_obs_stop_reason">
+            <field name="name">Select Patient Monitoring Exception Reason</field>
+            <field name="model">nh.clinical.patient_monitoring_exception_reason</field>
+            <field name="arch" type="xml">
+                <form>
+                    <field name="reasons"/>
+                    <button name="create_patient_monitoring_exception" string="Select" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
+                </form>
+                <tree>
+                    <field name="display_name"/>
+                    <button name="create_patient_monitoring_exception" string="Select" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
+                </tree>
+            </field>
+        </record-->
     </data>
 </openerp>

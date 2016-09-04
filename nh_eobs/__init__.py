@@ -16,4 +16,4 @@ from . import observation_extension
 from . import helpers
 from . import nh_clinical_extension
 from . import import_validation
-from .models import patient_monitoring_exception
+from .models import nh_clinical_patient_monitoring_exception
