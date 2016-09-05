@@ -34,21 +34,16 @@ class NHClinicalWardboard(orm.Model):
         :return: An action that opens another view.
         :rtype: dict
         """
-        patient_monitoring_exception_model = \
-            self.pool['nh.clinical.patient_monitoring_exception']
-        res_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs', 'acute_hospital_ed'
-        )[1]
-        display_model = self.pool['nh.clinical.patient_monitoring_exception_reason_display_model']
-        display_model_id = display_model.create(cr, uid, context=context)
+        wizard_model = self.pool['nh.clinical.patient_monitoring_exception.select_reason']
+        wizard_id = wizard_model.create(cr, uid, {}, context)
         view_id = self.pool['ir.model.data'].get_object_reference(
             cr, uid, 'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
         return {
             'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.patient_monitoring_exception_reason',
-            'res_id': display_model_id,
+            'res_model': 'nh.clinical.patient_monitoring_exception.select_reason',
+            'res_id': wizard_id,
             'view_mode': 'form',
             'view_type': 'form',
             'target': 'new',

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record model="nh.clinical.patient_monitoring_exception_reason" id="acute_hospital_ed">
+            <field name="display_text">Acute hospital ED</field>
+        </record>
+        <record model="nh.clinical.patient_monitoring_exception_reason" id="extended_leave">
+            <field name="display_text">Extended leave</field>
+        </record>
+        <record model="nh.clinical.patient_monitoring_exception_reason" id="awol">
+            <field name="display_text">AWOL</field>
+        </record>
+    </data>
+</openerp>

@@ -21,11 +21,10 @@ class PatientMonitoringExceptionReason(models.Model):
     _name = 'nh.clinical.patient_monitoring_exception_reason'
 
     display_text = fields.Char(string='Reason')
+    display_model_id = fields.Many2one(
+        comodel_name='nh.clinical.patient_monitoring_exception.select_reason'
+    )
 
     @api.multi
     def name_get(self):
         return [(rec.id, rec.display_text) for rec in self]
-
-    def create_patient_monitoring_exception(self):
-        wardboard_model = self.registry('nh.clinical.wardboard')
-        return {}
