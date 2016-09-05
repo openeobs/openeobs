@@ -78,7 +78,17 @@ class NHClinicalWardboard(orm.Model):
             cr, uid, [['patient_id', '=', patient[0]]])
         if not spell_id:
             raise ValueError('No spell found for patient')
-        self.toggle_obs_stop_flag(cr, uid, spell_id[0], context=context)
+        obs_stop = \
+            self.toggle_obs_stop_flag(cr, uid, spell_id[0], context=context)
+        if obs_stop:
+            if not self.cancel_open_ews(
+                    cr, uid, spell_activity_id, context=context):
+                raise osv.except_osv(
+                    'Error', 'There was an issue cancelling '
+                             'all open NEWS activities'
+                )
+        # else:
+        #     # Restart obs
         if self.spell_has_open_escalation_tasks(cr, uid, spell_activity_id,
                                                 context=context):
             raise osv.except_osv(
@@ -99,7 +109,8 @@ class NHClinicalWardboard(orm.Model):
         spell_model = self.pool['nh.clinical.spell']
         spell = spell_model.read(cr, uid, spell_id, ['obs_stop'])
         obs_stop = spell.get('obs_stop')
-        return spell_model.write(cr, uid, spell_id, {'obs_stop': not obs_stop})
+        spell_model.write(cr, uid, spell_id, {'obs_stop': not obs_stop})
+        return not obs_stop
 
     def spell_has_open_escalation_tasks(self, cr, uid, spell_activity_id,
                                         context=None):
@@ -119,3 +130,19 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
+
+    def cancel_open_ews(self, cr, uid, spell_activity_id, context=None):
+        """
+        Cancel all open EWS observations
+        :param cr: Odoo cursor
+        :param uid: User carrying out the operation
+        :param spell_activity_id: ID of the spell activity
+        :param context: Odoo context
+        :return: True is successful, False if not
+        """
+        # Cancel all open obs
+        activity_model = self.pool['nh.activity']
+        return activity_model.cancel_open_activities(
+            cr, uid, spell_activity_id,
+            model='nh.clinical.patient.observation.ews',
+            context=context)
