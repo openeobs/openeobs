@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
 
+
 class PatientMonitoringException(models.Model):
     """
     A 'patient monitoring exception' is any reason why a patient is currently
@@ -17,6 +18,7 @@ class PatientMonitoringException(models.Model):
     reason = fields.Many2one('nh.clinical.patient_monitoring_exception_reason')
     spell = fields.Many2one('nh.clinical.spell')
 
+
 class PatientMonitoringExceptionReason(models.Model):
     _name = 'nh.clinical.patient_monitoring_exception_reason'
 
@@ -27,5 +29,5 @@ class PatientMonitoringExceptionReason(models.Model):
         return [(rec.id, rec.display_text) for rec in self]
 
     def create_patient_monitoring_exception(self):
-        wardboard_model = self.registry('nh.clinical.wardboard')
+        # wardboard_model = self.registry('nh.clinical.wardboard')
         return {}

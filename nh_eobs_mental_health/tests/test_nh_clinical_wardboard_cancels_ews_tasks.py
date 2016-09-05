@@ -7,7 +7,7 @@ class TestNHClinicalWardBoardCancelsEWSTasks(SingleTransactionCase):
     Test that the open EWS task for a spell is cancelled when pressing obs_stop
     and setting the flag to True
     """
-    
+
     @classmethod
     def setUpClass(cls):
         super(TestNHClinicalWardBoardCancelsEWSTasks, cls).setUpClass()
