@@ -19,7 +19,7 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
 
         cr, uid = cls.cr, cls.uid
         hosp_id_search = cls.location_model.search(
-            cr, uid, [['code', '=', 'SLAM'], ['usage', '=', 'hospital']]
+            cr, uid, [['usage', '=', 'hospital']]
         )
         if hosp_id_search:
             cls.hospital_id = hosp_id_search[0]
