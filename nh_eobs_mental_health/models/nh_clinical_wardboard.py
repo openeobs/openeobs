@@ -1,4 +1,5 @@
 from openerp.osv import orm, fields
+from openerp import api
 
 
 class NHClinicalWardboard(orm.Model):
@@ -26,7 +27,8 @@ class NHClinicalWardboard(orm.Model):
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
     }
 
-    def prompt_user_for_obs_stop_reason(self, cr, uid, ids, context=None):
+    @api.multi
+    def prompt_user_for_obs_stop_reason(self):
         """
         Returns an action to the front-end that instructs it to open another
         view in which the user can select a reason for observations to be
@@ -34,20 +36,35 @@ class NHClinicalWardboard(orm.Model):
         :return: An action that opens another view.
         :rtype: dict
         """
-        wizard_model = self.pool['nh.clinical.patient_monitoring_exception.select_reason']
-        wizard_id = wizard_model.create(cr, uid, {}, context)
-        view_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs_mental_health', 'view_select_obs_stop_reason'
+        spell = self.get_associated_spell()
+        # Very important, spell is needed later in
+        # nh.clinical.patient_monitoring_exception's
+        # create_patient_monitoring_exception() method.
+        self = self.with_context(spell=spell.id)
+
+        wizard_model = \
+            self.env['nh.clinical.patient_monitoring_exception.select_reason']
+        # If there are open escalation tasks the front-end should warn user.
+        wizard = wizard_model.create({
+            'spell_has_open_escalation_tasks':
+                self.spell_has_open_escalation_tasks(spell.id),
+            'patient_name':
+                self.patient_id.given_name + ' ' + self.patient_id.family_name
+        })
+
+        view_id = self.env['ir.model.data'].get_object_reference(
+            'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
+
         return {
             'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
             'res_model': 'nh.clinical.patient_monitoring_exception.select_reason',
-            'res_id': wizard_id,
+            'res_id': wizard.id,
             'view_mode': 'form',
             'view_type': 'form',
             'target': 'new',
-            'context': context,
+            'context': self.env.context,
             'view_id': view_id
         }
 
@@ -64,34 +81,12 @@ class NHClinicalWardboard(orm.Model):
         if isinstance(ids, list):
             ids = ids[0]
         wardboard_obj = self.read(cr, uid, ids, context=context)
-        # spell_activity_id = wardboard_obj.get('spell_activity_id')[0]
         patient = wardboard_obj.get('patient_id')
         spell_id = spell_model.search(
             cr, uid, [['patient_id', '=', patient[0]]])
         if not spell_id:
             raise ValueError('No spell found for patient')
         self.toggle_obs_stop_flag(cr, uid, spell_id[0], context=context)
-        # if self.spell_has_open_escalation_tasks(cr, uid, spell_activity_id,
-        #                                         context=context):
-        #     action_model = self.pool['ir.ui.view']
-        #     view_id = action_model.search(cr, uid, [
-        #         ['name', '=', 'Wardboard Open Escalation Tasks View']
-        #     ])
-        #     if view_id and isinstance(view_id, list):
-        #         view_id = view_id[0]
-        #     return {
-        #         'name': 'Warning!',
-        #         'view_type': 'form',
-        #         'view_mode': 'form',
-        #         'views': [(view_id, 'form')],
-        #         'res_model': 'nh.clinical.wardboard.exception',
-        #         'view_id': view_id,
-        #         'type': 'ir.actions.act_windo.view',
-        #         'res_id': ids,
-        #         'target': 'new',
-        #         'context': {},
-        #     }
-        # else:
         return True
 
     def toggle_obs_stop_flag(self, cr, uid, spell_id, context=None):
@@ -126,6 +121,27 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
+
+
+# class PatientMonitoringException(orm.TransientModel):
+#
+#     _name = 'nh.clinical.wardboard.exception'
+#
+#     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+#                         context=None, toolbar=False, submenu=False):
+#         result = super(PatientMonitoringException, self)\
+#             .fields_view_get(
+#             cr, uid, view_id, view_type, context, toolbar, submenu)
+#         active_id = context.get('active_id')
+#         if active_id:
+#             patient_model = self.pool['nh.clinical.patient']
+#             patient_name = patient_model.read(
+#                 cr, uid, active_id, ['display_name']).get('display_name')
+#         else:
+#             patient_name = ''
+#         result['arch'] = result['arch'].replace('_patient_name_',
+#                                                 patient_name)
+#         return result
 
 
 # class PatientMonitoringException(orm.TransientModel):

@@ -1,13 +1,18 @@
 <openerp>
     <data>
+        <template id="assets_backend" name="nh_eobs_mental_health assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/view_select_obs_stop_reason.css"/>
+            </xpath>
+        </template>
         <record model="ir.ui.view" id="view_mental_wardboard_form">
             <field name="name">Mental Wardboard Form View</field>
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form/header" position="inside">
-                    <button name="prompt_user_for_obs_stop_reason" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
-                    <button name="prompt_user_for_obs_stop_reason" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
+                    <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
                 </xpath>
                 <xpath expr="//sheet/field" position="after">
                     <field name="obs_stop" readonly="1" invisible="1"/>
@@ -19,7 +24,11 @@
             <field name="model">nh.clinical.patient_monitoring_exception.select_reason</field>
             <field name="arch" type="xml">
                 <form>
-                    <!--field name="reason_ids"/-->
+                    <field name="spell_has_open_escalation_tasks" invisible="1"/>
+                    <span attrs="{'invisible': [('spell_has_open_escalation_tasks','=', True)]}">
+                        <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline reset_vertical_align"/> are not completed.
+                    </span>
+                    <h3>Select a reason for observation status change</h3>
                     <field name="reasons"/>
                     <footer>
                         <button name="create_patient_monitoring_exception" string="Confirm" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
@@ -28,26 +37,5 @@
                 </form>
             </field>
         </record>
-
-         <!--<record model="ir.ui.view" id="wardboard_open_escalation_tasks_view">-->
-             <!--<field name="name">Wardboard Open Escalation Tasks View</field>-->
-             <!--<field name="model">nh.clinical.wardboard.exception</field>-->
-             <!--<field name="arch" type="xml">-->
-                <!--<form string="Warning!" version="7.0" class="nh-exception">-->
-                    <!--<group>-->
-                        <!--<p>One or more escalation tasks for _patient_name_ are not completed.</p>-->
-                    <!--</group>-->
-                <!--</form>-->
-            <!--</field>-->
-         <!--</record>-->
-
-         <!--<record model="ir.actions.act_window.view" id="wardboard_open_escalation_tasks_exception">-->
-            <!--<field name="name">Wardboard Open Escalation Tasks Exception</field>-->
-            <!--<field name="res_model">nh.clinical.wardboard.exception</field>-->
-            <!--<field name="view_type">form</field>-->
-            <!--<field name="view_mode">form</field>-->
-            <!--<field name="context">{}</field>-->
-            <!--<field name="target">new</field>-->
-        <!--</record>-->
     </data>
 </openerp>

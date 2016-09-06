@@ -4,7 +4,7 @@
 Defines models for the `Wardboard` view.
 """
 from openerp.osv import orm, fields, osv
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 import logging
 
 
@@ -1526,3 +1526,7 @@ nh_clinical_wardboard as({wardboard});
 """.format(last_discharge_users=last_discharge_users,
            last_transfer_users=last_transfer_users,
            wardboard=wardboard))
+
+    @api.multi
+    def get_associated_spell(self):
+        return self.spell_activity_id.data_ref

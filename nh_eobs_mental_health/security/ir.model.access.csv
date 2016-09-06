@@ -1,2 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink,perm_responsibility
-wm_access_select_reason,manager:access_select_reason,model_nh_clinical_patient_monitoring_exception_select_reason,nh_clinical.group_nhc_ward_manager,1,1,1,0,0
