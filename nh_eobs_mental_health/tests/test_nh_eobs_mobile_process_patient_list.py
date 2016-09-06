@@ -25,7 +25,7 @@ class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
                     'obs_stop': True
                 }
             ]
-        
+
         def patch_calculate_ews_class(*args, **kwargs):
             return 'level-none'
 
@@ -43,7 +43,7 @@ class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
                 'next_ews_time': 'now'
             }
         ]
-        
+
         cls.spell_model._patch_method('search', patch_spell_search)
         cls.spell_model._patch_method('read', patch_spell_read)
         cls.mobile_model._patch_method(
@@ -51,24 +51,22 @@ class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
 
         cls.patients = cls.mobile_model.process_patient_list(
             cls.cr, cls.uid, cls.patient_list, context={'test': 'obs_stopped'})
-        
+
     @classmethod
     def tearDownClass(cls):
         cls.spell_model._revert_method('search')
         cls.spell_model._revert_method('read')
         cls.mobile_model._revert_method('calculate_ews_class')
         super(TestNHEobsMobileProcessPatientList, cls).tearDownClass()
-        
+
     def test_obs_stopped_deadline_string(self):
         """
         Test that the deadline string is set to 'Observations stopped' when
         the obs_stop flag is set to true
         """
-        
         self.assertEqual(
             self.patients[1].get('deadline_time'), 'Observations Stopped')
-        
-        
+
     def test_obs_stopped_deadline_string(self):
         """
         Test that the deadline string is set to 'Observations stopped' when
