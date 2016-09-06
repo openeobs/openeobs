@@ -36,3 +36,11 @@ def as_list():
 
 def minutes_only():
     return [minutes for minutes, _ in as_list()]
+
+
+def get_label_for_minutes(minutes):
+    label = ''
+    for frequency in as_list():
+        if frequency[0] == minutes:
+            label = frequency[1]
+    return label
