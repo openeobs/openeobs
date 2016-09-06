@@ -451,7 +451,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         request.session.logout(keep_db=True)
         return utils.redirect(URLS['login'], 303)
 
-    def calculate_ews_class(self, score):
+    @staticmethod
+    def calculate_ews_class(score):
         """
         Returns the :class:`EWS<nh_clinical_patient_observation_ews>`
         class.
@@ -472,7 +473,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         else:
             return 'level-none'
 
-    def process_patient_list(self, patient_list):
+    def process_patient_list(self, cr, uid, patient_list, context=None):
         for patient in patient_list:
             patient['url'] = '{0}{1}'.format(
                 URLS['single_patient'], patient['id'])
@@ -509,11 +510,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             activity_type='nh.clinical.patient.follow',
             context=context
         )
-        patients = self.process_patient_list(
-            patient_api.get_patients(cr, uid, [], context=context))
+        patients = self.process_patient_list(cr, uid,
+            patient_api.get_patients(
+                cr, uid, [], context=context), context=context)
         patient_api.get_patient_followers(cr, uid, patients, context=context)
-        following_patients = self.process_patient_list(
-            patient_api.get_followed_patients(cr, uid, []))
+        following_patients = self.process_patient_list(cr, uid,
+            patient_api.get_followed_patients(cr, uid, []), context=context)
         return request.render(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
@@ -545,7 +547,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             activity_type='nh.clinical.patient.follow',
             context=context
         )
-        self.process_patient_list(patients)
+        self.process_patient_list(cr, uid, patients, context=context)
         sorted_pts = sorted(
             patients,
             key=lambda k: cmp(k['followers'], k['invited_users'])
