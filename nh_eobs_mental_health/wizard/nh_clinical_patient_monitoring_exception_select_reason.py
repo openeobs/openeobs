@@ -23,11 +23,11 @@ class PatientMonitoringExceptionReasonDisplayModel(models.TransientModel):
                 "exception."
             )
         selected_reason_id = self.reasons[0].id
-        spell = self.env.context['spell']
+        spell_id = self.env.context['spell_id']
         exception_model = self.env['nh.clinical.patient_monitoring_exception']
         exception_model.create({
             'reason': selected_reason_id,
-            'spell': spell
+            'spell': spell_id
         })
         wardboard_model = self.env['nh.clinical.wardboard']
-        wardboard_model.toggle_obs_stop_flag(selected_reason_id)
+        wardboard_model.toggle_obs_stop_flag(spell_id)
