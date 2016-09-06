@@ -492,7 +492,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                         'color': 'level-none',
                         'deadline_time': 'overdue: 12:00 hours',
                         'summary': False,
-
+                        'trend_icon': 'icon-down-arrow',
                         'followers': [
                             {
                                 'id': 3,
@@ -860,7 +860,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             ('get_patients', mock_get_patients),
             ('get_patient_followers', mock_get_patient_followers),
             ('get_invited_users', mock_get_invited_users),
-            ('get_assigned_activities', mock_get_assigned_activities),
+            ('get_assigned_activities', mock_get_assigned_activities)
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
