@@ -147,3 +147,43 @@ class NHClinicalWardboard(orm.Model):
             cr, uid, spell_activity_id,
             model='nh.clinical.patient.observation.ews',
             context=context)
+
+    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
+                        context=None, toolbar=False, submenu=False):
+        """
+        Override nh_eobs.wardboard.fields_view_get to change next_diff to
+        'Observations Stopped' if obs_stop flag set on patient spell
+        :param cr: Odoo Cursor
+        :param uid: ID of user performing action
+        :param view_id: XML_ID of view
+        :param view_type: Type of view (form, kanban etc)
+        :param context: Odoo context
+        :param toolbar: If has toolbar or not
+        :param submenu: Submenu
+        :return: ui.ir.view for rendering on frontend
+        """
+        res = super(NHClinicalWardboard, self).fields_view_get(
+            cr, uid, view_id=view_id, view_type=view_type, context=context,
+            toolbar=toolbar, submenu=submenu)
+        return res
+
+    def read(self, cr, user, ids, fields=None, context=None,
+             load='_classic_read'):
+        res = super(NHClinicalWardboard, self).read(
+            cr, user, ids, fields, context=context, load=load)
+        for rec in res:
+            spell_model = self.pool['nh.clinical.spell']
+            patient_id = rec.get('patient_id')
+            if isinstance(patient_id, tuple):
+                patient_id = patient_id[0]
+            spell_id = spell_model.search(cr, uid, [
+                ['patient_id', '=', patient_id],
+                ['state', 'not in', ['completed', 'cancelled']]
+            ], context=context)
+            if spell_id:
+                spell_id = spell_id[0]
+                spell = spell_model.read(cr, uid, spell_id, ['obs_stop'],
+                                         context=context)
+                if spell.get('obs_stop'):
+                    rec['next_diff'] = 'Observations Stopped'
+        return res
