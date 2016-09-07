@@ -6,34 +6,48 @@
             <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form/header" position="inside">
-                    <button name="prompt_user_for_obs_stop_reason" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
-                    <button name="prompt_user_for_obs_stop_reason" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
                 </xpath>
                 <xpath expr="//sheet/field" position="after">
                     <field name="obs_stop" readonly="1" invisible="1"/>
                 </xpath>
             </field>
         </record>
-        <!--record model="ir.actions.act_window" id="action_patient_observation_status_change">
-            <field name="name">Patient Observation Status Change</field>
-            <field name="res_model">nh.clinical.patient_monitoring_exception_reason_display_model</field>
-            <field name="view_mode">form</field>
-            <field name="view_type">form</field>
-            <field name="target">new</field>
-        </record-->
-        <!--record model="ir.ui.view" id="view_select_obs_stop_reason">
-            <field name="name">Select Patient Monitoring Exception Reason</field>
-            <field name="model">nh.clinical.patient_monitoring_exception_reason</field>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_kanban">
+            <field name="name">Mental Wardboard Kanban View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
             <field name="arch" type="xml">
-                <form>
-                    <field name="reasons"/>
-                    <button name="create_patient_monitoring_exception" string="Select" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
-                </form>
-                <tree>
-                    <field name="display_name"/>
-                    <button name="create_patient_monitoring_exception" string="Select" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
-                </tree>
+                <xpath expr="//kanban/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
             </field>
-        </record-->
+        </record>
+
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree_transferred">
+            <field name="name">Mental Wardboard Recently Transferred</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree_transferred"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree">
+            <field name="name">Mental Wardboard Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>

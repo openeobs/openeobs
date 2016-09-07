@@ -66,9 +66,9 @@ class NHClinicalWardboard(orm.Model):
         :param context: Odoo context
         :return: True
         """
-        spell_model = self.pool['nh.clinical.spell']
         if isinstance(ids, list):
             ids = ids[0]
+        spell_model = self.pool['nh.clinical.spell']
         wardboard_obj = self.read(cr, uid, ids, context=context)
         escalation_tasks_open_warning = 'One or more escalation tasks for ' \
                                         '{0} are not completed.'
@@ -171,19 +171,25 @@ class NHClinicalWardboard(orm.Model):
              load='_classic_read'):
         res = super(NHClinicalWardboard, self).read(
             cr, user, ids, fields, context=context, load=load)
+        was_single_record = False
+        if not isinstance(res, list):
+            was_single_record = True
+            res = [res]
         for rec in res:
             spell_model = self.pool['nh.clinical.spell']
             patient_id = rec.get('patient_id')
             if isinstance(patient_id, tuple):
                 patient_id = patient_id[0]
-            spell_id = spell_model.search(cr, uid, [
+            spell_id = spell_model.search(cr, user, [
                 ['patient_id', '=', patient_id],
                 ['state', 'not in', ['completed', 'cancelled']]
             ], context=context)
             if spell_id:
                 spell_id = spell_id[0]
-                spell = spell_model.read(cr, uid, spell_id, ['obs_stop'],
+                spell = spell_model.read(cr, user, spell_id, ['obs_stop'],
                                          context=context)
                 if spell.get('obs_stop'):
                     rec['next_diff'] = 'Observations Stopped'
+        if was_single_record:
+            return res[0]
         return res

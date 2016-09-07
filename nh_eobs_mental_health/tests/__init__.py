@@ -9,3 +9,4 @@ from . import test_nh_eobs_api_transfer
 # from . import test_nh_clinical_wardboard_prompt_user_for_obs_stop_reason
 from . import test_nh_clinical_wardboard_cancels_ews_tasks
 from . import test_nh_eobs_mobile_process_patient_list
+from . import test_nh_clinical_wardboard_read_obs_stop
