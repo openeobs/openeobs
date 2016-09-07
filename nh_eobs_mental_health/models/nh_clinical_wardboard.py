@@ -28,6 +28,24 @@ class NHClinicalWardboard(orm.Model):
     }
 
     @api.multi
+    def toggle_obs_stop(self):
+        """
+        Handle button press on 'Stop Observations'/'Restore Observation' button
+        :param cr: Odoo cursor
+        :param uid: User doing the action
+        :param ids: IDs of wardboard
+        :param context: Odoo context
+        :return: True
+        """
+        spell = self.spell_activity_id.data_ref
+        if not spell.id:
+            raise ValueError('No spell found for patient')
+        if spell.obs_stop:
+            self.end_patient_monitoring_exception()
+        else:
+            return self.prompt_user_for_obs_stop_reason()
+
+    @api.multi
     def prompt_user_for_obs_stop_reason(self):
         """
         Returns an action to the front-end that instructs it to open another
@@ -36,26 +54,27 @@ class NHClinicalWardboard(orm.Model):
         :return: An action that opens another view.
         :rtype: dict
         """
-        spell = self.get_associated_spell()
-        # Very important, spell is needed later in
-        # nh.clinical.patient_monitoring_exception's
-        # create_patient_monitoring_exception() method.
-        self = self.with_context(spell=spell.id)
+        spell = self.spell_activity_id.data_ref
 
         wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
-        # If there are open escalation tasks the front-end should warn user.
+        patient_name = self.patient_id.given_name + ' ' + \
+                       self.patient_id.family_name
         wizard = wizard_model.create({
             'spell_has_open_escalation_tasks':
-                self.spell_has_open_escalation_tasks(spell.id),
-            'patient_name':
-                self.patient_id.given_name + ' ' + self.patient_id.family_name
+                self.spell_has_open_escalation_tasks(
+                    self.spell_activity_id.id),
+            'patient_name': patient_name
         })
 
         view_id = self.env['ir.model.data'].get_object_reference(
             'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
 
+        # Very important, spell is needed later in
+        # nh.clinical.patient_monitoring_exception's
+        # create_patient_monitoring_exception() method.
+        self = self.with_context(spell_id=spell.id)
         return {
             'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
@@ -68,26 +87,17 @@ class NHClinicalWardboard(orm.Model):
             'view_id': view_id
         }
 
-    def toggle_obs_stop(self, cr, uid, ids, context=None):
-        """
-        Handle button press on 'Stop Observations'/'Restore Observation' button
-        :param cr: Odoo cursor
-        :param uid: User doing the action
-        :param ids: IDs of wardboard
-        :param context: Odoo context
-        :return: True
-        """
-        spell_model = self.pool['nh.clinical.spell']
-        if isinstance(ids, list):
-            ids = ids[0]
-        wardboard_obj = self.read(cr, uid, ids, context=context)
-        patient = wardboard_obj.get('patient_id')
-        spell_id = spell_model.search(
-            cr, uid, [['patient_id', '=', patient[0]]])
-        if not spell_id:
-            raise ValueError('No spell found for patient')
-        self.toggle_obs_stop_flag(cr, uid, spell_id[0], context=context)
-        return True
+    @api.multi
+    def end_patient_monitoring_exception(self):
+        activity_model = self.env['nh.activity']
+        domain = [
+            ('spell_activity_id', '=', self.spell_activity_id.id)
+        ]
+        result = activity_model.search(domain)
+        if len(result) > 1:
+            raise ValueError("Only one monitoring exception per patient is "
+                             "expected, there is no way to know which "
+                             "monitoring exception the toggle intends to end.")
 
     def toggle_obs_stop_flag(self, cr, uid, spell_id, context=None):
         """
@@ -121,28 +131,6 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
-
-
-# class PatientMonitoringException(orm.TransientModel):
-#
-#     _name = 'nh.clinical.wardboard.exception'
-#
-#     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
-#                         context=None, toolbar=False, submenu=False):
-#         result = super(PatientMonitoringException, self)\
-#             .fields_view_get(
-#             cr, uid, view_id, view_type, context, toolbar, submenu)
-#         active_id = context.get('active_id')
-#         if active_id:
-#             patient_model = self.pool['nh.clinical.patient']
-#             patient_name = patient_model.read(
-#                 cr, uid, active_id, ['display_name']).get('display_name')
-#         else:
-#             patient_name = ''
-#         result['arch'] = result['arch'].replace('_patient_name_',
-#                                                 patient_name)
-#         return result
-
 
 # class PatientMonitoringException(orm.TransientModel):
 #

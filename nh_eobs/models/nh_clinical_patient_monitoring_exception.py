@@ -14,14 +14,14 @@ class PatientMonitoringException(models.Model):
     _name = 'nh.clinical.patient_monitoring_exception'
     _inherit = ['nh.activity.data']
 
-    reason = fields.Many2one('nh.clinical.patient_monitoring_exception_reason')
+    reason = fields.Many2one('nh.clinical.patient_monitoring_exception.reason')
     spell = fields.Many2one('nh.clinical.spell')
 
 class PatientMonitoringExceptionReason(models.Model):
-    _name = 'nh.clinical.patient_monitoring_exception_reason'
+    _name = 'nh.clinical.patient_monitoring_exception.reason'
 
     display_text = fields.Char(string='Reason')
-    display_model_id = fields.Many2one(
+    display_model = fields.Many2one(
         comodel_name='nh.clinical.patient_monitoring_exception.select_reason'
     )
 

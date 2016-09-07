@@ -1526,7 +1526,3 @@ nh_clinical_wardboard as({wardboard});
 """.format(last_discharge_users=last_discharge_users,
            last_transfer_users=last_transfer_users,
            wardboard=wardboard))
-
-    @api.multi
-    def get_associated_spell(self):
-        return self.spell_activity_id.data_ref

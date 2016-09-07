@@ -47,13 +47,3 @@ class TestNHClinicalWardBoardToggleObsStop(TransactionCase):
         self.spell_model._revert_method('read')
         self.spell_model._revert_method('search')
         super(TestNHClinicalWardBoardToggleObsStop, self).tearDown()
-
-    def test_raises_on_open_escalation_tasks(self):
-        """
-        Test that toggle_obs_stop raises osv exception when spell has open
-        escalation tasks
-        """
-        cr, uid = self.cr, self.uid
-        with self.assertRaises(osv.except_osv):
-            self.wardboard_model.toggle_obs_stop(
-                cr, uid, 1, context={'test': 'has_activities'})
