@@ -14,6 +14,7 @@ class TestNHClinicalWardBoardCancelsEWSTasks(SingleTransactionCase):
         cls.wardboard_model = cls.registry('nh.clinical.wardboard')
         cls.activity_model = cls.registry('nh.activity')
         cls.spell_model = cls.registry('nh.clinical.spell')
+        cls.ews_model = cls.registry('nh.clinical.patient.observation.ews')
 
         def patch_wardboard_read(*args, **kwargs):
             return {
@@ -51,6 +52,18 @@ class TestNHClinicalWardBoardCancelsEWSTasks(SingleTransactionCase):
                 cancel_called = True
             return patch_cancel_open_ews.origin(*args, **kwargs)
 
+        def patch_activity_create(*args, **kwargs):
+            context = kwargs.get('context', {})
+            test = context.get('test', '')
+            if test == 'create_success':
+                global ews_create_called
+                ews_create_called = True
+                return 1
+            return False
+
+        def patch_activity_schedule(*args, **kwargs):
+            return True
+
         cls.activity_model._patch_method(
             'cancel_open_activities', patch_cancel_open_activities)
         cls.wardboard_model._patch_method(
@@ -59,6 +72,9 @@ class TestNHClinicalWardBoardCancelsEWSTasks(SingleTransactionCase):
             'cancel_open_ews', patch_cancel_open_ews)
         cls.wardboard_model._patch_method('read', patch_wardboard_read)
         cls.spell_model._patch_method('search', patch_spell_search)
+        cls.ews_model._patch_method(
+            'create_activity', patch_activity_create)
+        cls.activity_model._patch_method('schedule', patch_activity_schedule)
 
     @classmethod
     def tearDownClass(cls):
@@ -68,6 +84,8 @@ class TestNHClinicalWardBoardCancelsEWSTasks(SingleTransactionCase):
         cls.wardboard_model._revert_method('cancel_open_ews')
         cls.wardboard_model._revert_method('read')
         cls.spell_model._revert_method('search')
+        cls.ews_model._revert_method('create_activity')
+        cls.activity_model._revert_method('schedule')
 
     def test_cancels_open_activities(self):
         self.wardboard_model.toggle_obs_stop(
