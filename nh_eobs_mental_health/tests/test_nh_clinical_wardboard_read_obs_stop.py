@@ -1,4 +1,14 @@
 from openerp.tests.common import SingleTransactionCase
+import __builtin__
+
+
+class PatchedReadSuper(object):
+
+    def read(*args, **kwargs):
+        return {
+            'patient_id': 1,
+            'next_diff': 'soon'
+        }
 
 
 class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
@@ -12,6 +22,11 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
         super(TestNHClinicalWardboardReadObsStop, cls).setUpClass()
         cls.wardboard_model = cls.registry('nh.clinical.wardboard')
         cls.spell_model = cls.registry('nh.clinical.spell')
+
+        def patch_wardboard_read_super(*args, **kwargs):
+            return PatchedReadSuper()
+
+        cls.patch_wardboard_read_super = patch_wardboard_read_super
 
         def patch_spell_search(*args, **kwargs):
             return [1]
@@ -30,8 +45,19 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
         cls.spell_model._patch_method('search', patch_spell_search)
         cls.spell_model._patch_method('read', patch_spell_read)
 
+        cls.original_super = super
+
+    def setUp(self):
+        super(TestNHClinicalWardboardReadObsStop, self).setUp()
+        __builtin__.super = self.patch_wardboard_read_super
+
+    def tearDown(self):
+        __builtin__.super = self.original_super
+        super(TestNHClinicalWardboardReadObsStop, self).tearDown()
+
     @classmethod
     def tearDownClass(cls):
+        __builtin__.super = cls.original_super
         cls.spell_model._revert_method('search')
         cls.spell_model._revert_method('read')
         super(TestNHClinicalWardboardReadObsStop, cls).tearDownClass()
@@ -56,4 +82,4 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
         read = self.wardboard_model.read(cr, uid, 1,
                                          fields=['next_diff', 'patient_id'],
                                          context={'test': 'obs_not_stopped'})
-        self.assertNotEqual(read.get('next_diff'), 'Observations Stopped')
+        self.assertEqual(read.get('next_diff'), 'soon')
