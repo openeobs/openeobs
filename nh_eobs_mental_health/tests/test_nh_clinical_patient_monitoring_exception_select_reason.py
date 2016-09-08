@@ -6,7 +6,7 @@ class TestNhClinicalPatientMonitoringExceptionSelectReason(TransactionCase):
     """
     Tests methods in :class:`PatientMonitoringExceptionSelectReason
     <nh_eobs_mental_health.wizard
-    .nh_clinical_patient_monitoring_exception_reason>`.
+    .nh_clinical_patient_monitoring_exception.reason>`.
     """
     def setUp(self):
         super(TestNhClinicalPatientMonitoringExceptionSelectReason, self)\
