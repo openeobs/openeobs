@@ -79,7 +79,8 @@ class NHClinicalWardboard(orm.Model):
         return {
             'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.patient_monitoring_exception.select_reason',
+            'res_model':
+                'nh.clinical.patient_monitoring_exception.select_reason',
             'res_id': wizard.id,
             'view_mode': 'form',
             'view_type': 'form',
@@ -90,6 +91,11 @@ class NHClinicalWardboard(orm.Model):
 
     @api.multi
     def end_patient_monitoring_exception(self):
+        """
+        Completes the patient monitoring exception activity and toggles the
+        'obs stop' flag on the spell to False as there are no longer any
+        patient monitoring exceptions in effect.
+        """
         activity_model = self.env['nh.activity']
 
         spell_id = self.spell_activity_id.data_ref.id

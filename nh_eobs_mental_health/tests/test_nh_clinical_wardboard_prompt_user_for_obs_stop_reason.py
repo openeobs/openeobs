@@ -3,7 +3,10 @@ from openerp.tests.common import TransactionCase
 
 
 class TestNhClinicalWardBoardPromptUserForObsStopReason(TransactionCase):
-
+    """
+    Tests :method:`prompt_user_for_obs_stop_reason` in
+    :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
+    """
     def setUp(self):
         super(TestNhClinicalWardBoardPromptUserForObsStopReason, self).setUp()
 

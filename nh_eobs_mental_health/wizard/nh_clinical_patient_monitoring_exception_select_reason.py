@@ -22,15 +22,15 @@ class PatientMonitoringExceptionReasonDisplayModel(models.TransientModel):
     @api.multi
     def start_patient_monitoring_exception(self):
         """
-        Create a new patient monitoring exception with the passed reason.
+        Creates a new patient monitoring exception with the passed reason.
 
-        Create an activity with a reference to the monitoring exception, save
+        Creates an activity with a reference to the monitoring exception, save
         the 'spell activity id' on the activity, and start it. It is difficult
         to retrieve the monitoring exception activity later to complete it if
         the spell activity id is not set.
 
-        Toggle the 'obs stop' flag on the spell as there are no longer any
-        patient monitoring exceptions.
+        Toggles the 'obs stop' flag on the spell to True as there is now a
+        patient monitoring exception in effect.
         """
         if len(self.reasons) > 1:
             raise ValueError(
