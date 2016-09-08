@@ -145,10 +145,17 @@ class NHClinicalWardboard(orm.Model):
                 "is no way to know which monitoring exception the toggle "
                 "intends to end."
             )
-        # Uh oh
+
+        # The 2 lines below are necessary to trick Odoo into thinking this is a
+        # 7.0 ORM API style method before the `complete` method is called on
+        # the activity. I believe there may be a problem in the decorator that
+        # is used on all activity data methods which specifically looks for all
+        # args.
+        # TODO Refactor the activity method decorator.
         patient_monitoring_exception_activity_id = \
             patient_monitoring_exception_activity.id
         patient_monitoring_exception_activity.__dict__.pop('_ids')
+
         patient_monitoring_exception_activity.complete(
             self.env.cr, self.env.uid,
             patient_monitoring_exception_activity_id
