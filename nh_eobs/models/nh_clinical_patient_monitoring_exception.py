@@ -2,6 +2,7 @@
 """Contains models related to patient monitoring exceptions."""
 from openerp import models, fields, api
 
+
 class PatientMonitoringException(models.Model):
     """
     A 'patient monitoring exception' is a waiver on the regular monitoring of a
@@ -19,6 +20,7 @@ class PatientMonitoringException(models.Model):
 
     reason = fields.Many2one('nh.clinical.patient_monitoring_exception.reason')
     spell = fields.Many2one('nh.clinical.spell')
+
 
 class PatientMonitoringExceptionReason(models.Model):
     """

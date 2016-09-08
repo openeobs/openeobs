@@ -57,7 +57,7 @@ class NHClinicalWardboard(orm.Model):
         wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
         patient_name = self.patient_id.given_name + ' ' + \
-                       self.patient_id.family_name
+            self.patient_id.family_name
         wizard = wizard_model.create({
             'spell_has_open_escalation_tasks':
                 self.spell_has_open_escalation_tasks(

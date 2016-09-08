@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
 
+
 class PatientMonitoringExceptionSelectReason(models.TransientModel):
     """
-    A model used for displaying a drop down list of patient monitoring exception
-    'reasons' so that the user can select one.
+    A model used for displaying a drop down list of patient monitoring
+    exception 'reasons' so that the user can select one.
 
     'spell_has_open_escalation_tasks' is used as a flag in the view so that
     warning messages can be shown.

@@ -4,7 +4,7 @@
 Defines models for the `Wardboard` view.
 """
 from openerp.osv import orm, fields, osv
-from openerp import SUPERUSER_ID, api
+from openerp import SUPERUSER_ID
 import logging
 
 
