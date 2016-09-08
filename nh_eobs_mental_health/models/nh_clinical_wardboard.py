@@ -54,8 +54,6 @@ class NHClinicalWardboard(orm.Model):
         :return: An action that opens another view.
         :rtype: dict
         """
-        spell = self.spell_activity_id.data_ref
-
         wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
         patient_name = self.patient_id.given_name + ' ' + \
@@ -71,10 +69,13 @@ class NHClinicalWardboard(orm.Model):
             'nh_eobs_mental_health', 'view_select_obs_stop_reason'
         )[1]
 
-        # Very important, spell is needed later in
+        # Very important, data is needed later in
         # nh.clinical.patient_monitoring_exception's
         # create_patient_monitoring_exception() method.
-        self = self.with_context(spell_id=spell.id)
+        self = self.with_context(
+            spell_id=self.spell_activity_id.data_ref.id,
+            spell_activity_id=self.spell_activity_id.id
+        )
         return {
             'name': "Patient Observation Status Change",
             'type': 'ir.actions.act_window',
@@ -90,14 +91,28 @@ class NHClinicalWardboard(orm.Model):
     @api.multi
     def end_patient_monitoring_exception(self):
         activity_model = self.env['nh.activity']
-        domain = [
+
+        spell_id = self.spell_activity_id.data_ref.id
+        patient_monitoring_exception_activity = activity_model.search([
+            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
             ('spell_activity_id', '=', self.spell_activity_id.id)
-        ]
-        result = activity_model.search(domain)
-        if len(result) > 1:
-            raise ValueError("Only one monitoring exception per patient is "
-                             "expected, there is no way to know which "
-                             "monitoring exception the toggle intends to end.")
+        ])
+        if len(patient_monitoring_exception_activity) > 1:
+            raise ValueError(
+                "Only one monitoring exception per patient is expected, there "
+                "is no way to know which monitoring exception the toggle "
+                "intends to end."
+            )
+        # Uh oh
+        patient_monitoring_exception_activity_id = \
+            patient_monitoring_exception_activity.id
+        patient_monitoring_exception_activity.__dict__.pop('_ids')
+        patient_monitoring_exception_activity.complete(
+            self.env.cr, self.env.uid,
+            patient_monitoring_exception_activity_id
+        )
+
+        self.toggle_obs_stop_flag(spell_id)
 
     def toggle_obs_stop_flag(self, cr, uid, spell_id, context=None):
         """

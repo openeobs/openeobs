@@ -29,7 +29,7 @@
                         <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline reset_vertical_align"/> are not completed.
                     </span>
                     <h3>Select a reason for observation status change</h3>
-                    <field name="reasons"/>
+                    <field name="reasons" widget="selection"/>
                     <footer>
                         <button name="start_patient_monitoring_exception" string="Confirm" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
                         <button special="cancel" string="Cancel"/>
