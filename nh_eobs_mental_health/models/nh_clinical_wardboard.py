@@ -90,6 +90,41 @@ class NHClinicalWardboard(orm.Model):
         }
 
     @api.multi
+    def start_patient_monitoring_exception(self, reasons, spell_id,
+                                           spell_activity_id):
+        """
+        Creates a new patient monitoring exception with the passed reason.
+
+        Creates an activity with a reference to the monitoring exception, save
+        the 'spell activity id' on the activity, and start it. It is difficult
+        to retrieve the monitoring exception activity later to complete it if
+        the spell activity id is not set.
+
+        Toggles the 'obs stop' flag on the spell to True as there is now a
+        patient monitoring exception in effect.
+        """
+        if len(reasons) > 1:
+            raise ValueError(
+                "More than one reason was selected. "
+                "There should only be one reason per patient monitoring "
+                "exception."
+            )
+
+        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        selected_reason_id = reasons[0].id
+        activity_id = pme_model.create_activity(
+            {},
+            {'reason': selected_reason_id, 'spell': spell_id}
+        )
+        activity_model = self.env['nh.activity']
+        pme_activity = activity_model.browse(activity_id)
+        pme_activity.spell_activity_id = spell_activity_id
+        pme_model.start(activity_id)
+
+        wardboard_model = self.env['nh.clinical.wardboard']
+        wardboard_model.toggle_obs_stop_flag(spell_id)
+
+    @api.multi
     def end_patient_monitoring_exception(self):
         """
         Completes the patient monitoring exception activity and toggles the
@@ -101,7 +136,8 @@ class NHClinicalWardboard(orm.Model):
         spell_id = self.spell_activity_id.data_ref.id
         patient_monitoring_exception_activity = activity_model.search([
             ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
-            ('spell_activity_id', '=', self.spell_activity_id.id)
+            ('spell_activity_id', '=', self.spell_activity_id.id),
+            ('state', 'not in', ['completed', 'cancelled'])
         ])
         if len(patient_monitoring_exception_activity) > 1:
             raise ValueError(

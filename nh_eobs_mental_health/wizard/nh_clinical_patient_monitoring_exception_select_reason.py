@@ -22,35 +22,17 @@ class PatientMonitoringExceptionSelectReason(models.TransientModel):
     @api.multi
     def start_patient_monitoring_exception(self):
         """
-        Creates a new patient monitoring exception with the passed reason.
-
-        Creates an activity with a reference to the monitoring exception, save
-        the 'spell activity id' on the activity, and start it. It is difficult
-        to retrieve the monitoring exception activity later to complete it if
-        the spell activity id is not set.
-
-        Toggles the 'obs stop' flag on the spell to True as there is now a
-        patient monitoring exception in effect.
+        As this model is only for the purposes of display in the UI this method
+        is limited in that it simply receives the call from the view and passes
+        on the necessary data in the model to
+        :method:`~models.nh_clinical_wardboard.NHClinicalWardboard
+        .start_patient_monitoring_exception` where most of the logic is
+        implemented.
         """
-        if len(self.reasons) > 1:
-            raise ValueError(
-                "More than one reason was selected. "
-                "There should only be one reason per patient monitoring "
-                "exception."
-            )
-        selected_reason_id = self.reasons[0].id
+        reasons = self.reasons
         spell_id = self.env.context['spell_id']
         spell_activity_id = self.env.context['spell_activity_id']
-
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        activity_id = pme_model.create_activity(
-            {},
-            {'reason': selected_reason_id, 'spell': spell_id}
-        )
-        activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell_activity_id
-        pme_model.start(activity_id)
-
         wardboard_model = self.env['nh.clinical.wardboard']
-        wardboard_model.toggle_obs_stop_flag(spell_id)
+        wardboard_model.start_patient_monitoring_exception(reasons,
+                                                           spell_id,
+                                                           spell_activity_id)
