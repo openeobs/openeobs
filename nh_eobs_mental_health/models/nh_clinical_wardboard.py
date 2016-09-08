@@ -122,7 +122,7 @@ class NHClinicalWardboard(orm.Model):
         pme_model.start(activity_id)
 
         wardboard_model = self.env['nh.clinical.wardboard']
-        wardboard_model.toggle_obs_stop_flag(spell_id)
+        wardboard_model.set_obs_stop_flag(spell_id, True)
 
     @api.multi
     def end_patient_monitoring_exception(self):
@@ -161,9 +161,9 @@ class NHClinicalWardboard(orm.Model):
             patient_monitoring_exception_activity_id
         )
 
-        self.toggle_obs_stop_flag(spell_id)
+        self.set_obs_stop_flag(spell_id, False)
 
-    def toggle_obs_stop_flag(self, cr, uid, spell_id, context=None):
+    def set_obs_stop_flag(self, cr, uid, spell_id, value, context=None):
         """
         Toggle the obs_stop flag on the spell object
         :param cr: Odoo cursor
@@ -173,9 +173,7 @@ class NHClinicalWardboard(orm.Model):
         :return: True
         """
         spell_model = self.pool['nh.clinical.spell']
-        spell = spell_model.read(cr, uid, spell_id, ['obs_stop'])
-        obs_stop = spell.get('obs_stop')
-        return spell_model.write(cr, uid, spell_id, {'obs_stop': not obs_stop})
+        return spell_model.write(cr, uid, spell_id, {'obs_stop': value})
 
     def spell_has_open_escalation_tasks(self, cr, uid, spell_activity_id,
                                         context=None):
@@ -195,23 +193,3 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
-
-# class PatientMonitoringException(orm.TransientModel):
-#
-#     _name = 'nh.clinical.wardboard.exception'
-#
-#     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
-#                         context=None, toolbar=False, submenu=False):
-#         result = super(PatientMonitoringException, self)\
-#             .fields_view_get(
-#             cr, uid, view_id, view_type, context, toolbar, submenu)
-#         active_id = context.get('active_id')
-#         if active_id:
-#             patient_model = self.pool['nh.clinical.patient']
-#             patient_name = patient_model.read(
-#                 cr, uid, active_id, ['display_name']).get('display_name')
-#         else:
-#             patient_name = ''
-#         result['arch'] = result['arch'].replace('_patient_name_',
-#                                                 patient_name)
-#         return result
