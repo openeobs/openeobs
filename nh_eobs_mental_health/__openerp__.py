@@ -12,7 +12,6 @@
     'depends': ['nh_eobs'],
     'data': ['data/master_data.xml',
              'views/wardboard_view.xml'],
-    'css': ['static/src/css/view_select_obs_stop_reason.css'],
     'qweb': [],
     'application': True,
     'installable': True,

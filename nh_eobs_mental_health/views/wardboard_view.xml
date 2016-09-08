@@ -26,7 +26,7 @@
                 <form>
                     <field name="spell_has_open_escalation_tasks" invisible="1"/>
                     <span attrs="{'invisible': [('spell_has_open_escalation_tasks','=', False)]}">
-                        <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline reset_vertical_align"/> are not completed.
+                        <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline"/> are not completed.
                     </span>
                     <h3>Select a reason for observation status change</h3>
                     <field name="reasons" widget="selection"/>
