@@ -42,7 +42,7 @@ class NHeObsAPI(orm.AbstractModel):
         return super(NHeObsAPI, self)\
             .get_active_observations(cr, uid, patient_id, context=context)
 
-    def transfer(self, cr, uid, patient_id, data, context=None):
+    def transfer(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`transfer()<api.nh_clinical_api.transfer>`, transferring
@@ -61,8 +61,12 @@ class NHeObsAPI(orm.AbstractModel):
         :rtype: bool
         """
         spell_model = self.pool['nh.clinical.spell']
+        patient_model = self.pool['nh.clinical.patient']
+        patient_id = patient_model.search(cr, uid, [
+            ['other_identifier', '=', hospital_number]
+        ])
         spell_id = spell_model.search(cr, uid, [
-            ['patient_id', '=', patient_id],
+            ['patient_id', 'in', patient_id],
             ['state', 'not in', ['completed', 'cancelled']]
         ], context=context)
         if spell_id:
@@ -74,5 +78,5 @@ class NHeObsAPI(orm.AbstractModel):
                 spell_model.write(
                     cr, uid, spell_id, {'obs_stop': False}, context=context)
         res = self.pool['nh.clinical.api'].transfer(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
         return res

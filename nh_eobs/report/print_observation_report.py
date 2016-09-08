@@ -338,6 +338,7 @@ class ObservationReport(models.AbstractModel):
         #
         # get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
+        patient_location = patient.get('current_location_id')
         patient['dob'] = helpers.convert_db_date_to_context_date(
             cr, uid, datetime.strptime(patient['dob'], dtf),
             '%d/%m/%Y', context=None)if patient.get('dob', False) else ''
@@ -377,10 +378,11 @@ class ObservationReport(models.AbstractModel):
                 'nh.clinical.patient.move',
                 data.start_time, data.end_time)
         )
-        if transfer_history:
-            th = transfer_history[-1]
-            patient['bed'] = th.get('bed',  False)
-            patient['ward'] = th.get('ward',  False)
+        if patient_location:
+            location_pool = self.pool['nh.clinical.location']
+            current_loc = location_pool.read(cr, uid, patient_location[0])
+            loc = current_loc.get('full_name')
+            patient['location'] = loc if loc else ''
 
         device_session_history = self.get_multi_model_data(
             spell_activity_id,

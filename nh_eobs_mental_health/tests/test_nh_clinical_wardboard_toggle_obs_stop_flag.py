@@ -24,26 +24,13 @@ class TestNHClinicalWardBoardToggleObsStopFlag(TransactionCase):
             'pos_id': 1
         })
 
-    def test_changes_flag_false_to_true(self):
+    def test_sets_flag_to_passed_value(self):
         """
-        Test that toggle_obs_stop raises osv exception when spell has open
-        escalation tasks
+        Test setting of obs stop value.
         """
         cr, uid = self.cr, self.uid
         self.spell_model.write(cr, uid, self.spell, {'obs_stop': False})
-        self.wardboard_model.toggle_obs_stop_flag(
-            cr, uid, self.spell, context={'test': 'has_activities'})
+        self.wardboard_model.set_obs_stop_flag(
+            cr, uid, self.spell, True, context={'test': 'has_activities'})
         flag = self.spell_model.read(cr, uid, self.spell, ['obs_stop'])
         self.assertTrue(flag.get('obs_stop'))
-
-    def test_changes_flag_true_to_false(self):
-        """
-        Test that toggle_obs_stop raises osv exception when spell has open
-        escalation tasks
-        """
-        cr, uid = self.cr, self.uid
-        self.spell_model.write(cr, uid, self.spell, {'obs_stop': True})
-        self.wardboard_model.toggle_obs_stop_flag(
-            cr, uid, self.spell, context={'test': 'has_activities'})
-        flag = self.spell_model.read(cr, uid, self.spell, ['obs_stop'])
-        self.assertFalse(flag.get('obs_stop'))
