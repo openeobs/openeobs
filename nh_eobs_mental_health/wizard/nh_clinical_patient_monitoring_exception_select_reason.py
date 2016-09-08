@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields, api
 
-class PatientMonitoringExceptionReasonDisplayModel(models.TransientModel):
+class PatientMonitoringExceptionSelectReason(models.TransientModel):
     """
     A model used for displaying a drop down list of patient monitoring exception
     'reasons' so that the user can select one.
