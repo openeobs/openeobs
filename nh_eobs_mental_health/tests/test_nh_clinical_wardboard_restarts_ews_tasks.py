@@ -43,7 +43,7 @@ class TestNHClinicalWardBoardRestartsEWSTasks(SingleTransactionCase):
             return True
 
         cls.wardboard_model._patch_method(
-            'toggle_obs_stop_flag', patch_toggle_obs_stop_flag)
+            'set_obs_stop_flag', patch_toggle_obs_stop_flag)
         cls.wardboard_model._patch_method('read', patch_wardboard_read)
         cls.spell_model._patch_method('search', patch_spell_search)
         cls.ews_model._patch_method(
@@ -55,7 +55,7 @@ class TestNHClinicalWardBoardRestartsEWSTasks(SingleTransactionCase):
     @classmethod
     def tearDownClass(cls):
         super(TestNHClinicalWardBoardRestartsEWSTasks, cls).tearDownClass()
-        cls.wardboard_model._revert_method('toggle_obs_stop_flag')
+        cls.wardboard_model._revert_method('set_obs_stop_flag')
         cls.wardboard_model._revert_method('read')
         cls.spell_model._revert_method('search')
         cls.ews_model._revert_method('create_activity')
