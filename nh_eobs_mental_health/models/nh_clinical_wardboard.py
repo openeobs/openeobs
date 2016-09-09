@@ -1,8 +1,6 @@
 from openerp.osv import orm, osv, fields
-from openerp import SUPERUSER_ID
 from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp.addons.nh_eobs import helpers
 from openerp import api
 
 
@@ -31,7 +29,7 @@ class NHClinicalWardboard(orm.Model):
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
     }
 
-    @helpers.refresh_materialized_views('ews0', 'ews1', 'ews2')
+    # @helpers.refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
     def toggle_obs_stop(self):
         """
@@ -126,8 +124,7 @@ class NHClinicalWardboard(orm.Model):
         pme_activity.spell_activity_id = spell_activity_id
         pme_model.start(activity_id)
 
-        if not self.cancel_open_ews(
-                cr, uid, spell_activity_id, context=context):
+        if not self.cancel_open_ews(spell_activity_id):
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
                          'all open NEWS activities'
@@ -206,25 +203,23 @@ class NHClinicalWardboard(orm.Model):
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
 
-    def create_new_ews(self, cr, uid, spell_activity_id):
-        ews_model = self.pool['nh.clinical.patient.observation.ews']
-        activity_model = self.pool['nh.activity']
+    def create_new_ews(self, spell_activity_id):
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+        activity_model = self.env['nh.activity']
+        api_model = self.env['nh.clinical.api']
         new_ews_id = ews_model.create_activity(
-            cr, SUPERUSER_ID,
             {'parent_id': spell_activity_id},
-            {'patient_id': patient[0]}, context=context)
+            {'patient_id': self.patient.id})
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
-        activity_model.schedule(
-            cr, SUPERUSER_ID, new_ews_id,
-            date_scheduled=one_hour_time_str, context=context)
-        api_model = self.pool['nh.clinical.api']
+        activity_model.schedule(new_ews_id,
+            date_scheduled=one_hour_time_str)
         api_model.change_activity_frequency(
-            cr, uid, patient[0], 'nh.clinical.patient.observation.ews',
-            60, context=context
-        )
+            self.patient.id, 'nh.clinical.patient.observation.ews',
+            60)
 
-    def cancel_open_ews(self, cr, uid, spell_activity_id, context=None):
+    @api.model
+    def cancel_open_ews(self, spell_activity_id):
         """
         Cancel all open EWS observations
         :param cr: Odoo cursor
@@ -235,10 +230,8 @@ class NHClinicalWardboard(orm.Model):
         """
         # Cancel all open obs
         activity_model = self.pool['nh.activity']
-        return activity_model.cancel_open_activities(
-            cr, uid, spell_activity_id,
-            model='nh.clinical.patient.observation.ews',
-            context=context)
+        return activity_model.cancel_open_activities(spell_activity_id,
+            model='nh.clinical.patient.observation.ews')
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):
