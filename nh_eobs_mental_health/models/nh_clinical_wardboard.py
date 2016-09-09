@@ -124,7 +124,7 @@ class NHClinicalWardboard(orm.Model):
         pme_activity.spell_activity_id = spell_activity_id
         pme_model.start(activity_id)
 
-        if not self.cancel_open_ews(spell_activity_id.id):
+        if not self.cancel_open_ews(spell_activity_id):
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
                          'all open NEWS activities'

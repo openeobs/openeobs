@@ -105,7 +105,7 @@ class TestNHClinicalWardBoardCancelsEWSTasks(TransactionCase):
         self.wardboard.start_patient_monitoring_exception(
             self.cancel_reason,
             self.wardboard.spell_activity_id.data_ref.id,
-            self.wardboard.spell_activity_id
+            self.wardboard.spell_activity_id.id
         )
         self.assertTrue(cancels_ews)
 
@@ -115,5 +115,5 @@ class TestNHClinicalWardBoardCancelsEWSTasks(TransactionCase):
             self.wardboard.start_patient_monitoring_exception(
             self.cancel_reason,
             self.wardboard.spell_activity_id.data_ref.id,
-            self.wardboard.spell_activity_id
+            self.wardboard.spell_activity_id.id
         )
