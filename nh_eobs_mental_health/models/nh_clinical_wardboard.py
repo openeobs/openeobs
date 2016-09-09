@@ -2,6 +2,7 @@ from openerp.osv import orm, osv, fields
 from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import api
+from openerp.addons.nh_eobs import helpers
 
 
 class NHClinicalWardboard(orm.Model):
@@ -29,7 +30,6 @@ class NHClinicalWardboard(orm.Model):
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
     }
 
-    # @helpers.refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
     def toggle_obs_stop(self):
         """
@@ -92,6 +92,7 @@ class NHClinicalWardboard(orm.Model):
             'view_id': view_id
         }
 
+    @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
     def start_patient_monitoring_exception(self, reasons, spell_id,
                                            spell_activity_id):
@@ -132,6 +133,7 @@ class NHClinicalWardboard(orm.Model):
 
         self.set_obs_stop_flag(spell_id, True)
 
+    @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
     def end_patient_monitoring_exception(self):
         """
