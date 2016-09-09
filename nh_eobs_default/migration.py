@@ -13,7 +13,7 @@ class res_users(orm.Model):
         nur_cat_id = category_pool.search(
             cr, 1, [['name', '=', 'Nurse']])[0]
         wma_cat_id = category_pool.search(
-            cr, 1, [['name', '=', 'Ward Manager']])[0]
+            cr, 1, [['name', '=', 'Shift Coordinator']])[0]
         sma_cat_id = category_pool.search(
             cr, 1, [['name', '=', 'Senior Manager']])[0]
         doc_cat_id = category_pool.search(
@@ -64,7 +64,9 @@ class res_users(orm.Model):
         self.write(cr, 1, user_ids, {'category_id': [[4, nur_cat_id]]})
         user_ids = self.search(
             cr, 1, [
-                ['groups_id.name', 'in', ['NH Clinical Ward Manager Group']],
+                ['groups_id.name',
+                 'in',
+                 ['NH Clinical Shift Coordinator Group']],
                 ['id', 'in', migrate_users]
             ]
         )

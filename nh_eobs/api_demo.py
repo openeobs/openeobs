@@ -218,7 +218,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         group_pool = self.pool['res.groups']
         location_pool = self.pool['nh.clinical.location']
         users = [
-            ('ward_manager', 'NH Clinical Ward Manager Group'),
+            ('shift_coordinator', 'NH Clinical Shift Coordinator Group'),
             ('nurse', 'NH Clinical Nurse Group'),
             ('hca', 'NH Clinical HCA Group'),
             ('jnr_doctor', 'NH Clinical Junior Doctor Group'),
@@ -687,8 +687,12 @@ class nh_clinical_api_demo(orm.AbstractModel):
             code = location_pool.read(cr, uid, wid, ['code'])['code']
             wmuid = user_pool.search(
                 cr, uid,
-                [('location_ids', 'in', [wid]),
-                 ('groups_id.name', 'in', ['NH Clinical Ward Manager Group'])])
+                [('location_ids',
+                  'in',
+                  [wid]),
+                 ('groups_id.name',
+                  'in',
+                  ['NH Clinical Shift Coordinator Group'])])
             wmuid = uid if not wmuid else wmuid[0]
             placement_activity_ids = activity_pool.search(cr, uid, [
                 ('data_model', '=', 'nh.clinical.patient.placement'),

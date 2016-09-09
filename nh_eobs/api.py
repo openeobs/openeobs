@@ -200,7 +200,7 @@ class nh_eobs_api(orm.AbstractModel):
         for ward_id in wards:
             location_ids += location_pool.search(
                 cr, uid, [['id', 'child_of', ward_id]])
-        share_groups = ['NH Clinical Ward Manager Group',
+        share_groups = ['NH Clinical Shift Coordinator Group',
                         'NH Clinical Nurse Group', 'NH Clinical HCA Group']
         domain = [['id', '!=', uid],
                   ['groups_id.name', 'in',

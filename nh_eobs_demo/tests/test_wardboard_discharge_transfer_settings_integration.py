@@ -38,13 +38,13 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
         self.patient = self.patient_pool.read(cr, uid, patients[0])
         self.patient_2 = self.patient_pool.read(cr, uid, patients[1])
 
-        ward_managers = self.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        shift_coordinators = self.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [ward]]
         ])
-        if not ward_managers:
-            raise ValueError('Could not find ward manager for test')
-        self.ward_manager = ward_managers[0]
+        if not shift_coordinators:
+            raise ValueError('Could not find Shift Coordinator for test')
+        self.shift_coordinator = shift_coordinators[0]
 
         adt_user = self.user_pool.search(cr, uid, [
             ['login', '=', 'adt']
@@ -70,9 +70,9 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
             })
         self.settings_pool.write(cr, uid, 1, {'discharge_transfer_period': 3})
         self.wardboard_pool.init(self.cr)
-        wardboard = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard = self.wardboard_pool.read(cr, self.shift_coordinator,
                                              self.patient.get('id'))
-        wardboard_2 = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard_2 = self.wardboard_pool.read(cr, self.shift_coordinator,
                                                self.patient_2.get('id'))
         self.assertTrue(wardboard.get('recently_discharged'))
         self.assertFalse(wardboard_2.get('recently_discharged'))
@@ -99,9 +99,9 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
                 'activity_period': 1
             })
         self.config_pool.set_discharge_transfer_period(cr, uid, wizard)
-        wardboard = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard = self.wardboard_pool.read(cr, self.shift_coordinator,
                                              self.patient.get('id'))
-        wardboard_2 = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard_2 = self.wardboard_pool.read(cr, self.shift_coordinator,
                                                self.patient_2.get('id'))
         self.assertTrue(wardboard.get('recently_discharged'))
         self.assertFalse(wardboard_2.get('recently_discharged'))
@@ -126,9 +126,9 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
             })
         self.settings_pool.write(cr, uid, 1, {'discharge_transfer_period': 10})
         self.wardboard_pool.init(self.cr)
-        wardboard = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard = self.wardboard_pool.read(cr, self.shift_coordinator,
                                              self.patient.get('id'))
-        wardboard_2 = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard_2 = self.wardboard_pool.read(cr, self.shift_coordinator,
                                                self.patient_2.get('id'))
         self.assertTrue(wardboard.get('recently_discharged'))
         self.assertFalse(wardboard_2.get('recently_discharged'))
@@ -158,9 +158,9 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
                 'activity_period': 1
             })
         self.config_pool.set_discharge_transfer_period(cr, uid, wizard)
-        wardboard = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard = self.wardboard_pool.read(cr, self.shift_coordinator,
                                              self.patient.get('id'))
-        wardboard_2 = self.wardboard_pool.read(cr, self.ward_manager,
+        wardboard_2 = self.wardboard_pool.read(cr, self.shift_coordinator,
                                                self.patient_2.get('id'))
         self.assertTrue(wardboard.get('recently_discharged'))
         self.assertFalse(wardboard_2.get('recently_discharged'))

@@ -19,7 +19,7 @@ class TestOlapViewSecurity(TransactionCase):
         """
         pass
 
-    def test_is_accessible_only_by_senior_manager_and_ward_manager(self):
+    def test_is_accessible_only_by_senior_manager_and_shift_coordinator(self):
         """
         Test the OLAP view is accessible only be users belonging to
         groups/roles 'Senior Manager' and 'Ward Manager'.
