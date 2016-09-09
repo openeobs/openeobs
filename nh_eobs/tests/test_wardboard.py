@@ -48,7 +48,7 @@ class TestWardboard(SingleTransactionCase):
         cls.nurse_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Nurse Group']])[0]
         cls.wm_group_id = cls.groups_pool.search(
-            cr, uid, [['name', '=', 'NH Clinical Ward Manager Group']])[0]
+            cr, uid, [['name', '=', 'NH Clinical Shift Coordinator Group']])[0]
         cls.dr_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Doctor Group']])[0]
 

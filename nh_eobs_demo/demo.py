@@ -221,7 +221,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
         group_pool = self.pool['res.groups']
         location_pool = self.pool['nh.clinical.location']
         users = [
-            ('ward_manager', 'NH Clinical Ward Manager Group'),
+            ('shift_coordinator', 'NH Clinical Shift Coordinator Group'),
             ('nurse', 'NH Clinical Nurse Group'),
             ('hca', 'NH Clinical HCA Group'),
             ('jnr_doctor', 'NH Clinical Junior Doctor Group'),
@@ -265,7 +265,7 @@ class nh_clinical_api_demo(orm.AbstractModel):
                     location_ids[0])
                 assign_groups = [user[1], 'Employee']
 
-                if user_type in ('ward_manager', 'admin'):
+                if user_type in ('shift_coordinator', 'admin'):
                     assign_groups.append('Contact Creation')
                 if user_type in ('nurse', 'hca'):
                     locations = location_ids[1:]

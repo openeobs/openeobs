@@ -25,16 +25,16 @@ class TestWorkloadIntegration(SingleTransactionCase):
         if not wards:
             raise ValueError('Could not find ward for test')
         ward = wards[0]
-        ward_managers = self.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        shift_coordinators = self.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [ward]]
         ])
-        if not ward_managers:
-            raise ValueError('Could not find ward manager for test')
-        self.ward_manager = ward_managers[0]
+        if not shift_coordinators:
+            raise ValueError('Could not find shift coordinator for test')
+        self.shift_coordinator = shift_coordinators[0]
 
         activities = self.workload_pool.search(cr, uid, [
-            ['user_ids', 'in', ward_managers],
+            ['user_ids', 'in', shift_coordinators],
             ['data_model', 'not in', ['nh.clinical.spell',
                                       'nh.clinical.patient.placement']],
             ['state', 'not in', ['cancelled', 'completed']]

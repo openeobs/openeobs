@@ -32,7 +32,7 @@ class cancel_notifications_wizard(osv.TransientModel):
         [activity_pool.cancel(
             cr, SUPERUSER_ID, n, context=context) for n in notification_ids]
         cancel_reason_id = self.pool['nh.cancel.reason'].search(
-            cr, uid, [('name', '=', 'Cancelled by Ward Manager')],
+            cr, uid, [('name', '=', 'Cancelled by Shift Coordinator')],
             context=context)
         activity_pool.write(
             cr, SUPERUSER_ID, notification_ids,

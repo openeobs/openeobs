@@ -41,20 +41,20 @@ class TestWardboardPrintReportPermissions(SingleTransactionCase):
             raise ValueError('Nurses not found')
         cls.nurse = nurses[0]
 
-        ward_managers = user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        shift_coordinators = user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', wards]
         ])
-        if not ward_managers:
-            raise ValueError('Ward Manager not found')
-        cls.ward_manager = ward_managers[0]
+        if not shift_coordinators:
+            raise ValueError('Shift Coordinator not found')
+        cls.shift_coordinator = shift_coordinators[0]
 
         senior_managers = user_pool.search(cr, uid, [
             ['groups_id.name', '=', 'NH Clinical Senior Manager Group'],
             ['location_ids', 'in', wards]
         ])
         if not senior_managers:
-            raise ValueError('Ward Manager not found')
+            raise ValueError('Shift Coordinator not found')
         cls.senior_manager = senior_managers[0]
 
         view_id = ir_model_pool.get_object_reference(cr, uid, 'nh_eobs',
@@ -74,10 +74,10 @@ class TestWardboardPrintReportPermissions(SingleTransactionCase):
             self.registry('ir.ui.view').user_has_groups(
                 self.cr, self.nurse, groups=self.button_groups, context={}))
 
-    def test_ward_manager_can_see_print_report_button(self):
+    def test_shift_coordinator_can_see_print_report_button(self):
         self.assertTrue(
             self.registry('ir.ui.view').user_has_groups(
-                self.cr, self.ward_manager, groups=self.button_groups,
+                self.cr, self.shift_coordinator, groups=self.button_groups,
                 context={}))
 
     def test_senior_manager_can_see_print_report_button(self):
@@ -89,7 +89,7 @@ class TestWardboardPrintReportPermissions(SingleTransactionCase):
     # def test_openeobs_admin_can_see_print_report_button(self):
     #     self.assertTrue(
     #         self.registry('ir.ui.view').user_has_groups(
-    #             self.cr, self.ward_manager, groups=self.button_groups,
+    #             self.cr, self.shift_coordinator, groups=self.button_groups,
     #             context={}))
 
     def test_default_admin_can_see_print_report_button(self):
