@@ -124,14 +124,13 @@ class NHClinicalWardboard(orm.Model):
         pme_activity.spell_activity_id = spell_activity_id
         pme_model.start(activity_id)
 
-        if not self.cancel_open_ews(spell_activity_id):
+        if not self.cancel_open_ews(spell_activity_id.id):
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
                          'all open NEWS activities'
             )
 
-        wardboard_model = self.env['nh.clinical.wardboard']
-        wardboard_model.set_obs_stop_flag(spell_id, True)
+        self.set_obs_stop_flag(spell_id, True)
 
     @api.multi
     def end_patient_monitoring_exception(self):
@@ -229,7 +228,7 @@ class NHClinicalWardboard(orm.Model):
         :return: True is successful, False if not
         """
         # Cancel all open obs
-        activity_model = self.pool['nh.activity']
+        activity_model = self.env['nh.activity']
         return activity_model.cancel_open_activities(spell_activity_id,
             model='nh.clinical.patient.observation.ews')
 
