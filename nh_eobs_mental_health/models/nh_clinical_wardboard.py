@@ -155,15 +155,9 @@ class NHClinicalWardboard(orm.Model):
                 "intends to end."
             )
 
-        # The 2 lines below are necessary to trick Odoo into thinking this is a
-        # 7.0 ORM API style method before the `complete` method is called on
-        # the activity. I believe there may be a problem in the decorator that
-        # is used on all activity data methods which specifically looks for all
-        # args.
-        # TODO Refactor the activity method decorator.
         patient_monitoring_exception_activity_id = \
             patient_monitoring_exception_activity.id
-        patient_monitoring_exception_activity.__dict__.pop('_ids')
+        self.force_v7_api(patient_monitoring_exception_activity)
 
         patient_monitoring_exception_activity.complete(
             self.env.cr, self.env.uid,
@@ -171,6 +165,7 @@ class NHClinicalWardboard(orm.Model):
         )
 
         self.set_obs_stop_flag(spell_id, False)
+        self.create_new_ews()
 
     def set_obs_stop_flag(self, cr, uid, spell_id, value, context=None):
         """
@@ -203,20 +198,25 @@ class NHClinicalWardboard(orm.Model):
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
 
-    def create_new_ews(self, spell_activity_id):
+    @api.multi
+    def create_new_ews(self):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
+
         new_ews_id = ews_model.create_activity(
-            {'parent_id': spell_activity_id},
-            {'patient_id': self.patient.id})
+            {'parent_id': self.spell_activity_id.id},
+            {'patient_id': self.patient_id.id})
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
-        activity_model.schedule(new_ews_id,
-            date_scheduled=one_hour_time_str)
+
+        self.force_v7_api(activity_model)
+
+        activity_model.schedule(self.env.cr, self.env.uid, new_ews_id,
+                                date_scheduled=one_hour_time_str)
         api_model.change_activity_frequency(
-            self.patient.id, 'nh.clinical.patient.observation.ews',
-            60)
+            self.patient_id.id, 'nh.clinical.patient.observation.ews', 60)
+        return new_ews_id
 
     @api.model
     def cancel_open_ews(self, spell_activity_id):
@@ -278,3 +278,17 @@ class NHClinicalWardboard(orm.Model):
         if was_single_record:
             return res[0]
         return res
+
+    # TODO Refactor the activity method decorator and remove this method.
+    @classmethod
+    def force_v7_api(cls, obj):
+        """
+        Trick Odoo into thinking this is a 7.0 ORM API style method before
+        the `complete` method is called on the activity. I believe there may
+        be a problem in the decorator that is used on all activity data methods
+        which specifically looks for all args.
+        :param obj:
+        :return:
+        """
+        if '_ids' in obj.__dict__:
+            obj.__dict__.pop('_ids')
