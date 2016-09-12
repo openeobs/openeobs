@@ -113,7 +113,7 @@ class TestNHClinicalWardBoardCancelsEWSTasks(TransactionCase):
         with self.assertRaises(osv.except_osv):
             self.env.context = {'test': 'cancel_fail'}
             self.wardboard.start_patient_monitoring_exception(
-            self.cancel_reason,
-            self.wardboard.spell_activity_id.data_ref.id,
-            self.wardboard.spell_activity_id.id
-        )
+                self.cancel_reason,
+                self.wardboard.spell_activity_id.data_ref.id,
+                self.wardboard.spell_activity_id.id
+            )

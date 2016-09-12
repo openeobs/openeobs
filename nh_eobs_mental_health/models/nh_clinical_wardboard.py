@@ -231,8 +231,8 @@ class NHClinicalWardboard(orm.Model):
         """
         # Cancel all open obs
         activity_model = self.env['nh.activity']
-        return activity_model.cancel_open_activities(spell_activity_id,
-            model='nh.clinical.patient.observation.ews')
+        return activity_model.cancel_open_activities(
+            spell_activity_id, model='nh.clinical.patient.observation.ews')
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):

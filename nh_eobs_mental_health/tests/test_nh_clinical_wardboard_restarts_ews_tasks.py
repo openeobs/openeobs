@@ -77,8 +77,10 @@ class TestNHClinicalWardBoardRestartsEWSTasks(TransactionCase):
         )
 
         self.wardboard = self.wardboard_model.new(
-            {'spell_activity_id': self.spell_activity_id,
-            'patient_id': self.patient}
+            {
+                'spell_activity_id': self.spell_activity_id,
+                'patient_id': self.patient
+            }
         )
 
     # @classmethod
@@ -117,6 +119,6 @@ class TestNHClinicalWardBoardRestartsEWSTasks(TransactionCase):
         expected_time_due = time_before_ews_creation + timedelta(hours=1)
         expected_time_due_str = expected_time_due.strftime(DTF)
         new_ews_id = self.wardboard.create_new_ews()
-        actual_time_due_str = self.activity_model.browse(new_ews_id).date_scheduled
+        actual_time_due_str = \
+            self.activity_model.browse(new_ews_id).date_scheduled
         self.assertEquals(expected_time_due_str, actual_time_due_str)
-
