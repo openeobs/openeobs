@@ -275,6 +275,16 @@ class NHClinicalWardboard(orm.Model):
                 spell = spell_model.read(cr, user, spell_id, ['obs_stop'],
                                          context=context)
                 if spell.get('obs_stop'):
+                    pme_model = self.pool[
+                        'nh.clinical.patient_monitoring_exception']
+                    obs_stops = pme_model.search(cr, user, [
+                        ['spell', '=', spell_id]
+                    ], context=context)
+                    if obs_stops:
+                        obs_stop = obs_stops[-1]
+                        reason = pme_model.read(
+                            cr, user, obs_stop, ['reason'], context=context)
+                        rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
         if was_single_record:
             return res[0]
