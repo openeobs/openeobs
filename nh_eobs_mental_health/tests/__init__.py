@@ -11,6 +11,9 @@ from . import test_nh_eobs_mobile_process_patient_list
 from . import test_nh_clinical_wardboard_read_obs_stop
 from . import test_nh_clinical_wardboard_restarts_ews_tasks
 from . import test_nh_clinical_wardboard_prompt_user_for_obs_stop_reason
+from . import test_nh_clinical_patient_monitoring_exception
+from . import test_nh_clinical_wardboard_start_patient_monitoring_exception
+
 # These unit tests were never working because of some strange behaviour with
 # the wizard class. It has a many2one field to reasons even though the
 # relationship is actually a many2one. The aim was to get a drop down menu of

@@ -37,11 +37,11 @@
             <field name="arch" type="xml">
                 <form>
                     <field name="spell_has_open_escalation_tasks" invisible="1"/>
-                    <span attrs="{'invisible': [('spell_has_open_escalation_tasks','=', False)]}">
+                    <span attrs="{'invisible': [('spell_has_open_escalation_tasks','=', False)]}" class="open_escalation_tasks_warning">
                         <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline"/> are not completed.
                     </span>
-                    <h3>Select a reason for observation status change</h3>
-                    <field name="reasons" widget="selection"/>
+                    <h4>Select a reason for observation status change</h4>
+                    <field name="reasons" widget="selection" required="1"/>
                     <footer>
                         <button name="start_patient_monitoring_exception" string="Confirm" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
                         <button special="cancel" string="Cancel"/>
