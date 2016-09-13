@@ -4,7 +4,7 @@ from openerp.tests.common import TransactionCase
 
 class TestNhClinicalWardBoardPromptUserForObsStopReason(TransactionCase):
     """
-    Tests :method:`prompt_user_for_obs_stop_reason` in
+    Test :method:`prompt_user_for_obs_stop_reason` in
     :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
     """
     def setUp(self):
@@ -27,8 +27,6 @@ class TestNhClinicalWardBoardPromptUserForObsStopReason(TransactionCase):
             {},
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
-        # self.activity = self.activity_model.browse(self.activity_id)
-        # self.spell = self.activity.spell_activity_id.data_ref
 
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,

@@ -103,7 +103,12 @@ class NHClinicalWardboard(orm.Model):
         Toggles the 'obs stop' flag on the spell to True as there is now a
         patient monitoring exception in effect.
         """
-        if len(reasons) > 1:
+        if len(reasons) == 0:
+            raise ValueError(
+                "No reasons were selected. A patient monitoring exception "
+                "cannot be created without a reason."
+            )
+        elif len(reasons) > 1:
             raise ValueError(
                 "More than one reason was selected. "
                 "There should only be one reason per patient monitoring "
