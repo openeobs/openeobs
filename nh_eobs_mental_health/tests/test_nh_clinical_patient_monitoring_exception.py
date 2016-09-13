@@ -13,7 +13,8 @@ class TestNhClinicalPatientMonitoringException(TransactionCase):
         super(TestNhClinicalPatientMonitoringException, self) \
             .setUp()
         self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        self.select_reason_model = self.env['nh.clinical.patient_monitoring_exception.select_reason']
+        self.select_reason_model = \
+            self.env['nh.clinical.patient_monitoring_exception.select_reason']
 
     @mute_logger('openerp.sql_db')
     def test_cannot_create_without_a_reason(self):
