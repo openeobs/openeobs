@@ -166,8 +166,12 @@ class nh_clinical_api_demo(orm.AbstractModel):
             code = location_pool.read(cr, uid, wid, ['code'])['code']
             wmuid = user_pool.search(
                 cr, uid,
-                [('location_ids', 'in', [wid]),
-                 ('groups_id.name', 'in', ['NH Clinical Ward Manager Group'])])
+                [('location_ids',
+                  'in',
+                  [wid]),
+                 ('groups_id.name',
+                  'in',
+                  ['NH Clinical Shift Coordinator Group'])])
             wmuid = uid if not wmuid else wmuid[0]
             admit_ids = self.pool['nh.clinical.adt.patient.admit'].search(
                 cr, uid, [['location_id', '=', wid]])

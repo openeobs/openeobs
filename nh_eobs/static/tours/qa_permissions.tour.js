@@ -61,8 +61,8 @@
                 element: "span.oe_menu_text:contains('Open eObs Users')"
             },
             {
-                title: "They can manage Ward Manager accounts",
-                waitFor: "tr:contains('Ward Manager')"
+                title: "They can manage Shift Coordinator accounts",
+                waitFor: "tr:contains('Shift Coordinator')"
             },
             {
                 title: "They can manage Doctor accounts",
@@ -432,8 +432,8 @@
     });
 
     openerp.Tour.register({
-        id: 'wardmanager_permissions',
-        name: "Describe permissions when logged in as a ward manager (" + wm + ")",
+        id: 'shiftcoordinator_permissions',
+        name: "Describe permissions when logged in as a shift coordinator (" + wm + ")",
         path: '/web?debug=',
         user: wm,
         mode: 'test',

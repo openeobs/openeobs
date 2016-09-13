@@ -256,7 +256,7 @@
                         <div t-attf-class="oe_kanban_card oe_kanban_global_click oe_kanban_color_7">
                             <div class="oe_kanban_content">
                                 <div style="margin-top:5px;"><h3><b><field name="name"/></b></h3></div>
-                                <div style="margin-top:5px;">Managers:</div>
+                                <div style="margin-top:5px;">Shift Coordinators:</div>
                                 <div style="margin-top:5px;"><field name="assigned_wm_ids" widget="many2many"/></div>
                                 <div style="margin-top:5px;">Doctors:</div>
                                 <div style="margin-top:5px;"><field name="assigned_doctor_ids" widget="many2many"/></div>
@@ -338,7 +338,7 @@
 	                        					'name','in',['NH Clinical HCA Group',
 	                        					'NH Clinical Nurse Group',
 	                        					'NH Clinical Doctor Group',
-	                        					'NH Clinical Ward Manager Group'
+	                        					'NH Clinical Shift Coordinator Group'
 	                        					] ]]"/>
 	                    </group>
                         <field name="location_ids" readonly="0"/>

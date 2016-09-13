@@ -1650,7 +1650,7 @@ NHMobileShare = (function(superClass) {
         return new window.NH.NHModal('claim_success', server_data.title, claim_msg, btns, 0, body);
       } else {
         can_btn = '<a href="#" data-action="close" data-target="claim_error"' + '>Close</a>';
-        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Ward Manager</p>';
+        claim_msg = '<p>There was an error claiming back your' + ' patients, please contact your Shift Coordinator</p>';
         btns = [can_btn];
         return new window.NH.NHModal('claim_error', 'Error claiming patients', claim_msg, btns, 0, body);
       }

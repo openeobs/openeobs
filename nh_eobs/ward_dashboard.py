@@ -30,7 +30,7 @@ class nh_eobs_ward_dashboard(orm.Model):
         res = {}.fromkeys(ids, False)
         sql = """select location_id, user_ids
                  from loc_users
-                 where group_name = 'NH Clinical Ward Manager Group'
+                 where group_name = 'NH Clinical Shift Coordinator Group'
                         and location_id in (%s)""" % ", ".join(
             [str(location_id) for location_id in ids])
         cr.execute(sql)
@@ -85,7 +85,7 @@ class nh_eobs_ward_dashboard(orm.Model):
         'kanban_color': fields.integer('Kanban Color'),
         'assigned_wm_ids': fields.function(
             _get_wm_ids, type='many2many', relation='res.users',
-            string='Ward Managers'),
+            string='Shift Coordinators'),
         'assigned_doctor_ids': fields.function(
             _get_dr_ids, type='many2many', relation='res.users',
             string='Doctors'),
