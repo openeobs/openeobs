@@ -16,7 +16,6 @@ class TestNhClinicalPatientMonitoringExceptionSelectReason(TransactionCase):
         self.pme_model = \
             self.env['nh.clinical.patient_monitoring_exception']
         self.reason_model = \
-        self.reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
 
     def test_creates_patient_monitoring_exception_record(self):
