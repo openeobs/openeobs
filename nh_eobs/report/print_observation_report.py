@@ -21,17 +21,32 @@ class ObservationReport(models.AbstractModel):
         'diabetes_history': 'nh.clinical.patient.diabetes',
         'palliative_care_history': 'nh.clinical.patient.palliative_care',
         'post_surgery_history': 'nh.clinical.patient.post_surgery',
-        'critical_care_history': 'nh.clinical.patient.critical_care'
+        'critical_care_history': 'nh.clinical.patient.critical_care',
+        'acute_hospital_ed': 'nh.clinical.patient_monitoring_exception',
+        'extended_leave': 'nh.clinical.patient_monitoring_exception',
+        'awol': 'nh.clinical.patient_monitoring_exception'
     }
 
+    @api.multi
     def get_activity_data(self, spell_id, model, start_time, end_time):
-        cr, uid = self._cr, self._uid
-        act_pool = self.pool['nh.activity']
-        activity_ids = act_pool.search(cr, uid,
-                                       helpers.create_search_filter(
-                                           spell_id,
-                                           model, start_time, end_time))
-        return act_pool.read(cr, uid, activity_ids)
+        activity_model = self.env['nh.activity']
+
+        states = self._get_allowed_activity_states_for_model(model)
+        domain = helpers.build_activity_search_domain(
+            spell_id, model, start_time, end_time, states=states
+        )
+        activity_ids = activity_model.search(domain)
+        return activity_model.read(activity_ids)
+
+    def _get_allowed_activity_states_for_model(self, model):
+        activity_model = self.env['nh.activity']
+        monitoring_models = self.monitoring_dict.values()
+
+        if model in monitoring_models:
+            # Add activities of any state to the report for these models.
+            return activity_model.get_possible_states
+        else:
+            return 'completed'
 
     def get_model_data(self, spell_id, model, start, end):
         cr, uid = self._cr, self._uid

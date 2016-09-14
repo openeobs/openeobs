@@ -1,9 +1,12 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from openerp.tests.common import TransactionCase
 from datetime import datetime, timedelta
 import logging
+
+from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.addons.nh_eobs.report.helpers import create_search_filter
+
+from openerp.addons.nh_eobs.report.helpers import build_activity_search_domain
+
 
 _logger = logging.getLogger(__name__)
 
@@ -20,7 +23,7 @@ class TestObservationReport(TransactionCase):
         self.end_date = datetime.now() + timedelta(days=5)
 
     def test_01_filter_with_normal_model_with_end_date_with_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.normal_model,
             self.start_date, self.end_date
         )
@@ -62,7 +65,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_02_filter_with_exception_model_w_end_date_w_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.exception_model,
             self.start_date, self.end_date
         )
@@ -101,11 +104,11 @@ class TestObservationReport(TransactionCase):
 
     def test_03_filter_without_model_with_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(None, self.normal_model,
+            build_activity_search_domain(None, self.normal_model,
                                  self.start_date, self.end_date)
 
     def test_04_filter_with_normal_model_wout_end_date_with_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.normal_model,
             self.start_date, None
         )
@@ -139,7 +142,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_05_filter_with_normal_model_wout_end_date_wout_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id,
             self.normal_model,
             None,
@@ -170,7 +173,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_06_filter_with_normal_model_with_end_date_wout_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.normal_model, None, self.end_date)
         self.assertEqual(
             len(test_filter),
@@ -205,7 +208,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_07_filter_with_exception_model_w_end_date_wout_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.exception_model, None, self.end_date)
         self.assertEqual(
             len(test_filter),
@@ -236,7 +239,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_08_filter_with_exception_model_wout_end_date_w_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.exception_model2, self.start_date, None)
         self.assertEqual(
             len(test_filter),
@@ -267,7 +270,7 @@ class TestObservationReport(TransactionCase):
         )
 
     def test_09_filter_with_exception_model_out_end_date_wout_start_date(self):
-        test_filter = create_search_filter(
+        test_filter = build_activity_search_domain(
             self.spell_id, self.exception_model, None, None)
         self.assertEqual(
             len(test_filter),
@@ -291,21 +294,21 @@ class TestObservationReport(TransactionCase):
 
     def test_10_filter_without_model_without_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_id, None, self.start_date, None)
+            build_activity_search_domain(self.spell_id, None, self.start_date, None)
 
     def test_11_filter_without_model_without_end_date_without_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_id, None, None, None)
+            build_activity_search_domain(self.spell_id, None, None, None)
 
     def test_12_filter_without_model_with_end_date_without_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_id, None, None, self.end_date)
+            build_activity_search_domain(self.spell_id, None, None, self.end_date)
 
     def test_13_filter_without_model_with_end_date_with_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_id, None,
+            build_activity_search_domain(self.spell_id, None,
                                  self.start_date, self.end_date)
 
     def test_14_filter_without_spell_activity_id(self):
         with self.assertRaises(ValueError):
-            create_search_filter(None, None, None, None)
+            build_activity_search_domain(None, None, None, None)

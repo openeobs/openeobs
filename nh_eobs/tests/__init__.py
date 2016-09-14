@@ -6,9 +6,9 @@ from . import test_workload
 
 # Test Observation Reports
 from . import test_observation_report_data_dict
-from . import test_observation_report
+from . import test_observation_report_start_and_end_date
 from . import test_observation_report_without_dob
-from . import test_observation_report_create_filter
+from . import test_observation_build_activity_search_domain
 from . import test_observation_report_structure
 from . import test_observation_table_structure
 from . import test_observation_report_get_triggered_actions

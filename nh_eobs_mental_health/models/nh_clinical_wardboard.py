@@ -118,7 +118,7 @@ class NHClinicalWardboard(orm.Model):
         pme_model = self.env['nh.clinical.patient_monitoring_exception']
         selected_reason_id = reasons[0].id
         activity_id = pme_model.create_activity(
-            {},
+            {'parent_id': spell_activity_id},
             {'reason': selected_reason_id, 'spell': spell_id}
         )
         activity_model = self.env['nh.activity']

@@ -43,19 +43,15 @@ class ReportDates(object):
         self.spell_end = spell_end
 
 
-def create_search_filter(spell_activity_id, model, start_date, end_date):
+def build_activity_search_domain(spell_activity_id, model,
+                                 start_date, end_date, states='completed'):
     if not spell_activity_id:
-        raise ValueError('No spell activity id supplied')
+        raise ValueError('No spell activity id supplied.')
     if not model:
-        raise ValueError('No model supplied')
-    filter = []
-    if model in ['nh.clinical.patient.o2target',
-                 'nh.clinical.patient.move']:
-        filter = [['parent_id', '=', spell_activity_id],
-                  ['data_model', '=', model]]
-    else:
-        filter = [['parent_id', '=', spell_activity_id],
-                  ['data_model', '=', model], ['state', '=', 'completed']]
+        raise ValueError('No model supplied.')
+    filter = [('parent_id', '=', spell_activity_id),
+              ('data_model', '=', model),
+              ('state', '=', states)]
     if start_date:
         if isinstance(start_date, datetime):
             filter.append(['date_terminated', '>=', start_date.strftime(dtf)])
