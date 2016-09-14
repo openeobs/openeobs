@@ -115,4 +115,3 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
             len(self.activity_model.search(cr, uid, domain)),
             ews_before+1
         )
-
