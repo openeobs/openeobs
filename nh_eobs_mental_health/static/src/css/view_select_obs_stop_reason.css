@@ -1,0 +1,13 @@
+.openerp .oe_form .oe_form_field.oe_inline {
+    vertical-align: baseline;
+    padding: 0;
+}
+
+.open_escalation_tasks_warning {
+    margin-bottom: 1em;
+}
+
+.open_escalation_tasks_warning img {
+    margin-right: 1em;
+    margin-bottom: 1em;
+}
