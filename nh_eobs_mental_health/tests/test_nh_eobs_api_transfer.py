@@ -16,6 +16,7 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         cls.user_model = cls.registry('res.users')
         cls.pos_model = cls.registry('nh.clinical.pos')
         cls.activity_model = cls.registry('nh.activity')
+        cls.wardboard_model = cls.registry('nh.clinical.wardboard')
 
         cr, uid = cls.cr, cls.uid
         hosp_id_search = cls.location_model.search(
@@ -72,6 +73,9 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         cls.spell_id = cls.spell_model.search(
             cr, uid, [['patient_id', '=', cls.patient_id]])[0]
 
+        cls.spell_activity_id = cls.spell_model.read(
+            cr, uid, cls.spell_id, ['activity_id']).get('activity_id')[0]
+
     def test_transfer_changes_flag(self):
         """
         TEst that when transferring a patient with a set obs_stop flag the flag
@@ -80,6 +84,35 @@ class TestNHeObsAPITransfer(SingleTransactionCase):
         cr, uid = self.cr, self.uid
         self.spell_model.write(cr, uid, self.spell_id, {'obs_stop': True})
         self.api_model.transfer(
-            cr, uid, 'TESTHN001', {'from_location': 'W0', 'location': 'W1'})
+            cr, uid, 'TESTHN001', {
+                'from_location': 'W0',
+                'location': 'W1'
+            }, context={})
         spell = self.spell_model.read(cr, uid, self.spell_id, ['obs_stop'])
         self.assertFalse(spell.get('obs_stop', True))
+
+    def test_transfer_creates_new_ews(self):
+        """
+        Test taht when transferring a patient with a set obs_stop flag an EWS
+        observation is created due in an hour
+        """
+        cr, uid = self.cr, self.uid
+        self.wardboard_model.cancel_open_ews(
+            cr, uid, spell_activity_id=self.spell_activity_id)
+        domain = [
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('spell_activity_id', '=', self.spell_activity_id),
+            ('state', 'not in', ['completed', 'cancelled'])
+        ]
+        ews_before = len(self.activity_model.search(cr, uid, domain))
+        self.spell_model.write(cr, uid, self.spell_id, {'obs_stop': True})
+        self.api_model.transfer(
+            cr, uid, 'TESTHN001', {
+                'from_location': 'W0',
+                'location': 'W1'
+            }, context={})
+        self.assertEqual(
+            len(self.activity_model.search(cr, uid, domain)),
+            ews_before+1
+        )
+
