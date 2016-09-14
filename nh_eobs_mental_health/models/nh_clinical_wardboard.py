@@ -206,6 +206,13 @@ class NHClinicalWardboard(orm.Model):
 
     @api.multi
     def create_new_ews(self, patient_id=None, spell_activity_id=None):
+        """
+        Create a new EWS task an hour in the future. Used when patient is
+        take off obs_stop
+        :param patient_id: ID of the patient to create EWS for
+        :param spell_activity_id: ID of spell activity (used as parent of EWs)
+        :return: ID of created EWS
+        """
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
@@ -266,6 +273,17 @@ class NHClinicalWardboard(orm.Model):
 
     def read(self, cr, user, ids, fields=None, context=None,
              load='_classic_read'):
+        """
+        Override of read method of wardboard to override next_diff and
+        frequency fields with obs_stop information is flag set
+        :param cr: Odoo cursor
+        :param user: User doing operation
+        :param ids: Record IDs to read
+        :param fields: Fields to read from records
+        :param context: Odoo context
+        :param load: Type of loading to do
+        :return: list of dicts or objects
+        """
         res = super(NHClinicalWardboard, self).read(
             cr, user, ids, fields, context=context, load=load)
         was_single_record = False
