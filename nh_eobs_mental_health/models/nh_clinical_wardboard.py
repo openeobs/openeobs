@@ -205,27 +205,19 @@ class NHClinicalWardboard(orm.Model):
             cr, uid, escalation_task_domain, context=context))
 
     @api.multi
-    def create_new_ews(self, patient_id=None, spell_activity_id=None):
+    def create_new_ews(self):
         """
         Create a new EWS task an hour in the future. Used when patient is
         take off obs_stop
-        :param patient_id: ID of the patient to create EWS for
-        :param spell_activity_id: ID of spell activity (used as parent of EWs)
         :return: ID of created EWS
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
 
-        if not patient_id:
-            patient_id = self.patient_id.id
-
-        if not spell_activity_id:
-            spell_activity_id = self.spell_activity_id.id
-
         new_ews_id = ews_model.create_activity(
-            {'parent_id': spell_activity_id},
-            {'patient_id': patient_id})
+            {'parent_id': self.spell_activity_id.id},
+            {'patient_id': self.patient_id.id})
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 

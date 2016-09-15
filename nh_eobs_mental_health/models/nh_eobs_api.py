@@ -81,10 +81,9 @@ class NHeObsAPI(orm.AbstractModel):
             if obs_stopped:
                 spell_model.write(
                     cr, uid, spell_id, {'obs_stop': False}, context=context)
-                wardboard_model.create_new_ews(
-                    cr, uid, spell.get('id'), patient_id=patient_id[0],
-                    spell_activity_id=spell.get('activity_id')[0],
-                    context=context)
+                wardboard_model.browse(
+                    cr, uid, spell.get('id'), context=context)\
+                    .end_patient_monitoring_exception()
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res
