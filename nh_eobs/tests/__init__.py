@@ -5,13 +5,22 @@ from . import test_helpers
 from . import test_workload
 
 # Test Observation Reports
-from . import test_observation_report_data_dict
-from . import test_observation_report_start_and_end_date
-from . import test_observation_report_without_dob
-from . import test_observation_build_activity_search_domain
-from . import test_observation_report_structure
-from . import test_observation_table_structure
-from . import test_observation_report_get_triggered_actions
+from openeobs.nh_eobs.tests.observation_report import \
+    test_get_allowed_activity_states_for_model
+from openeobs.nh_eobs.tests.observation_report import \
+    test_build_activity_search_domain
+from openeobs.nh_eobs.tests.observation_report import \
+    test_report_data_dict
+from openeobs.nh_eobs.tests.observation_report import \
+    test_report_get_triggered_actions
+from openeobs.nh_eobs.tests.observation_report import \
+    test_report_start_and_end_date
+from openeobs.nh_eobs.tests.observation_report import \
+    test_report_structure
+from openeobs.nh_eobs.tests.observation_report import \
+    test_report_without_dob
+from openeobs.nh_eobs.tests.observation_report import \
+    test_table_structure
 
 # Test Settings
 from . import test_api_get_activities_settings

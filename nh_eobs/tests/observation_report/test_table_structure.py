@@ -1,7 +1,10 @@
-from . import observation_report_helpers as helpers
-from bs4 import BeautifulSoup
 from datetime import datetime
+
+from bs4 import BeautifulSoup
 from openerp.osv import fields
+
+from openeobs.nh_eobs.tests.observation_report import \
+    observation_report_helpers as helpers
 
 
 class TestObservationTableRendering(helpers.ObservationReportHelpers):
@@ -1100,13 +1103,13 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
                          'Date',
                          'Incorrect date table header')
         self.assertEqual(flag_header.text,
-                         'Flag',
+                         'User',
                          'Incorrect flag table header')
         self.assertEqual(action_header.text,
-                         'Action',
+                         'Status',
                          'Incorrect action table header')
         self.assertEqual(user_header.text,
-                         'User',
+                         'Reason',
                          'Incorrect user table header')
         mrsa_term = self.mrsa_values['date_terminated']
         test_mrsa_term = fields.datetime.context_timestamp(

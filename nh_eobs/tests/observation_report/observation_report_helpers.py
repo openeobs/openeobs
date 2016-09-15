@@ -188,6 +188,14 @@ class ObservationReportHelpers(TransactionCase):
         'terminate_uid': [1, 'Test'],
     }
 
+    patient_monitoring_exception_data = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'data_ref': 'EXCEPTION,1',
+        'terminate_uid': [1, 'Test'],
+    }
+
     triggered_ews_data = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -349,6 +357,14 @@ class ObservationReportHelpers(TransactionCase):
         'location_id': [1, 'Test Location']
     }
 
+    patient_monitoring_exception_values = {
+        'date_started': '1988-01-12 06:00:00',
+        'date_terminated': '1988-01-12 06:00:01',
+        'id': 1,
+        'reason': [50, 'Test User'],
+        'spell': [1, 'Test Spell']
+    }
+
     location_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -427,6 +443,8 @@ class ObservationReportHelpers(TransactionCase):
             self.registry('nh.clinical.patient.critical_care')
         self.move_pool = self.registry('nh.clinical.patient.move')
         self.device_session_pool = self.registry('nh.clinical.device.session')
+        self.patient_monitoring_exception_pool = \
+            self.registry('nh.clinical.patient_monitoring_exception')
 
         def spell_pool_mock_spell(*args, **kwargs):
             return [{
@@ -450,11 +468,11 @@ class ObservationReportHelpers(TransactionCase):
             }]
 
         def activity_pool_mock_search(*args, **kwargs):
-            search_filter = args[3] if len(args) > 3 else False
-            model = search_filter[1][2] if len(search_filter) > 1 else False
+            domain = args[1] if len(args) > 1 else False
+            model = domain[1][2] if len(domain) > 1 else False
             if not model:
-                if search_filter[0][0] == 'creator_id':
-                    creator_id = search_filter[0][2]
+                if domain[0][0] == 'creator_id':
+                    creator_id = domain[0][2]
                     ids = [
                         None,
                         [18]
@@ -463,33 +481,36 @@ class ObservationReportHelpers(TransactionCase):
                 else:
                     raise ValueError('Odd search filter passed')
 
-            models = {
-                'nh.clinical.patient.observation.ews': [1],
-                'nh.clinical.patient.observation.height': [2],
-                'nh.clinical.patient.observation.weight': [3],
-                'nh.clinical.patient.observation.pain': [4],
-                'nh.clinical.patient.observation.blood_product': [5],
-                'nh.clinical.patient.observation.stools': [6],
-                'nh.clinical.patient.observation.pbp': [7],
-                'nh.clinical.patient.observation.gcs': [8],
-                'nh.clinical.patient.observation.blood_sugar': [9],
-                'nh.clinical.patient.observation.o2target': [10],
-                'nh.clinical.patient.mrsa': [11],
-                'nh.clinical.patient.diabetes': [12],
-                'nh.clinical.patient.palliative_care': [13],
-                'nh.clinical.patient.post_surgery': [14],
-                'nh.clinical.patient.critical_care': [15],
-                'nh.clinical.patient.move': [16],
-                'nh.clinical.patient.o2target': [17]
-            }
-            return models.get(model)
+            models = [
+                'nh.clinical.patient.observation.ews',
+                'nh.clinical.patient.observation.height',
+                'nh.clinical.patient.observation.weight',
+                'nh.clinical.patient.observation.pain',
+                'nh.clinical.patient.observation.blood_product',
+                'nh.clinical.patient.observation.stools',
+                'nh.clinical.patient.observation.pbp',
+                'nh.clinical.patient.observation.gcs',
+                'nh.clinical.patient.observation.blood_sugar',
+                'nh.clinical.patient.observation.o2target',
+                'nh.clinical.patient.mrsa',
+                'nh.clinical.patient.diabetes',
+                'nh.clinical.patient.palliative_care',
+                'nh.clinical.patient.post_surgery',
+                'nh.clinical.patient.critical_care',
+                'nh.clinical.patient.move',
+                'nh.clinical.patient.o2target',
+                'nh.clinical.patient_monitoring_exception'
+            ]
+            return models.index(model)
 
         def activity_pool_mock_read(*args, **kwargs):
-            aid = args[3][0] if len(args) > 3 else False
-            if not aid:
+            aid = args[1] if len(args) > 1 else False
+            if hasattr(aid, '__iter__'):
+                aid = aid[0]
+            if aid is None or False:
                 raise ValueError('No IDs passed')
-            resps = [
-                False,
+
+            responses = [
                 self.ews_data,
                 self.height_data,
                 self.weight_data,
@@ -507,9 +528,10 @@ class ObservationReportHelpers(TransactionCase):
                 self.critical_care_data,
                 self.move_data if self.move_data else False,
                 self.o2target_data,
+                self.patient_monitoring_exception_data,
                 self.triggered_ews_data
             ]
-            return [copy.deepcopy(resps[aid])] if resps[aid] else []
+            return [copy.deepcopy(responses[aid])] if responses[aid] else []
 
         def ews_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.ews_values)
@@ -561,6 +583,9 @@ class ObservationReportHelpers(TransactionCase):
 
         def critical_care_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.critical_care_values)
+
+        def patient_monitoring_exception_pool_mock_read(*args, **kwargs):
+            return copy.deepcopy(self.patient_monitoring_exception_values)
 
         def device_session_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.device_session_values)
@@ -614,7 +639,10 @@ class ObservationReportHelpers(TransactionCase):
         self.post_surgery_pool._patch_method('read',
                                              post_surgery_pool_mock_read)
         self.critical_care_pool._patch_method('read',
-                                              critical_care_pool_mock_read)
+                                             critical_care_pool_mock_read)
+        self.patient_monitoring_exception_pool._patch_method(
+            'read', patient_monitoring_exception_pool_mock_read
+        )
         self.move_pool._patch_method('read', move_pool_mock_read)
         self.device_session_pool._patch_method('read',
                                                device_session_pool_mock_read)
@@ -653,4 +681,5 @@ class ObservationReportHelpers(TransactionCase):
         self.company_pool._revert_method('read')
         self.o2level_pool._revert_method('browse')
         self.report_pool._revert_method('get_triggered_actions')
+        self.patient_monitoring_exception_pool._revert_method('read')
         super(ObservationReportHelpers, self).tearDown()

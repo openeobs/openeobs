@@ -737,9 +737,9 @@
                             <thead>
                                 <tr>
                                     <th class="col-xs-3">Date</th>
-                                    <th class="col-xs-3">Flag</th>
-                                    <th class="col-xs-3">Action</th>
                                     <th class="col-xs-3">User</th>
+                                    <th class="col-xs-3">Status</th>
+                                    <th class="col-xs-3">Reason</th>
                                 </tr>
                             </thead>
                             <tbody>

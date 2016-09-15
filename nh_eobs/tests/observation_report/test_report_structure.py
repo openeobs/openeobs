@@ -1,9 +1,12 @@
-from . import observation_report_helpers as helpers
-from bs4 import BeautifulSoup
-from datetime import datetime
-from openerp.osv import fields
 import json
+from datetime import datetime
+
 import os
+from bs4 import BeautifulSoup
+from openerp.osv import fields
+
+from openeobs.nh_eobs.tests.observation_report import \
+    observation_report_helpers as helpers
 
 
 class TestObservationReportRendering(helpers.ObservationReportHelpers):

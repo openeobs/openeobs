@@ -44,7 +44,7 @@ class ObservationReport(models.AbstractModel):
 
         if model in monitoring_models:
             # Add activities of any state to the report for these models.
-            return activity_model.get_possible_states
+            return activity_model.get_possible_states()
         else:
             return 'completed'
 
@@ -194,6 +194,7 @@ class ObservationReport(models.AbstractModel):
                                            activity_list=activity_list)
         return activity_list
 
+    @api.multi
     def get_ews_observations(self, data, spell_activity_id):
         cr, uid = self._cr, self._uid
         ews_model = 'nh.clinical.patient.observation.ews'
@@ -216,7 +217,8 @@ class ObservationReport(models.AbstractModel):
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
             triggered_actions = self.pool['nh.activity'].read(
-                cr, uid, self.get_triggered_actions(observation['id']))
+                self.get_triggered_actions(observation['id'])
+            )
             for t in triggered_actions:
                 ds = t.get('date_started', False)
                 dt = t.get('date_terminated', False)
