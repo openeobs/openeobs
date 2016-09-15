@@ -41,18 +41,28 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
                 'id': 1,
                 'obs_stop': False
             }
-            if test in ['obs_stopped', 'no_reason']:
+            if test in ['obs_stopped', 'no_reason', 'multiple']:
                 res['obs_stop'] = True
             return res
 
         def patch_pme_search(*args, **kwargs):
             context = kwargs.get('context', {})
             test = context.get('test', '')
-            if test == 'no_reason':
-                return []
-            return [1]
+            vals = {
+                'no_reason': [],
+                'multiple': [2, 1]
+            }
+            return vals.get(test, [1])
 
         def patch_pme_read(*args, **kwargs):
+            context = kwargs.get('context', {})
+            test = context.get('test', '')
+            if test == 'multiple':
+                global reason_id_sent
+                reason_id_sent = args[3]
+                return {
+                    'reason': (2, 'AWOL')
+                }
             return {
                 'reason': (1, 'Acute hospital ED')
             }
@@ -116,3 +126,16 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
                                          context={'test': 'no_reason'})
         self.assertEqual(read.get('next_diff'), 'Observations Stopped')
         self.assertEqual(read.get('frequency'), '15 Minutes')
+
+    def test_multiple_pme_reasons(self):
+        """
+        EOBS-448 check that when the patient has had multiple PME that
+        the latest reason is returned as frequency
+        """
+        cr, uid = self.cr, self.uid
+        read = self.wardboard_model.read(cr, uid, 1,
+                                         fields=['next_diff', 'patient_id'],
+                                         context={'test': 'multiple'})
+        self.assertEqual(read.get('next_diff'), 'Observations Stopped')
+        self.assertEqual(read.get('frequency'), 'AWOL')
+        self.assertEqual(reason_id_sent, 2)

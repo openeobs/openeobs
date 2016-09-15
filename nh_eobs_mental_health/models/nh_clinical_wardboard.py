@@ -310,7 +310,7 @@ class NHClinicalWardboard(orm.Model):
                         ['spell', '=', spell_id]
                     ], context=context)
                     if obs_stops:
-                        obs_stop = obs_stops[-1]
+                        obs_stop = obs_stops[0]
                         reason = pme_model.read(
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
