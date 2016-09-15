@@ -76,7 +76,7 @@ class TestNHeObsAPITransfer(TransactionCase):
 
         self.spell_activity_id = self.spell_model.read(
             cr, uid, self.spell_id, ['activity_id']).get('activity_id')[0]
-        
+
         reason = self.pme_reason.browse(cr, uid, 1)
         self.wardboard_model.browse(
             cr, uid, self.spell_id) \
@@ -134,4 +134,4 @@ class TestNHeObsAPITransfer(TransactionCase):
                 'from_location': 'W0',
                 'location': 'W1'
             }, context={})
-        self.assertEqual(len(self.activity_model.search(cr, uid, domain)),0)
+        self.assertEqual(len(self.activity_model.search(cr, uid, domain)), 0)
