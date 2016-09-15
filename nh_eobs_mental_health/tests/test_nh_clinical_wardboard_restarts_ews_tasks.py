@@ -55,14 +55,15 @@ class TestNHClinicalWardBoardRestartsEWSTasks(TransactionCase):
     def test_ews_due_in_one_hour(self):
         """
         Test that the newly created ews task is due one hour from creation.
-        Actually tests the time in string format which only displays hours and
-        minutes. This effectively rounds to the nearest minute for comparison.
-        :return:
         """
         time_before_ews_creation = datetime.now()
         expected_time_due = time_before_ews_creation + timedelta(hours=1)
-        expected_time_due_str = expected_time_due.strftime(DTF)
         new_ews_id = self.wardboard.create_new_ews()
         actual_time_due_str = \
             self.activity_model.browse(new_ews_id).date_scheduled
-        self.assertEquals(expected_time_due_str, actual_time_due_str)
+        actual_time_due = datetime.strptime(actual_time_due_str, DTF)
+        self.assertEqual(expected_time_due.year, actual_time_due.year)
+        self.assertEqual(expected_time_due.month, actual_time_due.month)
+        self.assertEqual(expected_time_due.day, actual_time_due.day)
+        self.assertEqual(expected_time_due.hour, actual_time_due.hour)
+        self.assertEqual(expected_time_due.minute, actual_time_due.minute)
