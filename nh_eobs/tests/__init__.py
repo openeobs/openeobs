@@ -9,23 +9,22 @@ from openeobs.nh_eobs.tests.observation_report import \
     test_get_allowed_activity_states_for_model
 from openeobs.nh_eobs.tests.observation_report import \
     test_build_activity_search_domain
-from openeobs.nh_eobs.tests.observation_report import \
-    test_report_data_dict
+from openeobs.nh_eobs.tests.observation_report import test_report_data_dict
 from openeobs.nh_eobs.tests.observation_report import \
     test_report_get_triggered_actions
 from openeobs.nh_eobs.tests.observation_report import \
     test_report_start_and_end_date
+from openeobs.nh_eobs.tests.observation_report import test_report_structure
+from openeobs.nh_eobs.tests.observation_report import test_report_without_dob
+from openeobs.nh_eobs.tests.observation_report import test_table_structure
 from openeobs.nh_eobs.tests.observation_report import \
-    test_report_structure
-from openeobs.nh_eobs.tests.observation_report import \
-    test_report_without_dob
-from openeobs.nh_eobs.tests.observation_report import \
-    test_table_structure
+    test_get_patient_monitoring_exception_report_data
 
 # Test Settings
 from . import test_api_get_activities_settings
 from . import test_eobs_settings
-from . import test_wardboard_discharge_transfer_settings
+from openeobs.nh_eobs.tests.wardboard import \
+    test_wardboard_discharge_transfer_settings
 from . import test_workload_bucket_settings
 
 # Test SQL statements
@@ -34,7 +33,7 @@ from . import test_sql_statements
 # Disabled tests
 # from . import test_api
 # from . import test_api_demo
-# from . import test_wardboard
+# from openeobs.nh_eobs.tests.wardboard import test_wardboard
 # from . import test_ward_dashboard
 # from . import test_palliative_status_tour
 # from . import test_staff_allocation_tours
