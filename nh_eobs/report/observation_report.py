@@ -22,24 +22,31 @@ class ObservationReport(models.AbstractModel):
         'palliative_care_history': 'nh.clinical.patient.palliative_care',
         'post_surgery_history': 'nh.clinical.patient.post_surgery',
         'critical_care_history': 'nh.clinical.patient.critical_care',
-        'acute_hospital_ed': 'nh.clinical.patient_monitoring_exception',
-        'extended_leave': 'nh.clinical.patient_monitoring_exception',
-        'awol': 'nh.clinical.patient_monitoring_exception'
+        'patient_monitoring_exception_history':
+            'nh.clinical.patient_monitoring_exception'
     }
 
     @api.multi
     def get_activity_data(self, spell_id, model, start_time, end_time):
-        activity_model = self.env['nh.activity']
+        cr, uid = self._cr, self._uid
+        activity_model = self.pool['nh.activity']
 
         states = self._get_allowed_activity_states_for_model(model)
         domain = helpers.build_activity_search_domain(
             spell_id, model, start_time, end_time, states=states
         )
-        activity_ids = activity_model.search(domain)
-        return activity_model.read(activity_ids)
+        activity_ids = activity_model.search(cr, uid, domain)
+        return activity_model.read(cr, uid, activity_ids)
 
-    def _get_allowed_activity_states_for_model(self, model):
-        activity_model = self.env['nh.activity']
+    def _get_allowed_activity_states_for_model(self, cr, uid, model):
+        """
+        Returns the states that an activity can be in if it is to be included
+        on the observation report.
+        :param model:
+        :return: string or list of strings.
+        :rtype: str or list
+        """
+        activity_model = self.pool['nh.activity']
         monitoring_models = self.monitoring_dict.values()
 
         if model in monitoring_models:
@@ -49,38 +56,39 @@ class ObservationReport(models.AbstractModel):
             return 'completed'
 
     def get_model_data(self, spell_id, model, start, end):
-        cr, uid = self._cr, self._uid
-        act_data = self.get_activity_data(spell_id, model, start, end)
-        if act_data:
-            for act in act_data:
-                ds = False
-                dt = False
-                if 'date_started' in act and act['date_started']:
-                    ds = act['date_started']
-                if 'date_terminated' in act and act['date_terminated']:
-                    dt = act['date_terminated']
-                if ds:
-                    ds = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(ds, dtf),
-                        self.pretty_date_format)
-                    act['date_started'] = ds
-                if dt:
-                    dt = helpers.convert_db_date_to_context_date(
-                        cr, uid, datetime.strptime(dt, dtf),
-                        self.pretty_date_format)
-                    act['date_terminated'] = dt
-        return self.get_model_values(model, act_data)
+        """
+        Get activities associated with the passed model and return them as
+        a dictionary.
+        :param spell_id:
+        :param model:
+        :param start:
+        :param end:
+        :return:
+        :rtype: dict
+        """
+        activity_data = self.get_activity_data(spell_id, model, start, end)
+        if activity_data:
+            self.convert_dates_to_context_dates(activity_data)
+        return self.get_model_values(model, activity_data)
 
-    def get_model_values(self, model, act_data):
+    def get_model_values(self, model, activity_data):
+        """
+        Get values of records associated with the passed activity data
+        as a dictionary and return it.
+        :param model:
+        :param activity_data:
+        :return:
+        :rtype: dict
+        """
         cr, uid = self._cr, self._uid
         model_pool = self.pool[model]
-        for act in act_data:
-            model_data = model_pool.read(cr, uid,
-                                         int(act['data_ref'].split(',')[1]),
-                                         [])
+        for activity in activity_data:
+            model_data = model_pool.read(
+                cr, uid, self._get_data_ref_id(activity), []
+            )
             if model_data:
                 stat = 'No'
-                dt = 'date_terminated'
+                date_terminated = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
                     stat = 'Yes'
                     model_data['status'] = stat
@@ -94,7 +102,8 @@ class ObservationReport(models.AbstractModel):
                             ),
                             self.pretty_date_format
                         )
-                if dt in model_data and model_data[dt]:
+                if date_terminated in model_data \
+                        and model_data[date_terminated]:
                     model_data['date_terminated'] = \
                         helpers.convert_db_date_to_context_date(
                             cr, uid,
@@ -104,8 +113,12 @@ class ObservationReport(models.AbstractModel):
                             ),
                             self.pretty_date_format
                         )
-            act['values'] = model_data
-        return act_data
+            activity['values'] = model_data
+        return activity_data
+
+    @classmethod
+    def _get_data_ref_id(cls, dictionary):
+        return int(dictionary['data_ref'].split(',')[1])
 
     def get_multi_model_data(self, spell_id,
                              model_one, model_two,  start, end):
@@ -217,7 +230,7 @@ class ObservationReport(models.AbstractModel):
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
             triggered_actions = self.pool['nh.activity'].read(
-                self.get_triggered_actions(observation['id'])
+                cr, uid, self.get_triggered_actions(observation['id'])
             )
             for t in triggered_actions:
                 ds = t.get('date_started', False)
@@ -331,6 +344,16 @@ class ObservationReport(models.AbstractModel):
         return patient
 
     def get_report_data(self, data, ews_only=False):
+        """
+        Returns a dictionary that will be used to populate the report.
+        Most of the values are themselves dictionaries returned by
+        `activity.read()`. However they also have an additional key named
+        'values' that contains the model record as dictionaries returned by
+        `model.read()`.
+        :param data:
+        :param ews_only:
+        :return:
+        """
         cr, uid = self._cr, self._uid
         # set up pools
         report = self.env['report']._get_report_from_name(
@@ -381,12 +404,8 @@ class ObservationReport(models.AbstractModel):
         )
         patient = self.process_patient_height_weight(patient, height_weight)
 
-        monitoring_dict = copy.deepcopy(self.monitoring_dict)
-
-        monitoring = self.get_activity_data_from_dict(
-            monitoring_dict,
-            spell_activity_id,
-            data
+        monitoring = self.create_patient_monitoring_exception_dictionary(
+            data, spell_activity_id
         )
 
         transfer_history = self.process_transfer_history(
@@ -471,6 +490,114 @@ class ObservationReport(models.AbstractModel):
             ews_report
         )
         return rep_data
+
+    def create_patient_monitoring_exception_dictionary(self, data,
+                                                       spell_activity_id):
+        cr, uid = self._cr, self._uid
+        activity_model = self.env['nh.activity']
+        this_model = self.env['report.nh.clinical.observation_report']
+
+        old_style_patient_monitoring_exceptions = \
+            copy.deepcopy(self.monitoring_dict)
+        old_style_patient_monitoring_exceptions = \
+            self.get_activity_data_from_dict(
+                old_style_patient_monitoring_exceptions,
+                spell_activity_id, data
+            )
+
+        # Tried using a browse here but it broke all the unit tests due to
+        # mocked read methods.
+        spell_activity = activity_model.read(cr, uid, spell_activity_id)[0]
+        spell_id = self._get_data_ref_id(spell_activity)
+
+        new_style_patient_monitoring_exceptions = \
+            this_model.get_patient_monitoring_exception_report_data(
+                    spell_activity_id, None
+                )
+
+        patient_monitoring_exception_dictionary = helpers.merge_dicts(
+            old_style_patient_monitoring_exceptions,
+            new_style_patient_monitoring_exceptions
+        )
+
+        return patient_monitoring_exception_dictionary
+
+    def convert_dates_to_context_dates(self, activity_data):
+        cr, uid = self._cr, self._uid
+        for activity in activity_data:
+            date_started = False
+            date_terminated = False
+            if 'date_started' in activity and activity['date_started']:
+                date_started = activity['date_started']
+            if 'date_terminated' in activity \
+                    and activity['date_terminated']:
+                date_terminated = activity['date_terminated']
+            if date_started:
+                date_started = helpers.convert_db_date_to_context_date(
+                    cr, uid, datetime.strptime(date_started, dtf),
+                    self.pretty_date_format
+                )
+                activity['date_started'] = date_started
+            if date_terminated:
+                date_terminated = helpers.convert_db_date_to_context_date(
+                    cr, uid, datetime.strptime(date_terminated, dtf),
+                    self.pretty_date_format
+                )
+                activity['date_terminated'] = date_terminated
+
+    def get_patient_monitoring_exception_report_data(self, cr, uid,
+                                                     spell_activity_id,
+                                                     start_date,
+                                                     end_date=None):
+        activity_model = self.pool['nh.activity']
+        model = 'nh.clinical.patient_monitoring_exception'
+
+        states = self._get_allowed_activity_states_for_model(cr, uid, model)
+        domain = helpers.build_activity_search_domain(
+            spell_activity_id, model,
+            start_date, end_date,
+            states=states, date_field='date_started'
+        )
+        activity_id = activity_model.search(cr, uid, domain)
+        if isinstance(activity_id, list):
+            activity_id = activity_id[0]
+
+        report_data = self.get_monitoring_exception_report_data_from_activity(
+            cr, uid, activity_id
+        )
+
+        dictionary = {
+            'patient_monitoring_exceptions': [
+                report_data
+            ]
+        }
+        return dictionary
+
+    def get_monitoring_exception_report_data_from_activities(self, activities):
+        pass
+
+    def get_monitoring_exception_report_data_from_activity(self, cr, uid, activity_id):
+        activity_model = self.pool['nh.activity']
+        pme_model = \
+            self.pool['nh.clinical.patient_monitoring_exception']
+        reason_model = \
+            self.pool['nh.clinical.patient_monitoring_exception.reason']
+
+        activity = activity_model.read(cr, uid, activity_id)
+        if isinstance(activity, list):
+            activity = activity[0]
+
+        pme_id = self._get_data_ref_id(activity)
+        pme = pme_model.read(cr, uid, pme_id)
+        reason_display_name = pme['reason'][1] # tuple: (id, display_name)
+
+        return {
+            'date': activity['date_started'],
+            'user': activity['terminate_uid'] if activity['terminate_uid'] else activity['create_uid'],
+            'status': 'Stop Observations',
+            'reason': reason_display_name
+        }
+
 
     @api.multi
     def render_html(self, data=None):

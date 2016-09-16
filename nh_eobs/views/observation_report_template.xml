@@ -743,16 +743,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-if="patient_monitoring_exception_history">
-                                    <t t-foreach="patient_monitoring_exception_history" t-as="patient_monitoring_exception">
-                                        <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="patient_monitoring_exception['values']['date_terminated']"/></td>
-                                            <td class="col-xs-3"><t t-esc="patient_monitoring_exception['values']['create_uid']"/></td>
-                                            <td class="col-xs-3">Stop Observations</td>
-                                            <td class="col-xs-3"><t t-esc="patient_monitoring_exception['values']['reason']"/></td>
-                                        </tr>
-                                    </t>
-                                </t>
                                 <t t-if="mrsa_history">
                                     <t t-foreach="mrsa_history" t-as="mrsa">
                                         <tr class="main-entry">

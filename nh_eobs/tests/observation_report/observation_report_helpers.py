@@ -468,7 +468,7 @@ class ObservationReportHelpers(TransactionCase):
             }]
 
         def activity_pool_mock_search(*args, **kwargs):
-            domain = args[1] if len(args) > 1 else False
+            domain = args[3] if len(args) > 3 else False
             model = domain[1][2] if len(domain) > 1 else False
             if not model:
                 if domain[0][0] == 'creator_id':
@@ -504,7 +504,7 @@ class ObservationReportHelpers(TransactionCase):
             return models.index(model)
 
         def activity_pool_mock_read(*args, **kwargs):
-            aid = args[1] if len(args) > 1 else False
+            aid = args[3] if len(args) > 3 else False
             if hasattr(aid, '__iter__'):
                 aid = aid[0]
             if aid is None or False:

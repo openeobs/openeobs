@@ -44,25 +44,29 @@ class ReportDates(object):
 
 
 def build_activity_search_domain(spell_activity_id, model,
-                                 start_date, end_date, states='completed'):
+                                 start_date, end_date,
+                                 states='completed',
+                                 date_field='date_terminated'):
     if not spell_activity_id:
         raise ValueError('No spell activity id supplied.')
     if not model:
         raise ValueError('No model supplied.')
+
+    operator = 'in' if isinstance(states, list) else '='
     filter = [('parent_id', '=', spell_activity_id),
               ('data_model', '=', model),
-              ('state', '=', states)]
+              ('state', operator, states)]
     if start_date:
         if isinstance(start_date, datetime):
-            filter.append(['date_terminated', '>=', start_date.strftime(dtf)])
+            filter.append([date_field, '>=', start_date.strftime(dtf)])
         elif isinstance(start_date, str):
-            filter.append(['date_terminated', '>=', start_date])
+            filter.append([date_field, '>=', start_date])
 
     if end_date:
         if isinstance(end_date, datetime):
-            filter.append(['date_terminated', '<=', end_date.strftime(dtf)])
+            filter.append([date_field, '<=', end_date.strftime(dtf)])
         elif isinstance(end_date, str):
-            filter.append(['date_terminated', '<=', end_date])
+            filter.append([date_field, '<=', end_date])
     return filter
 
 
