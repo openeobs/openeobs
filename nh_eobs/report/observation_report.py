@@ -526,15 +526,29 @@ class ObservationReport(models.AbstractModel):
                                                      start_date,
                                                      end_date=None):
         activity_model = self.pool['nh.activity']
-        model = 'nh.clinical.patient_monitoring_exception'
 
+        model = 'nh.clinical.patient_monitoring_exception'
         states = self._get_allowed_activity_states_for_model(cr, uid, model)
+
         domain = helpers.build_activity_search_domain(
             spell_activity_id, model,
             start_date, end_date,
             states=states, date_field='date_started'
         )
         pme_activity_ids = activity_model.search(cr, uid, domain)
+
+        # Ensure pme_activity_ids is compatible with other methods that take
+        # lists as input.
+        if not isinstance(pme_activity_ids, list):
+            pme_activity_ids = [pme_activity_ids]
+
+        # We make a special case for patient monitoring exceptions that are
+        # still open, they are still included even if before the start date.
+        pme_activity_ids_still_open_before_start_date = \
+            self.get_still_open_monitoring_exceptions_before_start_date(
+                cr, uid, spell_activity_id, start_date
+            )
+        pme_activity_ids.extend(pme_activity_ids_still_open_before_start_date)
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
@@ -545,11 +559,23 @@ class ObservationReport(models.AbstractModel):
         }
         return dictionary
 
+    def get_still_open_monitoring_exceptions_before_start_date(
+            self, cr, uid, spell_activity_id, start_date):
+        activity_model = self.pool['nh.activity']
+
+        model = 'nh.clinical.patient_monitoring_exception'
+
+        domain = [
+            ('parent_id', '=', spell_activity_id),
+            ('data_model', '=', model),
+            ('state', '=', 'started'),
+            ('date_started', '<', start_date)
+        ]
+        return [activity_model.search(cr, uid, domain)]
+
     def get_monitoring_exception_report_data_from_activities(self, cr, uid,
                                                              pme_activity_ids):
         report_entries = []
-        if not isinstance(pme_activity_ids, list):
-            pme_activity_ids = [pme_activity_ids]
 
         for pme_activity_id in pme_activity_ids:
             some_more_report_entries = \
@@ -604,7 +630,8 @@ class ObservationReport(models.AbstractModel):
             else activity['create_uid']
         status = 'Stop Observations' if not restart_obs \
             else 'Restart Observations'
-        reason = pme['reason'][1]  # tuple: (id, display_name)
+        # pme['reason'] is a tuple: (id, display_name)
+        reason = pme['reason'][1] if not restart_obs else None
 
         return {
             'date': date,
