@@ -558,45 +558,73 @@ class ObservationReport(models.AbstractModel):
             start_date, end_date,
             states=states, date_field='date_started'
         )
-        activity_id = activity_model.search(cr, uid, domain)
-        if isinstance(activity_id, list):
-            activity_id = activity_id[0]
+        pme_activity_id = activity_model.search(cr, uid, domain)
+        if isinstance(pme_activity_id, list):
+            pme_activity_id = pme_activity_id[0]
 
         report_data = self.get_monitoring_exception_report_data_from_activity(
-            cr, uid, activity_id
+            cr, uid, pme_activity_id
         )
-
         dictionary = {
-            'patient_monitoring_exceptions': [
-                report_data
-            ]
+            'patient_monitoring_exceptions': report_data
         }
         return dictionary
 
     def get_monitoring_exception_report_data_from_activities(self, activities):
         pass
 
-    def get_monitoring_exception_report_data_from_activity(self, cr, uid, activity_id):
+    def get_monitoring_exception_report_data_from_activity(self, cr, uid,
+                                                           pme_activity_id):
+        activity_model = self.pool['nh.activity']
+
+        activity = activity_model.read(cr, uid, pme_activity_id)
+        if isinstance(activity, list):
+            activity = activity[0]
+
+        report_entries = []
+        # Get report entry for start of patient monitoring exception.
+        stop_obs_report_entry = \
+            self.get_report_entry_dictionary(cr, uid, pme_activity_id)
+        report_entries.append(stop_obs_report_entry)
+        # Get report entry for end of patient monitoring exception if it is not
+        # still open.
+        pme_is_completed = True if activity['date_terminated'] else False
+        if pme_is_completed:
+            restart_obs_report_entry = \
+                self.get_report_entry_dictionary(cr, uid, pme_activity_id,
+                                                 restart_obs=True)
+            report_entries.append(restart_obs_report_entry)
+
+        return report_entries
+
+    def get_report_entry_dictionary(self, cr, uid, pme_activity_id,
+                                    restart_obs=False):
         activity_model = self.pool['nh.activity']
         pme_model = \
             self.pool['nh.clinical.patient_monitoring_exception']
-        reason_model = \
-            self.pool['nh.clinical.patient_monitoring_exception.reason']
 
-        activity = activity_model.read(cr, uid, activity_id)
+        activity = activity_model.read(cr, uid, pme_activity_id)
         if isinstance(activity, list):
             activity = activity[0]
 
         pme_id = self._get_data_ref_id(activity)
         pme = pme_model.read(cr, uid, pme_id)
-        reason_display_name = pme['reason'][1] # tuple: (id, display_name)
+
+        date = activity['date_started'] if not restart_obs \
+            else activity['date_terminated']
+        user = activity['terminate_uid'] if activity['terminate_uid'] \
+            else activity['create_uid']
+        status = 'Stop Observations' if not restart_obs \
+            else 'Restart Observations'
+        reason = pme['reason'][1]  # tuple: (id, display_name)
 
         return {
-            'date': activity['date_started'],
-            'user': activity['terminate_uid'] if activity['terminate_uid'] else activity['create_uid'],
-            'status': 'Stop Observations',
-            'reason': reason_display_name
+            'date': date,
+            'user': user,
+            'status': status,
+            'reason': reason
         }
+
 
 
     @api.multi

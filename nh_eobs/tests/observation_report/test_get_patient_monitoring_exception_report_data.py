@@ -6,6 +6,20 @@ from openerp.addons.nh_eobs.report import helpers
 
 class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
+    @classmethod
+    def setUpClass(cls):
+        cls.stop_obs_msg = 'Stop Observations'
+        cls.restart_obs_msg = 'Restart Observations'
+
+        cls.root_key = 'patient_monitoring_exceptions'
+        cls.date_key = 'date'
+        cls.user_key = 'user'
+        cls.reason_key = 'reason'
+        cls.status_key = 'status'
+
+        cls.keys_list = [cls.date_key, cls.user_key,
+                         cls.reason_key, cls.status_key]
+
     def setUp(self):
         super(TestGetPatientMonitoringExceptionReportData, self).setUp()
         cr, uid = self.cr, self.uid
@@ -34,6 +48,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
         self.spell_activity = \
             self.activity_model.browse(self.spell_activity_id)
+
         self.spell = self.spell_activity.data_ref
 
         self.wardboard = self.wardboard_model.new({
@@ -48,7 +63,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.reason_3 = \
             self.pme_reason_model.create({'display_text': 'reason_three'})
 
-        pme_closed = self.pme_model.create_activity(
+        pme_closed_id = self.pme_model.create_activity(
             {
                 'parent_id': self.spell_activity_id,
             },
@@ -60,31 +75,19 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         # pme_3 = self.pme_model.create({
         #     'reason': self.reason_3, 'spell': self.spell
         # })
-        self.pme_model.start(pme_closed)
-        pme_closed = self.activity_model.browse(pme_closed)
-        self.start_date = pme_closed.date_started
-
-        input_data = {
-            'spell_id': 1,
-            'start_date': None,
-            'end_date': None,
-            'ews_only': False
-        }
-        self.input_data_obj = helpers.data_dict_to_obj(input_data)
+        self.pme_model.start(pme_closed_id)
+        self.pme_model.complete(pme_closed_id)
+        pme_closed_id = self.activity_model.browse(pme_closed_id)
+        self.pme_start_date = pme_closed_id.date_started
+        self.pme_end_date = pme_closed_id.date_terminated
 
         self.dictionary = \
             self.observation_report_model.\
                 get_patient_monitoring_exception_report_data(
-                    cr, uid, self.spell_activity.id, self.start_date
+                    cr, uid, self.spell_activity.id, self.pme_start_date
                 )
 
-        self.root_key = 'patient_monitoring_exceptions'
-        self.date_key = 'date'
-        self.user_key = 'user'
-        self.reason_key = 'reason'
-        self.status_key = 'status'
-        self.keys_list = [self.date_key, self.user_key,
-                          self.reason_key, self.status_key]
+        self.report_entries = self.dictionary[self.root_key]
 
     def test_returns_dictionary(self):
         self.assertTrue(dict(self.dictionary))
@@ -104,16 +107,24 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
                                          "the dictionary.".format(key))
 
     def test_start_of_patient_monitoring_exception_returned(self):
-        report_entries = self.dictionary[self.root_key]
-        report_entry = [report_entry for report_entry in report_entries
-                        if report_entry[self.date_key] == self.start_date]
+        report_entry = [report_entry for report_entry in self.report_entries
+                        if report_entry[self.date_key] == self.pme_start_date
+                        and report_entry[self.status_key] == self.stop_obs_msg]
+
         self.assertEqual(
             len(report_entry), 1,
             "Should be one report entry with start date '{}'."
-                .format(self.start_date)
+                .format(self.pme_start_date)
         )
-        if len(report_entry) != 1:
-            raise AssertionError()
 
     def test_end_of_patient_monitoring_exception_returned(self):
-        pass
+        report_entry = [report_entry for report_entry in self.report_entries
+                        if report_entry[self.date_key] == self.pme_end_date
+                        and report_entry[self.status_key] ==
+                            self.restart_obs_msg]
+
+        self.assertEqual(
+            len(report_entry), 1,
+            "Should be one report entry with end date '{}'."
+                .format(self.pme_end_date)
+        )
