@@ -52,8 +52,8 @@ class NHeObsAPI(orm.AbstractModel):
         - Set transferred patients to not have obs_stop flag set
         :param cr: Odoo cursor
         :param uid: User doing the operation
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the key
             ``location``
         :param context: Odoo Context
@@ -62,6 +62,7 @@ class NHeObsAPI(orm.AbstractModel):
         """
         spell_model = self.pool['nh.clinical.spell']
         patient_model = self.pool['nh.clinical.patient']
+        wardboard_model = self.pool['nh.clinical.wardboard']
         patient_id = patient_model.search(cr, uid, [
             ['other_identifier', '=', hospital_number]
         ])
@@ -71,12 +72,18 @@ class NHeObsAPI(orm.AbstractModel):
         ], context=context)
         if spell_id:
             spell_id = spell_id[0]
-            obs_stopped = spell_model.read(
-                cr, uid, spell_id, ['obs_stop'], context=context) \
-                .get('obs_stop')
+            spell = spell_model.read(
+                cr, uid, spell_id, [
+                    'obs_stop',
+                    'activity_id'
+                ], context=context)
+            obs_stopped = spell.get('obs_stop')
             if obs_stopped:
                 spell_model.write(
                     cr, uid, spell_id, {'obs_stop': False}, context=context)
+                wardboard_model.browse(
+                    cr, uid, spell.get('id'), context=context)\
+                    .end_patient_monitoring_exception()
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res

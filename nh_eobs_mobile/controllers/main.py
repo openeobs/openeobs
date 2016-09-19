@@ -451,7 +451,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         request.session.logout(keep_db=True)
         return utils.redirect(URLS['login'], 303)
 
-    def calculate_ews_class(self, score):
+    @staticmethod
+    def calculate_ews_class(score):
         """
         Returns the :class:`EWS<nh_clinical_patient_observation_ews>`
         class.
@@ -472,6 +473,27 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         else:
             return 'level-none'
 
+    def process_patient_list(self, cr, uid, patient_list, context=None):
+        for patient in patient_list:
+            patient['url'] = '{0}{1}'.format(
+                URLS['single_patient'], patient['id'])
+            patient['color'] = self.calculate_ews_class(
+                patient['clinical_risk'])
+            patient['trend_icon'] = 'icon-{0}-arrow'.format(
+                patient['ews_trend'])
+            patient['deadline_time'] = patient['next_ews_time']
+            patient['summary'] = patient.get('summary', False)
+            if patient.get('followers'):
+                followers = patient['followers']
+                follow_csv = ', '.join([f['name'] for f in followers])
+                patient['followers'] = follow_csv
+                patient['follower_ids'] = [f['id'] for f in followers]
+            if patient.get('invited_users'):
+                users = patient['invited_users']
+                invite_csv = ', '.join([u['name'] for u in users])
+                patient['invited_users'] = invite_csv
+        return patient_list
+
     @http.route(URLS['patient_list'], type='http', auth="user")
     def get_patients(self, *args, **kw):
         """
@@ -488,25 +510,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             activity_type='nh.clinical.patient.follow',
             context=context
         )
-        patients = patient_api.get_patients(cr, uid, [], context=context)
+        patients = self.process_patient_list(
+            cr, uid, patient_api.get_patients(
+                cr, uid, [], context=context), context=context)
         patient_api.get_patient_followers(cr, uid, patients, context=context)
-        following_patients = patient_api.get_followed_patients(cr, uid, [])
-        for patient in patients:
-            patient['url'] = '{0}{1}'.format(
-                URLS['single_patient'], patient['id'])
-            patient['color'] = self.calculate_ews_class(
-                patient['clinical_risk'])
-            patient['deadline_time'] = patient['next_ews_time']
-            patient['summary'] = patient.get('summary', False)
-        for fpatient in following_patients:
-            fpatient['url'] = '{0}{1}'. format(
-                URLS['single_patient'], fpatient['id'])
-            fpatient['color'] = self.calculate_ews_class(
-                fpatient['clinical_risk'])
-            fpatient['trend_icon'] = 'icon-{0}-arrow'.format(
-                fpatient['ews_trend'])
-            fpatient['deadline_time'] = fpatient['next_ews_time']
-            fpatient['summary'] = fpatient.get('summary', False)
+        following_patients = self.process_patient_list(
+            cr, uid, patient_api.get_followed_patients(
+                cr, uid, []), context=context)
         return request.render(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
@@ -538,24 +548,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             activity_type='nh.clinical.patient.follow',
             context=context
         )
-        for patient in patients:
-            patient['url'] = '{0}{1}'.format(
-                URLS['single_patient'], patient['id'])
-            patient['color'] = self.calculate_ews_class(
-                patient['clinical_risk'])
-            patient['trend_icon'] = 'icon-{0}-arrow'.format(
-                patient['ews_trend'])
-            patient['deadline_time'] = patient['next_ews_time']
-            patient['summary'] = patient.get('summary', False)
-            if patient.get('followers'):
-                followers = patient['followers']
-                follow_csv = ', '.join([f['name'] for f in followers])
-                patient['followers'] = follow_csv
-                patient['follower_ids'] = [f['id'] for f in followers]
-            if patient.get('invited_users'):
-                users = patient['invited_users']
-                invite_csv = ', '.join([u['name'] for u in users])
-                patient['invited_users'] = invite_csv
+        self.process_patient_list(cr, uid, patients, context=context)
         sorted_pts = sorted(
             patients,
             key=lambda k: cmp(k['followers'], k['invited_users'])
