@@ -505,15 +505,14 @@ class ObservationReport(models.AbstractModel):
                 spell_activity_id, data
             )
 
-        # Tried using a browse here but it broke all the unit tests due to
-        # mocked read methods.
+        # Tried using a browse here but it broke unit tests due to mocked reads
         spell_activity = activity_model.read(cr, uid, spell_activity_id)[0]
         spell_id = self._get_data_ref_id(spell_activity)
 
         new_style_patient_monitoring_exceptions = \
             this_model.get_patient_monitoring_exception_report_data(
-                    spell_activity_id, None
-                )
+                spell_activity_id, None
+            )
 
         patient_monitoring_exception_dictionary = helpers.merge_dicts(
             old_style_patient_monitoring_exceptions,
@@ -521,29 +520,6 @@ class ObservationReport(models.AbstractModel):
         )
 
         return patient_monitoring_exception_dictionary
-
-    def convert_dates_to_context_dates(self, activity_data):
-        cr, uid = self._cr, self._uid
-        for activity in activity_data:
-            date_started = False
-            date_terminated = False
-            if 'date_started' in activity and activity['date_started']:
-                date_started = activity['date_started']
-            if 'date_terminated' in activity \
-                    and activity['date_terminated']:
-                date_terminated = activity['date_terminated']
-            if date_started:
-                date_started = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(date_started, dtf),
-                    self.pretty_date_format
-                )
-                activity['date_started'] = date_started
-            if date_terminated:
-                date_terminated = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(date_terminated, dtf),
-                    self.pretty_date_format
-                )
-                activity['date_terminated'] = date_terminated
 
     def get_patient_monitoring_exception_report_data(self, cr, uid,
                                                      spell_activity_id,
@@ -558,20 +534,32 @@ class ObservationReport(models.AbstractModel):
             start_date, end_date,
             states=states, date_field='date_started'
         )
-        pme_activity_id = activity_model.search(cr, uid, domain)
-        if isinstance(pme_activity_id, list):
-            pme_activity_id = pme_activity_id[0]
+        pme_activity_ids = activity_model.search(cr, uid, domain)
 
-        report_data = self.get_monitoring_exception_report_data_from_activity(
-            cr, uid, pme_activity_id
-        )
+        report_data = \
+            self.get_monitoring_exception_report_data_from_activities(
+                cr, uid, pme_activity_ids
+            )
         dictionary = {
             'patient_monitoring_exceptions': report_data
         }
         return dictionary
 
-    def get_monitoring_exception_report_data_from_activities(self, activities):
-        pass
+    def get_monitoring_exception_report_data_from_activities(self, cr, uid,
+                                                             pme_activity_ids):
+        report_entries = []
+        if not isinstance(pme_activity_ids, list):
+            pme_activity_ids = [pme_activity_ids]
+
+        for pme_activity_id in pme_activity_ids:
+            some_more_report_entries = \
+                self.get_monitoring_exception_report_data_from_activity(
+                    cr, uid, pme_activity_id
+                )
+            report_entries.extend(some_more_report_entries)
+
+        return report_entries
+
 
     def get_monitoring_exception_report_data_from_activity(self, cr, uid,
                                                            pme_activity_id):
@@ -625,7 +613,28 @@ class ObservationReport(models.AbstractModel):
             'reason': reason
         }
 
-
+    def convert_dates_to_context_dates(self, activity_data):
+        cr, uid = self._cr, self._uid
+        for activity in activity_data:
+            date_started = False
+            date_terminated = False
+            if 'date_started' in activity and activity['date_started']:
+                date_started = activity['date_started']
+            if 'date_terminated' in activity \
+                    and activity['date_terminated']:
+                date_terminated = activity['date_terminated']
+            if date_started:
+                date_started = helpers.convert_db_date_to_context_date(
+                    cr, uid, datetime.strptime(date_started, dtf),
+                    self.pretty_date_format
+                )
+                activity['date_started'] = date_started
+            if date_terminated:
+                date_terminated = helpers.convert_db_date_to_context_date(
+                    cr, uid, datetime.strptime(date_terminated, dtf),
+                    self.pretty_date_format
+                )
+                activity['date_terminated'] = date_terminated
 
     @api.multi
     def render_html(self, data=None):

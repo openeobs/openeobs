@@ -56,6 +56,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
             'patient_id': self.patient
         })
 
+        # Create some patient monitoring exception reasons.
         self.reason_1 = \
             self.pme_reason_model.create({'display_text': 'reason_one'})
         self.reason_2 = \
@@ -63,28 +64,35 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.reason_3 = \
             self.pme_reason_model.create({'display_text': 'reason_three'})
 
+        # Create some patient monitoring exceptions.
         pme_closed_id = self.pme_model.create_activity(
-            {
-                'parent_id': self.spell_activity_id,
-            },
+            {'parent_id': self.spell_activity_id},
             {'reason': self.reason_1.id, 'spell': self.spell.id}
         )
-        # pme_2 = self.pme_model.create({
-        #     'reason': self.reason_2, 'spell': self.spell
-        # })
-        # pme_3 = self.pme_model.create({
-        #     'reason': self.reason_3, 'spell': self.spell
-        # })
+        pme_open_id = self.pme_model.create_activity(
+            {'parent_id': self.spell_activity_id},
+            {'reason': self.reason_2.id, 'spell': self.spell.id}
+        )
+        pme_not_started_id = self.pme_model.create_activity(
+            {'parent_id': self.spell_activity_id},
+            {'reason': self.reason_2.id, 'spell': self.spell.id}
+        )
+
+        # Progress activity lifecycle of the patient monitoring exceptions.
         self.pme_model.start(pme_closed_id)
         self.pme_model.complete(pme_closed_id)
-        pme_closed_id = self.activity_model.browse(pme_closed_id)
-        self.pme_start_date = pme_closed_id.date_started
-        self.pme_end_date = pme_closed_id.date_terminated
+        self.pme_model.start(pme_open_id)
+
+        # Get records for the patient monitoring exceptions.
+        self.pme_closed = self.activity_model.browse(pme_closed_id)
+        self.pme_open = self.activity_model.browse(pme_open_id)
+        self.pme_not_started = self.activity_model.browse(pme_not_started_id)
 
         self.dictionary = \
             self.observation_report_model.\
                 get_patient_monitoring_exception_report_data(
-                    cr, uid, self.spell_activity.id, self.pme_start_date
+                    cr, uid, self.spell_activity.id,
+                    self.pme_closed.date_started
                 )
 
         self.report_entries = self.dictionary[self.root_key]
@@ -108,23 +116,44 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
     def test_start_of_patient_monitoring_exception_returned(self):
         report_entry = [report_entry for report_entry in self.report_entries
-                        if report_entry[self.date_key] == self.pme_start_date
+                        if report_entry[self.date_key] ==
+                            self.pme_closed.date_started
                         and report_entry[self.status_key] == self.stop_obs_msg]
 
         self.assertEqual(
-            len(report_entry), 1,
-            "Should be one report entry with start date '{}'."
-                .format(self.pme_start_date)
+            len(report_entry), 2,
+            "Two patient monitoring exceptions are started '{}'."
+                .format(self.pme_closed.date_started)
         )
 
     def test_end_of_patient_monitoring_exception_returned(self):
         report_entry = [report_entry for report_entry in self.report_entries
-                        if report_entry[self.date_key] == self.pme_end_date
+                        if report_entry[self.date_key] ==
+                            self.pme_closed.date_terminated
                         and report_entry[self.status_key] ==
                             self.restart_obs_msg]
 
         self.assertEqual(
             len(report_entry), 1,
-            "Should be one report entry with end date '{}'."
-                .format(self.pme_end_date)
+            "One patient monitoring exception is completed '{}'."
+                .format(self.pme_closed.date_terminated)
         )
+
+    def test_correct_number_of_started_pme_record_entries(self):
+        pme_started_report_entries = [report_entry for report_entry
+                                      in self.report_entries
+                                      if report_entry[self.status_key] ==
+                                        self.stop_obs_msg]
+        self.assertEqual(len(pme_started_report_entries), 2,
+                         "Two patient monitoring exceptions are started "
+                         "for the spell.")
+
+
+    def test_correct_number_of_completed_pme_record_entries(self):
+        pme_started_report_entries = [report_entry for report_entry
+                                      in self.report_entries
+                                      if report_entry[self.status_key] ==
+                                      self.restart_obs_msg]
+        self.assertEqual(len(pme_started_report_entries), 1,
+                         "One patient monitoring exception is completed "
+                         "for the spell.")
