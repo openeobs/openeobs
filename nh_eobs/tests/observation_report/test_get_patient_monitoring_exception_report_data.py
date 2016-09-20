@@ -20,7 +20,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         cls.restart_obs_msg = 'Restart Observations'
         cls.transfer = 'Transfer'
 
-        cls.root_key = 'patient_monitoring_exceptions'
+        cls.root_key = 'patient_monitoring_exception_history'
         cls.date_key = 'date'
         cls.user_key = 'user'
         cls.reason_key = 'reason'
@@ -31,9 +31,8 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
     def setUp(self):
         super(TestGetPatientMonitoringExceptionReportData, self).setUp()
-        cr, uid = self.cr, self.uid
         self.observation_report_model = \
-            self.registry('report.nh.clinical.observation_report')
+            self.env['report.nh.clinical.observation_report']
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']
@@ -182,7 +181,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.dictionary = \
             self.observation_report_model.\
                 get_patient_monitoring_exception_report_data(
-                    cr, uid, self.spell_activity.id,
+                    self.spell_activity.id,
                     self.start_date, self.end_date
                 )
 

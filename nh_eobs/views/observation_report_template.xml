@@ -743,6 +743,16 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <t t-if="patient_monitoring_exception_history">
+                                    <t t-foreach="patient_monitoring_exception_history" t-as="pme">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="pme['date']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['user']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['reason']"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
                                 <t t-if="mrsa_history">
                                     <t t-foreach="mrsa_history" t-as="mrsa">
                                         <tr class="main-entry">

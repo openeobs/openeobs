@@ -232,7 +232,7 @@ class ObservationReport(models.AbstractModel):
         """
         activity_data = self.get_activity_data(spell_id, model, start, end)
         if activity_data:
-            self.convert_dates_to_context_dates(activity_data)
+            self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)
 
     def get_model_values(self, model, activity_data):
@@ -513,8 +513,6 @@ class ObservationReport(models.AbstractModel):
 
     def create_patient_monitoring_exception_dictionary(self, data,
                                                        spell_activity_id):
-        cr, uid = self._cr, self._uid
-        this_model = self.pool['report.nh.clinical.observation_report']
 
         old_style_patient_monitoring_exceptions = \
             copy.deepcopy(self.monitoring_dict)
@@ -525,8 +523,8 @@ class ObservationReport(models.AbstractModel):
             )
 
         new_style_patient_monitoring_exceptions = \
-            this_model.get_patient_monitoring_exception_report_data(
-                cr, uid, spell_activity_id, data.start_time, data.end_time
+            self.get_patient_monitoring_exception_report_data(
+                spell_activity_id, data.start_time, data.end_time
             )
 
         patient_monitoring_exception_dictionary = helpers.merge_dicts(
@@ -536,66 +534,95 @@ class ObservationReport(models.AbstractModel):
 
         return patient_monitoring_exception_dictionary
 
-    def get_patient_monitoring_exception_report_data(self, cr, uid,
+    def get_patient_monitoring_exception_report_data(self,
                                                      spell_activity_id,
-                                                     start_date,
+                                                     start_date=None,
                                                      end_date=None):
+
         pme_activity_ids = \
             self.get_monitoring_exception_activity_ids_for_report(
-                cr, uid, spell_activity_id, start_date, end_date
+                spell_activity_id, start_date, end_date
             )
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
-                cr, uid, pme_activity_ids, start_date, end_date
+                pme_activity_ids, start_date, end_date
             )
 
         dictionary = {
-            'patient_monitoring_exceptions': report_data
+            'patient_monitoring_exception_history': report_data
         }
         return dictionary
 
-    def get_monitoring_exception_activity_ids_for_report(self, cr, uid,
+    def get_monitoring_exception_activity_ids_for_report(self,
                                                          spell_activity_id,
-                                                         start_date, end_date):
+                                                         start_date=None,
+                                                         end_date=None):
+        cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
+
+        domain = self.build_monitoring_exception_domain(spell_activity_id,
+                                                        start_date, end_date)
+        activity_ids = activity_model.search(cr, uid, domain)
+        if not isinstance(activity_ids, list):
+            activity_ids = [activity_ids]
+        return activity_ids
+
+    @classmethod
+    def build_monitoring_exception_domain(cls, spell_activity_id,
+                                          start_date=None, end_date=None):
         model = 'nh.clinical.patient_monitoring_exception'
 
-        domain = [
+        base_domain = [
             ('parent_id', '=', spell_activity_id),
             ('data_model', '=', model),
+        ]
+        include_all_parameters = [
+            ('state', '=', ['started', 'completed', 'cancelled'])
+        ]
+        filter_on_date_parameters = [
             '|',
                 ('state', '=', 'started'),
                 '&',
                     ('state', 'in', ['completed', 'cancelled']),
                     '|',
                         '&',
-                            ('date_started', '>=', start_date),
-                            ('date_started', '<=', end_date),
+                            ('date_started', '>=', start_date)
+                            if start_date else None,
+                            ('date_started', '<=', end_date)
+                            if end_date else None,
                         '&',
-                            ('date_terminated', '>=', start_date),
+                            ('date_terminated', '>=', start_date)
+                            if start_date else None,
                             ('date_terminated', '<=', end_date)
+                            if end_date else None
         ]
-        activity_ids = activity_model.search(cr, uid, domain)
-        if not isinstance(activity_ids, list):
-            activity_ids = [activity_ids]
-        return activity_ids
+        domain = base_domain
+        if not start_date or end_date:
+            return domain + include_all_parameters
+        else:
+            # Get rid of any Nones.
+            filter_on_date_parameters = \
+                [parameter for parameter in filter_on_date_parameters
+                 if not None]
+            return domain + filter_on_date_parameters
 
     def get_monitoring_exception_report_data_from_activities(
-            self, cr, uid, pme_activity_ids, start_date, end_date):
+            self, pme_activity_ids, start_date=None, end_date=None):
         report_entries = []
 
         for pme_activity_id in pme_activity_ids:
             some_more_report_entries = \
                 self.get_monitoring_exception_report_data_from_activity(
-                    cr, uid, pme_activity_id, start_date, end_date
+                    pme_activity_id, start_date, end_date
                 )
             report_entries += some_more_report_entries
 
         return report_entries
 
     def get_monitoring_exception_report_data_from_activity(
-            self, cr, uid, pme_activity_id, start_date, end_date):
+            self, pme_activity_id, start_date=None, end_date=None):
+        cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
@@ -606,20 +633,22 @@ class ObservationReport(models.AbstractModel):
         # Get report entry for start of patient monitoring exception.
         if self.include_stop_obs_entry(activity, start_date, end_date):
             stop_obs_report_entry = \
-                self.get_report_entry_dictionary(cr, uid, pme_activity_id)
+                self.get_report_entry_dictionary(pme_activity_id)
             report_entries.append(stop_obs_report_entry)
 
         # Get report entry for end of patient monitoring exception if it is not
         # still open.
         if self.include_restart_obs_entry(activity, start_date, end_date):
             restart_obs_report_entry = \
-                self.get_report_entry_dictionary(cr, uid, pme_activity_id,
+                self.get_report_entry_dictionary(pme_activity_id,
                                                  restart_obs=True)
             report_entries.append(restart_obs_report_entry)
 
         return report_entries
 
-    def include_stop_obs_entry(self, activity, start_date, end_date):
+    def include_stop_obs_entry(self, activity, start_date=None, end_date=None):
+        if not start_date or end_date:
+            return True
         try:
             if activity['state'] == 'started':
                 return True
@@ -636,13 +665,17 @@ class ObservationReport(models.AbstractModel):
             raise ValueError("A KeyError was raised because the activity did "
                              "not have the expected keys.", e)
 
-    def include_restart_obs_entry(self, activity, start_date, end_date):
+    def include_restart_obs_entry(self, activity,
+                                  start_date=None, end_date=None):
+        if not start_date or end_date:
+            return True
         return self.is_activity_date_terminated_within_date_range(
             activity, start_date, end_date
         )
 
     def is_activity_date_terminated_within_date_range(self, activity,
-                                                      start_date, end_date):
+                                                      start_date=None,
+                                                      end_date=None):
         if activity['date_terminated']:
             return self.is_datetime_within_range(
                 activity['date_terminated'], start_date, end_date
@@ -650,25 +683,39 @@ class ObservationReport(models.AbstractModel):
         return False
 
     @classmethod
-    def is_datetime_within_range(cls, date_time, start_date, end_date):
+    def is_datetime_within_range(cls, date_time,
+                                 start_date=None, end_date=None):
         if isinstance(date_time, str):
             date_time = datetime.strptime(date_time, dtf)
-        if isinstance(start_date, str):
-            start_date = datetime.strptime(start_date, dtf)
-        if isinstance(end_date, str):
-            end_date = datetime.strptime(end_date, dtf)
-        return start_date >= date_time <= end_date
 
-    def get_report_entry_dictionary(self, cr, uid, pme_activity_id,
+        if start_date:
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, dtf)
+            if not date_time >= start_date:
+                return False
+
+        if end_date:
+            if isinstance(end_date, str):
+                end_date = datetime.strptime(end_date, dtf)
+            if not date_time <= end_date:
+                return False
+
+        return True
+
+    def get_report_entry_dictionary(self, pme_activity_id,
                                     restart_obs=False):
+        cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
         pme_model = \
             self.pool['nh.clinical.patient_monitoring_exception']
         cancel_reason_model = self.pool['nh.cancel.reason']
+        users_model = self.pool['res.users']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
         if isinstance(activity, list):
             activity = activity[0]
+
+        self.convert_activity_dates_to_context_dates(activity)
 
         pme_id = self._get_data_ref_id(activity)
         pme = pme_model.read(cr, uid, pme_id)
@@ -687,8 +734,11 @@ class ObservationReport(models.AbstractModel):
                 user = 'Transfer'
                 reason = 'Transfer'
         else:
-            user = activity['terminate_uid'] if activity['terminate_uid'] \
-                else activity['create_uid']
+            user_id = activity['create_uid']
+            user_id = self._get_id_from_tuple(user_id)
+            user_dict = users_model.read(cr, uid, user_id, fields=['name'])
+            user = user_dict['name']
+
             # pme['reason'] is a tuple: (id, display_name)
             reason = pme['reason'][1] if not restart_obs else None
 
@@ -699,25 +749,28 @@ class ObservationReport(models.AbstractModel):
             'reason': reason
         }
 
-    def convert_dates_to_context_dates(self, activity_data):
-        cr, uid = self._cr, self._uid
+    def convert_activities_dates_to_context_dates(self, activity_data):
         for activity in activity_data:
-            date_started = False
-            date_terminated = False
-            if 'date_started' in activity and activity['date_started']:
-                date_started = activity['date_started']
-            if 'date_terminated' in activity \
-                    and activity['date_terminated']:
-                date_terminated = activity['date_terminated']
-            if date_started:
-                date_started = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(date_started, dtf),
-                    self.pretty_date_format
-                )
-                activity['date_started'] = date_started
-            if date_terminated:
-                date_terminated = helpers.convert_db_date_to_context_date(
-                    cr, uid, datetime.strptime(date_terminated, dtf),
-                    self.pretty_date_format
-                )
-                activity['date_terminated'] = date_terminated
+            self.convert_activity_dates_to_context_dates(activity)
+
+    def convert_activity_dates_to_context_dates(self, activity):
+        cr, uid = self._cr, self._uid
+        date_started = False
+        date_terminated = False
+        if 'date_started' in activity and activity['date_started']:
+            date_started = activity['date_started']
+        if 'date_terminated' in activity \
+                and activity['date_terminated']:
+            date_terminated = activity['date_terminated']
+        if date_started:
+            date_started = helpers.convert_db_date_to_context_date(
+                cr, uid, datetime.strptime(date_started, dtf),
+                self.pretty_date_format
+            )
+            activity['date_started'] = date_started
+        if date_terminated:
+            date_terminated = helpers.convert_db_date_to_context_date(
+                cr, uid, datetime.strptime(date_terminated, dtf),
+                self.pretty_date_format
+            )
+            activity['date_terminated'] = date_terminated

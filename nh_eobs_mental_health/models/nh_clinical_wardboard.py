@@ -147,6 +147,7 @@ class NHClinicalWardboard(orm.Model):
         patient monitoring exceptions in effect.
         """
         activity_model = self.env['nh.activity']
+        activity_pool = self.pool['nh.activity']
         ir_model_data_model = self.env['ir.model.data']
         pme_model = self.env['nh.clinical.patient_monitoring_exception']
 
@@ -175,7 +176,7 @@ class NHClinicalWardboard(orm.Model):
                 cancel_reason
             )
         else:
-            activity_model.complete(
+            activity_pool.complete(
                 self.env.cr, self.env.uid,
                 patient_monitoring_exception_activity_id
             )
