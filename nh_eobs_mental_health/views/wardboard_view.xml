@@ -19,6 +19,18 @@
                 </xpath>
             </field>
         </record>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_kanban">
+            <field name="name">Mental Wardboard Kanban View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
         <record model="ir.ui.view" id="view_select_obs_stop_reason">
             <field name="name">Select Patient Monitoring Exception Reason</field>
             <field name="model">nh.clinical.patient_monitoring_exception.select_reason</field>
@@ -37,5 +49,29 @@
                 </form>
             </field>
         </record>
+
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree_transferred">
+            <field name="name">Mental Wardboard Recently Transferred</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree_transferred"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree">
+            <field name="name">Mental Wardboard Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </openerp>
