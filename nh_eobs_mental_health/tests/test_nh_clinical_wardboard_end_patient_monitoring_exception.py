@@ -13,11 +13,13 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']
+        self.activity_pool = self.registry('nh.activity')
         self.reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
+        self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
 
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
@@ -30,39 +32,28 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
 
-        self.spell_activity = self.activity_model.browse(self.spell_activity_id)
+        self.spell_activity = \
+            self.activity_model.browse(self.spell_activity_id)
+
+        # Fails in spell.get_patient_by_id() if not started.
+        self.activity_pool.start(self.env.cr, self.env.uid, self.spell_activity_id)
+
+        self.spell = self.spell_activity.data_ref
 
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,
             'patient_id': self.patient
         })
 
-    def test_raises_error_when_no_reason_given(self):
-        """
-        Test an error is raised when trying to start a patient monitoring
-        exception with no reasons passed.
-        :return:
-        """
-        no_reasons = []
-        with self.assertRaises(ValueError):
-            self.wardboard.start_patient_monitoring_exception(
-                no_reasons,
-                self.spell_activity.id,
-                self.spell_activity_id
-            )
+        a_reason = self.reason_model.create({'display_text': 'reason one'})
 
-    def test_raises_error_when_multiple_reasons_given(self):
-        """
-        Test an error is raised when trying to start a patient monitoring
-        exception with multiple reasons passed.
-        :return:
-        """
-        reason_one = self.reason_model.create({'display_text': 'reason one'})
-        reason_two = self.reason_model.create({'display_text': 'reason two'})
-        multiple_reasons = [reason_one, reason_two]
-        with self.assertRaises(ValueError):
-            self.wardboard.start_patient_monitoring_exception(
-                multiple_reasons,
-                self.spell_activity.id,
-                self.spell_activity_id
-            )
+        self.wardboard.start_patient_monitoring_exception(
+            a_reason, self.spell.id, self.spell_activity_id
+        )
+        self.wardboard.end_patient_monitoring_exception(cancellation=True)
+
+    def test_cancels_open_patient_monitoring_exception_activity(self):
+        spell_activity = self.activity_model.browse(self.spell_activity_id)
+        pme_activity = \
+            self.pme_model.get_activity_by_spell_activity(spell_activity)
+        self.assertEqual(pme_activity.state, 'cancelled')

@@ -24,6 +24,19 @@ class PatientMonitoringException(models.Model):
     )
     spell = fields.Many2one('nh.clinical.spell')
 
+    def cancel_with_reason(self, activity, cancel_reason):
+        activity_model = self.pool['nh.activity']
+        activity_model.cancel(self.env.cr, self.env.uid, activity.id)
+        activity.cancel_reason_id = cancel_reason.id
+
+    def get_activity_by_spell_activity(self, spell_activity):
+        activity_model = self.env['nh.activity']
+        domain = [
+            ('parent_id', '=', spell_activity.id),
+            ('data_model', '=', self._name)
+        ]
+        return activity_model.search(domain)[0]
+
 
 class PatientMonitoringExceptionReason(models.Model):
     """

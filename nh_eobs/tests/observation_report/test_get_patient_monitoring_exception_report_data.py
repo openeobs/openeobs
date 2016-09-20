@@ -289,3 +289,5 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.assertEqual(len(pme_transfer_report_entries), 1,
                          "Unexpected amount of patient monitoring excpetions "
                          "with transfer set as user.")
+
+    # Test no start date or end date

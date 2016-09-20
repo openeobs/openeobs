@@ -140,13 +140,15 @@ class NHClinicalWardboard(orm.Model):
 
     @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
-    def end_patient_monitoring_exception(self):
+    def end_patient_monitoring_exception(self, cancellation=False):
         """
         Completes the patient monitoring exception activity and toggles the
         'obs stop' flag on the spell to False as there are no longer any
         patient monitoring exceptions in effect.
         """
         activity_model = self.env['nh.activity']
+        ir_model_data_model = self.env['ir.model.data']
+        pme_model = self.env['nh.clinical.patient_monitoring_exception']
 
         spell_id = self.spell_activity_id.data_ref.id
         patient_monitoring_exception_activity = activity_model.search([
@@ -163,12 +165,20 @@ class NHClinicalWardboard(orm.Model):
 
         patient_monitoring_exception_activity_id = \
             patient_monitoring_exception_activity.id
-        self.force_v7_api(patient_monitoring_exception_activity)
 
-        patient_monitoring_exception_activity.complete(
-            self.env.cr, self.env.uid,
-            patient_monitoring_exception_activity_id
-        )
+        if cancellation:
+            cancel_reason = ir_model_data_model.get_object(
+                'nh_eobs', 'cancellation_reason_transfer'
+            )
+            pme_model.cancel_with_reason(
+                patient_monitoring_exception_activity,
+                cancel_reason
+            )
+        else:
+            activity_model.complete(
+                self.env.cr, self.env.uid,
+                patient_monitoring_exception_activity_id
+            )
 
         self.set_obs_stop_flag(spell_id, False)
         self.create_new_ews()

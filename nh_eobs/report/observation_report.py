@@ -514,7 +514,7 @@ class ObservationReport(models.AbstractModel):
     def create_patient_monitoring_exception_dictionary(self, data,
                                                        spell_activity_id):
         cr, uid = self._cr, self._uid
-        this_model = self.env['report.nh.clinical.observation_report']
+        this_model = self.pool['report.nh.clinical.observation_report']
 
         old_style_patient_monitoring_exceptions = \
             copy.deepcopy(self.monitoring_dict)
@@ -525,8 +525,8 @@ class ObservationReport(models.AbstractModel):
             )
 
         new_style_patient_monitoring_exceptions = \
-            this_model.get_patient_monitoring_exception_report_data(cr, uid,
-                spell_activity_id, None
+            this_model.get_patient_monitoring_exception_report_data(
+                cr, uid, spell_activity_id, data.start_time, data.end_time
             )
 
         patient_monitoring_exception_dictionary = helpers.merge_dicts(
