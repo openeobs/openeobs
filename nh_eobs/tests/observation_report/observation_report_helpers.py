@@ -188,14 +188,6 @@ class ObservationReportHelpers(TransactionCase):
         'terminate_uid': [1, 'Test'],
     }
 
-    patient_monitoring_exception_data = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'data_ref': 'EXCEPTION,1',
-        'terminate_uid': [1, 'Test'],
-    }
-
     triggered_ews_data = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -357,14 +349,6 @@ class ObservationReportHelpers(TransactionCase):
         'location_id': [1, 'Test Location']
     }
 
-    patient_monitoring_exception_values = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'reason': [50, 'Test User'],
-        'spell': [1, 'Test Spell']
-    }
-
     location_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -443,8 +427,6 @@ class ObservationReportHelpers(TransactionCase):
             self.registry('nh.clinical.patient.critical_care')
         self.move_pool = self.registry('nh.clinical.patient.move')
         self.device_session_pool = self.registry('nh.clinical.device.session')
-        self.patient_monitoring_exception_pool = \
-            self.registry('nh.clinical.patient_monitoring_exception')
 
         def spell_pool_mock_spell(*args, **kwargs):
             return [{
@@ -475,7 +457,7 @@ class ObservationReportHelpers(TransactionCase):
                     creator_id = domain[0][2]
                     ids = [
                         None,
-                        [18]
+                        [17]
                     ]
                     return ids[creator_id]
                 else:
@@ -498,10 +480,11 @@ class ObservationReportHelpers(TransactionCase):
                 'nh.clinical.patient.post_surgery',
                 'nh.clinical.patient.critical_care',
                 'nh.clinical.patient.move',
-                'nh.clinical.patient.o2target',
-                'nh.clinical.patient_monitoring_exception'
+                'nh.clinical.patient.o2target'
             ]
-            return models.index(model)
+            if model in models:
+                return [models.index(model)]
+            return []
 
         def activity_pool_mock_read(*args, **kwargs):
             aid = args[3] if len(args) > 3 else False
@@ -528,7 +511,6 @@ class ObservationReportHelpers(TransactionCase):
                 self.critical_care_data,
                 self.move_data if self.move_data else False,
                 self.o2target_data,
-                self.patient_monitoring_exception_data,
                 self.triggered_ews_data
             ]
             return [copy.deepcopy(responses[aid])] if responses[aid] else []
@@ -584,9 +566,6 @@ class ObservationReportHelpers(TransactionCase):
         def critical_care_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.critical_care_values)
 
-        def patient_monitoring_exception_pool_mock_read(*args, **kwargs):
-            return copy.deepcopy(self.patient_monitoring_exception_values)
-
         def device_session_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.device_session_values)
 
@@ -609,7 +588,7 @@ class ObservationReportHelpers(TransactionCase):
             return copy.deepcopy(self.company_name_values)
 
         def mock_triggered_actions(*args, **kwargs):
-            return [18]
+            return [17]
 
         self.report_pool._patch_method('get_triggered_actions',
                                        mock_triggered_actions)
@@ -640,9 +619,6 @@ class ObservationReportHelpers(TransactionCase):
                                              post_surgery_pool_mock_read)
         self.critical_care_pool._patch_method('read',
                                              critical_care_pool_mock_read)
-        self.patient_monitoring_exception_pool._patch_method(
-            'read', patient_monitoring_exception_pool_mock_read
-        )
         self.move_pool._patch_method('read', move_pool_mock_read)
         self.device_session_pool._patch_method('read',
                                                device_session_pool_mock_read)
@@ -681,5 +657,4 @@ class ObservationReportHelpers(TransactionCase):
         self.company_pool._revert_method('read')
         self.o2level_pool._revert_method('browse')
         self.report_pool._revert_method('get_triggered_actions')
-        self.patient_monitoring_exception_pool._revert_method('read')
         super(ObservationReportHelpers, self).tearDown()

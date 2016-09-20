@@ -22,9 +22,173 @@ class ObservationReport(models.AbstractModel):
         'palliative_care_history': 'nh.clinical.patient.palliative_care',
         'post_surgery_history': 'nh.clinical.patient.post_surgery',
         'critical_care_history': 'nh.clinical.patient.critical_care',
-        'patient_monitoring_exception_history':
-            'nh.clinical.patient_monitoring_exception'
     }
+
+    @api.multi
+    def render_html(self, data=None):
+        if isinstance(data, dict):
+            data = helpers.data_dict_to_obj(data)
+
+        if data and data.spell_id:
+            report_obj = self.env['report']
+            if hasattr(data, 'ews_only') and data.ews_only:
+                ews_report = self.get_report_data(data, ews_only=True)
+                return report_obj.render('nh_eobs.observation_report',
+                                         ews_report)
+            rep_data = self.get_report_data(data)
+            return report_obj.render(
+                'nh_eobs.observation_report',
+                rep_data)
+        else:
+            return None
+
+    def get_report_data(self, data, ews_only=False):
+        """
+        Returns a dictionary that will be used to populate the report.
+        Most of the values are themselves dictionaries returned by
+        `activity.read()`. However they also have an additional key named
+        'values' that contains the model record as dictionaries returned by
+        `model.read()`.
+        :param data:
+        :param ews_only:
+        :return:
+        """
+        cr, uid = self._cr, self._uid
+        # set up pools
+        report = self.env['report']._get_report_from_name(
+            'nh.clinical.observation_report')
+        spell_pool = self.pool['nh.clinical.spell']
+        patient_pool = self.pool['nh.clinical.patient']
+        partner_pool = self.pool['res.partner']
+        base_report = self.create_report_data(data)
+        spell_id = int(data.spell_id)
+        spell = spell_pool.read(cr, uid, [spell_id])[0]
+        dates = self.process_report_dates(data, spell, base_report)
+        spell_activity_id = spell['activity_id'][0]
+
+        spell_docs = spell['con_doctor_ids']
+        spell['consultants'] = False
+        if len(spell_docs) > 0:
+            spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
+        #
+        # # - get patient id
+        self.patient_id = spell['patient_id'][0]
+        patient_id = self.patient_id
+        #
+        # get patient information
+        patient = patient_pool.read(cr, uid, [patient_id])[0]
+        patient_location = patient.get('current_location_id')
+        patient['dob'] = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime.strptime(patient['dob'], dtf),
+            '%d/%m/%Y', context=None) if patient.get('dob', False) else ''
+        ews = self.get_ews_observations(data, spell_activity_id)
+        json_data = []
+        table_ews = []
+        for activity in ews:
+            json_data.append(copy.deepcopy(activity['values']))
+            table_ews.append(copy.deepcopy(activity['values']))
+        json_ews = self.get_model_data_as_json(json_data)
+
+        # Get the script files to load
+        observation_report = '/nh_eobs/static/src/js/observation_report.js'
+
+        height_weight_dict = {
+            'height': 'nh.clinical.patient.observation.height',
+            'weight': 'nh.clinical.patient.observation.weight'
+        }
+        height_weight = self.get_activity_data_from_dict(
+            height_weight_dict,
+            spell_activity_id,
+            data
+        )
+        patient = self.process_patient_height_weight(patient, height_weight)
+
+        monitoring = self.create_patient_monitoring_exception_dictionary(
+            data, spell_activity_id
+        )
+
+        transfer_history = self.process_transfer_history(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.move',
+                data.start_time, data.end_time)
+        )
+        if patient_location:
+            location_pool = self.pool['nh.clinical.location']
+            current_loc = location_pool.read(cr, uid, patient_location[0])
+            loc = current_loc.get('full_name')
+            patient['location'] = loc if loc else ''
+
+        device_session_history = self.get_multi_model_data(
+            spell_activity_id,
+            'nh.clinical.patient.o2target',
+            'nh.clinical.device.session',
+            data.start_time, data.end_time
+        )
+
+        ews_dict = {
+            'doc_ids': self._ids,
+            'doc_model': report.model,
+            'docs': self,
+            'spell': spell,
+            'patient': patient,
+            'ews': ews,
+            'table_ews': table_ews,
+            'report_start': dates.report_start,
+            'report_end': dates.report_end,
+            'spell_start': dates.spell_start,
+            'ews_data': json_ews,
+            'draw_graph_js': observation_report,
+            'device_session_history': device_session_history,
+            'transfer_history': transfer_history,
+        }
+
+        ews_report = helpers.merge_dicts(ews_dict,
+                                         base_report.footer_values,
+                                         monitoring)
+        if ews_only:
+            return ews_report
+
+        basic_obs_dict = {
+            'gcs': 'nh.clinical.patient.observation.gcs',
+            'bs': 'nh.clinical.patient.observation.blood_sugar',
+            'pains': 'nh.clinical.patient.observation.pain',
+            'blood_products': 'nh.clinical.patient.observation.blood_product'
+        }
+
+        basic_obs = self.get_activity_data_from_dict(
+            basic_obs_dict,
+            spell_activity_id,
+            data
+        )
+
+        pbps = self.convert_pbp_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.pbp',
+                data.start_time, data.end_time)
+        )
+
+        bristol_stools = self.convert_bristol_stools_booleans(
+            self.get_model_data(
+                spell_activity_id,
+                'nh.clinical.patient.observation.stools',
+                data.start_time, data.end_time))
+
+        weights = height_weight['weight']
+
+        non_basic_obs = {
+            'bristol_stools': bristol_stools,
+            'weights': weights,
+            'pbps': pbps
+        }
+
+        rep_data = helpers.merge_dicts(
+            basic_obs,
+            non_basic_obs,
+            ews_report
+        )
+        return rep_data
 
     @api.multi
     def get_activity_data(self, spell_id, model, start_time, end_time):
@@ -119,6 +283,10 @@ class ObservationReport(models.AbstractModel):
     @classmethod
     def _get_data_ref_id(cls, dictionary):
         return int(dictionary['data_ref'].split(',')[1])
+
+    @classmethod
+    def _get_id_from_tuple(cls, tuple):
+        return int(tuple[0])
 
     def get_multi_model_data(self, spell_id,
                              model_one, model_two,  start, end):
@@ -343,158 +511,9 @@ class ObservationReport(models.AbstractModel):
         patient['weight'] = weight
         return patient
 
-    def get_report_data(self, data, ews_only=False):
-        """
-        Returns a dictionary that will be used to populate the report.
-        Most of the values are themselves dictionaries returned by
-        `activity.read()`. However they also have an additional key named
-        'values' that contains the model record as dictionaries returned by
-        `model.read()`.
-        :param data:
-        :param ews_only:
-        :return:
-        """
-        cr, uid = self._cr, self._uid
-        # set up pools
-        report = self.env['report']._get_report_from_name(
-            'nh.clinical.observation_report')
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
-        partner_pool = self.pool['res.partner']
-        base_report = self.create_report_data(data)
-        spell_id = int(data.spell_id)
-        spell = spell_pool.read(cr, uid, [spell_id])[0]
-        dates = self.process_report_dates(data, spell, base_report)
-        spell_activity_id = spell['activity_id'][0]
-
-        spell_docs = spell['con_doctor_ids']
-        spell['consultants'] = False
-        if len(spell_docs) > 0:
-            spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
-        #
-        # # - get patient id
-        self.patient_id = spell['patient_id'][0]
-        patient_id = self.patient_id
-        #
-        # get patient information
-        patient = patient_pool.read(cr, uid, [patient_id])[0]
-        patient_location = patient.get('current_location_id')
-        patient['dob'] = helpers.convert_db_date_to_context_date(
-            cr, uid, datetime.strptime(patient['dob'], dtf),
-            '%d/%m/%Y', context=None)if patient.get('dob', False) else ''
-        ews = self.get_ews_observations(data, spell_activity_id)
-        json_data = []
-        table_ews = []
-        for activity in ews:
-            json_data.append(copy.deepcopy(activity['values']))
-            table_ews.append(copy.deepcopy(activity['values']))
-        json_ews = self.get_model_data_as_json(json_data)
-
-        # Get the script files to load
-        observation_report = '/nh_eobs/static/src/js/observation_report.js'
-
-        height_weight_dict = {
-            'height': 'nh.clinical.patient.observation.height',
-            'weight': 'nh.clinical.patient.observation.weight'
-        }
-        height_weight = self.get_activity_data_from_dict(
-            height_weight_dict,
-            spell_activity_id,
-            data
-        )
-        patient = self.process_patient_height_weight(patient, height_weight)
-
-        monitoring = self.create_patient_monitoring_exception_dictionary(
-            data, spell_activity_id
-        )
-
-        transfer_history = self.process_transfer_history(
-            self.get_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.move',
-                data.start_time, data.end_time)
-        )
-        if patient_location:
-            location_pool = self.pool['nh.clinical.location']
-            current_loc = location_pool.read(cr, uid, patient_location[0])
-            loc = current_loc.get('full_name')
-            patient['location'] = loc if loc else ''
-
-        device_session_history = self.get_multi_model_data(
-            spell_activity_id,
-            'nh.clinical.patient.o2target',
-            'nh.clinical.device.session',
-            data.start_time, data.end_time
-        )
-
-        ews_dict = {
-            'doc_ids': self._ids,
-            'doc_model': report.model,
-            'docs': self,
-            'spell': spell,
-            'patient': patient,
-            'ews': ews,
-            'table_ews': table_ews,
-            'report_start': dates.report_start,
-            'report_end': dates.report_end,
-            'spell_start': dates.spell_start,
-            'ews_data': json_ews,
-            'draw_graph_js': observation_report,
-            'device_session_history': device_session_history,
-            'transfer_history': transfer_history,
-        }
-
-        ews_report = helpers.merge_dicts(ews_dict,
-                                         base_report.footer_values,
-                                         monitoring)
-        if ews_only:
-            return ews_report
-
-        basic_obs_dict = {
-            'gcs': 'nh.clinical.patient.observation.gcs',
-            'bs': 'nh.clinical.patient.observation.blood_sugar',
-            'pains': 'nh.clinical.patient.observation.pain',
-            'blood_products': 'nh.clinical.patient.observation.blood_product'
-        }
-
-        basic_obs = self.get_activity_data_from_dict(
-            basic_obs_dict,
-            spell_activity_id,
-            data
-        )
-
-        pbps = self.convert_pbp_booleans(
-            self.get_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.observation.pbp',
-                data.start_time, data.end_time)
-        )
-
-        bristol_stools = self.convert_bristol_stools_booleans(
-            self.get_model_data(
-                spell_activity_id,
-                'nh.clinical.patient.observation.stools',
-                data.start_time, data.end_time))
-
-        weights = height_weight['weight']
-
-        non_basic_obs = {
-            'bristol_stools': bristol_stools,
-            'weights': weights,
-            'pbps': pbps
-        }
-
-        rep_data = helpers.merge_dicts(
-            basic_obs,
-            non_basic_obs,
-            ews_report
-        )
-        return rep_data
-
     def create_patient_monitoring_exception_dictionary(self, data,
                                                        spell_activity_id):
         cr, uid = self._cr, self._uid
-        activity_model = self.env['nh.activity']
         this_model = self.env['report.nh.clinical.observation_report']
 
         old_style_patient_monitoring_exceptions = \
@@ -505,12 +524,8 @@ class ObservationReport(models.AbstractModel):
                 spell_activity_id, data
             )
 
-        # Tried using a browse here but it broke unit tests due to mocked reads
-        spell_activity = activity_model.read(cr, uid, spell_activity_id)[0]
-        spell_id = self._get_data_ref_id(spell_activity)
-
         new_style_patient_monitoring_exceptions = \
-            this_model.get_patient_monitoring_exception_report_data(
+            this_model.get_patient_monitoring_exception_report_data(cr, uid,
                 spell_activity_id, None
             )
 
@@ -525,70 +540,62 @@ class ObservationReport(models.AbstractModel):
                                                      spell_activity_id,
                                                      start_date,
                                                      end_date=None):
-        activity_model = self.pool['nh.activity']
-
-        model = 'nh.clinical.patient_monitoring_exception'
-        states = self._get_allowed_activity_states_for_model(cr, uid, model)
-
-        domain = helpers.build_activity_search_domain(
-            spell_activity_id, model,
-            start_date, end_date,
-            states=states, date_field='date_started'
-        )
-        pme_activity_ids = activity_model.search(cr, uid, domain)
-
-        # Ensure pme_activity_ids is compatible with other methods that take
-        # lists as input.
-        if not isinstance(pme_activity_ids, list):
-            pme_activity_ids = [pme_activity_ids]
-
-        # We make a special case for patient monitoring exceptions that are
-        # still open, they are still included even if before the start date.
-        pme_activity_ids_still_open_before_start_date = \
-            self.get_still_open_monitoring_exceptions_before_start_date(
-                cr, uid, spell_activity_id, start_date
+        pme_activity_ids = \
+            self.get_monitoring_exception_activity_ids_for_report(
+                cr, uid, spell_activity_id, start_date, end_date
             )
-        pme_activity_ids.extend(pme_activity_ids_still_open_before_start_date)
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
-                cr, uid, pme_activity_ids
+                cr, uid, pme_activity_ids, start_date, end_date
             )
+
         dictionary = {
             'patient_monitoring_exceptions': report_data
         }
         return dictionary
 
-    def get_still_open_monitoring_exceptions_before_start_date(
-            self, cr, uid, spell_activity_id, start_date):
+    def get_monitoring_exception_activity_ids_for_report(self, cr, uid,
+                                                         spell_activity_id,
+                                                         start_date, end_date):
         activity_model = self.pool['nh.activity']
-
         model = 'nh.clinical.patient_monitoring_exception'
 
         domain = [
             ('parent_id', '=', spell_activity_id),
             ('data_model', '=', model),
-            ('state', '=', 'started'),
-            ('date_started', '<', start_date)
+            '|',
+                ('state', '=', 'started'),
+                '&',
+                    ('state', 'in', ['completed', 'cancelled']),
+                    '|',
+                        '&',
+                            ('date_started', '>=', start_date),
+                            ('date_started', '<=', end_date),
+                        '&',
+                            ('date_terminated', '>=', start_date),
+                            ('date_terminated', '<=', end_date)
         ]
-        return [activity_model.search(cr, uid, domain)]
+        activity_ids = activity_model.search(cr, uid, domain)
+        if not isinstance(activity_ids, list):
+            activity_ids = [activity_ids]
+        return activity_ids
 
-    def get_monitoring_exception_report_data_from_activities(self, cr, uid,
-                                                             pme_activity_ids):
+    def get_monitoring_exception_report_data_from_activities(
+            self, cr, uid, pme_activity_ids, start_date, end_date):
         report_entries = []
 
         for pme_activity_id in pme_activity_ids:
             some_more_report_entries = \
                 self.get_monitoring_exception_report_data_from_activity(
-                    cr, uid, pme_activity_id
+                    cr, uid, pme_activity_id, start_date, end_date
                 )
-            report_entries.extend(some_more_report_entries)
+            report_entries += some_more_report_entries
 
         return report_entries
 
-
-    def get_monitoring_exception_report_data_from_activity(self, cr, uid,
-                                                           pme_activity_id):
+    def get_monitoring_exception_report_data_from_activity(
+            self, cr, uid, pme_activity_id, start_date, end_date):
         activity_model = self.pool['nh.activity']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
@@ -597,13 +604,14 @@ class ObservationReport(models.AbstractModel):
 
         report_entries = []
         # Get report entry for start of patient monitoring exception.
-        stop_obs_report_entry = \
-            self.get_report_entry_dictionary(cr, uid, pme_activity_id)
-        report_entries.append(stop_obs_report_entry)
+        if self.include_stop_obs_entry(activity, start_date, end_date):
+            stop_obs_report_entry = \
+                self.get_report_entry_dictionary(cr, uid, pme_activity_id)
+            report_entries.append(stop_obs_report_entry)
+
         # Get report entry for end of patient monitoring exception if it is not
         # still open.
-        pme_is_completed = True if activity['date_terminated'] else False
-        if pme_is_completed:
+        if self.include_restart_obs_entry(activity, start_date, end_date):
             restart_obs_report_entry = \
                 self.get_report_entry_dictionary(cr, uid, pme_activity_id,
                                                  restart_obs=True)
@@ -611,11 +619,52 @@ class ObservationReport(models.AbstractModel):
 
         return report_entries
 
+    def include_stop_obs_entry(self, activity, start_date, end_date):
+        try:
+            if activity['state'] == 'started':
+                return True
+            if activity['date_started']:
+                if self.is_datetime_within_range(activity['date_started'],
+                                                 start_date, end_date):
+                    return True
+                if self.is_activity_date_terminated_within_date_range(
+                    activity, start_date, end_date
+                ):
+                    return True
+            return False
+        except KeyError, e:
+            raise ValueError("A KeyError was raised because the activity did "
+                             "not have the expected keys.", e)
+
+    def include_restart_obs_entry(self, activity, start_date, end_date):
+        return self.is_activity_date_terminated_within_date_range(
+            activity, start_date, end_date
+        )
+
+    def is_activity_date_terminated_within_date_range(self, activity,
+                                                      start_date, end_date):
+        if activity['date_terminated']:
+            return self.is_datetime_within_range(
+                activity['date_terminated'], start_date, end_date
+            )
+        return False
+
+    @classmethod
+    def is_datetime_within_range(cls, date_time, start_date, end_date):
+        if isinstance(date_time, str):
+            date_time = datetime.strptime(date_time, dtf)
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, dtf)
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, dtf)
+        return start_date >= date_time <= end_date
+
     def get_report_entry_dictionary(self, cr, uid, pme_activity_id,
                                     restart_obs=False):
         activity_model = self.pool['nh.activity']
         pme_model = \
             self.pool['nh.clinical.patient_monitoring_exception']
+        cancel_reason_model = self.pool['nh.cancel.reason']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
         if isinstance(activity, list):
@@ -626,12 +675,22 @@ class ObservationReport(models.AbstractModel):
 
         date = activity['date_started'] if not restart_obs \
             else activity['date_terminated']
-        user = activity['terminate_uid'] if activity['terminate_uid'] \
-            else activity['create_uid']
         status = 'Stop Observations' if not restart_obs \
             else 'Restart Observations'
-        # pme['reason'] is a tuple: (id, display_name)
-        reason = pme['reason'][1] if not restart_obs else None
+
+        if restart_obs and activity['cancel_reason_id']:
+            cancel_reason_id = \
+                self._get_id_from_tuple(activity['cancel_reason_id'])
+            cancel_reason = \
+                cancel_reason_model.read(cr, uid, cancel_reason_id)
+            if cancel_reason['name'] == 'Transfer':
+                user = 'Transfer'
+                reason = 'Transfer'
+        else:
+            user = activity['terminate_uid'] if activity['terminate_uid'] \
+                else activity['create_uid']
+            # pme['reason'] is a tuple: (id, display_name)
+            reason = pme['reason'][1] if not restart_obs else None
 
         return {
             'date': date,
@@ -662,22 +721,3 @@ class ObservationReport(models.AbstractModel):
                     self.pretty_date_format
                 )
                 activity['date_terminated'] = date_terminated
-
-    @api.multi
-    def render_html(self, data=None):
-
-        if isinstance(data, dict):
-            data = helpers.data_dict_to_obj(data)
-
-        if data and data.spell_id:
-            report_obj = self.env['report']
-            if hasattr(data, 'ews_only') and data.ews_only:
-                ews_report = self.get_report_data(data, ews_only=True)
-                return report_obj.render('nh_eobs.observation_report',
-                                         ews_report)
-            rep_data = self.get_report_data(data)
-            return report_obj.render(
-                'nh_eobs.observation_report',
-                rep_data)
-        else:
-            return None

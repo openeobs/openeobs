@@ -18,6 +18,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
     def setUpClass(cls):
         cls.stop_obs_msg = 'Stop Observations'
         cls.restart_obs_msg = 'Restart Observations'
+        cls.transfer = 'Transfer'
 
         cls.root_key = 'patient_monitoring_exceptions'
         cls.date_key = 'date'
@@ -65,34 +66,66 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         })
 
         # Create some patient monitoring exception reasons.
-        self.reason_1 = \
-            self.pme_reason_model.create({'display_text': 'reason_one'})
-        self.reason_2 = \
-            self.pme_reason_model.create({'display_text': 'reason_two'})
-        self.reason_3 = \
-            self.pme_reason_model.create({'display_text': 'reason_three'})
+        self.pme_closed_reason = \
+            self.pme_reason_model.create({'display_text': 'pme_closed_reason'})
+        self.pme_open_reason = \
+            self.pme_reason_model.create({'display_text': 'pme_open_reason'})
+        self.pme_started_long_ago_reason = self.pme_reason_model.create(
+            {'display_text': 'pme_started_long_ago_reason'}
+        )
+        self.pme_ends_in_the_future_reason = self.pme_reason_model.create(
+            {'display_text': 'pme_ends_in_the_future_reason'}
+        )
+        self.pme_still_open_before_start_date_reason = \
+            self.pme_reason_model.create(
+                {'display_text': 'pme_still_open_before_start_date_reason'}
+            )
+        self.pme_cancelled_due_to_transfer_reason = \
+            self.pme_reason_model.create(
+                {'display_text': 'pme_cancelled_due_to_transfer_reason'}
+            )
+        self.pme_ended_before_start_date_reason = \
+            self.pme_reason_model.create(
+                {'display_text': 'pme_ended_before_start_date_reason'}
+            )
 
         # Create some patient monitoring exceptions.
         pme_closed_id = self.pme_model.create_activity(
             {'parent_id': self.spell_activity_id},
-            {'reason': self.reason_1.id, 'spell': self.spell.id}
+            {'reason': self.pme_closed_reason.id, 'spell': self.spell.id}
         )
         pme_open_id = self.pme_model.create_activity(
             {'parent_id': self.spell_activity_id},
-            {'reason': self.reason_2.id, 'spell': self.spell.id}
+            {'reason': self.pme_open_reason.id, 'spell': self.spell.id}
         )
         pme_started_long_ago_id = self.pme_model.create_activity(
             {'parent_id': self.spell_activity_id},
-            {'reason': self.reason_1.id, 'spell': self.spell.id}
+            {'reason': self.pme_started_long_ago_reason.id,
+             'spell': self.spell.id}
         )
         pme_ends_in_the_future_id = self.pme_model.create_activity(
             {'parent_id': self.spell_activity_id},
-            {'reason': self.reason_2.id, 'spell': self.spell.id}
+            {'reason': self.pme_ends_in_the_future_reason.id,
+             'spell': self.spell.id}
         )
         pme_still_open_before_start_date_id = self.pme_model.create_activity(
             {'parent_id': self.spell_activity_id},
-            {'reason': self.reason_3.id, 'spell': self.spell.id}
+            {'reason': self.pme_still_open_before_start_date_reason.id,
+             'spell': self.spell.id}
         )
+        pme_cancelled_due_to_transfer_id = self.pme_model.create_activity(
+            {'parent_id': self.spell_activity_id},
+            {'reason': self.pme_cancelled_due_to_transfer_reason.id,
+             'spell': self.spell.id}
+        )
+        pme_ended_before_start_date_id = self.pme_model.create_activity(
+            {'parent_id': self.spell_activity_id},
+            {'reason': self.pme_ended_before_start_date_reason.id,
+             'spell': self.spell.id}
+        )
+
+        # Set start datetime to be used for report.
+        self.start_date = self.now_string()
 
         # Progress activity lifecycle of the patient monitoring exceptions.
         self.pme_model.start(pme_closed_id)
@@ -103,6 +136,13 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.pme_model.start(pme_ends_in_the_future_id)
         self.pme_model.complete(pme_ends_in_the_future_id)
         self.pme_model.start(pme_still_open_before_start_date_id)
+        self.pme_model.start(pme_cancelled_due_to_transfer_id)
+        self.pme_model.cancel(pme_cancelled_due_to_transfer_id)
+        self.pme_model.start(pme_ended_before_start_date_id)
+        self.pme_model.complete(pme_ended_before_start_date_id)
+
+        # Set end datetime to be used for report.
+        self.end_date = self.now_string()
 
         # Get records for the patient monitoring exceptions.
         self.pme_closed = self.activity_model.browse(pme_closed_id)
@@ -116,9 +156,12 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.pme_still_open_before_start_date = self.activity_model.browse(
             pme_still_open_before_start_date_id
         )
-
-        self.start_date = self.pme_closed.date_started
-        self.end_date = self.pme_closed.date_terminated
+        self.pme_cancelled_due_to_transfer = self.activity_model.browse(
+            pme_cancelled_due_to_transfer_id
+        )
+        self.pme_ended_before_start_date = self.activity_model.browse(
+            pme_ended_before_start_date_id
+        )
 
         # Modify start date and end dates.
         ages_ago = '1900-01-01 15:00:00'
@@ -126,6 +169,15 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.pme_ends_in_the_future.date_terminated = \
             self.add_one_day_to_datetime_string(self.end_date)
         self.pme_still_open_before_start_date.date_started = ages_ago
+        self.pme_ended_before_start_date.date_started = ages_ago
+        self.pme_ended_before_start_date.date_terminated = \
+            self.add_one_day_to_datetime_string(ages_ago)
+
+        # Setup cancellation of patient monitoring exception due to transfer.
+        cancel_reason_transfer = \
+            self.browse_ref('nh_eobs.cancellation_reason_transfer')
+        self.pme_cancelled_due_to_transfer.cancel_reason_id = \
+            cancel_reason_transfer.id
 
         self.dictionary = \
             self.observation_report_model.\
@@ -138,12 +190,17 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
     @classmethod
     def add_one_day_to_datetime_string(cls, start_date):
-        datetime_obj = datetime.strptime(start_date, dtf)
+        date_time = datetime.strptime(start_date, dtf)
         delta = timedelta(days=1)
-        datetime_obj += delta
-        return datetime_obj.strftime(dtf)
+        date_time += delta
+        return date_time.strftime(dtf)
 
-    def get_pme_ended_report_entries(self):
+    @classmethod
+    def now_string(cls):
+        now = datetime.now()
+        return now.strftime(dtf)
+
+    def get_restart_obs_report_entries(self):
         pme_ended_report_entries = \
             [report_entry for report_entry in self.report_entries
              if report_entry[self.status_key] == self.restart_obs_msg]
@@ -166,75 +223,69 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
                     raise AssertionError("An unexpected key '{}' was found in "
                                          "the dictionary.".format(key))
 
-    def test_start_of_patient_monitoring_exception_returned(self):
-        report_entry = \
-            [report_entry for report_entry in self.report_entries
-             if report_entry[self.date_key] == self.start_date
-             and report_entry[self.status_key] == self.stop_obs_msg]
-
-        self.assertEqual(
-            len(report_entry), 3,
-            "Two patient monitoring exceptions are started '{}'."
-                .format(self.pme_closed.date_started)
-        )
-
-    def test_end_of_patient_monitoring_exception_returned(self):
-        report_entry = \
-            [report_entry for report_entry in self.report_entries
-             if report_entry[self.date_key] == self.end_date
-             and report_entry[self.status_key] == self.restart_obs_msg]
-
-        self.assertEqual(
-            len(report_entry), 1,
-            "One patient monitoring exception has ended '{}'."
-                .format(self.pme_closed.date_terminated)
-        )
-
     def test_correct_number_of_started_pme_record_entries(self):
         pme_started_report_entries = \
             [report_entry for report_entry in self.report_entries
              if report_entry[self.status_key] == self.stop_obs_msg]
 
-        self.assertEqual(len(pme_started_report_entries), 4,
-                         "Two patient monitoring exceptions are started "
-                         "for the spell.")
+        self.assertEqual(len(pme_started_report_entries), 6,
+                         "Unexpected number of 'started' report entries.")
 
 
     def test_correct_number_of_ended_pme_record_entries(self):
-        pme_ended_report_entries = self.get_pme_ended_report_entries()
+        pme_ended_report_entries = self.get_restart_obs_report_entries()
 
-        self.assertEqual(len(pme_ended_report_entries), 2,
-                         "One patient monitoring exception has ended "
-                         "for the spell.")
+        self.assertEqual(len(pme_ended_report_entries), 3,
+                         "Unexpected number of 'ended' report entries.")
 
     def test_still_open_pme_is_returned_even_if_outside_date_range(self):
         pme_still_open_before_start_date_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.date_key] ==
-             self.pme_still_open_before_start_date.date_started
-             and report_entry[self.reason_key] == self.reason_3.display_name]
+             if report_entry[self.reason_key] ==
+             self.pme_still_open_before_start_date_reason.display_name]
 
         self.assertEqual(len(pme_still_open_before_start_date_report_entries),
                          1,
-                         "One patient monitoring exception is still open with"
-                         "a 'date started' field before the specified start "
-                         "date.")
+                         "Unexpected number of report entries added that were "
+                         "started before the start date.")
 
-    def test_ended_pme_started_before_start_date_is_excluded(self):
+    def test_ended_pme_before_start_date_is_excluded(self):
         pme_started_long_ago_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.date_key] ==
-             self.pme_started_long_ago.date_started
-             and report_entry[self.reason_key] == self.reason_1.display_name]
+             if report_entry[self.reason_key] ==
+             self.pme_ended_before_start_date.display_name]
 
         self.assertEqual(len(pme_started_long_ago_report_entries), 0,
                          "There should not be any report entries for the "
-                         "patient monitoring exception that was started long "
-                         "ago.")
+                         "patient monitoring exception that was completed "
+                         "before the start date.")
 
     def test_reason_is_none_on_pme_ended_report_entry(self):
-        pme_ended_report_entries = self.get_pme_ended_report_entries()
-        for report_entry in pme_ended_report_entries:
-            if report_entry[self.reason_key] is not None:
-                raise AssertionError("All reasons on report entries for "
-                                     "restarting of obs should be `None`.")
+        pme_ended_report_entries = self.get_restart_obs_report_entries()
+        pme_ended_no_reason_report_entries = \
+            [report_entry for report_entry in pme_ended_report_entries
+             if report_entry[self.reason_key] is None]
+
+        self.assertEqual(len(pme_ended_no_reason_report_entries), 2,
+                         "All reasons on report entries for restarting of obs "
+                         "should be `None`.")
+
+    def test_reason_set_on_transfer_report_entry(self):
+        pme_ended_report_entries = self.get_restart_obs_report_entries()
+        pme_transfer_report_entries = \
+            [report_entry for report_entry in pme_ended_report_entries
+             if report_entry[self.reason_key] is self.transfer]
+
+        self.assertEqual(len(pme_transfer_report_entries), 1,
+                         "Unexpected amount of patient monitoring excpetions "
+                         "with transfer set as reason.")
+
+    def test_user_set_on_transfer_report_entry(self):
+        pme_ended_report_entries = self.get_restart_obs_report_entries()
+        pme_transfer_report_entries = \
+            [report_entry for report_entry in pme_ended_report_entries
+             if report_entry[self.user_key] is self.transfer]
+
+        self.assertEqual(len(pme_transfer_report_entries), 1,
+                         "Unexpected amount of patient monitoring excpetions "
+                         "with transfer set as user.")

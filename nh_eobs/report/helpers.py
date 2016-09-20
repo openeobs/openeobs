@@ -69,7 +69,6 @@ def build_activity_search_domain(spell_activity_id, model,
             filter.append([date_field, '<=', end_date])
     return filter
 
-
 def convert_db_date_to_context_date(cr, uid, date_string, dformat,
                                     context=None):
     if dformat:

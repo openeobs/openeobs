@@ -17,6 +17,7 @@
                 'nh_graphs'],
     'data': ['data/master_data.xml',
              'data/nh_clinical_patient_monitoring_exception_reasons.xml',
+             'data/nh_cancel_reasons.xml',
              'observation_report_declaration.xml',
              'wizard/cancel_notifications_view.xml',
              'wizard/print_observation_report_view.xml',
