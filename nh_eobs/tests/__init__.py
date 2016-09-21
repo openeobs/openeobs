@@ -19,6 +19,7 @@ from openeobs.nh_eobs.tests.observation_report import test_report_without_dob
 from openeobs.nh_eobs.tests.observation_report import test_table_structure
 from openeobs.nh_eobs.tests.observation_report import \
     test_get_patient_monitoring_exception_report_data
+from openeobs.nh_eobs.tests.observation_report import test_get_ews_observations
 
 # Test Settings
 from . import test_api_get_activities_settings
