@@ -583,20 +583,16 @@ class ObservationReport(models.AbstractModel):
         ]
         filter_on_date_parameters = [
             '|',
-                ('state', '=', 'started'),
-                '&',
-                    ('state', 'in', ['completed', 'cancelled']),
-                    '|',
-                        '&',
-                            ('date_started', '>=', start_date)
-                            if start_date else None,
-                            ('date_started', '<=', end_date)
-                            if end_date else None,
-                        '&',
-                            ('date_terminated', '>=', start_date)
-                            if start_date else None,
-                            ('date_terminated', '<=', end_date)
-                            if end_date else None
+            ('state', '=', 'started'),
+            '&',
+            ('state', 'in', ['completed', 'cancelled']),
+            '|',
+            '&',
+            ('date_started', '>=', start_date) if start_date else None,
+            ('date_started', '<=', end_date) if end_date else None,
+            '&',
+            ('date_terminated', '>=', start_date) if start_date else None,
+            ('date_terminated', '<=', end_date) if end_date else None
         ]
         domain = base_domain
         if not start_date or end_date:

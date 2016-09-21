@@ -617,8 +617,9 @@ class ObservationReportHelpers(TransactionCase):
                                                 palliative_care_pool_mock_read)
         self.post_surgery_pool._patch_method('read',
                                              post_surgery_pool_mock_read)
-        self.critical_care_pool._patch_method('read',
-                                             critical_care_pool_mock_read)
+        self.critical_care_pool._patch_method(
+            'read', critical_care_pool_mock_read
+        )
         self.move_pool._patch_method('read', move_pool_mock_read)
         self.device_session_pool._patch_method('read',
                                                device_session_pool_mock_read)

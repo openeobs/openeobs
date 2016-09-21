@@ -30,7 +30,9 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
 
-        self.spell_activity = self.activity_model.browse(self.spell_activity_id)
+        self.spell_activity = self.activity_model.browse(
+            self.spell_activity_id
+        )
 
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,

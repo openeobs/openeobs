@@ -45,7 +45,8 @@ class TestGetEwsObservations(TransactionCase):
             {'patient_id': self.patient.id}
         )
 
-        self.activity_pool.cancel(self.env.cr, self.env.uid, self.ews_activity_id)
+        self.activity_pool.cancel(self.env.cr, self.env.uid,
+                                  self.ews_activity_id)
 
         data = self.observation_report_model.new({})
         data.start_time = False

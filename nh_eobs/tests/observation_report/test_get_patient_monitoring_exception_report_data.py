@@ -9,8 +9,6 @@ from datetime import datetime, timedelta
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
-from openerp.addons.nh_eobs.report import helpers
-
 
 class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
@@ -230,7 +228,6 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.assertEqual(len(pme_started_report_entries), 6,
                          "Unexpected number of 'started' report entries.")
 
-
     def test_correct_number_of_ended_pme_record_entries(self):
         pme_ended_report_entries = self.get_restart_obs_report_entries()
 
@@ -288,5 +285,3 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.assertEqual(len(pme_transfer_report_entries), 1,
                          "Unexpected amount of patient monitoring excpetions "
                          "with transfer set as user.")
-
-    # Test no start date or end date

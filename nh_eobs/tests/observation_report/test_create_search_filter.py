@@ -23,7 +23,8 @@ class TestObservationReport(TransactionCase):
         self.start_date = datetime.now() + timedelta(days=5)
         self.end_date = datetime.now() + timedelta(days=5)
 
-    def assert_domain(self, spell_activity_id, model, start_date, end_date, *args):
+    def assert_domain(self, spell_activity_id, model, start_date, end_date,
+                      *args):
         test_domain = create_search_filter(
             spell_activity_id, model, start_date, end_date
         )
@@ -34,15 +35,19 @@ class TestObservationReport(TransactionCase):
             domain_parameters_total += 1
             expected_spell_domain = ('parent_id', '=', spell_activity_id)
             actual_spell_domain = test_domain[domain_parameters_total - 1]
-            self.assertSequenceEqual(expected_spell_domain, actual_spell_domain,
-            'Incorrect spell activity domain created.')
+            self.assertSequenceEqual(
+                expected_spell_domain, actual_spell_domain,
+                'Incorrect spell activity domain created.'
+            )
 
         if model:
             domain_parameters_total += 1
             expected_model_domain = ('data_model', '=', model)
             actual_model_domain = test_domain[domain_parameters_total - 1]
-            self.assertSequenceEqual(expected_model_domain, actual_model_domain,
-                                     'Incorrect model domain created.')
+            self.assertSequenceEqual(
+                expected_model_domain, actual_model_domain,
+                'Incorrect model domain created.'
+            )
 
         domain_parameters_total += 1
         expected_state_domain = ('state', '=', 'completed')
@@ -55,8 +60,10 @@ class TestObservationReport(TransactionCase):
             expected_start_domain = ('date_terminated', '>=',
                                      datetime.strftime(start_date, dtf))
             actual_start_domain = test_domain[domain_parameters_total - 1]
-            self.assertSequenceEqual(expected_start_domain, actual_start_domain,
-                                     'Incorrect start domain created.')
+            self.assertSequenceEqual(
+                expected_start_domain, actual_start_domain,
+                'Incorrect start domain created.'
+            )
 
         if end_date:
             domain_parameters_total += 1
@@ -108,7 +115,8 @@ class TestObservationReport(TransactionCase):
 
     def test_10_without_model_or_end_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_activity_id, None, self.start_date, None)
+            create_search_filter(self.spell_activity_id, None, self.start_date,
+                                 None)
 
     def test_11_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
@@ -116,7 +124,8 @@ class TestObservationReport(TransactionCase):
 
     def test_12_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
-            create_search_filter(self.spell_activity_id, None, None, self.end_date)
+            create_search_filter(self.spell_activity_id, None, None,
+                                 self.end_date)
 
     def test_13_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
