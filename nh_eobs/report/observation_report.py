@@ -210,12 +210,11 @@ class ObservationReport(models.AbstractModel):
         :return: string or list of strings.
         :rtype: str or list
         """
-        activity_model = self.pool['nh.activity']
         monitoring_models = self.monitoring_dict.values()
 
         if model in monitoring_models:
             # Add activities of any state to the report for these models.
-            return activity_model.get_possible_states()
+            return ['started', 'completed', 'cancelled']
         if model == 'nh.clinical.patient.observation.ews':
             return ['completed', 'cancelled']
         else:
@@ -580,7 +579,7 @@ class ObservationReport(models.AbstractModel):
             ('data_model', '=', model),
         ]
         include_all_parameters = [
-            ('state', '=', ['started', 'completed', 'cancelled'])
+            ('state', 'in', ['started', 'completed', 'cancelled'])
         ]
         filter_on_date_parameters = [
             '|',
