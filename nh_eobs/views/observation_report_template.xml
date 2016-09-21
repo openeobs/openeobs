@@ -820,7 +820,7 @@
                                         <t t-if="not observation['values']['is_partial']">
                                             <t t-call="nh_eobs.triggered_actions"/>
                                         </t>
-                                        <t t-if="observation['state'] == 'cancelled'">
+                                        <t t-if="'state' in observation and observation['state'] == 'cancelled'">
                                             <t t-call="nh_eobs.observation_cancellation"/>
                                         </t>
                                     </t>
@@ -866,18 +866,9 @@
                             </tr>
                         </t>
                         <tr>
-                            <td class="col-xs-6">
-                                <t t-if="'user_id' in task and task['user_id']">
-                                    <strong>By:</strong>
-                                    <t t-esc="task['user_id'][1]"/>
-                                </t>
-                            </td>
-                            <td class="col-xs-6">
-                                <t t-if="'date_terminated' in task and task['date_terminated']">
-                                    <strong>Date:</strong>
-                                    <t t-esc="task['date_terminated']"/>
-                                </t>
-                                <br/>
+                            <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
+                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
+                            <td class="col-xs-6"><t t-if="'date_terminated' in task and task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
                                 <t t-if="'date_terminated' in task and task['date_terminated']==False">
                                     Task still in progress
                                 </t>

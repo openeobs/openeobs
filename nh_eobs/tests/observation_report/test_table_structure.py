@@ -172,7 +172,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('tbody > tr > td')
@@ -228,7 +228,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -253,7 +253,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -277,7 +277,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -302,7 +302,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -327,7 +327,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 6
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -351,7 +351,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.ews_values['niv_epap'] = 0
 
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h4')[0]
+        header = beautiful_report.select('h3')[1]
         table = header.findNext('table')
         table_columns = table.select('tbody > tr > td')
         values_column = table_columns[2]
@@ -367,7 +367,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the weight table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[1]
+        header = beautiful_report.select('h3')[2]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -404,7 +404,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the gcs table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[2]
+        header = beautiful_report.select('h3')[3]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -457,7 +457,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the blood sugar table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[3]
+        header = beautiful_report.select('h3')[4]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -494,7 +494,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the pain score table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[4]
+        header = beautiful_report.select('h3')[5]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -539,7 +539,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the blood product table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[5]
+        header = beautiful_report.select('h3')[6]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -584,7 +584,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the bristol stools table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[6]
+        header = beautiful_report.select('h3')[7]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -723,7 +723,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the postural blood pressure table is rendering correctly
         """
         beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[7]
+        header = beautiful_report.select('h3')[8]
         table = header.findNext('table')
         thead = table.select('thead')[0]
         tbody = table.select('tbody > tr')[0]
@@ -816,7 +816,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the target oxygen table is rendering correctly
         """
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[1]
+        header = beautiful_report.select('h3')[2]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -862,7 +862,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         """
         self.device_session_values['date_terminated'] = None
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[2]
+        header = beautiful_report.select('h3')[3]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -915,7 +915,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the device session history table is rendering correctly
         """
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[3]
+        header = beautiful_report.select('h3')[4]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -998,7 +998,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the transfer history table is rendering correctly
         """
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[4]
+        header = beautiful_report.select('h3')[5]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_columns = table.select('td')
@@ -1043,7 +1043,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the transfer history table is rendering correctly
         """
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[5]
+        header = beautiful_report.select('h3')[6]
         table = header.findNext('table')
         table_headers = table.select('th')
         table_rows = table.select('.main-entry')
@@ -1218,7 +1218,7 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         Test that the triggered actions table is rendering correctly
         """
         beautiful_report = self.get_bs_report()
-        header = beautiful_report.select('h3')[6]
+        header = beautiful_report.select('h3')[7]
         table = header.findNext('table')
         table_headers = table.select('th')
         main_columns = table.select('.main-entry > td')
