@@ -216,6 +216,8 @@ class ObservationReport(models.AbstractModel):
         if model in monitoring_models:
             # Add activities of any state to the report for these models.
             return activity_model.get_possible_states()
+        if model == 'nh.clinical.patient.observation.ews':
+            return ['completed', 'cancelled']
         else:
             return 'completed'
 
@@ -647,7 +649,7 @@ class ObservationReport(models.AbstractModel):
         return report_entries
 
     def include_stop_obs_entry(self, activity, start_date=None, end_date=None):
-        if not start_date or end_date:
+        if not start_date and end_date:
             return True
         try:
             if activity['state'] == 'started':
@@ -667,11 +669,13 @@ class ObservationReport(models.AbstractModel):
 
     def include_restart_obs_entry(self, activity,
                                   start_date=None, end_date=None):
-        if not start_date or end_date:
-            return True
-        return self.is_activity_date_terminated_within_date_range(
-            activity, start_date, end_date
-        )
+        if activity['date_terminated']:
+            if not start_date and end_date:
+                return True
+            return self.is_activity_date_terminated_within_date_range(
+                activity, start_date, end_date
+            )
+        return False
 
     def is_activity_date_terminated_within_date_range(self, activity,
                                                       start_date=None,
