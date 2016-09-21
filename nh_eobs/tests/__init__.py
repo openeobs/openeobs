@@ -8,7 +8,7 @@ from . import test_workload
 from openeobs.nh_eobs.tests.observation_report import \
     test_get_allowed_activity_states_for_model
 from openeobs.nh_eobs.tests.observation_report import \
-    test_build_activity_search_domain
+    test_create_search_filter
 from openeobs.nh_eobs.tests.observation_report import test_data_dict_to_obj
 from openeobs.nh_eobs.tests.observation_report import \
     test_report_get_triggered_actions

@@ -6,7 +6,7 @@ import logging
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
-from openerp.addons.nh_eobs.report.helpers import build_activity_search_domain
+from openerp.addons.nh_eobs.report.helpers import create_search_filter
 
 
 _logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class TestObservationReport(TransactionCase):
         self.end_date = datetime.now() + timedelta(days=5)
 
     def assert_domain(self, spell_activity_id, model, start_date, end_date, *args):
-        test_domain = build_activity_search_domain(
+        test_domain = create_search_filter(
             spell_activity_id, model, start_date, end_date
         )
 
@@ -79,7 +79,7 @@ class TestObservationReport(TransactionCase):
 
     def test_03_without_model(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(None, self.normal_model,
+            create_search_filter(None, self.normal_model,
                                          self.start_date, self.end_date)
 
     def test_04_without_end_date(self):
@@ -108,21 +108,21 @@ class TestObservationReport(TransactionCase):
 
     def test_10_without_model_or_end_date(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(self.spell_activity_id, None, self.start_date, None)
+            create_search_filter(self.spell_activity_id, None, self.start_date, None)
 
     def test_11_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(self.spell_activity_id, None, None, None)
+            create_search_filter(self.spell_activity_id, None, None, None)
 
     def test_12_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(self.spell_activity_id, None, None, self.end_date)
+            create_search_filter(self.spell_activity_id, None, None, self.end_date)
 
     def test_13_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(self.spell_activity_id, None,
+            create_search_filter(self.spell_activity_id, None,
                                          self.start_date, self.end_date)
 
     def test_14_without_spell_activity_id(self):
         with self.assertRaises(ValueError):
-            build_activity_search_domain(None, None, None, None)
+            create_search_filter(None, None, None, None)

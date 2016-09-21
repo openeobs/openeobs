@@ -43,10 +43,10 @@ class ReportDates(object):
         self.spell_end = spell_end
 
 
-def build_activity_search_domain(spell_activity_id, model,
-                                 start_date, end_date,
-                                 states='completed',
-                                 date_field='date_terminated'):
+def create_search_filter(spell_activity_id, model,
+                         start_date, end_date,
+                         states='completed',
+                         date_field='date_terminated'):
     if not spell_activity_id:
         raise ValueError('No spell activity id supplied.')
     if not model:

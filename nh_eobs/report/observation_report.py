@@ -196,7 +196,7 @@ class ObservationReport(models.AbstractModel):
         activity_model = self.pool['nh.activity']
 
         states = self._get_allowed_activity_states_for_model(model)
-        domain = helpers.build_activity_search_domain(
+        domain = helpers.create_search_filter(
             spell_id, model, start_time, end_time, states=states
         )
         activity_ids = activity_model.search(cr, uid, domain)
