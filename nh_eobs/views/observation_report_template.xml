@@ -844,8 +844,18 @@
                                                                             </tr>
                                                                         </t>
                                                                         <tr>
-                                                                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                                                                            <td class="col-xs-6"><t t-if="'date_terminated' in task and task['date_terminated']"><strong>Date:</strong> <t t-esc="task['date_terminated']"/></t><br/>
+                                                                            <td class="col-xs-6">
+                                                                                <t t-if="'user_id' in task and task['user_id']">
+                                                                                    <strong>By:</strong>
+                                                                                    <t t-esc="task['user_id'][1]"/>
+                                                                                </t>
+                                                                            </td>
+                                                                            <td class="col-xs-6">
+                                                                                <t t-if="'date_terminated' in task and task['date_terminated']">
+                                                                                    <strong>Date:</strong>
+                                                                                    <t t-esc="task['date_terminated']"/>
+                                                                                </t>
+                                                                                <br/>
                                                                                 <t t-if="'date_terminated' in task and task['date_terminated']==False">
                                                                                         Task still in progress
                                                                                 </t>

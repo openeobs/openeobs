@@ -9,7 +9,7 @@ from openeobs.nh_eobs.tests.observation_report import \
     test_get_allowed_activity_states_for_model
 from openeobs.nh_eobs.tests.observation_report import \
     test_build_activity_search_domain
-from openeobs.nh_eobs.tests.observation_report import test_report_data_dict
+from openeobs.nh_eobs.tests.observation_report import test_data_dict_to_obj
 from openeobs.nh_eobs.tests.observation_report import \
     test_report_get_triggered_actions
 from openeobs.nh_eobs.tests.observation_report import \
