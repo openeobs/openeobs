@@ -205,7 +205,8 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.assertTrue(dict(self.dictionary))
 
     def test_dictionary_has_correct_root_key(self):
-        self.dictionary[self.root_key]
+        root_key = self.dictionary.get(self.root_key)
+        self.assertTrue(root_key)
 
     def test_root_key_value_is_a_list(self):
         self.assertTrue(isinstance(self.dictionary[self.root_key], list))
