@@ -178,8 +178,8 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
 
         self.dictionary = self.observation_report_model\
             .get_patient_monitoring_exception_report_data(
-            self.spell_activity.id, self.start_date, self.end_date
-        )
+                self.spell_activity.id, self.start_date, self.end_date
+            )
 
         self.report_entries = self.dictionary[self.root_key]
 
