@@ -36,7 +36,8 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
             self.activity_model.browse(self.spell_activity_id)
 
         # Fails in spell.get_patient_by_id() if not started.
-        self.activity_pool.start(self.env.cr, self.env.uid, self.spell_activity_id)
+        self.activity_pool.start(self.env.cr, self.env.uid,
+                                 self.spell_activity_id)
 
         self.spell = self.spell_activity.data_ref
 

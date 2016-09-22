@@ -42,6 +42,7 @@ class ReportDates(object):
         self.spell_start = spell_start
         self.spell_end = spell_end
 
+
 def create_search_filter(spell_activity_id, model,
                          start_date, end_date,
                          states='completed',
@@ -68,6 +69,7 @@ def create_search_filter(spell_activity_id, model,
             filter.append([date_field, '<=', end_date])
     return filter
 
+
 def convert_db_date_to_context_date(cr, uid, date_string, dformat,
                                     context=None):
     if dformat:
@@ -76,6 +78,7 @@ def convert_db_date_to_context_date(cr, uid, date_string, dformat,
     else:
         return fields.datetime.context_timestamp(
             cr, uid, date_string, context=context)
+
 
 def data_dict_to_obj(data_dict):
     spell_id = None
@@ -91,6 +94,7 @@ def data_dict_to_obj(data_dict):
     if 'ews_only' in data_dict and data_dict['ews_only']:
         ews_only = data_dict['ews_only']
     return DataObj(spell_id, start, end, ews_only)
+
 
 def boolean_to_text(value):
     value_as_text = 'No'

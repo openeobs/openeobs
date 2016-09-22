@@ -176,12 +176,10 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.pme_cancelled_due_to_transfer.cancel_reason_id = \
             cancel_reason_transfer.id
 
-        self.dictionary = \
-            self.observation_report_model.\
-                get_patient_monitoring_exception_report_data(
-                    self.spell_activity.id,
-                    self.start_date, self.end_date
-                )
+        self.dictionary = self.observation_report_model\
+            .get_patient_monitoring_exception_report_data(
+            self.spell_activity.id, self.start_date, self.end_date
+        )
 
         self.report_entries = self.dictionary[self.root_key]
 
@@ -210,7 +208,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.dictionary[self.root_key]
 
     def test_root_key_value_is_a_list(self):
-        self.assertTrue(list(self.dictionary[self.root_key]))
+        self.assertTrue(isinstance(self.dictionary[self.root_key], list))
 
     def test_list_items_have_correct_child_keys(self):
         items = self.dictionary[self.root_key]

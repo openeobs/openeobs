@@ -87,7 +87,7 @@ class TestObservationReport(TransactionCase):
     def test_03_without_model(self):
         with self.assertRaises(ValueError):
             create_search_filter(None, self.normal_model,
-                                         self.start_date, self.end_date)
+                                 self.start_date, self.end_date)
 
     def test_04_without_end_date(self):
         self.assert_domain(self.spell_activity_id, self.normal_model,
@@ -130,7 +130,7 @@ class TestObservationReport(TransactionCase):
     def test_13_without_model_or_end_date_or_start_date(self):
         with self.assertRaises(ValueError):
             create_search_filter(self.spell_activity_id, None,
-                                         self.start_date, self.end_date)
+                                 self.start_date, self.end_date)
 
     def test_14_without_spell_activity_id(self):
         with self.assertRaises(ValueError):
