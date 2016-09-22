@@ -11,7 +11,9 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_eobs'],
     'data': ['data/master_data.xml',
-             'views/wardboard_view.xml'],
+             'views/wardboard_view.xml',
+             'views/ward_dashboard_view.xml'
+             ],
     'qweb': [],
     'application': True,
     'installable': True,
