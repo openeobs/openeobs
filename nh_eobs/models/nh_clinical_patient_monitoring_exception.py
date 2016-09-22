@@ -25,11 +25,26 @@ class PatientMonitoringException(models.Model):
     spell = fields.Many2one('nh.clinical.spell')
 
     def cancel_with_reason(self, activity, cancel_reason):
+        """
+        Cancel the activity that references this patient monitoring exception
+        record and add a cancel reason to it.
+
+        :param activity:
+        :param cancel_reason:
+        :return: No return, just side effects.
+        """
         activity_model = self.pool['nh.activity']
         activity_model.cancel(self.env.cr, self.env.uid, activity.id)
         activity.cancel_reason_id = cancel_reason.id
 
     def get_activity_by_spell_activity(self, spell_activity):
+        """
+        Get a patient monitoring exception activity from the passed spell
+        activity.
+
+        :param spell_activity:
+        :return:
+        """
         activity_model = self.env['nh.activity']
         domain = [
             ('parent_id', '=', spell_activity.id),

@@ -1,4 +1,13 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+"""
+Creates a report containing about observations performed on a patient.
+
+===========
+Terminology
+===========
+report entry: A single line on the report. One activity may result in multiple
+'entries' on the report.
+"""
 from openerp import api, models
 from datetime import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
@@ -21,11 +30,15 @@ class ObservationReport(models.AbstractModel):
         'diabetes_history': 'nh.clinical.patient.diabetes',
         'palliative_care_history': 'nh.clinical.patient.palliative_care',
         'post_surgery_history': 'nh.clinical.patient.post_surgery',
-        'critical_care_history': 'nh.clinical.patient.critical_care',
+        'critical_care_history': 'nh.clinical.patient.critical_care'
     }
 
     @api.multi
     def render_html(self, data=None):
+        """"
+        This is a special method that the Odoo report module executes instead
+        of it's built-in `render_html` method when trying generating a report.
+        """
         if isinstance(data, dict):
             data = helpers.data_dict_to_obj(data)
 
@@ -49,9 +62,11 @@ class ObservationReport(models.AbstractModel):
         `activity.read()`. However they also have an additional key named
         'values' that contains the model record as dictionaries returned by
         `model.read()`.
+
         :param data:
         :param ews_only:
         :return:
+        :rtype: dict
         """
         cr, uid = self._cr, self._uid
         # set up pools
@@ -192,6 +207,19 @@ class ObservationReport(models.AbstractModel):
 
     @api.multi
     def get_activity_data(self, spell_id, model, start_time, end_time):
+        """
+        Returns a list of dictionaries, each one representing the values of one
+        :class:<nh_activity.activity.nh_activity> record.
+
+        :param spell_id:
+        :param model: The name of the model matching the type of activity data
+        to retrieve activities for.
+        :type model: str
+        :param start_time:
+        :param end_time:
+        :return:
+        :rtype: dict
+        """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
@@ -202,11 +230,13 @@ class ObservationReport(models.AbstractModel):
         activity_ids = activity_model.search(cr, uid, domain)
         return activity_model.read(cr, uid, activity_ids)
 
-    def _get_allowed_activity_states_for_model(self, cr, uid, model):
+    def _get_allowed_activity_states_for_model(self, model):
         """
         Returns the states that an activity can be in if it is to be included
         on the observation report.
+
         :param model:
+        :type model: str
         :return: string or list of strings.
         :rtype: str or list
         """
@@ -224,11 +254,17 @@ class ObservationReport(models.AbstractModel):
         """
         Get activities associated with the passed model and return them as
         a dictionary.
+
         :param spell_id:
+        :type spell: int
         :param model:
+        :type model: str
         :param start:
+        :type start: str
         :param end:
-        :return:
+        :type end: str
+        :return: Activities for the passed spell id and model within the date
+        range.
         :rtype: dict
         """
         activity_data = self.get_activity_data(spell_id, model, start, end)
@@ -238,10 +274,14 @@ class ObservationReport(models.AbstractModel):
 
     def get_model_values(self, model, activity_data):
         """
-        Get values of records associated with the passed activity data
-        as a dictionary and return it.
+        Adds a `values` key to the passed activity dictionary which
+        is associated with another dictionary of values representing the
+        record which is the data ref of the passed activity.
+
         :param model:
+        :type model: str
         :param activity_data:
+        :type activity_data: str
         :return:
         :rtype: dict
         """
@@ -282,11 +322,28 @@ class ObservationReport(models.AbstractModel):
         return activity_data
 
     @classmethod
-    def _get_data_ref_id(cls, dictionary):
-        return int(dictionary['data_ref'].split(',')[1])
+    def _get_data_ref_id(cls, activity_dictionary):
+        """
+        Takes the string value of a `data_ref` field on a record and extracts
+        the id from it.
+
+        :param activity_dictionary: A dictionary representing an activity as
+        returned from :method:<read>.
+        :return:
+        :rtype: int
+        """
+        return int(activity_dictionary['data_ref'].split(',')[1])
 
     @classmethod
     def _get_id_from_tuple(cls, tuple):
+        """
+        Extracts the id from one of the tuples commonly seen as the value of
+        relational fields on models.
+
+        :param tuple:
+        :return:
+        :rtype: int
+        """
         return int(tuple[0])
 
     def get_multi_model_data(self, spell_id,
@@ -356,10 +413,13 @@ class ObservationReport(models.AbstractModel):
     def get_triggered_actions(self, cr, uid, activity_id, activity_list=None):
         """
         Recursively get the triggered actions of the activity passed to it
-        and then it's children and so on
+        and then it's children and so on.
+
         :param activity_id: The current activity under inspection
+        :type activity_id: int
         :param activity_list: the list to use
         :return: list of activity ids
+        :rtype: list
         """
         if not activity_list:
             activity_list = []
@@ -378,6 +438,16 @@ class ObservationReport(models.AbstractModel):
 
     @api.multi
     def get_ews_observations(self, data, spell_activity_id):
+        """
+        Gets all completed or cancelled EWS observations associated with the
+        passed spell activity id and returns them as a list of dictionaries.
+
+        :param data:
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :return:
+        :rtype: dict
+        """
         cr, uid = self._cr, self._uid
         ews_model = 'nh.clinical.patient.observation.ews'
         ews = self.get_model_data(spell_activity_id,
@@ -514,7 +584,16 @@ class ObservationReport(models.AbstractModel):
 
     def create_patient_monitoring_exception_dictionary(self, data,
                                                        spell_activity_id):
+        """
+        Creates a dictionary containing data for patient monitoring exceptions
+        that can be used to populate the observation report.
 
+        :param data:
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :return:
+        :rtype: dict
+        """
         old_style_patient_monitoring_exceptions = \
             copy.deepcopy(self.monitoring_dict)
         old_style_patient_monitoring_exceptions = \
@@ -539,7 +618,24 @@ class ObservationReport(models.AbstractModel):
                                                      spell_activity_id,
                                                      start_date=None,
                                                      end_date=None):
+        """
+        Returns a dictionary containing data for 'new style' patient monitoring
+        exceptions. These are patient monitoring exceptions which are records
+        of the :class:<nh_eobs.models.PatientMonitoringException> model.
 
+        The data returned is meant for use on the observation report, it is
+        not a full representation of the record, just a few fields that
+        are ready to be mapped directly onto the report.
+
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: dict
+        """
         pme_activity_ids = \
             self.get_monitoring_exception_activity_ids_for_report(
                 spell_activity_id, start_date, end_date
@@ -559,6 +655,19 @@ class ObservationReport(models.AbstractModel):
                                                          spell_activity_id,
                                                          start_date=None,
                                                          end_date=None):
+        """
+        Returns a list of ids for all activities whose information should be
+        included in the report. Exactly what entries should be created for
+        these activities on the report is decided later.
+
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
@@ -572,6 +681,19 @@ class ObservationReport(models.AbstractModel):
     @classmethod
     def build_monitoring_exception_domain(cls, spell_activity_id,
                                           start_date=None, end_date=None):
+        """
+        Contained in the domain is all the business logic for deciding whether
+        an activity may need to included on the report in some way.
+
+        The domain uses Polish Notation. You can learn how to read it
+        `on Wikipedia
+        <https://en.wikipedia.org/wiki/Polish_notation#Computer_programming>`_.
+
+        :param spell_activity_id:
+        :param start_date:
+        :param end_date:
+        :return:
+        """
         model = 'nh.clinical.patient_monitoring_exception'
 
         base_domain = [
@@ -606,6 +728,19 @@ class ObservationReport(models.AbstractModel):
 
     def get_monitoring_exception_report_data_from_activities(
             self, pme_activity_ids, start_date=None, end_date=None):
+        """
+        Calls :method:<get_monitoring_exception_report_data_from_activity>
+        recursively.
+
+        :param pme_activity_ids:
+        :type pme_activity_ids: list
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: dict
+        """
         report_entries = []
 
         for pme_activity_id in pme_activity_ids:
@@ -619,6 +754,20 @@ class ObservationReport(models.AbstractModel):
 
     def get_monitoring_exception_report_data_from_activity(
             self, pme_activity_id, start_date=None, end_date=None):
+        """
+        Gets data from the activities with the passed ids and returns a
+        dictionary containing just the values needed for the observation
+        report.
+
+        :param pme_activity_id:
+        :type pme_activity_id: int
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: dict
+        """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
@@ -644,6 +793,19 @@ class ObservationReport(models.AbstractModel):
         return report_entries
 
     def include_stop_obs_entry(self, activity, start_date=None, end_date=None):
+        """
+        Encapsulates the logic for deciding if a 'Stop Observations' entry
+        should be included on the report for the passed activity dictionary.
+
+        :param activity: dictionary as returned by :method:<read>
+        :type activity: dict
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: bool
+        """
         if not start_date and end_date:
             return True
         try:
@@ -664,6 +826,19 @@ class ObservationReport(models.AbstractModel):
 
     def include_restart_obs_entry(self, activity,
                                   start_date=None, end_date=None):
+        """
+        Encapsulates the logic for deciding if a 'Restart Observations' entry
+        should be included on the report for the passed activity dictionary.
+
+        :param activity: dictionary as returned by :method:<read>
+        :type activity: dict
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: bool
+        """
         if activity['date_terminated']:
             if not start_date and end_date:
                 return True
@@ -675,6 +850,19 @@ class ObservationReport(models.AbstractModel):
     def is_activity_date_terminated_within_date_range(self, activity,
                                                       start_date=None,
                                                       end_date=None):
+        """
+        Returns a boolean indicating whether a particular activity's
+        date_terminated field falls within the specified date range.
+
+        :param activity: dictionary as returned by :method:<read>
+        :type activity: dict
+        :param start_date:
+        :type start_date: str
+        :param end_date:
+        :type end_date: str
+        :return:
+        :rtype: bool
+        """
         if activity['date_terminated']:
             return self.is_datetime_within_range(
                 activity['date_terminated'], start_date, end_date
@@ -684,6 +872,19 @@ class ObservationReport(models.AbstractModel):
     @classmethod
     def is_datetime_within_range(cls, date_time,
                                  start_date=None, end_date=None):
+        """
+        Returns a boolean indicating whether the passed datetime falls within
+        the specified date range.
+
+        :param date_time:
+        :type date_time: str or datetime
+        :param start_date:
+        :type start_date: str or datetime
+        :param end_date:
+        :type end_date: str or datetime
+        :return:
+        :rtype: bool
+        """
         if isinstance(date_time, str):
             date_time = datetime.strptime(date_time, dtf)
 
@@ -703,6 +904,23 @@ class ObservationReport(models.AbstractModel):
 
     def get_report_entry_dictionary(self, pme_activity_id,
                                     restart_obs=False):
+        """
+        Creates a dictionary that contains the data that will be used to
+        populate the report for a single entry concerning a
+        patient monitoring exception activity.
+
+        Contains various bits of logic to return different values depending on
+        whether it has been instructed to create a 'Stop Observations' entry or
+        a 'Restart Observations' entry, or if the patient monitoring exception
+        activity was cancelled due to a transfer.
+
+        :param pme_activity_id:
+        :type pme_activity_id: int
+        :param restart_obs:
+        :type restart_obs: bool
+        :return:
+        :rtype: dict
+        """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
         pme_model = \
@@ -749,10 +967,26 @@ class ObservationReport(models.AbstractModel):
         }
 
     def convert_activities_dates_to_context_dates(self, activity_data):
+        """
+        Calls :method:<convert_activity_dates_to_context_dates> recursively.
+
+        :param activity_data:
+        :type activity_data: list
+        :return: No return, just side effects.
+        """
         for activity in activity_data:
             self.convert_activity_dates_to_context_dates(activity)
 
     def convert_activity_dates_to_context_dates(self, activity):
+        """
+        Ensures dates on the passed activity are in the correct format and
+        timezone.
+
+        :param activity:
+        :type activity: dict
+        :return:
+        :rtype: No return, just side effects.
+        """
         cr, uid = self._cr, self._uid
         date_started = False
         date_terminated = False
