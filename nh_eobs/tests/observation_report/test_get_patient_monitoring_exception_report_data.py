@@ -22,6 +22,7 @@ status_key = 'status'
 
 keys_list = [date_key, user_key, reason_key, status_key]
 
+
 def create_spell(self):
     self.patient_model = self.env['nh.clinical.patient']
     self.spell_model = self.env['nh.clinical.spell']
@@ -39,11 +40,13 @@ def create_spell(self):
         self.activity_model.browse(self.spell_activity_id)
     self.spell = self.spell_activity.data_ref
 
+
 def add_one_day_to_datetime_string(start_date):
     date_time = datetime.strptime(start_date, dtf)
     delta = timedelta(days=1)
     date_time += delta
     return date_time.strftime(dtf)
+
 
 def now_string():
     now = datetime.now()
@@ -287,16 +290,16 @@ class TestDatesInTheFuture(TransactionCase):
 
         self.dictionary = self.observation_report_model \
             .get_patient_monitoring_exception_report_data(
-            self.spell_activity.id, self.start_date, None
-        )
+                self.spell_activity.id, self.start_date, None
+            )
 
     def test_end_date_in_the_future(self):
         self.end_date = add_one_day_to_datetime_string(now_string())
 
         self.dictionary = self.observation_report_model \
             .get_patient_monitoring_exception_report_data(
-            self.spell_activity.id, None, self.end_date
-        )
+                self.spell_activity.id, None, self.end_date
+            )
 
     def test_start_and_end_date_in_the_future(self):
         self.start_date = add_one_day_to_datetime_string(now_string())
@@ -304,5 +307,5 @@ class TestDatesInTheFuture(TransactionCase):
 
         self.dictionary = self.observation_report_model \
             .get_patient_monitoring_exception_report_data(
-            self.spell_activity.id, self.start_date, self.end_date
-        )
+                self.spell_activity.id, self.start_date, self.end_date
+            )
