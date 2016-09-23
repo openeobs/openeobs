@@ -174,7 +174,7 @@ class TestMonitoringExceptionsReturned(TestGetPatientMonitoringExceptionReportDa
         )
 
         # Modify start date and end dates.
-        ages_ago = '1900-01-01 15:00:00'
+        ages_ago = '1989-06-06 14:00:00'
         self.pme_started_long_ago.date_started = ages_ago
         self.pme_ends_in_the_future.date_terminated = \
             self.add_one_day_to_datetime_string(self.end_date)
