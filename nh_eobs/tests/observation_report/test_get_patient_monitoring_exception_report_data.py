@@ -10,57 +10,57 @@ from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 
+stop_obs_msg = 'Stop Observations'
+restart_obs_msg = 'Restart Observations'
+transfer = 'Transfer'
+
+root_key = 'patient_monitoring_exception_history'
+date_key = 'date'
+user_key = 'user'
+reason_key = 'reason'
+status_key = 'status'
+
+keys_list = [date_key, user_key, reason_key, status_key]
+
+def create_spell(self):
+    self.patient_model = self.env['nh.clinical.patient']
+    self.spell_model = self.env['nh.clinical.spell']
+    self.activity_model = self.env['nh.activity']
+    self.patient = self.patient_model.create({
+        'given_name': 'Jon',
+        'family_name': 'Snow',
+        'patient_identifier': 'a_patient_identifier'
+    })
+    self.spell_activity_id = self.spell_model.create_activity(
+        {},
+        {'patient_id': self.patient.id, 'pos_id': 1}
+    )
+    self.spell_activity = \
+        self.activity_model.browse(self.spell_activity_id)
+    self.spell = self.spell_activity.data_ref
+
+def add_one_day_to_datetime_string(start_date):
+    date_time = datetime.strptime(start_date, dtf)
+    delta = timedelta(days=1)
+    date_time += delta
+    return date_time.strftime(dtf)
+
+def now_string():
+    now = datetime.now()
+    return now.strftime(dtf)
+
+
 class TestGetPatientMonitoringExceptionReportData(TransactionCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.stop_obs_msg = 'Stop Observations'
-        cls.restart_obs_msg = 'Restart Observations'
-        cls.transfer = 'Transfer'
-
-        cls.root_key = 'patient_monitoring_exception_history'
-        cls.date_key = 'date'
-        cls.user_key = 'user'
-        cls.reason_key = 'reason'
-        cls.status_key = 'status'
-
-        cls.keys_list = [cls.date_key, cls.user_key,
-                         cls.reason_key, cls.status_key]
 
     def setUp(self):
         super(TestGetPatientMonitoringExceptionReportData, self).setUp()
+        create_spell(self)
+
+        self.pme_reason_model = \
+            self.env['nh.clinical.patient_monitoring_exception.reason']
+        self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
         self.observation_report_model = \
             self.env['report.nh.clinical.observation_report']
-        self.patient_model = self.env['nh.clinical.patient']
-        self.spell_model = self.env['nh.clinical.spell']
-        self.activity_model = self.env['nh.activity']
-        self.pme_reason_model = \
-            self.env['nh.clinical.patient_monitoring_exception.reason']
-        self.wardboard_model = self.env['nh.clinical.wardboard']
-        self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        self.pme_reason_model = \
-            self.env['nh.clinical.patient_monitoring_exception.reason']
-
-        self.patient = self.patient_model.create({
-            'given_name': 'Jon',
-            'family_name': 'Snow',
-            'patient_identifier': 'a_patient_identifier'
-        })
-
-        self.spell_activity_id = self.spell_model.create_activity(
-            {},
-            {'patient_id': self.patient.id, 'pos_id': 1}
-        )
-
-        self.spell_activity = \
-            self.activity_model.browse(self.spell_activity_id)
-
-        self.spell = self.spell_activity.data_ref
-
-        self.wardboard = self.wardboard_model.new({
-            'spell_activity_id': self.spell_activity_id,
-            'patient_id': self.patient
-        })
 
         # Create some patient monitoring exception reasons.
         self.pme_closed_reason = \
@@ -122,7 +122,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         )
 
         # Set start datetime to be used for report.
-        self.start_date = self.now_string()
+        self.start_date = now_string()
 
         # Progress activity lifecycle of the patient monitoring exceptions.
         self.pme_model.start(pme_closed_id)
@@ -139,7 +139,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.pme_model.complete(pme_ended_before_start_date_id)
 
         # Set end datetime to be used for report.
-        self.end_date = self.now_string()
+        self.end_date = now_string()
 
         # Get records for the patient monitoring exceptions.
         self.pme_closed = self.activity_model.browse(pme_closed_id)
@@ -164,11 +164,11 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         ages_ago = '1900-01-01 15:00:00'
         self.pme_started_long_ago.date_started = ages_ago
         self.pme_ends_in_the_future.date_terminated = \
-            self.add_one_day_to_datetime_string(self.end_date)
+            add_one_day_to_datetime_string(self.end_date)
         self.pme_still_open_before_start_date.date_started = ages_ago
         self.pme_ended_before_start_date.date_started = ages_ago
         self.pme_ended_before_start_date.date_terminated = \
-            self.add_one_day_to_datetime_string(ages_ago)
+            add_one_day_to_datetime_string(ages_ago)
 
         # Setup cancellation of patient monitoring exception due to transfer.
         cancel_reason_transfer = \
@@ -181,48 +181,35 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
                 self.spell_activity.id, self.start_date, self.end_date
             )
 
-        self.report_entries = self.dictionary[self.root_key]
-
-    @classmethod
-    def add_one_day_to_datetime_string(cls, start_date):
-        date_time = datetime.strptime(start_date, dtf)
-        delta = timedelta(days=1)
-        date_time += delta
-        return date_time.strftime(dtf)
-
-    @classmethod
-    def now_string(cls):
-        now = datetime.now()
-        return now.strftime(dtf)
+        self.report_entries = self.dictionary[root_key]
 
     def get_restart_obs_report_entries(self):
         pme_ended_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.status_key] == self.restart_obs_msg]
+             if report_entry[status_key] == restart_obs_msg]
         return pme_ended_report_entries
 
     def test_returns_dictionary(self):
         self.assertTrue(dict(self.dictionary))
 
     def test_dictionary_has_correct_root_key(self):
-        root_key = self.dictionary.get(self.root_key)
-        self.assertTrue(root_key)
+        self.assertTrue(self.dictionary.get(root_key))
 
     def test_root_key_value_is_a_list(self):
-        self.assertTrue(isinstance(self.dictionary[self.root_key], list))
+        self.assertTrue(isinstance(self.dictionary[root_key], list))
 
     def test_list_items_have_correct_child_keys(self):
-        items = self.dictionary[self.root_key]
+        items = self.dictionary[root_key]
         for item in items:
             for key in item.keys():
-                if key not in self.keys_list:
+                if key not in keys_list:
                     raise AssertionError("An unexpected key '{}' was found in "
                                          "the dictionary.".format(key))
 
     def test_correct_number_of_started_pme_record_entries(self):
         pme_started_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.status_key] == self.stop_obs_msg]
+             if report_entry[status_key] == stop_obs_msg]
 
         self.assertEqual(len(pme_started_report_entries), 6,
                          "Unexpected number of 'started' report entries.")
@@ -236,7 +223,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
     def test_still_open_pme_is_returned_even_if_outside_date_range(self):
         pme_still_open_before_start_date_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.reason_key] ==
+             if report_entry[reason_key] ==
              self.pme_still_open_before_start_date_reason.display_name]
 
         self.assertEqual(len(pme_still_open_before_start_date_report_entries),
@@ -247,7 +234,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
     def test_ended_pme_before_start_date_is_excluded(self):
         pme_started_long_ago_report_entries = \
             [report_entry for report_entry in self.report_entries
-             if report_entry[self.reason_key] ==
+             if report_entry[reason_key] ==
              self.pme_ended_before_start_date.display_name]
 
         self.assertEqual(len(pme_started_long_ago_report_entries), 0,
@@ -259,7 +246,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         pme_ended_report_entries = self.get_restart_obs_report_entries()
         pme_ended_no_reason_report_entries = \
             [report_entry for report_entry in pme_ended_report_entries
-             if report_entry[self.reason_key] is None]
+             if report_entry[reason_key] is None]
 
         self.assertEqual(len(pme_ended_no_reason_report_entries), 2,
                          "All reasons on report entries for restarting of obs "
@@ -269,7 +256,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         pme_ended_report_entries = self.get_restart_obs_report_entries()
         pme_transfer_report_entries = \
             [report_entry for report_entry in pme_ended_report_entries
-             if report_entry[self.reason_key] is self.transfer]
+             if report_entry[reason_key] is transfer]
 
         self.assertEqual(len(pme_transfer_report_entries), 1,
                          "Unexpected amount of patient monitoring excpetions "
@@ -279,8 +266,43 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         pme_ended_report_entries = self.get_restart_obs_report_entries()
         pme_transfer_report_entries = \
             [report_entry for report_entry in pme_ended_report_entries
-             if report_entry[self.user_key] is self.transfer]
+             if report_entry[user_key] is transfer]
 
         self.assertEqual(len(pme_transfer_report_entries), 1,
                          "Unexpected amount of patient monitoring excpetions "
                          "with transfer set as user.")
+
+
+class TestDatesInTheFuture(TransactionCase):
+
+    def setUp(self):
+        super(TestDatesInTheFuture, self).setUp()
+        create_spell(self)
+
+        self.observation_report_model = \
+            self.env['report.nh.clinical.observation_report']
+
+    def test_start_date_in_the_future(self):
+        self.start_date = add_one_day_to_datetime_string(now_string())
+
+        self.dictionary = self.observation_report_model \
+            .get_patient_monitoring_exception_report_data(
+            self.spell_activity.id, self.start_date, None
+        )
+
+    def test_end_date_in_the_future(self):
+        self.end_date = add_one_day_to_datetime_string(now_string())
+
+        self.dictionary = self.observation_report_model \
+            .get_patient_monitoring_exception_report_data(
+            self.spell_activity.id, None, self.end_date
+        )
+
+    def test_start_and_end_date_in_the_future(self):
+        self.start_date = add_one_day_to_datetime_string(now_string())
+        self.end_date = add_one_day_to_datetime_string(now_string())
+
+        self.dictionary = self.observation_report_model \
+            .get_patient_monitoring_exception_report_data(
+            self.spell_activity.id, self.start_date, self.end_date
+        )

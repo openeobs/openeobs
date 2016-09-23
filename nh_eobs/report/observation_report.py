@@ -710,21 +710,21 @@ class ObservationReport(models.AbstractModel):
             '&',
             ('state', 'in', ['completed', 'cancelled']),
             '|',
-            '&',
+            '&' if start_date and end_date else None,
             ('date_started', '>=', start_date) if start_date else None,
             ('date_started', '<=', end_date) if end_date else None,
-            '&',
+            '&' if start_date and end_date else None,
             ('date_terminated', '>=', start_date) if start_date else None,
             ('date_terminated', '<=', end_date) if end_date else None
         ]
         domain = base_domain
-        if not start_date or end_date:
+        if not start_date and not end_date:
             return domain + include_all_parameters
         else:
             # Get rid of any Nones.
             filter_on_date_parameters = \
                 [parameter for parameter in filter_on_date_parameters
-                 if not None]
+                 if parameter is not None]
             return domain + filter_on_date_parameters
 
     def get_monitoring_exception_report_data_from_activities(
