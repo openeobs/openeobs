@@ -1,6 +1,7 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-Creates a report containing about observations performed on a patient.
+Creates a report containing information about observations performed on a
+patient.
 
 ===========
 Terminology
