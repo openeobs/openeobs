@@ -1,9 +1,15 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from datetime import datetime
 import base64
-from openerp.osv import osv, fields
+from datetime import datetime
 import logging
+
+from openerp import api
 from openerp.exceptions import AccessError
+from openerp.osv import osv, fields
+
+from openerp.addons.nh_odoo_fixes import validate
+
+
 _logger = logging.getLogger(__name__)
 
 
@@ -14,6 +20,10 @@ class print_observation_report_wizard(osv.TransientModel):
         'start_time': fields.datetime('Start Time'),
         'end_time': fields.datetime('End Time'),
     }
+
+    @api.constrains('start_time', 'end_time')
+    def _not_in_the_future(self):
+        validate.not_in_the_1future(self.start_date, self.end_date)
 
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
