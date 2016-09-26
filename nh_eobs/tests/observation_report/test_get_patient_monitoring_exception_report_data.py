@@ -64,7 +64,8 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.create_spell()
 
 
-class TestMonitoringExceptionsReturned(TestGetPatientMonitoringExceptionReportData):
+class TestMonitoringExceptionsReturned(
+        TestGetPatientMonitoringExceptionReportData):
 
     def setUp(self):
         super(TestMonitoringExceptionsReturned, self).setUp()
@@ -313,7 +314,9 @@ class TestDatesInTheFuture(TestGetPatientMonitoringExceptionReportData):
             )
 
     def test_start_and_end_date_in_the_future(self):
-        self.start_date = self.add_one_day_to_datetime_string(self.now_string())
+        self.start_date = self.add_one_day_to_datetime_string(
+            self.now_string()
+        )
         self.end_date = self.add_one_day_to_datetime_string(self.now_string())
 
         self.dictionary = self.observation_report_model \
