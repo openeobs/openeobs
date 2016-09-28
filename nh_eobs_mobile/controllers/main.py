@@ -494,7 +494,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 patient['invited_users'] = invite_csv
         return patient_list
 
-    def process_form_fields(self, form_desc):
+    @staticmethod
+    def process_form_fields(form_desc):
         """
         Process the form fields and set them up for rendering
 
