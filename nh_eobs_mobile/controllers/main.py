@@ -633,6 +633,33 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             }
         )
 
+    def get_task_form(self, cr, uid, task, patient, request, context=None):
+        """
+        Get the form for a task
+
+        :param task: task object
+        :return: tuple of form and form inputs
+        """
+        api_reg = request.registry('nh.eobs.api')
+        form_desc, form = self.process_form_fields(
+            api_reg.get_form_description(
+                cr, uid,
+                patient.get('id'),
+                task.get('data_model'),
+                context=context
+            )
+        )
+        form['action'] = \
+            URLS['task_form_action'] + '{0}'.format(task.get('id'))
+        form['type'] = task['data_model']
+        form['task-id'] = task.get('id')
+        form['patient-id'] = \
+            int(patient['id']) if patient and patient.get('id') else False
+        form['source'] = "task"
+        form['start'] = datetime.now().strftime('%s')
+        return form, form_desc
+
+
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
         """
@@ -701,23 +728,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             _logger.debug(exception_message)
             return utils.redirect(URLS['task_list'], 303)
 
-        # Get form
-        form_desc, form = self.process_form_fields(
-            api_reg.get_form_description(
-                cr, uid,
-                task['patient_id'][0],
-                task['data_model'],
-                context=context
-            )
-        )
-        form['action'] = URLS['task_form_action'] + '{0}'.format(task_id)
-        form['type'] = task['data_model']
-        form['task-id'] = task_id
-        pt_id = 'id' in patient and patient['id']
-        form['patient-id'] = int(patient['id']) if patient and pt_id else False
-        form['source'] = "task"
-        form['start'] = datetime.now().strftime('%s')
-
         # Get follow activities for user
         follow_activities = api_reg.get_assigned_activities(
             cr, uid,
@@ -727,6 +737,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         is_notification = 'notification' in task['data_model']
         is_placement = 'placement' in task['data_model']
         if is_notification or is_placement:
+            form, form_desc = \
+                self.get_task_form(cr, uid, task, patient, request)
             cancellable = api_reg.is_cancellable(
                 cr, uid, task['data_model'], context=context)
             form['confirm_url'] = "{0}{1}".format(
@@ -757,6 +769,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 }
             )
         elif 'observation' in task['data_model']:
+            form, form_desc = \
+                self.get_task_form(cr, uid, task, patient, request)
             form['type'] = re.match(
                 r'nh\.clinical\.patient\.observation\.(.*)',
                 task['data_model']).group(1)
