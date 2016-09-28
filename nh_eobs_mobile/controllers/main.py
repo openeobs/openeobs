@@ -659,7 +659,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['start'] = datetime.now().strftime('%s')
         return form, form_desc
 
-
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
     def get_task(self, task_id, *args, **kw):
         """
