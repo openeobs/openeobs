@@ -11,6 +11,7 @@ notifications inherit is also included here.
 """
 from openerp.osv import orm, fields
 from openerp.addons.nh_observations import frequencies
+from openerp import api
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -51,6 +52,16 @@ class nh_clinical_notification(orm.AbstractModel):
         :rtype: bool
         """
         return False
+
+    @api.multi
+    def is_valid(self):
+        """
+        Check the validity of the notification (each subclass to supply rules)
+
+        :return: Boolean representing if notification instance is valid
+        :rtype: bool
+        """
+        return True
 
 
 class nh_clinical_notification_hca(orm.Model):
