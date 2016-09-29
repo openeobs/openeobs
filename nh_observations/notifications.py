@@ -77,11 +77,13 @@ class nh_clinical_notification(orm.AbstractModel):
             ['data_model', '=', data_model],
             ['creator_id', '=', activity.id]
         ])
-        if not activity.data_ref.is_partial and \
-                        activity.state in ['completed', 'cancelled']:
+        if not activity.data_ref.is_partial and activity.state in [
+            'completed', 'cancelled']:
             yield activity
+            raise StopIteration()
         elif not next_activity:
             yield activity
+            raise StopIteration()
         else:
             yield next_activity
             self.get_child_activity(
