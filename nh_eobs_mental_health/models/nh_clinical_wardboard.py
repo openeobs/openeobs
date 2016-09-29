@@ -130,7 +130,15 @@ class NHClinicalWardboard(orm.Model):
         pme_activity.spell_activity_id = spell_activity_id
         pme_model.start(activity_id)
 
-        if not self.cancel_open_ews(spell_activity_id):
+        cancel_reason_pme = \
+            self.env['ir.model.data'].get_object(
+                'nh_eobs', 'cancel_reason_patient_monitoring_exception'
+            )
+
+        cancel_open_ews = self.cancel_open_ews(spell_activity_id,
+                                               cancel_reason_pme.id)
+
+        if not cancel_open_ews:
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
                          'all open NEWS activities'
@@ -149,7 +157,6 @@ class NHClinicalWardboard(orm.Model):
         activity_model = self.env['nh.activity']
         activity_pool = self.pool['nh.activity']
         ir_model_data_model = self.env['ir.model.data']
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
 
         spell_id = self.spell_activity_id.data_ref.id
         patient_monitoring_exception_activity = activity_model.search([
@@ -169,11 +176,12 @@ class NHClinicalWardboard(orm.Model):
 
         if cancellation:
             cancel_reason = ir_model_data_model.get_object(
-                'nh_eobs', 'cancellation_reason_transfer'
+                'nh_eobs', 'cancel_reason_transfer'
             )
-            pme_model.cancel_with_reason(
-                patient_monitoring_exception_activity,
-                cancel_reason
+            activity_pool.cancel_with_reason(
+                self.env.cr, self.env.uid,
+                patient_monitoring_exception_activity.id,
+                cancel_reason.id
             )
         else:
             activity_pool.complete(
@@ -241,7 +249,7 @@ class NHClinicalWardboard(orm.Model):
         return new_ews_id
 
     @api.model
-    def cancel_open_ews(self, spell_activity_id):
+    def cancel_open_ews(self, spell_activity_id, cancel_reason_id=None):
         """
         Cancel all open EWS observations
         :param cr: Odoo cursor
@@ -253,7 +261,10 @@ class NHClinicalWardboard(orm.Model):
         # Cancel all open obs
         activity_model = self.env['nh.activity']
         return activity_model.cancel_open_activities(
-            spell_activity_id, model='nh.clinical.patient.observation.ews')
+            spell_activity_id,
+            model='nh.clinical.patient.observation.ews',
+            cancel_reason_id=cancel_reason_id
+        )
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):

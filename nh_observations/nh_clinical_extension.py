@@ -194,7 +194,8 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 pool.create_activity(
                     cr, SUPERUSER_ID, a_values, d_values, context=context)
 
-    def cancel_open_activities(self, cr, uid, parent_id, model, context=None):
+    def cancel_open_activities(self, cr, uid, parent_id, model,
+                               cancel_reason_id=None, context=None):
         """
         Cancels all not `completed` or `cancelled` activities of the
         provided type and :class:`spell<base.nh_clinical_spell>`.
@@ -212,5 +213,9 @@ class nh_clinical_api_extension(orm.AbstractModel):
                   ('state', 'not in', ['completed', 'cancelled'])]
         open_activity_ids = activity_pool.search(
             cr, uid, domain, context=context)
+        if cancel_reason_id:
+            return all([activity_pool.cancel_with_reason(
+                cr, uid, a, cancel_reason_id
+            ) for a in open_activity_ids])
         return all([activity_pool.cancel(
             cr, uid, a, context=context) for a in open_activity_ids])

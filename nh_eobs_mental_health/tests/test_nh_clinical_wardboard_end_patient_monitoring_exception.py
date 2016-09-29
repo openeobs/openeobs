@@ -57,4 +57,11 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
         spell_activity = self.activity_model.browse(self.spell_activity_id)
         pme_activity = \
             self.pme_model.get_activity_by_spell_activity(spell_activity)
+
         self.assertEqual(pme_activity.state, 'cancelled')
+
+        cancel_reason_patient_monitoring_exception = self.browse_ref(
+            'nh_eobs.cancel_reason_transfer'
+        )
+        self.assertEqual(pme_activity.cancel_reason_id,
+                         cancel_reason_patient_monitoring_exception)
