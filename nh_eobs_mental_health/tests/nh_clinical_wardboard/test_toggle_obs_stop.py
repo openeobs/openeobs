@@ -1,12 +1,12 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNHClinicalWardBoardToggleObsStop(TransactionCase):
+class TestToggleObsStop(TransactionCase):
     """
     Test the toggle Stop Observation button
     """
     def setUp(self):
-        super(TestNHClinicalWardBoardToggleObsStop, self).setUp()
+        super(TestToggleObsStop, self).setUp()
         self.wardboard_model = self.registry('nh.clinical.wardboard')
         self.activity_model = self.registry('nh.activity')
         self.spell_model = self.registry('nh.clinical.spell')
@@ -44,4 +44,4 @@ class TestNHClinicalWardBoardToggleObsStop(TransactionCase):
         self.wardboard_model._revert_method('read')
         self.spell_model._revert_method('read')
         self.spell_model._revert_method('search')
-        super(TestNHClinicalWardBoardToggleObsStop, self).tearDown()
+        super(TestToggleObsStop, self).tearDown()

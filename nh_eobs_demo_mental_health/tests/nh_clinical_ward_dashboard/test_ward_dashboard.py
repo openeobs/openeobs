@@ -1,14 +1,14 @@
 from openerp.tests.common import SingleTransactionCase
 
 
-class TestNHClinicalWardDashboard(SingleTransactionCase):
+class TestWardDashboard(SingleTransactionCase):
     """
     Test that the ward dashboard has the correct columns with the correct
     value
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboard, self).setUp()
+        super(TestWardDashboard, self).setUp()
         cr, uid = self.cr, self.uid
         ward_dashboard_model = self.registry('nh.eobs.ward.dashboard')
         location_model = self.registry('nh.clinical.location')

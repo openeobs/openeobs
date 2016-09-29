@@ -1,13 +1,13 @@
 from .reason_count_common import ReasonCountCommon
 
 
-class TestNHClinicalWardDashboardAWOLCount(ReasonCountCommon):
+class TestAWOLCount(ReasonCountCommon):
     """
     Test that the AWOL count SQL View on ward dashboard is correct
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboardAWOLCount, self).setUp()
+        super(TestAWOLCount, self).setUp()
         self.reason = 'AWOL'
 
     def test_returns_correct_number_of_patients(self):

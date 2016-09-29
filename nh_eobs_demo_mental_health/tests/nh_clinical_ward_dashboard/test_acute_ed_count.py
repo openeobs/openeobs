@@ -1,13 +1,13 @@
 from .reason_count_common import ReasonCountCommon
 
 
-class TestNHClinicalWardDashboardAcuteEDCount(ReasonCountCommon):
+class TestAcuteEDCount(ReasonCountCommon):
     """
     Test that the Acute hospital ED count SQL View on ward dashboard is correct
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboardAcuteEDCount, self).setUp()
+        super(TestAcuteEDCount, self).setUp()
         self.reason = 'Acute hospital ED'
 
     def test_returns_correct_number_of_patients(self):

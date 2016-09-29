@@ -1,13 +1,13 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNHeObsAPITransfer(TransactionCase):
+class TestTransfer(TransactionCase):
     """
     Test that transferring a patient set's their obs_stop flag to False
     """
 
     def setUp(self):
-        super(TestNHeObsAPITransfer, self).setUp()
+        super(TestTransfer, self).setUp()
         self.api_model = self.registry('nh.eobs.api')
         self.spell_model = self.registry('nh.clinical.spell')
         self.patient_model = self.registry('nh.clinical.patient')

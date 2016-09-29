@@ -1,20 +1,20 @@
 from .location_patient_count_common import LocationPatientCountCommon
 
 
-class TestNHClinicalWardDashboardCapacityCount(LocationPatientCountCommon):
+class TestWorkloadCount(LocationPatientCountCommon):
     """
     Test that the patients on ward SQL View on ward dashboard is correct
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboardCapacityCount, self).setUp()
-        self.table = 'capacity'
+        super(TestWorkloadCount, self).setUp()
+        self.table = 'workload'
 
-    def test_returns_correct_number_of_locations(self):
+    def test_returns_correct_number_of_patients(self):
         """
-        Test that 30 beds in ward A
+        Test that 1 patient per ward is returned as standard
         """
-        self.returns_correct_number_of_patients(-10)
+        self.returns_correct_number_of_patients(40)
 
     def test_returns_correct_number_after_change(self):
         """
@@ -35,4 +35,4 @@ class TestNHClinicalWardDashboardCapacityCount(LocationPatientCountCommon):
                 {'location': 'DISL'}, context={})
         else:
             raise ValueError('Could not find any spells to change on Ward A')
-        self.returns_correct_number_of_patients(-9)
+        self.returns_correct_number_of_patients(39)

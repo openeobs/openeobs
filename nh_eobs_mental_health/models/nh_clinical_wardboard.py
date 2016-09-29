@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp import api
 from openerp.addons.nh_eobs import helpers
+import copy
 
 
 class NHClinicalWardboard(orm.Model):
@@ -26,8 +27,18 @@ class NHClinicalWardboard(orm.Model):
         flags = spell_model.read(cr, uid, ids, ['obs_stop'], context=context)
         return dict([(rec.get('id'), rec.get('obs_stop')) for rec in flags])
 
+    acuity_selection = [
+        ('NoScore', 'New Pt / Obs Restart'),
+        ('High', 'High Risk'),
+        ('Medium', 'Medium Risk'),
+        ('Low', 'Low Risk'),
+        ('None', 'No Risk'),
+        ('ObsStop', 'Obs Stop')
+    ]
+
     _columns = {
-        'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean')
+        'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean'),
+        'acuity_index': fields.text('Index on Acuity Board')
     }
 
     @api.multi
@@ -324,3 +335,38 @@ class NHClinicalWardboard(orm.Model):
         """
         if '_ids' in obj.__dict__:
             obj.__dict__.pop('_ids')
+
+    # Acuity Board grouping
+    @api.model
+    def _get_acuity_groups(self, ids, domain, read_group_order=None,
+                           access_rights_uid=None,):
+        """
+        Override _get_cr_groups to include obs_stop and new patient
+        / restarted observations - EOBS-404
+
+        :param ids: record ids
+        :param domain: Domain to filter groups with
+        :param read_group_order: Order to read the groups in
+        :param access_rights_uid: User ID to use for access rights
+        :returns: Tuple of groups and folded states
+        """
+        group_list = copy.deepcopy(self.acuity_selection)
+        fold_dict = {group[0]: False for group in group_list}
+        return group_list, fold_dict
+
+    _group_by_full = {
+        'acuity_index': _get_acuity_groups
+    }
+
+    def init(self, cr):
+        """
+        Override the init function to add the new get_last_finished_pme SQL
+        view
+
+        :param cr: Odoo Cursor
+        """
+        nh_eobs_sql = self.pool['nh.clinical.sql']
+        cr.execute("""
+        CREATE OR REPLACE VIEW last_finished_pme AS ({last_pme});
+        """.format(last_pme=nh_eobs_sql.get_last_finished_pme()))
+        super(NHClinicalWardboard, self).init(cr)
