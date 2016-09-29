@@ -1,13 +1,13 @@
 from .reason_count_common import ReasonCountCommon
 
 
-class TestNHClinicalWardDashboardExtendedLeaveCount(ReasonCountCommon):
+class TestExtendedLeaveCount(ReasonCountCommon):
     """
     Test that the extended_leave count SQL View on ward dashboard is correct
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboardExtendedLeaveCount, self).setUp()
+        super(TestExtendedLeaveCount, self).setUp()
         self.reason = 'Extended leave'
 
     def test_returns_correct_number_of_patients(self):

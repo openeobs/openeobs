@@ -12,7 +12,8 @@
     'depends': ['nh_eobs'],
     'data': ['data/master_data.xml',
              'views/wardboard_view.xml',
-             'views/ward_dashboard_view.xml'
+             'views/ward_dashboard_view.xml',
+             'views/static_include.xml'
              ],
     'qweb': [],
     'application': True,

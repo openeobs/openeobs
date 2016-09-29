@@ -1,7 +1,7 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
+class TestEscalationTasks(TransactionCase):
     """
     Test that when a patient has escalation tasks that the method
     spell_has_open_escalation_tasks returns True and then they are none it
@@ -9,7 +9,7 @@ class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
     """
 
     def setUp(self):
-        super(TestNHClinicalWardBoardEscalationTasks, self).setUp()
+        super(TestEscalationTasks, self).setUp()
         self.wardboard_model = self.registry('nh.clinical.wardboard')
         self.activity_model = self.registry('nh.activity')
 
@@ -26,7 +26,7 @@ class TestNHClinicalWardBoardEscalationTasks(TransactionCase):
 
     def tearDown(self):
         self.activity_model._revert_method('search')
-        super(TestNHClinicalWardBoardEscalationTasks, self).tearDown()
+        super(TestEscalationTasks, self).tearDown()
 
     def test_has_open_tasks(self):
         self.assertTrue(self.wardboard_model.spell_has_open_escalation_tasks(

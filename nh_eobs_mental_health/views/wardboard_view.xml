@@ -1,10 +1,5 @@
 <openerp>
     <data>
-        <template id="assets_backend" name="nh_eobs_mental_health assets" inherit_id="web.assets_backend">
-            <xpath expr="." position="inside">
-                <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/view_select_obs_stop_reason.css"/>
-            </xpath>
-        </template>
         <record model="ir.ui.view" id="view_mental_wardboard_form">
             <field name="name">Mental Wardboard Form View</field>
             <field name="model">nh.clinical.wardboard</field>
@@ -71,6 +66,35 @@
                     <field name="patient_id" readonly="1" invisible="1"/>
                 </xpath>
             </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_acuity_wardboard_search">
+            <field name="name">Wardboard Search View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search/group[@string='Group By...']/filter[@string='Clinical Risk']" position="replace">
+                    <filter name="acuity_index" string="Clinical Risk" domain="[]" context="{'group_by':'acuity_index'}" help="Clinical Risk"/>
+                </xpath>
+            </field>
+        </record>
+
+         <record model="ir.actions.act_window" id="nh_eobs.action_wardboard">
+            <field name="name">Acuity Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':1}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="nh_eobs.action_wardboard_discharged" >
+            <field name="name">Recently Discharged</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':0,'search_default_group_by_ward':0}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="nh_eobs.action_kiosk_patients_board">
+            <field name="name">Kiosk Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':1}</field>
         </record>
 
     </data>

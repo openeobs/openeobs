@@ -155,6 +155,53 @@ class NHEobsSQL(orm.AbstractModel):
     WHERE location.usage = 'ward'
     """
 
+    last_finished_pme_for_spell_skeleton = """
+    SELECT
+    activity.id AS id,
+    spell.activity_id AS spell_activity_id,
+    spell.id AS spell_id,
+    activity.date_terminated AS activity_date_terminated,
+    activity.state as activity_state
+    FROM nh_clinical_spell AS spell
+    JOIN (
+      SELECT DISTINCT ON (spell_activity_id) * FROM nh_activity
+      WHERE data_model = 'nh.clinical.patient_monitoring_exception'
+      AND state = ANY('{cancelled, completed}')
+      ORDER BY spell_activity_id, date_terminated DESC
+    ) AS activity
+    ON activity.spell_activity_id = spell.activity_id
+    """
+
+    def get_wardboard(self, interval):
+        """
+        Override wardboard SQL view to include acuity index
+        :param interval: Time interval used for recently transferred /
+        discharged
+        :return: SQL statement used in nh_eobs.init()
+        """
+        return self.wardboard_skeleton.replace(
+            'spell.move_date,',
+            'spell.move_date, '
+            'CASE '
+            'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' '
+            'WHEN '
+            '( '
+            'SELECT activity_date_terminated '
+            'FROM last_finished_pme '
+            'WHERE spell_id = spell.id '
+            ') >= ( '
+            'SELECT date_terminated '
+            'FROM ews1 '
+            'WHERE ews1.spell_id = spell.id '
+            ') '
+            'THEN \'NoScore\''
+            'ELSE '
+            'CASE '
+            'WHEN ews1.id IS NULL THEN \'NoScore\' '
+            'ELSE ews1.clinical_risk '
+            'END '
+            'END AS acuity_index,').format(time=interval)
+
     def get_ward_dashboard_workload(self):
         return self.ward_dashboard_workload_skeleton
 
@@ -172,3 +219,6 @@ class NHEobsSQL(orm.AbstractModel):
 
     def get_ward_dashboard(self):
         return self.ward_dashboard_skeleton
+
+    def get_last_finished_pme(self):
+        return self.last_finished_pme_for_spell_skeleton

@@ -1,14 +1,14 @@
 from .reason_count_common import ReasonCountCommon
 
 
-class TestNHClinicalWardDashboardObsStopCount(ReasonCountCommon):
+class TestOnWardCount(ReasonCountCommon):
     """
     Test that the obs stop count SQL View on ward dashboard is correct
     """
 
     def setUp(self):
-        super(TestNHClinicalWardDashboardObsStopCount, self).setUp()
-        self.reason = 'obs stop'
+        super(TestOnWardCount, self).setUp()
+        self.reason = 'on ward'
 
     def get_reason_id(self):
         reason_model = \
@@ -18,10 +18,10 @@ class TestNHClinicalWardDashboardObsStopCount(ReasonCountCommon):
         ]).id
 
     def test_returns_correct_number_of_patients(self):
-        self.returns_correct_number_of_patients(count=3)
+        self.returns_correct_number_of_patients(count=25)
 
     def test_returns_correct_number_of_patients_after_change(self):
-        self.returns_correct_number_after_change(count=4)
+        self.returns_correct_number_after_change(count=24)
 
     def test_returns_correct_number_of_patients_when_no_pme(self):
-        self.returns_correct_number_of_patients_when_no_pme()
+        self.returns_correct_number_of_patients_when_no_pme(count=28)
