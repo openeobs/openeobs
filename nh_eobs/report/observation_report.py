@@ -235,7 +235,7 @@ class ObservationReport(models.AbstractModel):
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']
         cancel_reason_placement = \
-            model_data.get_object('nh_eobs', 'cancel_reason_placement')
+            model_data.get_object('nh_clinical', 'cancel_reason_placement')
         # Using the `!=` would not return anything, possible bug, or it could
         # be that this operator only includes fields that are set AND do not
         # match the specified value. Either way I had to use `not in` to get

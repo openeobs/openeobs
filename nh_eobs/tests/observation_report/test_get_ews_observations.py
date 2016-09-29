@@ -35,7 +35,7 @@ class TestGetEwsObservations(TransactionCase):
                                  self.spell_activity_id)
 
         self.cancel_reason_placement = \
-            self.browse_ref('nh_eobs.cancel_reason_placement')
+            self.browse_ref('nh_clinical.cancel_reason_placement')
 
         self.ews_activity_id = self.ews_model.create_activity(
             {'parent_id': self.spell_activity_id},

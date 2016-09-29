@@ -5,10 +5,6 @@
             <field name="name">Transfer</field>
             <field name="system" eval="True"/>
         </record>
-        <record model="nh.cancel.reason" id="cancel_reason_placement">
-            <field name="name">Placement</field>
-            <field name="system" eval="True"/>
-        </record>
         <record model="nh.cancel.reason"
                 id="cancel_reason_patient_monitoring_exception">
             <field name="name">Patient Monitoring Exception</field>
