@@ -83,8 +83,8 @@ class TestGetEwsObservations(TransactionCase):
             [ews for ews in self.ews_list if ews['state'] == 'cancelled']
         ews_cancelled_due_to_placement = \
             [ews for ews in cancelled_ews_returned
-             if ews['cancel_reason_id']
-             and ews['cancel_reason_id'][0] is self.cancel_reason_placement.id]
+             if ews['cancel_reason_id'] and ews['cancel_reason_id'][0]
+             is self.cancel_reason_placement.id]
 
         self.assertEqual(len(ews_cancelled_due_to_placement), 0,
                          "There should not be any EWS observations "
