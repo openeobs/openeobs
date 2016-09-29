@@ -1,13 +1,13 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNHClinicalWardBoardToggleObsStopFlag(TransactionCase):
+class TestToggleObsStopFlag(TransactionCase):
     """
     Test the toggle Stop Observation button
     """
 
     def setUp(self):
-        super(TestNHClinicalWardBoardToggleObsStopFlag, self).setUp()
+        super(TestToggleObsStopFlag, self).setUp()
         self.spell_model = self.registry('nh.clinical.spell')
         self.patient_model = self.registry('nh.clinical.patient')
         self.wardboard_model = self.registry('nh.clinical.wardboard')

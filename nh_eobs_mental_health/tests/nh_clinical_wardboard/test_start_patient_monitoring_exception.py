@@ -2,14 +2,13 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
+class TestStartPatientMonitoringException(TransactionCase):
     """
     Test :method:`start_patient_monitoring_exception` in
     :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
     """
     def setUp(self):
-        super(TestNhClinicalWardboardStartPatientMonitoringException, self) \
-            .setUp()
+        super(TestStartPatientMonitoringException, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']

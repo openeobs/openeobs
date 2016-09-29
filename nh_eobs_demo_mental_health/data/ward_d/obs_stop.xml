@@ -1,0 +1,129 @@
+<openerp>
+    <data noupdate="1">
+
+        <!-- Flags on Spell -->
+        <record id="nh_eobs_demo.nhc_demo_spell_146" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+
+        <record id="nh_eobs_demo.nhc_demo_spell_147" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+
+        <record id="nh_eobs_demo.nhc_demo_spell_148" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+        <!-- End Flags on Spell -->
+
+        <!-- Patient Monitoring Exception Activities -->
+        <record id="nhc_activity_demo_pme_144" model="nh.activity">
+          <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_144" />
+          <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_admission_144" />
+          <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_144" />
+          <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_144" />
+          <field name="state">cancelled</field>
+          <field name="data_model">nh.clinical.patient_monitoring_exception</field>
+          <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wd_b24" />
+          <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+        </record>
+
+        <record id="nhc_activity_demo_pme_145" model="nh.activity">
+          <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_145" />
+          <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_admission_145" />
+          <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_145" />
+          <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_145" />
+          <field name="state">completed</field>
+          <field name="data_model">nh.clinical.patient_monitoring_exception</field>
+          <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wd_b25" />
+          <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+        </record>
+
+        <record id="nhc_activity_demo_pme_146" model="nh.activity">
+          <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_146" />
+          <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_admission_146" />
+          <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_146" />
+          <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_146" />
+          <field name="state">started</field>
+          <field name="data_model">nh.clinical.patient_monitoring_exception</field>
+          <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wd_b26" />
+          <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+        </record>
+
+        <record id="nhc_activity_demo_pme_147" model="nh.activity">
+          <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_147" />
+          <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_admission_147" />
+          <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_147" />
+          <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_147" />
+          <field name="state">started</field>
+          <field name="data_model">nh.clinical.patient_monitoring_exception</field>
+          <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wd_b27" />
+          <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+        </record>
+
+        <record id="nhc_activity_demo_pme_148" model="nh.activity">
+          <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_148" />
+          <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_admission_148" />
+          <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_148" />
+          <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_148" />
+          <field name="state">started</field>
+          <field name="data_model">nh.clinical.patient_monitoring_exception</field>
+          <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wd_b28" />
+          <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+        </record>
+        <!-- End Patient Monitoring Exception Activities -->
+
+        <!-- Patient Monitoring Exceptions -->
+        <record id="nhc_demo_cancel_pme_4" model="nh.clinical.patient_monitoring_exception">
+            <field name="reason" ref="nh_eobs.acute_hospital_ed"/>
+            <field name="spell" ref="nh_eobs_demo.nhc_demo_spell_144"/>
+            <field name="activity_id" ref="nhc_activity_demo_pme_144"/>
+        </record>
+
+        <record id="nhc_demo_comp_pme_4" model="nh.clinical.patient_monitoring_exception">
+            <field name="reason" ref="nh_eobs.acute_hospital_ed"/>
+            <field name="spell" ref="nh_eobs_demo.nhc_demo_spell_145"/>
+            <field name="activity_id" ref="nhc_activity_demo_pme_145"/>
+        </record>
+
+        <record id="nhc_demo_pme_10" model="nh.clinical.patient_monitoring_exception">
+            <field name="reason" ref="nh_eobs.acute_hospital_ed"/>
+            <field name="spell" ref="nh_eobs_demo.nhc_demo_spell_146"/>
+            <field name="activity_id" ref="nhc_activity_demo_pme_146"/>
+        </record>
+
+        <record id="nhc_demo_pme_11" model="nh.clinical.patient_monitoring_exception">
+            <field name="reason" ref="nh_eobs.extended_leave"/>
+            <field name="spell" ref="nh_eobs_demo.nhc_demo_spell_147"/>
+            <field name="activity_id" ref="nhc_activity_demo_pme_147"/>
+        </record>
+
+        <record id="nhc_demo_pme_12" model="nh.clinical.patient_monitoring_exception">
+            <field name="reason" ref="nh_eobs.awol"/>
+            <field name="spell" ref="nh_eobs_demo.nhc_demo_spell_148"/>
+            <field name="activity_id" ref="nhc_activity_demo_pme_148"/>
+        </record>
+        <!-- End Patient Monitoring Exceptions -->
+
+        <!-- Update Patient Monitoring Exceptions -->
+        <record id="nhc_activity_demo_pme_144" model="nh.activity">
+          <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_cancel_pme_4'))"/>
+        </record>
+
+        <record id="nhc_activity_demo_pme_145" model="nh.activity">
+          <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_comp_pme_4'))"/>
+        </record>
+
+        <record id="nhc_activity_demo_pme_146" model="nh.activity">
+          <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_pme_10'))"/>
+        </record>
+
+        <record id="nhc_activity_demo_pme_147" model="nh.activity">
+          <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_pme_11'))"/>
+        </record>
+
+        <record id="nhc_activity_demo_pme_148" model="nh.activity">
+          <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_pme_12'))"/>
+        </record>
+        <!-- End Update Patient Monitoring Exceptions -->
+    </data>
+</openerp>

@@ -2,14 +2,14 @@ from openerp.tests.common import TransactionCase
 from openerp.osv import osv
 
 
-class TestNHClinicalWardBoardCancelsEWSTasks(TransactionCase):
+class TestCancelsEWSTasks(TransactionCase):
     """
     Test that the open EWS task for a spell is cancelled when pressing obs_stop
     and setting the flag to True
     """
 
     def setUp(self):
-        super(TestNHClinicalWardBoardCancelsEWSTasks, self).setUp()
+        super(TestCancelsEWSTasks, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']
@@ -92,7 +92,7 @@ class TestNHClinicalWardBoardCancelsEWSTasks(TransactionCase):
         self.activity_model._patch_method('browse', patch_activity_browse)
 
     def tearDown(self):
-        super(TestNHClinicalWardBoardCancelsEWSTasks, self).tearDown()
+        super(TestCancelsEWSTasks, self).tearDown()
         self.activity_model._revert_method('cancel_open_activities')
         self.wardboard_model._revert_method('set_obs_stop_flag')
         self.wardboard_model._revert_method('cancel_open_ews')

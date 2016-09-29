@@ -5,13 +5,13 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tests.common import TransactionCase
 
 
-class TestNHClinicalWardBoardRestartsEWSTasks(TransactionCase):
+class TestRestartsEWSTasks(TransactionCase):
     """
     Test that a new EWS task is generated when the observations are restarted
     """
 
     def setUp(self):
-        super(TestNHClinicalWardBoardRestartsEWSTasks, self).setUp()
+        super(TestRestartsEWSTasks, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']

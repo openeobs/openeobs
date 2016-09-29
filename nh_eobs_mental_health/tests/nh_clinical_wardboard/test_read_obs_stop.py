@@ -12,7 +12,7 @@ class PatchedReadSuper(object):
         }
 
 
-class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
+class TestReadObsStop(SingleTransactionCase):
     """
     Test that next_diff on wardboard is set to 'Observations Stopped' when
     obs_stop flag is set to True
@@ -20,7 +20,7 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
 
     @classmethod
     def setUpClass(cls):
-        super(TestNHClinicalWardboardReadObsStop, cls).setUpClass()
+        super(TestReadObsStop, cls).setUpClass()
         cls.wardboard_model = cls.registry('nh.clinical.wardboard')
         cls.spell_model = cls.registry('nh.clinical.spell')
         cls.pme_model = \
@@ -75,12 +75,12 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
         cls.original_super = super
 
     def setUp(self):
-        super(TestNHClinicalWardboardReadObsStop, self).setUp()
+        super(TestReadObsStop, self).setUp()
         __builtin__.super = self.patch_wardboard_read_super
 
     def tearDown(self):
         __builtin__.super = self.original_super
-        super(TestNHClinicalWardboardReadObsStop, self).tearDown()
+        super(TestReadObsStop, self).tearDown()
 
     @classmethod
     def tearDownClass(cls):
@@ -89,7 +89,7 @@ class TestNHClinicalWardboardReadObsStop(SingleTransactionCase):
         cls.spell_model._revert_method('read')
         cls.pme_model._revert_method('search')
         cls.pme_model._revert_method('read')
-        super(TestNHClinicalWardboardReadObsStop, cls).tearDownClass()
+        super(TestReadObsStop, cls).tearDownClass()
 
     def test_next_diff_with_obs_stop(self):
         """
