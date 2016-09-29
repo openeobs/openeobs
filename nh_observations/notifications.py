@@ -63,6 +63,30 @@ class nh_clinical_notification(orm.AbstractModel):
         """
         return True
 
+    def get_child_activity(self, activity_model, activity, data_model):
+        """
+        Generator to return the child activity of the specified data model.
+        The inputs use the Odoo v8 API record sets
+
+        :param activity_model: Instance of nh.activity environment
+        :param activity: Activity instance to get child of
+        :param data_model: data_model child activity should be
+        :return: Record of child activity
+        """
+        next_activity = activity_model.search([
+            ['data_model', '=', data_model],
+            ['creator_id', '=', activity.id]
+        ])
+        if not activity.data_ref.is_partial and \
+                        activity.state in ['completed', 'cancelled']:
+            yield activity
+        elif not next_activity:
+            yield activity
+        else:
+            yield next_activity
+            self.get_child_activity(
+                activity_model, next_activity.id, data_model)
+
 
 class nh_clinical_notification_hca(orm.Model):
     """
