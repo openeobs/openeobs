@@ -24,6 +24,21 @@ class PatientMonitoringException(models.Model):
     )
     spell = fields.Many2one('nh.clinical.spell')
 
+    def get_activity_by_spell_activity(self, spell_activity):
+        """
+        Get a patient monitoring exception activity from the passed spell
+        activity.
+
+        :param spell_activity:
+        :return:
+        """
+        activity_model = self.env['nh.activity']
+        domain = [
+            ('parent_id', '=', spell_activity.id),
+            ('data_model', '=', self._name)
+        ]
+        return activity_model.search(domain)[0]
+
 
 class PatientMonitoringExceptionReason(models.Model):
     """

@@ -1,5 +1,7 @@
-from . import observation_report_helpers
 from openerp.tools import test_reports
+
+from openeobs.nh_eobs.tests.observation_report import \
+    observation_report_helpers
 
 
 class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
