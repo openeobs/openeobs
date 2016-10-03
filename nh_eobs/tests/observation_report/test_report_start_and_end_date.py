@@ -8,8 +8,7 @@ from openerp.addons.nh_eobs.report.helpers \
     import convert_db_date_to_context_date
 from openerp.tools import test_reports
 
-from openeobs.nh_eobs.tests.observation_report import \
-    observation_report_helpers as helpers
+from . import observation_report_helpers as helpers
 
 _logger = logging.getLogger(__name__)
 
