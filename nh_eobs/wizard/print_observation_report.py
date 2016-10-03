@@ -40,6 +40,12 @@ class print_observation_report_wizard(osv.TransientModel):
         """
         validate.not_in_the_future(self.start_time, self.end_time)
 
+    @api.constrains('start_time', 'end_time')
+    def _start_time_not_after_end_time(self):
+        validate.start_datetime_not_after_end_datetime(
+            self.start_time, self.end_time
+        )
+
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
         data.spell_id = context['active_id']
