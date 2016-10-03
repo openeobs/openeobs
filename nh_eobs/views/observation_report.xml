@@ -834,17 +834,17 @@
                                                                             </tr>
                                                                         </t>
                                                                         <tr>
-                                                                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
                                                                             <td class="col-xs-6">
-                                                                                <t t-if="task.get('date_terminated') and (task.get('data_model') not in ['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency'] and task.get('state') != 'cancelled')">
+                                                                                <t t-if="'user_id' in task and task['user_id']">
+                                                                                    <strong>By:</strong> <t t-esc="task['user_id'][1]"/>
+                                                                                </t>
+                                                                            </td>
+                                                                            <td class="col-xs-6">
+                                                                                <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
+                                                                                <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
                                                                                     <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
                                                                                 </t><br/>
-                                                                                <t t-if="task.get('date_terminated')==False">
-                                                                                        Task still in progress
-                                                                                </t>
-                                                                                <t t-if="task.get('data_model') in ['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency'] and task.get('date_terminated') and task.get('state') == 'cancelled'">
-                                                                                        Task still in progress
-                                                                                </t>
+                                                                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">Task still in progress</t>
                                                                             </td>
                                                                         </tr>
                                                                     </table>
