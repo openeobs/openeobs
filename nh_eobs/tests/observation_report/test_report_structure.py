@@ -1,9 +1,12 @@
-from . import observation_report_helpers as helpers
-from bs4 import BeautifulSoup
-from datetime import datetime
-from openerp.osv import fields
 import json
+from datetime import datetime
+
 import os
+from bs4 import BeautifulSoup
+from openerp.osv import fields
+
+from openeobs.nh_eobs.tests.observation_report import \
+    observation_report_helpers as helpers
 
 
 class TestObservationReportRendering(helpers.ObservationReportHelpers):
@@ -217,16 +220,16 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
         table_section_headers = beautiful_report.select('h3')
         self.assertEqual(
             len(table_section_headers),
-            7,
+            8,
             'Incorrect number of tables'
         )
         ews_values_header = table_section_headers[0]
-        target_header = table_section_headers[1]
-        active_device_header = table_section_headers[2]
-        device_history_header = table_section_headers[3]
-        transfer_header = table_section_headers[4]
-        monitoring_header = table_section_headers[5]
-        actions_header = table_section_headers[6]
+        target_header = table_section_headers[2]
+        active_device_header = table_section_headers[3]
+        device_history_header = table_section_headers[4]
+        transfer_header = table_section_headers[5]
+        monitoring_header = table_section_headers[6]
+        actions_header = table_section_headers[7]
         self.assertEqual(
             ews_values_header.text,
             'NEWS Values',
@@ -278,23 +281,23 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
         table_section_headers = beautiful_report.select('h3')
         self.assertEqual(
             len(table_section_headers),
-            14,
+            15,
             'Incorrect number of tables'
         )
         ews_values_header = table_section_headers[0]
-        weight_values_header = table_section_headers[1]
-        gcs_values_header = table_section_headers[2]
-        blood_sugar_values_header = table_section_headers[3]
-        pain_values_header = table_section_headers[4]
-        blood_product_values_header = table_section_headers[5]
-        bristol_stools_values_header = table_section_headers[6]
-        pbp_values_header = table_section_headers[7]
-        target_header = table_section_headers[8]
-        active_device_header = table_section_headers[9]
-        device_history_header = table_section_headers[10]
-        transfer_header = table_section_headers[11]
-        monitoring_header = table_section_headers[12]
-        actions_header = table_section_headers[13]
+        weight_values_header = table_section_headers[2]
+        gcs_values_header = table_section_headers[3]
+        blood_sugar_values_header = table_section_headers[4]
+        pain_values_header = table_section_headers[5]
+        blood_product_values_header = table_section_headers[6]
+        bristol_stools_values_header = table_section_headers[7]
+        pbp_values_header = table_section_headers[8]
+        target_header = table_section_headers[9]
+        active_device_header = table_section_headers[10]
+        device_history_header = table_section_headers[11]
+        transfer_header = table_section_headers[12]
+        monitoring_header = table_section_headers[13]
+        actions_header = table_section_headers[14]
         self.assertEqual(
             ews_values_header.text,
             'NEWS Values',
@@ -382,23 +385,23 @@ class TestObservationReportRendering(helpers.ObservationReportHelpers):
         table_section_headers = beautiful_report.select('h3')
         self.assertEqual(
             len(table_section_headers),
-            14,
+            15,
             'Incorrect number of tables'
         )
         ews_values_header = table_section_headers[0]
-        weight_values_header = table_section_headers[1]
-        gcs_values_header = table_section_headers[2]
-        blood_sugar_values_header = table_section_headers[3]
-        pain_values_header = table_section_headers[4]
-        blood_product_values_header = table_section_headers[5]
-        bristol_stools_values_header = table_section_headers[6]
-        pbp_values_header = table_section_headers[7]
-        target_header = table_section_headers[8]
-        active_device_header = table_section_headers[9]
-        device_history_header = table_section_headers[10]
-        transfer_header = table_section_headers[11]
-        monitoring_header = table_section_headers[12]
-        actions_header = table_section_headers[13]
+        weight_values_header = table_section_headers[2]
+        gcs_values_header = table_section_headers[3]
+        blood_sugar_values_header = table_section_headers[4]
+        pain_values_header = table_section_headers[5]
+        blood_product_values_header = table_section_headers[6]
+        bristol_stools_values_header = table_section_headers[7]
+        pbp_values_header = table_section_headers[8]
+        target_header = table_section_headers[9]
+        active_device_header = table_section_headers[10]
+        device_history_header = table_section_headers[11]
+        transfer_header = table_section_headers[12]
+        monitoring_header = table_section_headers[13]
+        actions_header = table_section_headers[14]
         self.assertEqual(
             ews_values_header.text,
             'NEWS Values',

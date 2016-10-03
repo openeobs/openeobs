@@ -29,7 +29,9 @@ class TestStartPatientMonitoringException(TransactionCase):
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
 
-        self.spell = self.activity_model.browse(self.spell_activity_id)
+        self.spell_activity = self.activity_model.browse(
+            self.spell_activity_id
+        )
 
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,
@@ -46,7 +48,7 @@ class TestStartPatientMonitoringException(TransactionCase):
         with self.assertRaises(ValueError):
             self.wardboard.start_patient_monitoring_exception(
                 no_reasons,
-                self.spell.id,
+                self.spell_activity.id,
                 self.spell_activity_id
             )
 
@@ -62,6 +64,6 @@ class TestStartPatientMonitoringException(TransactionCase):
         with self.assertRaises(ValueError):
             self.wardboard.start_patient_monitoring_exception(
                 multiple_reasons,
-                self.spell.id,
+                self.spell_activity.id,
                 self.spell_activity_id
             )

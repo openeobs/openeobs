@@ -1,11 +1,15 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from . import observation_report_helpers as helpers
-from openerp.tools import test_reports
-from datetime import datetime
+import copy
 import logging
+from datetime import datetime
+
 from openerp.addons.nh_eobs.report.helpers \
     import convert_db_date_to_context_date
-import copy
+from openerp.tools import test_reports
+
+from openeobs.nh_eobs.tests.observation_report import \
+    observation_report_helpers as helpers
 
 _logger = logging.getLogger(__name__)
 

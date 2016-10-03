@@ -63,11 +63,6 @@
                         margin-top: 40px;
                     }
 
-                    h4{
-                        display: inline-block;
-                        margin-top: 40px;
-                    }
-
                     svg .title, h1{
                         font-weight: bold;
                     }
@@ -340,7 +335,7 @@
                                     </t>
                                 </tbody>
                             </table>
-                            <h4>NEWS Values - Supplementary O2 Values</h4>
+                            <h3>NEWS Values - Supplementary O2 Values</h3>
                             <table class="striped col-xs-12 row">
                                 <thead>
                                     <tr>
@@ -737,12 +732,22 @@
                             <thead>
                                 <tr>
                                     <th class="col-xs-3">Date</th>
-                                    <th class="col-xs-3">Flag</th>
-                                    <th class="col-xs-3">Action</th>
                                     <th class="col-xs-3">User</th>
+                                    <th class="col-xs-3">Status</th>
+                                    <th class="col-xs-3">Reason</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <t t-if="patient_monitoring_exception_history">
+                                    <t t-foreach="patient_monitoring_exception_history" t-as="pme">
+                                        <tr class="main-entry">
+                                            <td class="col-xs-3"><t t-esc="pme['date']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['user']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['status']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme['reason']"/></td>
+                                        </tr>
+                                    </t>
+                                </t>
                                 <t t-if="mrsa_history">
                                     <t t-foreach="mrsa_history" t-as="mrsa">
                                         <tr class="main-entry">
@@ -813,43 +818,10 @@
                                 <tbody>
                                     <t t-foreach="ews" t-as="observation">
                                         <t t-if="not observation['values']['is_partial']">
-                                            <tr class="main-entry">
-                                                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
-                                                <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
-                                                <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
-                                                <td class="col-xs-5 pre-pre-compact-data">
-                                                    <table class="pre-compact-data col-xs-12 row">
-                                                        <t t-foreach="observation['triggered_actions']" t-as="task">
-                                                            <tr>
-                                                                <td class="col-xs-12">
-                                                                    <table class="compact-data col-xs-12">
-                                                                        <tr>
-                                                                            <td colspan="2" class="header col-xs-12">
-                                                                                <h4><t t-if="'summary' in task and task['summary']"><t t-esc="task['summary']"/></t></h4>
-                                                                            </td>
-                                                                        </tr>
-                                                                        <t t-if="'notes' in task and task['notes']">
-                                                                            <tr>
-                                                                                <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
-                                                                            </tr>
-                                                                        </t>
-                                                                        <tr>
-                                                                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                                                                            <td class="col-xs-6">
-                                                                                <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
-                                                                                <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
-                                                                                    <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
-                                                                                </t><br/>
-                                                                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">Task still in progress</t>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </table>
-                                                                </td>
-                                                            </tr>
-                                                        </t>
-                                                    </table>
-                                                </td>
-                                            </tr>
+                                            <t t-call="nh_eobs.triggered_actions"/>
+                                        </t>
+                                        <t t-if="'state' in observation and observation['state'] == 'cancelled'">
+                                            <t t-call="nh_eobs.observation_cancellation"/>
                                         </t>
                                     </t>
                                 </tbody>
@@ -858,6 +830,92 @@
                     </t>
                 </div>
             </t>
+        </template>
+
+        <template id="triggered_actions">
+            <tr class="main-entry">
+                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
+                <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
+                <td class="col-xs-5 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <t t-foreach="observation['triggered_actions']" t-as="task">
+                            <t t-call="nh_eobs.triggered_actions_tasks"/>
+                        </t>
+                    </table>
+                </td>
+            </tr>
+        </template>
+
+        <template id="triggered_actions_tasks">
+            <tr>
+                <td class="col-xs-12">
+                    <table class="compact-data col-xs-12">
+                        <tr>
+                            <td colspan="2" class="header col-xs-12">
+                                <h4>
+                                    <t t-if="'summary' in task and task['summary']">
+                                        <t t-esc="task['summary']"/>
+                                    </t>
+                                </h4>
+                            </td>
+                        </tr>
+                        <t t-if="'notes' in task and task['notes']">
+                            <tr>
+                                <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
+                            <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
+                            <td class="col-xs-6">
+                                <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
+                                <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
+                                    <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
+                                </t><br/>
+                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">Task still in progress</t>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </template>
+
+        <template id="observation_cancellation">
+            <tr class="main-entry">
+                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                <td class="col-xs-2">N/A</td>
+                <td class="col-xs-2">N/A</td>
+                <td class="col-xs-5 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <tr>
+                            <td class="col-xs-12">
+                                <table class="compact-data col-xs-12">
+                                    <tr>
+                                        <td colspan="2" class="header col-xs-12">
+                                            <h4>Cancellation</h4>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="col-xs-6">
+                                            <t t-if="'terminate_uid' in observation and observation['terminate_uid']">
+                                                <strong>By:</strong>
+                                                <t t-esc="observation['terminate_uid'][1]"/>
+                                            </t>
+                                        </td>
+                                        <td class="col-xs-6">
+                                            <t t-if="'date_terminated' in observation and observation['date_terminated']">
+                                                <strong>Date:</strong>
+                                                <t t-esc="observation['date_terminated']"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
         </template>
     </data>
 </openerp>

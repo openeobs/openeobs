@@ -83,7 +83,7 @@ class NHeObsAPI(orm.AbstractModel):
                     cr, uid, spell_id, {'obs_stop': False}, context=context)
                 wardboard_model.browse(
                     cr, uid, spell.get('id'), context=context)\
-                    .end_patient_monitoring_exception()
+                    .end_patient_monitoring_exception(cancellation=True)
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res
