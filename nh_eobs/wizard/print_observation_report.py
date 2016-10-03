@@ -14,7 +14,16 @@ _logger = logging.getLogger(__name__)
 
 
 class print_observation_report_wizard(osv.TransientModel):
+    """
+    The model is used to capture options selected by the user for a report and
+    then to delegate to 'nh.clinical.observation_report' to actually generate
+    it.
 
+    The user can select a datetime range
+    that they are interested in using the 'Start Time' and 'End Time' fields,
+    only patient data created within that time frame will be shown on the
+    generated report.
+    """
     _name = 'nh.clinical.observation_report_wizard'
     _columns = {
         'start_time': fields.datetime('Start Time'),
@@ -23,7 +32,13 @@ class print_observation_report_wizard(osv.TransientModel):
 
     @api.constrains('start_time', 'end_time')
     def _not_in_the_future(self):
-        validate.not_in_the_1future(self.start_date, self.end_date)
+        """
+        It doesn't make sense for the start or end time of a report to be in
+        the future, a report can only show existing data.
+
+        :return: No return, just side-effects.
+        """
+        validate.not_in_the_future(self.start_time, self.end_time)
 
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
