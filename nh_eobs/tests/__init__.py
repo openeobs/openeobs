@@ -5,21 +5,7 @@ from . import test_helpers
 from . import test_workload
 
 # Test Observation Reports
-from openeobs.nh_eobs.tests.observation_report import \
-    test_get_allowed_activity_states_for_model
-from openeobs.nh_eobs.tests.observation_report import \
-    test_create_search_filter
-from openeobs.nh_eobs.tests.observation_report import test_data_dict_to_obj
-from openeobs.nh_eobs.tests.observation_report import \
-    test_report_get_triggered_actions
-from openeobs.nh_eobs.tests.observation_report import \
-    test_report_start_and_end_date
-from openeobs.nh_eobs.tests.observation_report import test_report_structure
-from openeobs.nh_eobs.tests.observation_report import test_report_without_dob
-from openeobs.nh_eobs.tests.observation_report import test_table_structure
-from openeobs.nh_eobs.tests.observation_report import \
-    test_get_patient_monitoring_exception_report_data
-from openeobs.nh_eobs.tests.observation_report import test_get_ews_observations
+from .observation_report import *
 
 # Test Settings
 from . import test_api_get_activities_settings

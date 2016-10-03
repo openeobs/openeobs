@@ -228,8 +228,21 @@ class ObservationReport(models.AbstractModel):
         domain = helpers.create_search_filter(
             spell_id, model, start_time, end_time, states=states
         )
+        self.add_exclude_placement_cancel_reason_parameter_to_domain(domain)
         activity_ids = activity_model.search(cr, uid, domain)
         return activity_model.read(cr, uid, activity_ids)
+
+    def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
+        model_data = self.env['ir.model.data']
+        cancel_reason_placement = \
+            model_data.get_object('nh_clinical', 'cancel_reason_placement')
+        # Using the `!=` would not return anything, possible bug, or it could
+        # be that this operator only includes fields that are set AND do not
+        # match the specified value. Either way I had to use `not in` to get
+        # the desired result.
+        parameter_exclude_placement_cancel_reason = \
+            ('cancel_reason_id', 'not in', [cancel_reason_placement.id])
+        domain.append(parameter_exclude_placement_cancel_reason)
 
     def _get_allowed_activity_states_for_model(self, model):
         """

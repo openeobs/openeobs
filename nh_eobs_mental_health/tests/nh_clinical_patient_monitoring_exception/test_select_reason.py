@@ -2,15 +2,14 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNhClinicalPatientMonitoringExceptionSelectReason(TransactionCase):
+class TestSelectReason(TransactionCase):
     """
     Tests methods in :class:`PatientMonitoringExceptionSelectReason
     <nh_eobs_mental_health.wizard
     .nh_clinical_patient_monitoring_exception.reason>`.
     """
     def setUp(self):
-        super(TestNhClinicalPatientMonitoringExceptionSelectReason, self)\
-            .setUp()
+        super(TestSelectReason, self).setUp()
         self.wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
         self.pme_model = \

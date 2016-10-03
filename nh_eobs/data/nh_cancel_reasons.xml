@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-        <record model="nh.cancel.reason" id="cancellation_reason_transfer">
+        <record model="nh.cancel.reason" id="cancel_reason_transfer">
             <field name="name">Transfer</field>
+            <field name="system" eval="True"/>
+        </record>
+        <record model="nh.cancel.reason"
+                id="cancel_reason_patient_monitoring_exception">
+            <field name="name">Patient Monitoring Exception</field>
             <field name="system" eval="True"/>
         </record>
     </data>

@@ -1,0 +1,35 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_mental_ward_dashboard_kanban">
+            <field name="name">nh.eobs.ward.dashboard.kanban</field>
+            <field name="model">nh.eobs.ward.dashboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_eobs_ward_dashboard_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban/field" position="after">
+                    <field name="acute_hospital_ed_count"/>
+                    <field name="awol_count"/>
+                    <field name="extended_leave_count"/>
+                    <field name="capacity_count"/>
+                    <field name="on_ward_count"/>
+                    <field name="workload_count"/>
+                </xpath>
+                <xpath expr="//kanban/templates/t/div/div/div[@class='oe_kanban_footer_left'][2]" position="replace">
+                    <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                        Workload: <span><field name="workload_count"/></span>
+                        Checked In: <span><field name="patients_in_bed"/></span>
+                        Patients Waiting: <span><field name="waiting_patients"/></span>
+                        Capacity: <span><field name="capacity_count"/></span>
+                    </div>
+                </xpath>
+                <xpath expr="//kanban/templates/t/div/div/div[@class='oe_kanban_footer_left'][2]" position="after">
+                    <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                        Patients on Ward: <span><field name="on_ward_count"/></span>
+                        On Extended Leave: <span><field name="extended_leave_count"/></span>
+                        AWOL: <span><field name="awol_count"/></span>
+                        Acute ED: <span><field name="acute_hospital_ed_count"/></span>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -2,13 +2,13 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestNhClinicalWardBoardPromptUserForObsStopReason(TransactionCase):
+class TestPromptUserForObsStopReason(TransactionCase):
     """
     Test :method:`prompt_user_for_obs_stop_reason` in
     :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
     """
     def setUp(self):
-        super(TestNhClinicalWardBoardPromptUserForObsStopReason, self).setUp()
+        super(TestPromptUserForObsStopReason, self).setUp()
 
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
