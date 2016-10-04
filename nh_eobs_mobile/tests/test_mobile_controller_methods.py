@@ -1398,7 +1398,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     'label': 'Test Integer',
                     'min': 1,
                     'max': 59,
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_float',
@@ -1407,13 +1409,17 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     'min': 1,
                     'max': 35.9,
                     'digits': [2, 1],
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_text',
                     'type': 'text',
                     'label': 'Test Text',
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_select',
@@ -1427,7 +1433,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         ['the', 'The'],
                         ['list', 'List']
                     ],
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 }
             ]
             return form_description
@@ -1522,6 +1530,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1533,12 +1543,16 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1574,7 +1588,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         'value': 'list',
                         'label': 'List'
                     }
-                ]
+                ],
+                'info': '',
+                'errors': ''
             }
         ]
         mocked_method.assert_called_once_with(
@@ -1738,6 +1754,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1749,12 +1767,16 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1790,7 +1812,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         'value': 'list',
                         'label': 'List'
                     }
-                ]
+                ],
+                'info': '',
+                'errors': ''
             }
         ]
         mocked_method.assert_called_once_with(
