@@ -36,7 +36,8 @@ class print_observation_report_wizard(osv.TransientModel):
 
         :return: No return, just side-effects.
         """
-        validate.not_in_the_future_multiple_args(self.start_time, self.end_time)
+        validate.not_in_the_future_multiple_args(self.start_time,
+                                                 self.end_time)
 
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
