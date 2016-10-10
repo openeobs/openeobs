@@ -1,11 +1,9 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 
-# Misc Tests
 from . import test_helpers
 from . import test_workload
-
-# Test Observation Reports
 from .observation_report import *
+from .nh_clinical_observation_report_wizard import *
 
 # Test Settings
 from . import test_api_get_activities_settings

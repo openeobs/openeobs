@@ -77,10 +77,12 @@ class TestMonitoringExceptionsReturned(
             self.env['report.nh.clinical.observation_report']
 
         # Create some patient monitoring exception reasons.
-        self.pme_closed_reason = \
-            self.pme_reason_model.create({'display_text': 'pme_closed_reason'})
-        self.pme_open_reason = \
-            self.pme_reason_model.create({'display_text': 'pme_open_reason'})
+        self.pme_closed_reason = self.pme_reason_model.create(
+            {'display_text': 'pme_closed_reason'}
+        )
+        self.pme_open_reason = self.pme_reason_model.create(
+            {'display_text': 'pme_open_reason'}
+        )
         self.pme_started_long_ago_reason = self.pme_reason_model.create(
             {'display_text': 'pme_started_long_ago_reason'}
         )
