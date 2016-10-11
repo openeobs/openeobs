@@ -3,8 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from openerp.osv import fields
 
-from openeobs.nh_eobs.tests.observation_report import \
-    observation_report_helpers as helpers
+from . import observation_report_helpers as helpers
 
 
 class TestObservationTableRendering(helpers.ObservationReportHelpers):
