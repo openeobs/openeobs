@@ -25,3 +25,8 @@ class TestFieldValidation(TransactionCase):
             self.report_wizard_model.create(
                 {'end_time': datetime.now() + timedelta(days=1)}
             )
+
+    def test_false_start_time_and_end_time_does_not_raise_exception(self):
+        self.report_wizard_model.create(
+            {'start_time': False, 'end_time': False}
+        )
