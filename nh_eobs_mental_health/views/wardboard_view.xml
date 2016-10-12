@@ -1,0 +1,101 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_mental_wardboard_form">
+            <field name="name">Mental Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/header" position="inside">
+                    <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
+                    <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
+                </xpath>
+                <xpath expr="//sheet/field" position="after">
+                    <field name="obs_stop" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_kanban">
+            <field name="name">Mental Wardboard Kanban View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_select_obs_stop_reason">
+            <field name="name">Select Patient Monitoring Exception Reason</field>
+            <field name="model">nh.clinical.patient_monitoring_exception.select_reason</field>
+            <field name="arch" type="xml">
+                <form>
+                    <field name="spell_has_open_escalation_tasks" invisible="1"/>
+                    <span attrs="{'invisible': [('spell_has_open_escalation_tasks','=', False)]}" class="open_escalation_tasks_warning">
+                        <img src="/web/static/src/img/warning.png"/>One or more escalation tasks for <field name="patient_name" class="oe_inline"/> are not completed.
+                    </span>
+                    <h4>Select a reason for observation status change</h4>
+                    <field name="reasons" widget="selection" required="1"/>
+                    <footer>
+                        <button name="start_patient_monitoring_exception" string="Confirm" type="object" groups="nh_clinical.group_nhc_ward_manager"/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree_transferred">
+            <field name="name">Mental Wardboard Recently Transferred</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree_transferred"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_mental_wardboard_tree">
+            <field name="name">Mental Wardboard Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field" position="after">
+                    <field name="patient_id" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_acuity_wardboard_search">
+            <field name="name">Wardboard Search View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search/group[@string='Group By...']/filter[@string='Clinical Risk']" position="replace">
+                    <filter name="acuity_index" string="Clinical Risk" domain="[]" context="{'group_by':'acuity_index'}" help="Clinical Risk"/>
+                </xpath>
+            </field>
+        </record>
+
+         <record model="ir.actions.act_window" id="nh_eobs.action_wardboard">
+            <field name="name">Acuity Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':1}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="nh_eobs.action_wardboard_discharged" >
+            <field name="name">Recently Discharged</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':0,'search_default_group_by_ward':0}</field>
+        </record>
+
+        <record model="ir.actions.act_window" id="nh_eobs.action_kiosk_patients_board">
+            <field name="name">Kiosk Board</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="context">{'search_default_acuity_index':1}</field>
+        </record>
+
+    </data>
+</openerp>

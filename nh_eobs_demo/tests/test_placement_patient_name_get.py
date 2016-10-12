@@ -22,12 +22,12 @@ class TestPlacementPatientNameGet(SingleTransactionCase):
         ward = wards[0]
         cls.ward = ward
 
-        ward_managers = cls.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        shift_coordinators = cls.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [ward]]
         ])
-        if not ward_managers:
-            raise ValueError('Could not find ward manager for test')
+        if not shift_coordinators:
+            raise ValueError('Could not find shift coordinator for test')
 
         placements = cls.placement_pool.search(cr, uid, [
             ['state', 'not in', ['cancelled', 'completed']],

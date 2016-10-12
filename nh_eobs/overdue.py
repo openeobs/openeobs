@@ -78,7 +78,7 @@ class nh_clinical_overdue(orm.Model):
                                 != 0 then 'Nurse'
                             when strpos(activity.data_model, 'observation')
                                 != 0 then 'HCA, Nurse'
-                            else 'Ward Manager'
+                            else 'Shift Coordinator'
                         end as groups
                     from nh_activity activity
                     inner join nh_clinical_patient patient

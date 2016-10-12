@@ -64,18 +64,19 @@ class TestStaffAllocationIntegration(TransactionCase):
         self.ward_b_nurse = ward_b_nurses[0]
         self.dual_ward_nurse = ward_a_nurses[1]
 
-        ward_a_ward_managers = self.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        ward_a_shift_coordinator = self.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [self.ward_a]]
         ])
-        ward_b_ward_managers = self.user_pool.search(cr, uid, [
-            ['groups_id.name', '=', 'NH Clinical Ward Manager Group'],
+        ward_b_shift_coordinator = self.user_pool.search(cr, uid, [
+            ['groups_id.name', '=', 'NH Clinical Shift Coordinator Group'],
             ['location_ids', 'in', [self.ward_b]]
         ])
-        if not ward_a_ward_managers and not ward_b_ward_managers:
-            raise ValueError('Unable to find Ward Managers to use for test')
-        self.ward_a_ward_manager = ward_a_ward_managers[0]
-        self.ward_b_ward_manager = ward_b_ward_managers[0]
+        if not ward_a_shift_coordinator and not ward_b_shift_coordinator:
+            raise ValueError('Unable to find Shift Coordinator '
+                             'to use for test')
+        self.ward_a_shift_coordinator = ward_a_shift_coordinator[0]
+        self.ward_b_shift_coordinator = ward_b_shift_coordinator[0]
 
         # Set up the allocation so dual HCA & Nurse are on both wards
         self.allocation_pool.responsibility_allocation_activity(
@@ -83,16 +84,16 @@ class TestStaffAllocationIntegration(TransactionCase):
         self.allocation_pool.responsibility_allocation_activity(
             cr, uid, self.dual_ward_hca, [self.ward_a_bed, self.ward_b_bed])
         self.wizard = self.allocation_pool.create(
-            self.cr, self.ward_a_ward_manager, {'ward_id': self.ward_a})
-        self.allocation_pool.submit_ward(cr, self.ward_a_ward_manager,
+            self.cr, self.ward_a_shift_coordinator, {'ward_id': self.ward_a})
+        self.allocation_pool.submit_ward(cr, self.ward_a_shift_coordinator,
                                          self.wizard)
-        self.allocation_pool.deallocate(cr, self.ward_a_ward_manager,
+        self.allocation_pool.deallocate(cr, self.ward_a_shift_coordinator,
                                         self.wizard)
         self.allocation_pool.write(cr, uid, self.wizard, {
             'user_ids': [[6, 0, [self.dual_ward_hca, self.dual_ward_nurse]]]})
-        self.allocation_pool.submit_users(cr, self.ward_a_ward_manager,
+        self.allocation_pool.submit_users(cr, self.ward_a_shift_coordinator,
                                           self.wizard)
-        wizard = self.allocation_pool.read(cr, self.ward_a_ward_manager,
+        wizard = self.allocation_pool.read(cr, self.ward_a_shift_coordinator,
                                            self.wizard,
                                            ['allocating_ids'])
         self.allocating_pool.write(
@@ -101,7 +102,7 @@ class TestStaffAllocationIntegration(TransactionCase):
                 'nurse_id': self.dual_ward_nurse,
                 'hca_ids': [[6, 0, [self.dual_ward_hca]]],
                 'location_id': self.ward_a_bed})
-        self.allocation_pool.complete(cr, self.ward_a_ward_manager,
+        self.allocation_pool.complete(cr, self.ward_a_shift_coordinator,
                                       self.wizard)
 
     def test_deallocate_only_affects_chosen_ward(self):
@@ -146,11 +147,13 @@ class TestStaffAllocationIntegration(TransactionCase):
         self.assertIn(self.ward_a_bed, dual_ward_hca.get('location_ids'))
         self.assertIn(self.ward_b_bed, dual_ward_hca.get('location_ids'))
 
-        ward_a_ward_manager = self.user_pool.read(cr, uid,
-                                                  self.ward_a_ward_manager,
-                                                  ['location_ids'])
-        self.assertIn(self.ward_a, ward_a_ward_manager.get('location_ids'))
-        ward_b_ward_manager = self.user_pool.read(cr, uid,
-                                                  self.ward_b_ward_manager,
-                                                  ['location_ids'])
-        self.assertIn(self.ward_b, ward_b_ward_manager.get('location_ids'))
+        ward_a_shift_coordinator = self.user_pool.read(
+            cr, uid, self.ward_a_shift_coordinator, ['location_ids']
+        )
+        self.assertIn(self.ward_a,
+                      ward_a_shift_coordinator.get('location_ids'))
+        ward_b_shift_coordinator = self.user_pool.read(
+            cr, uid, self.ward_b_shift_coordinator, ['location_ids']
+        )
+        self.assertIn(self.ward_b,
+                      ward_b_shift_coordinator.get('location_ids'))

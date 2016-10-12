@@ -65,7 +65,11 @@ before_install:
 - export TZ=UTC
 - git clone https://github.com/NeovaHealth/nhclinical.git NeovaHealth/nhclinical
 - cd NeovaHealth/nhclinical
-- find_branch() { git show-ref refs/remotes/origin/${TRAVIS_BRANCH} && git checkout ${TRAVIS_BRANCH}; return 0; }; find_branch
+- export PR=https://api.github.com/repos/$TRAVIS_REPO_SLUG/pulls/$TRAVIS_PULL_REQUEST
+- export BRANCH_SOURCE=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo `curl -s $PR | jq -r .head.ref`; fi)
+- if ! git rev-parse --verify "remotes/origin/$BRANCH_SOURCE"; then BRANCH="develop"; else BRANCH=$BRANCH_SOURCE; fi
+- echo "TRAVIS_PULL_REQUEST=$TRAVIS_PULL_REQUEST, TRAVIS_BRANCH=$TRAVIS_BRANCH, PR=$PR, BRANCH_SOURCE=$BRANCH_SOURCE, BRANCH=$BRANCH"
+- git checkout $BRANCH
 - mkdir -p ${HOME}/dependencies
 - for DIRECTORY in *; do mv ${DIRECTORY} ${HOME}/dependencies/${DIRECTORY}; done
 - cd ../..
@@ -79,6 +83,7 @@ install:
 - pip install --upgrade pip
 - pip install -r requirements.txt
 - git clone --depth=1 https://github.com/NeovaHealth/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
+- pip install -r ${HOME}/maintainer-quality-tools/requirements.txt
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
 - if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi

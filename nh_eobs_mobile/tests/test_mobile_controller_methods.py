@@ -492,7 +492,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                         'color': 'level-none',
                         'deadline_time': 'overdue: 12:00 hours',
                         'summary': False,
-
+                        'trend_icon': 'icon-down-arrow',
                         'followers': [
                             {
                                 'id': 3,
@@ -860,7 +860,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             ('get_patients', mock_get_patients),
             ('get_patient_followers', mock_get_patient_followers),
             ('get_invited_users', mock_get_invited_users),
-            ('get_assigned_activities', mock_get_assigned_activities),
+            ('get_assigned_activities', mock_get_assigned_activities)
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -1398,7 +1398,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     'label': 'Test Integer',
                     'min': 1,
                     'max': 59,
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_float',
@@ -1407,13 +1409,17 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                     'min': 1,
                     'max': 35.9,
                     'digits': [2, 1],
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_text',
                     'type': 'text',
                     'label': 'Test Text',
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 },
                 {
                     'name': 'test_select',
@@ -1427,7 +1433,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         ['the', 'The'],
                         ['list', 'List']
                     ],
-                    'initially_hidden': False
+                    'initially_hidden': False,
+                    'info': '',
+                    'errors': ''
                 }
             ]
             return form_description
@@ -1522,6 +1530,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1533,12 +1543,16 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1574,7 +1588,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         'value': 'list',
                         'label': 'List'
                     }
-                ]
+                ],
+                'info': '',
+                'errors': ''
             }
         ]
         mocked_method.assert_called_once_with(
@@ -1738,6 +1754,8 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'step': 1,
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_float',
@@ -1749,12 +1767,16 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'digits': [2, 1],
                 'initially_hidden': False,
                 'number': True,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_text',
                 'type': 'text',
                 'label': 'Test Text',
                 'initially_hidden': False,
+                'info': '',
+                'errors': ''
             },
             {
                 'name': 'test_select',
@@ -1790,7 +1812,9 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                         'value': 'list',
                         'label': 'List'
                     }
-                ]
+                ],
+                'info': '',
+                'errors': ''
             }
         ]
         mocked_method.assert_called_once_with(

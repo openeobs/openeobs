@@ -1203,7 +1203,7 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         def mock_method_returning_cancel_reasons_list(*args, **kwargs):
             cancel_reasons_list = [
                 {
-                    'name': 'Cancelled by Ward Manager',
+                    'name': 'Cancelled by Shift Coordinator',
                     'system': True
                 },
                 {

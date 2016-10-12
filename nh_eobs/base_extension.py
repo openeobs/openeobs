@@ -87,7 +87,7 @@ class nh_ui_location(orm.Model):
             groups = group_pool.read(
                 cr, uid, group_ids, ['name'], context=context)
             group_names = [g.get('name') for g in groups]
-            if 'NH Clinical Ward Manager Group' in group_names:
+            if 'NH Clinical Shift Coordinator Group' in group_names:
                 for filter in domain:
                     if filter[0] == 'parent_id' and filter[1] == 'in':
                         types = self.read(cr, uid, filter[2], ['type'])

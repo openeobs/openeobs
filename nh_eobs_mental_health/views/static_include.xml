@@ -1,0 +1,10 @@
+<openerp>
+    <data>
+        <template id="assets_backend" name="nh_eobs_mental_health assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/view_select_obs_stop_reason.css"/>
+                <script type="text/javascript" src="/nh_eobs_mental_health/static/src/js/nh_eobs_mental_health.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>
