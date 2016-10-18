@@ -5,6 +5,7 @@ Gives an overview of the current state of ward and bed
 :class:`locations<base.nh_clinical_location>`.
 """
 from openerp.osv import orm, fields
+from openerp import api
 
 
 class NHClinicalWardDashboard(orm.Model):
@@ -32,6 +33,17 @@ class NHClinicalWardDashboard(orm.Model):
         'on_ward_count': fields.integer(
             'All patients in bed and not on Patient Monitoring Exception')
     }
+
+    @api.multi
+    def patient_board(self):
+        """
+        Return the view dict for showing the Acuity Board for the selecte
+        ward
+        """
+        view_dict = super(NHClinicalWardDashboard, self).patient_board()
+        view_dict['context']['search_default_acuity_index'] = 1
+        del view_dict['context']['search_default_clinical_risk']
+        return view_dict
 
     def init(self, cr):
         """
