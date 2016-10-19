@@ -50,6 +50,7 @@ class TestWardDashboard(SingleTransactionCase):
         cls.adt_uid = cls.user_pool.create(
             cr, uid, {'name': 'Admin 0', 'login': 'user_000',
                       'pos_id': cls.pos_id,
+                      'pos_ids': [[6, 0, [cls.pos_id]]],
                       'password': 'user_000',
                       'category_id': [[4, cls.admin_role_id]]})
         cls.ward_id = cls.location_pool.create(
@@ -60,29 +61,53 @@ class TestWardDashboard(SingleTransactionCase):
             cr, uid, {'name': 'Ward1', 'code': 'W1', 'usage': 'ward',
                       'parent_id': cls.hospital_id, 'type': 'poc',
                       'context_ids': [[4, cls.eobs_context_id]]})
-        cls.beds = [cls.location_pool.create(
-            cr, uid, {'name': 'Bed'+str(i), 'code': 'B'+str(i), 'usage': 'bed',
-                      'parent_id': cls.ward_id, 'type': 'poc',
-                      'context_ids': [[4, cls.eobs_context_id]]}
-        ) for i in range(3)]
+        cls.beds = [
+            cls.location_pool.create(
+                cr, uid, {
+                    'name': 'Bed'+str(i),
+                    'code': 'W1B'+str(i),
+                    'usage': 'bed',
+                    'parent_id': cls.ward_id,
+                    'type': 'poc',
+                    'context_ids': [[4, cls.eobs_context_id]]
+                }
+            ) for i in range(3)]
         cls.hca_uid = cls.user_pool.create(
-            cr, uid, {'name': 'HCA0', 'login': 'hca0', 'password': 'hca0',
-                      'category_id': [[4, cls.hca_role_id]],
-                      'location_ids': [[4, cls.beds[0]]]})
+            cr, uid, {
+                'name': 'HCA0',
+                'login': 'dashboard_hca0',
+                'password': 'hca0',
+                'category_id': [[4, cls.hca_role_id]],
+                'location_ids': [[4, cls.beds[0]]]})
         cls.nurse_uid = cls.user_pool.create(
-            cr, uid, {'name': 'NURSE0', 'login': 'n0', 'password': 'n0',
-                      'category_id': [[4, cls.nurse_role_id]],
-                      'location_ids': [[4, cls.beds[1]]]})
+            cr, uid, {
+                'name': 'NURSE0',
+                'login': 'dashboard_n0',
+                'password': 'n0',
+                'category_id': [[4, cls.nurse_role_id]],
+                'location_ids': [[4, cls.beds[1]]]})
         cls.wm_uid = cls.user_pool.create(
-            cr, uid, {'name': 'WM0', 'login': 'wm0', 'password': 'wm0',
-                      'category_id': [[4, cls.wm_role_id]],
-                      'location_ids': [[4, cls.ward_id]]})
+            cr, uid, {
+                'name': 'WM0',
+                'login': 'dashboard_wm0',
+                'password': 'wm0',
+                'category_id': [[4, cls.wm_role_id]],
+                'location_ids': [[4, cls.ward_id]]})
         cls.dr_uid = cls.user_pool.create(
-            cr, uid, {'name': 'DR0', 'login': 'dr0', 'password': 'dr0',
-                      'category_id': [[4, cls.dr_role_id]],
-                      'location_ids': [[4, cls.ward_id]]})
-        cls.patients = [cls.patient_pool.create(
-            cr, uid, {'other_identifier': 'HN00'+str(i)}) for i in range(3)]
+            cr, uid, {
+                'name': 'DR0',
+                'login': 'dashboard_dr0',
+                'password': 'dr0',
+                'category_id': [[4, cls.dr_role_id]],
+                'location_ids': [[4, cls.ward_id]]})
+        cls.patients = [
+            cls.patient_pool.create(
+                cr, uid, {
+                    'given_name': 'Dave',
+                    'family_name': 'The Patient',
+                    'other_identifier': 'HN00'+str(i)
+                }
+            ) for i in range(3)]
 
         cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
         cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
@@ -240,8 +265,11 @@ class TestWardDashboard(SingleTransactionCase):
             'res_model': 'nh.clinical.wardboard',
             'views': [(kanban_view_id, 'kanban'), (tree_view_id, 'tree'),
                       (form_view_id, 'form')],
-            'domain': [('spell_state', '=', 'started'),
-                       ('location_id.usage', '=', 'bed')],
+            'domain': [
+                ('spell_activity_id.user_ids', 'in', [self.wm_uid]),
+                ('spell_state', '=', 'started'),
+                ('location_id.usage', '=', 'bed')
+            ],
             'target': 'current',
             'context': {'search_default_clinical_risk': 1,
                         'search_default_high_risk': 0,
@@ -257,7 +285,12 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertFalse(res[self.ward_id])
 
         patient_id = self.patient_pool.create(
-            cr, uid, {'other_identifier': 'HN003'})
+            cr, uid, {
+                'other_identifier': 'HN003',
+                'given_name': 'Another',
+                'family_name': 'Patient'
+            }
+        )
         self.api.admit(cr, self.adt_uid, 'HN003', {'location': 'W0'})
 
         res = self.ward_pool._get_waiting_patient_ids(

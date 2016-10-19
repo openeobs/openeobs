@@ -5,6 +5,7 @@ Gives an overview of the current state of ward and bed
 :class:`locations<base.nh_clinical_location>`.
 """
 from openerp.osv import orm, fields
+from openerp import api
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -102,7 +103,8 @@ class nh_eobs_ward_dashboard(orm.Model):
         'noscore_patients': fields.integer('No Score Patients')
     }
 
-    def patient_board(self, cr, uid, ids, context=None):
+    @api.multi
+    def patient_board(self):
         """
         Returns an Odoo `action` which defines a `form` view for a
         :class:`wardboard<wardboard.nh_clinical_wardboard>` for all
@@ -111,31 +113,38 @@ class nh_eobs_ward_dashboard(orm.Model):
         :class:`placed<operations.nh_clinical_patient_placement>` in a
         bed :class:`location<base.nh_clinical_location>`.
 
-        :param ids: ward dashboard ids
-        :type ids: list
         :returns: Odoo `action` definition
         :rtype: dict
         """
-
-        wdb = self.browse(cr, uid, ids[0], context=context)
-        context.update({'search_default_clinical_risk': 1,
-                        'search_default_high_risk': 0,
-                        'search_default_ward_id': wdb.id})
-        kanban_view_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs', 'view_wardboard_kanban')[1]
-        tree_view_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs', 'view_wardboard_tree')[1]
-        form_view_id = self.pool['ir.model.data'].get_object_reference(
-            cr, uid, 'nh_eobs', 'view_wardboard_form')[1]
+        model_data_model = self.env['ir.model.data']
+        context = self._context.copy()
+        context.update(
+            {
+                'search_default_clinical_risk': 1,
+                'search_default_high_risk': 0,
+                'search_default_ward_id': self.id
+            }
+        )
+        kanban_view_id = model_data_model.get_object_reference(
+            'nh_eobs', 'view_wardboard_kanban')[1]
+        tree_view_id = model_data_model.get_object_reference(
+            'nh_eobs', 'view_wardboard_tree')[1]
+        form_view_id = model_data_model.get_object_reference(
+            'nh_eobs', 'view_wardboard_form')[1]
         return {
             'name': 'Acuity Board',
             'type': 'ir.actions.act_window',
             'res_model': 'nh.clinical.wardboard',
-            'views': [(kanban_view_id, 'kanban'),
-                      (tree_view_id, 'tree'), (form_view_id, 'form')],
-            'domain': [('spell_activity_id.user_ids', 'in', uid),
-                       ('spell_state', '=', 'started'),
-                       ('location_id.usage', '=', 'bed')],
+            'views': [
+                (kanban_view_id, 'kanban'),
+                (tree_view_id, 'tree'),
+                (form_view_id, 'form')
+            ],
+            'domain': [
+                ('spell_activity_id.user_ids', 'in', [self._uid]),
+                ('spell_state', '=', 'started'),
+                ('location_id.usage', '=', 'bed')
+            ],
             'target': 'current',
             'context': context
         }
