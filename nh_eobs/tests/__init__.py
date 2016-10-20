@@ -7,6 +7,7 @@ from . import test_helpers
 from . import test_sql_statements
 from . import test_workload
 from .observation_report import *
+from .nh_clinical_observation_report_wizard import *
 from .wardboard import *
 from .nh_eobs_ward_dashboard import *
 

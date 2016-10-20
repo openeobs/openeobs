@@ -1,19 +1,50 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from datetime import datetime
 import base64
-from openerp.osv import osv, fields
 import logging
+from datetime import datetime
+
+from openerp import api
+from openerp.addons.nh_odoo_fixes import validate
 from openerp.exceptions import AccessError
+from openerp.osv import osv, fields
+
 _logger = logging.getLogger(__name__)
 
 
 class print_observation_report_wizard(osv.TransientModel):
+    """
+    The model is used to capture options selected by the user for a report and
+    then to delegate to 'nh.clinical.observation_report' to actually generate
+    it.
 
+    The user can select a datetime range
+    that they are interested in using the 'Start Time' and 'End Time' fields,
+    only patient data created within that time frame will be shown on the
+    generated report.
+    """
     _name = 'nh.clinical.observation_report_wizard'
     _columns = {
         'start_time': fields.datetime('Start Time'),
         'end_time': fields.datetime('End Time'),
     }
+
+    @api.constrains('start_time', 'end_time')
+    def _not_in_the_future(self):
+        """
+        It doesn't make sense for the start or end time of a report to be in
+        the future, a report can only show existing data.
+
+        :return: No return, just side-effects.
+        """
+        validate.not_in_the_future_multiple_args(self.start_time,
+                                                 self.end_time)
+
+    @api.constrains('start_time', 'end_time')
+    def _start_time_not_after_end_time(self):
+        if self.start_time and self.end_time:
+            validate.start_datetime_not_after_end_datetime(
+                self.start_time, self.end_time
+            )
 
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
