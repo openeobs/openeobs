@@ -8,7 +8,7 @@
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
-      <field eval="[[6, False, [ref('nhc_def_conf_location_we')]]]" name="location_ids" />
+      <field eval="[[6, False, [ref('nhc_def_conf_location_we'),ref('nhc_def_conf_location_we_b1'),ref('nhc_def_conf_location_we_b2'),ref('nhc_def_conf_location_we_b3'),ref('nhc_def_conf_location_we_b4'),ref('nhc_def_conf_location_we_b5'),ref('nhc_def_conf_location_we_b6'),ref('nhc_def_conf_location_we_b7'),ref('nhc_def_conf_location_we_b8'),ref('nhc_def_conf_location_we_b9'),ref('nhc_def_conf_location_we_b10'),ref('nhc_def_conf_location_we_b11'),ref('nhc_def_conf_location_we_b12'),ref('nhc_def_conf_location_we_b13'),ref('nhc_def_conf_location_we_b14'),ref('nhc_def_conf_location_we_b15'),ref('nhc_def_conf_location_we_b16'),ref('nhc_def_conf_location_we_b17'),ref('nhc_def_conf_location_we_b18'),ref('nhc_def_conf_location_we_b19'),ref('nhc_def_conf_location_we_b20'),ref('nhc_def_conf_location_we_b21'),ref('nhc_def_conf_location_we_b22'),ref('nhc_def_conf_location_we_b23'),ref('nhc_def_conf_location_we_b24'),ref('nhc_def_conf_location_we_b25'),ref('nhc_def_conf_location_we_b26'),ref('nhc_def_conf_location_we_b27'),ref('nhc_def_conf_location_we_b28'),ref('nhc_def_conf_location_we_b29'),ref('nhc_def_conf_location_we_b30')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_dane_user" model="res.users">
@@ -18,7 +18,7 @@
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
-      <field eval="[[6, False, [ref('nhc_def_conf_location_we')]]]" name="location_ids" />
+      <field eval="[[6, False, [ref('nhc_def_conf_location_we'),ref('nhc_def_conf_location_we_b1'),ref('nhc_def_conf_location_we_b2'),ref('nhc_def_conf_location_we_b3'),ref('nhc_def_conf_location_we_b4'),ref('nhc_def_conf_location_we_b5'),ref('nhc_def_conf_location_we_b6'),ref('nhc_def_conf_location_we_b7'),ref('nhc_def_conf_location_we_b8'),ref('nhc_def_conf_location_we_b9'),ref('nhc_def_conf_location_we_b10'),ref('nhc_def_conf_location_we_b11'),ref('nhc_def_conf_location_we_b12'),ref('nhc_def_conf_location_we_b13'),ref('nhc_def_conf_location_we_b14'),ref('nhc_def_conf_location_we_b15'),ref('nhc_def_conf_location_we_b16'),ref('nhc_def_conf_location_we_b17'),ref('nhc_def_conf_location_we_b18'),ref('nhc_def_conf_location_we_b19'),ref('nhc_def_conf_location_we_b20'),ref('nhc_def_conf_location_we_b21'),ref('nhc_def_conf_location_we_b22'),ref('nhc_def_conf_location_we_b23'),ref('nhc_def_conf_location_we_b24'),ref('nhc_def_conf_location_we_b25'),ref('nhc_def_conf_location_we_b26'),ref('nhc_def_conf_location_we_b27'),ref('nhc_def_conf_location_we_b28'),ref('nhc_def_conf_location_we_b29'),ref('nhc_def_conf_location_we_b30')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_dangelo_user" model="res.users">
@@ -28,7 +28,7 @@
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
-      <field eval="[[6, False, [ref('nhc_def_conf_location_we')]]]" name="location_ids" />
+      <field eval="[[6, False, [ref('nhc_def_conf_location_we'),ref('nhc_def_conf_location_we_b1'),ref('nhc_def_conf_location_we_b2'),ref('nhc_def_conf_location_we_b3'),ref('nhc_def_conf_location_we_b4'),ref('nhc_def_conf_location_we_b5'),ref('nhc_def_conf_location_we_b6'),ref('nhc_def_conf_location_we_b7'),ref('nhc_def_conf_location_we_b8'),ref('nhc_def_conf_location_we_b9'),ref('nhc_def_conf_location_we_b10'),ref('nhc_def_conf_location_we_b11'),ref('nhc_def_conf_location_we_b12'),ref('nhc_def_conf_location_we_b13'),ref('nhc_def_conf_location_we_b14'),ref('nhc_def_conf_location_we_b15'),ref('nhc_def_conf_location_we_b16'),ref('nhc_def_conf_location_we_b17'),ref('nhc_def_conf_location_we_b18'),ref('nhc_def_conf_location_we_b19'),ref('nhc_def_conf_location_we_b20'),ref('nhc_def_conf_location_we_b21'),ref('nhc_def_conf_location_we_b22'),ref('nhc_def_conf_location_we_b23'),ref('nhc_def_conf_location_we_b24'),ref('nhc_def_conf_location_we_b25'),ref('nhc_def_conf_location_we_b26'),ref('nhc_def_conf_location_we_b27'),ref('nhc_def_conf_location_we_b28'),ref('nhc_def_conf_location_we_b29'),ref('nhc_def_conf_location_we_b30')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_danial_user" model="res.users">
@@ -38,7 +38,7 @@
       <field name="tz">Europe/London</field>
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
-      <field eval="[[6, False, [ref('nhc_def_conf_location_we')]]]" name="location_ids" />
+      <field eval="[[6, False, [ref('nhc_def_conf_location_we'),ref('nhc_def_conf_location_we_b1'),ref('nhc_def_conf_location_we_b2'),ref('nhc_def_conf_location_we_b3'),ref('nhc_def_conf_location_we_b4'),ref('nhc_def_conf_location_we_b5'),ref('nhc_def_conf_location_we_b6'),ref('nhc_def_conf_location_we_b7'),ref('nhc_def_conf_location_we_b8'),ref('nhc_def_conf_location_we_b9'),ref('nhc_def_conf_location_we_b10'),ref('nhc_def_conf_location_we_b11'),ref('nhc_def_conf_location_we_b12'),ref('nhc_def_conf_location_we_b13'),ref('nhc_def_conf_location_we_b14'),ref('nhc_def_conf_location_we_b15'),ref('nhc_def_conf_location_we_b16'),ref('nhc_def_conf_location_we_b17'),ref('nhc_def_conf_location_we_b18'),ref('nhc_def_conf_location_we_b19'),ref('nhc_def_conf_location_we_b20'),ref('nhc_def_conf_location_we_b21'),ref('nhc_def_conf_location_we_b22'),ref('nhc_def_conf_location_we_b23'),ref('nhc_def_conf_location_we_b24'),ref('nhc_def_conf_location_we_b25'),ref('nhc_def_conf_location_we_b26'),ref('nhc_def_conf_location_we_b27'),ref('nhc_def_conf_location_we_b28'),ref('nhc_def_conf_location_we_b29'),ref('nhc_def_conf_location_we_b30')]]]" name="location_ids" />
       <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <!-- Ward E: kiosk -->
