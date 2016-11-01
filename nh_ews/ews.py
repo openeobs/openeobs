@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-`ews.py` defines the Early Warning Score observation class and its
-standard behaviour and policy triggers based on the UK NEWS standard.
+Defines the Early Warning Score observation class and its standard behaviour
+and policy triggers based on the UK NEWS standard.
 """
-from openerp.osv import orm, fields
-from openerp import SUPERUSER_ID
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-
-import logging
 import bisect
 import copy
+import logging
 from datetime import datetime as dt
+
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 _logger = logging.getLogger(__name__)
 
@@ -690,7 +690,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                       ('name', '=', 'NH Clinical Nurse Group')])
         group = nursegroup_ids and 'nurse' or hcagroup_ids and 'hca' or False
         spell_activity_id = activity.parent_id.id
-        self.handle_o2_devices(cr, uid, activity_id, context=context)
+        self.handle_o2_devices(cr, uid, activity.id, context=context)
 
         # trigger notifications
         if not activity.data_ref.is_partial:
@@ -699,7 +699,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 api_pool.trigger_notifications(cr, uid, {
                     'notifications': notifications,
                     'parent_id': spell_activity_id,
-                    'creator_id': activity_id,
+                    'creator_id': activity.id,
                     'patient_id': activity.data_ref.patient_id.id,
                     'model': self._name,
                     'group': group
@@ -707,22 +707,65 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
         res = super(nh_clinical_patient_observation_ews, self).complete(
             cr, uid, activity_id, context)
+        self.create_next_obs(cr, uid, activity, context)
+        return res
 
-        # create next EWS
+    def create_next_obs(self, cr, uid, activity, context=None):
+        """
+        Creates a new observation and activity based on a given closed
+        observation activity.
+
+        If the previous observation is partial, the new observation is
+        scheduled for the same time as the old one, in other words, there is a
+        good chance it will be due right away. If the previous observation is
+        not a partial then it will be scheduled based on the frequency implied
+        by the clinical risk of the previous observation.
+
+        It only makes sense to create the next observation activity based on
+        an activity for an observation of the same type as this one. An
+        exception will be raised if the same type of activity is not passed.
+
+        If the observation is neither completed or cancelled then it is still
+        open and a new observation activity should not be created, thus an
+        exception will be raised.
+
+        :param cr:
+        :param uid:
+        :param activity:
+        :param context:
+        :return:
+        """
+        if activity.data_model != self._name:
+            raise TypeError(
+                "Trying to create a new observation and activity but the given"
+                " previous activity is not for the same type of observation."
+            )
+        if activity.state not in ['completed', 'cancelled']:
+            raise ValueError(
+                "Trying to create a new observation and activity but the given "
+                "previous activity is not closed. Only one open "
+                "observation should exist at a time."
+            )
+
+        activity_pool = self.pool['nh.activity']
+        spell_activity_id = activity.parent_id.id
+
         next_activity_id = self.create_activity(
             cr, SUPERUSER_ID,
-            {'creator_id': activity_id, 'parent_id': spell_activity_id},
-            {'patient_id': activity.data_ref.patient_id.id})
+            {'creator_id': activity.id, 'parent_id': spell_activity_id},
+            {'patient_id': activity.data_ref.patient_id.id}
+        )
         if activity.data_ref.is_partial:
             activity_pool.schedule(
                 cr, uid, next_activity_id,
-                date_scheduled=activity.date_scheduled, context=context)
+                date_scheduled=activity.date_scheduled, context=context
+            )
         else:
             case = self.get_case(activity.data_ref)
             self.change_activity_frequency(
                 cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
-                self._name, case, context=context)
-        return res
+                self._name, case, context=context
+            )
 
     def get_notifications(self, cr, uid, activity):
         """
@@ -782,6 +825,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             nh_clinical_patient_observation_ews, self).create_activity(
             cr, uid, vals_activity, vals_data, context=context)
 
+    # TODO Make generic and move to nh.clinical.patient.observation model.
     def get_form_description(self, cr, uid, patient_id, context=None):
         """
         Returns a description in dictionary format of the input fields
@@ -843,6 +887,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             else case
         return case
 
+    # TODO Make generic and move to nh.clinical.patient.observation model.
     def get_last_obs_activity(self, cr, uid, patient_id, context=None):
         """ Get the activity for the last observation made for the given
         patient_id.
@@ -874,6 +919,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         else:
             return False
 
+    # TODO Make generic and move to nh.clinical.patient.observation model.
     def get_last_obs(self, cr, uid, patient_id, context=None):
         """ Get the last observation made for the given patient_id.
 
