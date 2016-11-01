@@ -8,14 +8,15 @@ none of them should require complex policies to be implemented.
 The abstract definition of an observation from which all other
 observations inherit is also included here.
 """
-from openerp.osv import orm, fields, osv
-from openerp.addons.nh_observations import frequencies
-from datetime import datetime as dt, timedelta as td
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp import SUPERUSER_ID
 import copy
-
 import logging
+from datetime import datetime as dt, timedelta as td
+
+from openerp import SUPERUSER_ID
+from openerp.addons.nh_observations import frequencies
+from openerp.osv import orm, fields, osv
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
 _logger = logging.getLogger(__name__)
 
 
@@ -32,8 +33,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     # numeric fields we want to be able to read as NULL instead of 0
     _num_fields = []
     _partial_reasons = [
-        ['patient_away_from_bed', 'Patient away from  bed'],
-        ['patient_refused', 'Patient refused'],
+        ['patient_away_from_bed', 'Patient away from  bed'], # TODO 2 spaces?
+        ['refused', 'Refused'],
         ['emergency_situation', 'Emergency situation'],
         ['doctors_request', 'Doctor\'s request']
     ]
