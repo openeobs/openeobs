@@ -767,6 +767,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 self._name, case, context=context
             )
 
+    def can_decrease_obs_frequency(self, cr, uid, patient_id,
+                                   threshold_value,
+                                   context=None):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_start_date = spell_pool.get_spell_start_date(cr, uid, patient_id,
+                                                           context=context)
+        last_obs = self.get_last_obs(cr, uid, patient_id)
+
+        present = dt.strptime(last_obs['date_terminated'], dtf) \
+            if last_obs else dt.now()
+        spell_start_delta = present - spell_start_date
+        return spell_start_delta.days >= threshold_value
+
     def get_notifications(self, cr, uid, activity):
         """
         Get notifications that should be triggered upon completion of the
@@ -900,10 +913,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :return: ``False``
         or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
         """
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
         # No ongoing spell to get an obs for so just return straight away.
-        if not spell_id:
+        if not self.patient_has_spell(cr, uid, patient_id):
             return False
         domain = [['patient_id', '=', patient_id],
                   ['data_model', '=', 'nh.clinical.patient.observation.ews'],
@@ -935,14 +946,28 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if last_obs_activity:
             return last_obs_activity.data_ref
 
-    def can_decrease_obs_frequency(self, cr, uid, patient_id, threshold_value,
-                                   context=None):
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_start_date = spell_pool.get_spell_start_date(cr, uid, patient_id,
-                                                           context=context)
-        last_obs = self.get_last_obs(cr, uid, patient_id)
+    def get_open_obs_activity(self, patient_id):
+        """
+        Gets a list of all 'open' activities.
+        'Open' is anything that is not 'completed' or 'cancelled'.
 
-        present = dt.strptime(last_obs['date_terminated'], dtf) \
-            if last_obs else dt.now()
-        spell_start_delta = present - spell_start_date
-        return spell_start_delta.days >= threshold_value
+        As far as I know there is not yet a situation where there should be
+        more than one observation that is open but there may be in the future.
+        It is up to the caller to check they are happy with the length of the
+        returned list.
+
+        :return: Search results for open EWS observations.
+        :rtype: list
+        """
+        domain = [
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('patient_id', '=', patient_id),
+            ('state', 'not in', ['completed', 'cancelled']),
+        ]
+        activity_model = self.env['nh.activity']
+        return activity_model.search(domain)
+
+    def patient_has_spell(self, cr, uid, patient_id):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        return bool(spell_id)
