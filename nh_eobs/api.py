@@ -3,12 +3,13 @@
 Defines the core methods for `Open eObs` in the taking of
 :class:`patient<base.nh_clinical_patient>` observations.
 """
-from openerp.osv import orm, osv
+import logging
 from datetime import datetime as dt, timedelta as td
+
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
-from openerp import SUPERUSER_ID
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class nh_eobs_api(orm.AbstractModel):
     eObs.
     """
 
+    # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
     _active_observations = [
         {
