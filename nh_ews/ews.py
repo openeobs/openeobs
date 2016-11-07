@@ -8,8 +8,10 @@ import bisect
 import copy
 import logging
 from datetime import datetime as dt
+from datetime import timedelta
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
+from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
@@ -81,6 +83,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
                      'summary': 'Informed about patient status (NEWS)',
                      'groups': ['hca']}]],
                'risk': ['None', 'Low', 'Medium', 'High']}
+
+    def convert_case_to_risk(self, case):
+        return self._POLICY['risk'][case]
 
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
@@ -710,7 +715,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         self.create_next_obs(cr, uid, activity, context)
         return res
 
-    def create_next_obs(self, cr, uid, activity, context=None):
+    def create_next_obs(self, cr, uid, previous_obs_activity, context=None):
         """
         Creates a new observation and activity based on a given closed
         observation activity.
@@ -731,41 +736,93 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
         :param cr:
         :param uid:
-        :param activity:
+        :param previous_obs_activity:
         :param context:
         :return:
         """
-        if activity.data_model != self._name:
+        if previous_obs_activity.data_model != self._name:
             raise TypeError(
                 "Trying to create a new observation and activity but the given"
                 " previous activity is not for the same type of observation."
             )
-        if activity.state not in ['completed', 'cancelled']:
+        if previous_obs_activity.state not in ['completed', 'cancelled']:
             raise ValueError(
                 "Trying to create a new observation and activity but the given "
                 "previous activity is not closed. Only one open "
                 "observation should exist at a time."
             )
 
-        activity_pool = self.pool['nh.activity']
-        spell_activity_id = activity.parent_id.id
-
-        next_activity_id = self.create_activity(
+        spell_activity_id = previous_obs_activity.parent_id.id
+        next_obs_activity_id = self.create_activity(
             cr, SUPERUSER_ID,
-            {'creator_id': activity.id, 'parent_id': spell_activity_id},
-            {'patient_id': activity.data_ref.patient_id.id}
+            {'creator_id': previous_obs_activity.id,
+             'parent_id': spell_activity_id},
+            {'patient_id': previous_obs_activity.data_ref.patient_id.id}
         )
-        if activity.data_ref.is_partial:
+
+        activity_pool = self.pool['nh.activity']
+        patient_id = previous_obs_activity.data_ref.patient_id.id
+
+        if previous_obs_activity.data_ref.is_partial:
+            frequency = previous_obs_activity.data_ref.frequency
+            date_completed = previous_obs_activity.date_terminated
+
+            patient_refusal_in_effect = self.is_patient_refusal_in_effect(
+                cr, uid, patient_id
+            )
+            if patient_refusal_in_effect:
+                next_obs_activity = activity_pool.browse(
+                    cr, uid, next_obs_activity_id
+                )
+                next_obs = next_obs_activity.data_ref
+
+                try:
+                    last_full_obs = self.get_last_full_obs(cr, uid, patient_id)
+                except ValueError:
+                    # Without being able to get the last full obs,
+                    # clinical risk is unknown.
+                    last_full_obs = None
+
+                if last_full_obs is None:
+                    case = 'Unknown'
+                else:
+                    case = self.get_case(last_full_obs.data_ref)
+                refusal_adjusted_frequency = \
+                    self.adjust_frequency_for_patient_refusal(
+                        cr, uid, next_obs.id, case, frequency
+                    )
+
+                date_scheduled = dt.strptime(date_completed, dtf) + \
+                                 timedelta(minutes=refusal_adjusted_frequency)
+
             activity_pool.schedule(
-                cr, uid, next_activity_id,
-                date_scheduled=activity.date_scheduled, context=context
+                cr, uid, next_obs_activity_id,
+                date_scheduled=date_scheduled, context=context
             )
         else:
-            case = self.get_case(activity.data_ref)
+            case = self.get_case(previous_obs_activity.data_ref)
             self.change_activity_frequency(
-                cr, SUPERUSER_ID, activity.data_ref.patient_id.id,
+                cr, SUPERUSER_ID, previous_obs_activity.data_ref.patient_id.id,
                 self._name, case, context=context
             )
+
+    def get_last_full_obs(self, cr, uid, patient_id):
+        obs_activity = self.get_open_obs_activity(cr, uid, patient_id)
+        activity_pool = self.pool['nh.activity']
+        while True:
+            if not obs_activity.data_ref.is_partial:
+                return obs_activity
+            if not obs_activity.creator_id:
+                raise ValueError(
+                    "Encountered an observation this has no creator id and "
+                    "have found only partial observations so far. "
+                    "Either this is the first observation for the spell and "
+                    "the patient has no full observations, or an observation "
+                    "was created without the creator id populated."
+                )
+            previous_obs_activity_id = obs_activity.creator_id.id
+            obs_activity = activity_pool.browse(cr, uid,
+                                                previous_obs_activity_id)
 
     def can_decrease_obs_frequency(self, cr, uid, patient_id,
                                    threshold_value,
@@ -805,13 +862,52 @@ class nh_clinical_patient_observation_ews(orm.Model):
             self._POLICY['ranges'], observation.score)])
         return 2 if observation.three_in_one and case < 3 else case
 
+
     def change_activity_frequency(self, cr, uid, patient_id, name, case,
                                   context=None):
+        """
+        Convenience that allows you to pass a 'case' instead of a 'frequency'
+        and the method will do the lookup for you.
+
+        See :method:`nh_observations.nh_clinical_extension
+        .nh_clinical_api_extension.change_activity_frequency`.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :param name:
+        :param case:
+        :param context:
+        :return:
+        """
         api_pool = self.pool['nh.clinical.api']
-        return api_pool.change_activity_frequency(
-            cr, uid, patient_id,
-            name, self._POLICY['frequencies'][case],
-            context=context)
+        frequency = self._POLICY['frequencies'][case]
+        return api_pool.change_activity_frequency(cr, uid,
+            patient_id, name, frequency, context=context
+        )
+
+    def adjust_frequency_for_patient_refusal(self, cr, uid,
+                                             obs_id, case, frequency=None):
+        refusal_adjusted_frequency = \
+            self.get_adjusted_frequency_for_patient_refusal(case, frequency)
+        if refusal_adjusted_frequency != frequency:
+            self.write(
+                cr, uid, obs_id, {'frequency': refusal_adjusted_frequency}
+            )
+        return refusal_adjusted_frequency
+
+    def get_adjusted_frequency_for_patient_refusal(self, case, frequency=None):
+        if case == 'Unknown':
+            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS['Unknown'][0]
+        else:
+            risk = self.convert_case_to_risk(case)
+            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[risk][frequency][0]
+
+    # TODO Move to nh.clinical.patient and do v8 style with `self`.
+    def is_patient_refusal_in_effect(self, cr, uid, patient_id):
+        last_obs = \
+            self.get_last_obs(cr, uid, patient_id)
+        return True if last_obs.partial_reason == 'refused' else False
 
     def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):
@@ -946,6 +1042,12 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if last_obs_activity:
             return last_obs_activity.data_ref
 
+    def patient_has_spell(self, cr, uid, patient_id):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        return bool(spell_id)
+
+    @api.model
     def get_open_obs_activity(self, patient_id):
         """
         Gets a list of all 'open' activities.
@@ -959,15 +1061,12 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :return: Search results for open EWS observations.
         :rtype: list
         """
-        domain = [
-            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
-            ('patient_id', '=', patient_id),
-            ('state', 'not in', ['completed', 'cancelled']),
-        ]
+        domain = self.get_open_obs_search_domain(
+            'nh.clinical.patient.observation.ews', patient_id
+        )
         activity_model = self.env['nh.activity']
         return activity_model.search(domain)
 
-    def patient_has_spell(self, cr, uid, patient_id):
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
-        return bool(spell_id)
+    @api.model
+    def get_open_obs(self, patient_id):
+        return self.get_open_obs_activity(patient_id).data_ref

@@ -179,6 +179,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         if 'frequency' in vals:
             activity_pool = self.pool['nh.activity']
             for obs in self.browse(cr, uid, ids, context=context):
+                # TODO Is it right that updating the frequency will
+                # automatically update the date_scheduled to create_date + frequency?
                 scheduled = (dt.strptime(
                     obs.activity_id.create_date, DTF)+td(
                     minutes=vals['frequency'])).strftime(DTF)
@@ -262,6 +264,13 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         """
         return self._form_description
 
+    @classmethod
+    def get_open_obs_search_domain(cls, data_model, patient_id):
+        return [
+            ('data_model', '=', data_model),
+            ('patient_id', '=', patient_id),
+            ('state', 'not in', ['completed', 'cancelled']),
+        ]
 
 class nh_clinical_patient_observation_height(orm.Model):
     """
