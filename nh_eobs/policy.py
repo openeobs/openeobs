@@ -84,8 +84,9 @@ class nh_clinical_patient_transfer(orm.Model):
                                'create_data': {
                                    'suggested_location_id':
                                        "location_pool.get_closest_parent_id("
-                                       "cr, uid, 'ward', "
+                                       "cr, uid, "
                                        "activity.data_ref.origin_loc_id.id, "
+                                       "'ward', "
                                        "context=context) if "
                                        "activity.data_ref.origin_loc_id."
                                        "usage != 'ward' else "
@@ -141,9 +142,9 @@ class nh_clinical_patient_discharge(orm.Model):
                                'create_data': {
                                    'suggested_location_id':
                                        "location_pool.get_closest_parent_id("
-                                       "cr, uid, 'ward', "
+                                       "cr, uid, "
                                        "activity.data_ref.location_id.id, "
-                                       "context=context) if "
+                                       "'ward', context=context) if "
                                        "activity.data_ref.location_id.usage "
                                        "!= 'ward' else "
                                        "activity.data_ref.location_id.id"
