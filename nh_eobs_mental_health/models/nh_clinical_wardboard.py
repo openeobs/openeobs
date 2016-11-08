@@ -1,9 +1,10 @@
-from openerp.osv import orm, osv, fields
+import copy
 from datetime import datetime, timedelta
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
 from openerp import api
 from openerp.addons.nh_eobs import helpers
-import copy
+from openerp.osv import orm, osv, fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class NHClinicalWardboard(orm.Model):
@@ -238,7 +239,8 @@ class NHClinicalWardboard(orm.Model):
     def create_new_ews(self):
         """
         Create a new EWS task an hour in the future. Used when patient is
-        take off obs_stop
+        take off obs_stop.
+
         :return: ID of created EWS
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']

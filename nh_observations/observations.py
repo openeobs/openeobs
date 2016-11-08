@@ -12,7 +12,7 @@ import copy
 import logging
 from datetime import datetime as dt, timedelta as td
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -265,12 +265,102 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return self._form_description
 
     @classmethod
-    def get_open_obs_search_domain(cls, data_model, patient_id):
+    def get_open_obs_search_domain(cls, spell_activity_id):
         return [
-            ('data_model', '=', data_model),
-            ('patient_id', '=', patient_id),
+            ('data_model', '=', cls._name),
+            ('parent_id', '=', spell_activity_id),
             ('state', 'not in', ['completed', 'cancelled']),
         ]
+
+    @api.model
+    def get_last_full_obs(self, spell_id):
+        obs_activity = self.get_open_obs_activity(spell_id)
+        activity_pool = self.pool['nh.activity']
+        while True:
+            if not obs_activity.data_ref.is_partial:
+                return obs_activity
+            if not obs_activity.creator_id:
+                raise ValueError(
+                    "Encountered an observation this has no creator id and "
+                    "have found only partial observations so far. "
+                    "Either this is the first observation for the spell and "
+                    "the patient has no full observations, or an observation "
+                    "was created without the creator id populated."
+                )
+            previous_obs_activity_id = obs_activity.creator_id.id
+            obs_activity = activity_pool.browse(self.env.cr, self.env.uid, previous_obs_activity_id)
+
+    @api.model
+    def get_open_obs_activity(self, spell_id):
+        """
+        Gets a list of all 'open' activities.
+        'Open' is anything that is not 'completed' or 'cancelled'.
+
+        As far as I know there is not yet a situation where there should be
+        more than one observation that is open but there may be in the future.
+        It is up to the caller to check they are happy with the length of the
+        returned list.
+
+        :return: Search results for open EWS observations.
+        :rtype: list
+        """
+        domain = self.get_open_obs_search_domain(spell_id)
+        activity_model = self.env['nh.activity']
+        return activity_model.search(domain)
+
+    @api.model
+    def get_open_obs(self, spell_id):
+        return self.get_open_obs_activity(spell_id).data_ref
+
+    def get_last_obs_activity(self, cr, uid, patient_id, context=None):
+        """ Get the activity for the last observation made for the given
+        patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False``
+        or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
+        """
+        # No ongoing spell to get an obs for so just return straight away.
+        if not self.patient_has_spell(cr, uid, patient_id):
+            return False
+        domain = [['patient_id', '=', patient_id],
+                  ['data_model', '=', self._name],
+                  ['state', '=', 'completed'],
+                  ['parent_id.state', '=', 'started']]
+
+        activity_pool = self.pool['nh.activity']
+        ews_ids = activity_pool.search(
+            cr, uid, domain, order='date_terminated desc, sequence desc',
+            context=context)
+        if ews_ids:
+            return activity_pool.browse(cr, uid, ews_ids[0], context=context)
+        else:
+            return False
+
+    def get_last_obs(self, cr, uid, patient_id, context=None):
+        """ Get the last observation made for the given patient_id.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :type patient_id: int
+        :param context:
+        :return: ``False`` or :class:`observation<openeobs.nh_observations.
+        observations.nh_clinical_patient_observation>`
+        """
+        last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
+        if last_obs_activity:
+            return last_obs_activity.data_ref
+
+    @api.model
+    def is_patient_refusal_in_effect(self, patient_id):
+        last_obs = \
+            self.get_last_obs(patient_id)
+        return True if last_obs.partial_reason == 'refused' else False
 
 class nh_clinical_patient_observation_height(orm.Model):
     """
