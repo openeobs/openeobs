@@ -342,16 +342,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return activity_model.search(domain, limit=1, order='create_date asc')
 
     @api.model
-    def get_closed_patient_monitoring_exception_activities(self, spell_activity_id):
-        activity_model = self.env['nh.activity']
-        domain = [
-            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
-            ('spell_activity_id', '=', spell_activity_id),
-            ('state', 'in', ['completed', 'cancelled'])
-        ]
-        return activity_model.search(domain, order='create_date desc')
-
-    @api.model
     def get_open_obs_activity(self, spell_activity_id):
         """
         Gets a list of all 'open' activities.
@@ -422,6 +412,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         last_obs = \
             self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
+
 
 class nh_clinical_patient_observation_height(orm.Model):
     """
