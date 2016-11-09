@@ -1,43 +1,13 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
+from openerp.addons.nh_observations import frequencies
+from openerp.addons.nh_odoo_fixes.tests.common.datetime_test_utils import DatetimeTestUtils
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
-# from openerp.addons.nh_eobs_slam.tests.common.clinical_risk_common import \
-#    ClinicalRiskCase
-# from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
-from openerp.addons.nh_observations import frequencies
-from openerp.addons.nh_odoo_fixes.tests.common.datetime_test_utils import DatetimeTestUtils
-
 
 class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
-
-    # def setUpClass(cls):
-    #     super(TestPatientRefusalAfterPatientMonitoringException, cls)\
-    #         .setUpClass()
-    #     cls.create_doctor_ward_and_bed()
-    #     cls.create_and_admit_patient_at_date('I_AM_ALIVE', 4)
-    #
-    #     cls.observation_test_utils = cls.env['observation_test_utils']
-    #     cls.pme_model = cls.env['nh.clinical.patient_monitoring_exception']
-    #     cls.wardboard_model = cls.env['nh.clinical.wardboard']
-    #     cls.select_reason_model = \
-    #         cls.env['nh.clinical.patient_monitoring_exception.select_reason']
-    #
-    # def setUp(self):
-    #     self.obs_data = clinical_risk_sample_data.NO_RISK_DATA
-    #     self.expected_score = 0
-    #     self.expected_risk = 'None'
-    #     self.expected_freq = \
-    #         self.observation_pool.POST_INITIAL_EWS_DAYS_NO_RISK_OBS_FREQ
-    #     super(TestPatientRefusalAfterPatientMonitoringException, self) \
-    #         .setUp()
-    #
-    #     self.wardboard = self.wardboard_model.new({
-    #         'spell_activity_id': self.spell_activity_id,
-    #         'patient_id': self.patient
-    #     })
 
     def setUp(self):
         super(TestPatientRefusalAfterPatientMonitoringException, self).setUp()

@@ -43,10 +43,10 @@ class TestPatientRefusal(TransactionCase):
 
         self.observation_test_utils = self.env['observation_test_utils']
 
-        # TODO Should I do `api_model.admit()` here instead of creating obs?
-
     def test_refusal_with_unknown_clinical_risk(self):
-        refused_obs = self.ews_model.get_open_obs_activity(self.spell_activity_id)
+        refused_obs = self.ews_model.get_open_obs_activity(
+            self.spell_activity_id
+        )
         obs_activity_after_refused = \
             self.observation_test_utils.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
@@ -72,7 +72,9 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.NO_RISK_DATA
             )
-        refused_obs = self.ews_model.get_open_obs_activity(self.spell_activity_id)
+        refused_obs = self.ews_model.get_open_obs_activity(
+            self.spell_activity_id
+        )
         obs_activity_after_refused = \
             self.observation_test_utils.refuse_open_obs(
                 self.patient.id, self.spell_activity_id

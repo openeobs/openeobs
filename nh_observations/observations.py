@@ -33,7 +33,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     # numeric fields we want to be able to read as NULL instead of 0
     _num_fields = []
     _partial_reasons = [
-        ['patient_away_from_bed', 'Patient away from  bed'], # TODO 2 spaces?
+        ['patient_away_from_bed', 'Patient away from  bed'],  # TODO 2 spaces?
         ['refused', 'Refused'],
         ['emergency_situation', 'Emergency situation'],
         ['doctors_request', 'Doctor\'s request']
@@ -180,7 +180,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             activity_pool = self.pool['nh.activity']
             for obs in self.browse(cr, uid, ids, context=context):
                 # TODO Is it right that updating the frequency will
-                # automatically update the date_scheduled to create_date + frequency?
+                # automatically update the date_scheduled to
+                # create_date + frequency?
                 scheduled = (dt.strptime(
                     obs.activity_id.create_date, DTF)+td(
                     minutes=vals['frequency'])).strftime(DTF)
@@ -288,7 +289,9 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                     "was created without the creator id populated."
                 )
             previous_obs_activity_id = obs_activity.creator_id.id
-            obs_activity = activity_pool.browse(self.env.cr, self.env.uid, previous_obs_activity_id)
+            obs_activity = activity_pool.browse(
+                self.env.cr, self.env.uid, previous_obs_activity_id
+            )
 
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
@@ -319,7 +322,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             # spawned the current refused obs activity and therefore there was
             # indeed a patient monitoring exception immediately prior to the
             # refusals.
-            elif creator_activity.data_model == 'nh.clinical.patient_monitoring_exception':
+            elif creator_activity.data_model == \
+                    'nh.clinical.patient_monitoring_exception':
                 return True
             return False
 
@@ -332,7 +336,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         )
 
     @api.model
-    def get_first_obs_created_after_datetime(self, spell_activity_id, date_time):
+    def get_first_obs_created_after_datetime(
+            self, spell_activity_id, date_time):
         activity_model = self.env['nh.activity']
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),

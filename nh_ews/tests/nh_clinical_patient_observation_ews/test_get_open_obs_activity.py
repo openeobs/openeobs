@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp.tests.common import TransactionCase
 
+
 class TestGetOpenObsActivity(TransactionCase):
     """Test class for the :method:`get_open_obs_activity` method."""
     def setUp(self):

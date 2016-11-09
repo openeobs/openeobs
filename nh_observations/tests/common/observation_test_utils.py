@@ -36,8 +36,9 @@ class ObservationTestUtils(AbstractModel):
                 'partial_reason': 'refused'
             }
         )
-        activity_pool.complete(self.env.cr, self.env.uid,
-                                    obs_activity_current.id)
+        activity_pool.complete(
+            self.env.cr, self.env.uid, obs_activity_current.id
+        )
         return ews_model.get_open_obs_activity(spell_activity_id)
 
     def create_obs(self, patient_id, spell_id, obs_data):
@@ -51,8 +52,6 @@ class ObservationTestUtils(AbstractModel):
             {'patient_id': patient_id}
         )
         activity_pool.submit(self.env.cr, self.env.uid,
-                                  obs_activity_id,
-                                  obs_data)
-        activity_pool.complete(self.env.cr, self.env.uid,
-                                    obs_activity_id)
+                             obs_activity_id, obs_data)
+        activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
         return activity_model.browse(obs_activity_id)

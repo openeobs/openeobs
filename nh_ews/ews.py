@@ -745,8 +745,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
             )
         if previous_obs_activity.state not in ['completed', 'cancelled']:
             raise ValueError(
-                "Trying to create a new observation and activity but the given "
-                "previous activity is not closed. Only one open "
+                "Trying to create a new observation and activity but the given"
+                " previous activity is not closed. Only one open "
                 "observation should exist at a time."
             )
 
@@ -760,7 +760,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if previous_obs_activity.data_ref.is_partial:
             activity_pool = self.pool['nh.activity']
             next_obs_activity = \
-                activity_pool.browse(self.env.cr, self.env.uid, next_obs_activity_id)
+                activity_pool.browse(self.env.cr, self.env.uid,
+                                     next_obs_activity_id)
             self.create_next_obs_after_partial(
                 previous_obs_activity, next_obs_activity
             )
@@ -772,7 +773,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
             )
 
     @api.model
-    def create_next_obs_after_partial(self, partial_obs_activity, next_obs_activity):
+    def create_next_obs_after_partial(self, partial_obs_activity,
+                                      next_obs_activity):
         activity_pool = self.pool['nh.activity']
         patient_id = partial_obs_activity.data_ref.patient_id.id
 
@@ -792,12 +794,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         )
 
     @api.model
-    def get_date_scheduled_for_refusal(self, previous_obs_activity, next_obs_activity):
+    def get_date_scheduled_for_refusal(self, previous_obs_activity,
+                                       next_obs_activity):
         frequency = previous_obs_activity.data_ref.frequency
         date_completed = previous_obs_activity.date_terminated
         spell_activity_id = next_obs_activity.spell_activity_id.id
 
-        if self.patient_monitoring_exception_before_refusals(spell_activity_id):
+        if self.patient_monitoring_exception_before_refusals(
+                spell_activity_id):
             case = 'Obs Restart'
         else:
             try:
@@ -812,7 +816,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
         refusal_adjusted_frequency = \
             next_obs_activity.data_ref.adjust_frequency_for_patient_refusal(
-                case,frequency
+                case, frequency
             )
 
         date_scheduled = dt.strptime(date_completed, dtf) \
@@ -857,7 +861,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
             self._POLICY['ranges'], observation.score)])
         return 2 if observation.three_in_one and case < 3 else case
 
-
     def change_activity_frequency(self, cr, uid, patient_id, name, case,
                                   context=None):
         """
@@ -877,8 +880,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         api_pool = self.pool['nh.clinical.api']
         frequency = self._POLICY['frequencies'][case]
-        return api_pool.change_activity_frequency(cr, uid,
-            patient_id, name, frequency, context=context
+        return api_pool.change_activity_frequency(
+            cr, uid, patient_id, name, frequency, context=context
         )
 
     @api.multi
