@@ -782,6 +782,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             date_scheduled = self.get_date_scheduled_for_refusal(
                 partial_obs_activity, next_obs_activity
             )
+
         else:
             date_scheduled = partial_obs_activity.date_scheduled
 
@@ -810,7 +811,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 case = 'Unknown'
 
         refusal_adjusted_frequency = \
-            self.adjust_frequency_for_patient_refusal(case, frequency)
+            next_obs_activity.data_ref.adjust_frequency_for_patient_refusal(
+                case,frequency
+            )
 
         date_scheduled = dt.strptime(date_completed, dtf) \
                          + timedelta(minutes=refusal_adjusted_frequency)
