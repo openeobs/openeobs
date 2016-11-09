@@ -1,7 +1,8 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from openerp.tests.common import SingleTransactionCase
-from openerp.osv.orm import except_orm
 from datetime import datetime as dt, timedelta as td
+
+from openerp.osv.orm import except_orm
+from openerp.tests.common import SingleTransactionCase
 
 
 class TestAPI(SingleTransactionCase):

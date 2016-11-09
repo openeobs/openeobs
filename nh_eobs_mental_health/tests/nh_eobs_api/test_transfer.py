@@ -118,7 +118,7 @@ class TestTransfer(TransactionCase):
             }, context={})
         self.assertEqual(len(self.activity_model.search(cr, uid, domain)), 1)
 
-    def test_transfer_ends_current_patient_montioring_exception(self):
+    def test_transfer_ends_current_patient_monitoring_exception(self):
         """
         Test that when the patient is transfered that the currently open
         Patient Monitoring Exception is cancelled
@@ -135,3 +135,28 @@ class TestTransfer(TransactionCase):
                 'location': 'W1'
             }, context={})
         self.assertEqual(len(self.activity_model.search(cr, uid, domain)), 0)
+
+    def test_patient_refusal_after_transfer_create_obs_due_in_15_minutes(self):
+        cr, uid = self.cr, self.uid
+
+        self.wardboard_model = self.env['nh.clinical.wardboard']
+        self.wardboard = self.wardboard_model.new({
+            'spell_activity_id': self.spell_activity_id,
+            'patient_id': self.patient_id
+        })
+        self.wardboard.end_patient_monitoring_exception()
+
+        self.api_model.transfer(
+            cr, uid, 'TESTHN001', {
+                'from_location': 'W0',
+                'location': 'W1'
+            }, context={})
+        domain = [
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('spell_activity_id', '=', self.spell_activity_id),
+            ('state', 'not in', ['completed', 'cancelled'])
+        ]
+        obs_activity_ids = self.activity_model.search(cr, uid, domain)
+        self.assertEqual(len(obs_activity_ids), 1)
+        obs_activity = self.activity_model.browse(cr, uid, obs_activity_ids[0])
+        self.assertEqual(obs_activity.data_ref.frequency, 15)
