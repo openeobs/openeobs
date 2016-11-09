@@ -273,8 +273,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         ]
 
     @api.model
-    def get_last_full_obs(self, spell_id):
-        obs_activity = self.get_open_obs_activity(spell_id)
+    def get_last_full_obs(self, spell_activity_id):
+        obs_activity = self.get_open_obs_activity(spell_activity_id)
         activity_pool = self.pool['nh.activity']
         while True:
             if not obs_activity.data_ref.is_partial:
@@ -290,8 +290,69 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             previous_obs_activity_id = obs_activity.creator_id.id
             obs_activity = activity_pool.browse(self.env.cr, self.env.uid, previous_obs_activity_id)
 
+    # TODO These check the last activity which should always be refused.
+    # May be able to pass an activity id and work back from there.
     @api.model
-    def get_open_obs_activity(self, spell_id):
+    def patient_monitoring_exception_before_refusals(self, spell_activity_id):
+        obs_activity = self.get_open_obs_activity(spell_activity_id)
+        # Latest activity may be an open obs.
+        if obs_activity.state not in ['completed', 'cancelled']:
+            obs_activity = self.get_previous_obs_activity(obs_activity)
+
+        # Keep iterating until we get the first refusal.
+        while True:
+            if not obs_activity or not obs_activity.creator_id:
+                return False
+
+            creator_activity = \
+                self.get_previous_obs_activity(obs_activity)
+
+            if creator_activity.data_model \
+                    == 'nh.clinical.patient.observation.ews' \
+                    and creator_activity.data_ref.partial_reason == 'refused':
+                obs_activity = creator_activity
+                continue
+            # Because the first condition failed we know the creator of the
+            # current refused obs activity is not a refused obs activity
+            # itself.
+            # If it is a patient monitoring exception then it must be one that
+            # spawned the current refused obs activity and therefore there was
+            # indeed a patient monitoring exception immediately prior to the
+            # refusals.
+            elif creator_activity.data_model == 'nh.clinical.patient_monitoring_exception':
+                return True
+            return False
+
+    @api.model
+    def get_previous_obs_activity(self, obs_activity):
+        activity_pool = self.pool['nh.activity']
+        previous_obs_activity_id = obs_activity.creator_id.id
+        return activity_pool.browse(
+            self.env.cr, self.env.uid, previous_obs_activity_id
+        )
+
+    @api.model
+    def get_first_obs_created_after_datetime(self, spell_activity_id, date_time):
+        activity_model = self.env['nh.activity']
+        domain = [
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('spell_activity_id', '=', spell_activity_id),
+            ('create_date', '>=', date_time)
+        ]
+        return activity_model.search(domain, limit=1, order='create_date asc')
+
+    @api.model
+    def get_closed_patient_monitoring_exception_activities(self, spell_activity_id):
+        activity_model = self.env['nh.activity']
+        domain = [
+            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
+            ('spell_activity_id', '=', spell_activity_id),
+            ('state', 'in', ['completed', 'cancelled'])
+        ]
+        return activity_model.search(domain, order='create_date desc')
+
+    @api.model
+    def get_open_obs_activity(self, spell_activity_id):
         """
         Gets a list of all 'open' activities.
         'Open' is anything that is not 'completed' or 'cancelled'.
@@ -304,7 +365,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :return: Search results for open EWS observations.
         :rtype: list
         """
-        domain = self.get_open_obs_search_domain(spell_id)
+        domain = self.get_open_obs_search_domain(spell_activity_id)
         activity_model = self.env['nh.activity']
         return activity_model.search(domain)
 

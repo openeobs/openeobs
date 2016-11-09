@@ -735,10 +735,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         open and a new observation activity should not be created, thus an
         exception will be raised.
 
-        :param cr:
-        :param uid:
         :param previous_obs_activity:
-        :param context:
         :return:
         """
         if previous_obs_activity.data_model != self._name:
@@ -797,18 +794,20 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def get_date_scheduled_for_refusal(self, previous_obs_activity, next_obs_activity):
         frequency = previous_obs_activity.data_ref.frequency
         date_completed = previous_obs_activity.date_terminated
+        spell_activity_id = next_obs_activity.spell_activity_id.id
 
-        next_obs = next_obs_activity.data_ref
-
-        try:
-            last_full_obs = self.get_last_full_obs(
-                next_obs_activity.parent_id.id
-            )
-            case = self.get_case(last_full_obs.data_ref)
-        except ValueError:
-            # Without being able to get the last full obs,
-            # clinical risk is unknown.
-            case = 'Unknown'
+        if self.patient_monitoring_exception_before_refusals(spell_activity_id):
+            case = 'Obs Restart'
+        else:
+            try:
+                last_full_obs = self.get_last_full_obs(
+                    next_obs_activity.parent_id.id
+                )
+                case = self.get_case(last_full_obs.data_ref)
+            except ValueError:
+                # Without being able to get the last full obs,
+                # clinical risk is unknown.
+                case = 'Unknown'
 
         refusal_adjusted_frequency = \
             self.adjust_frequency_for_patient_refusal(case, frequency)
@@ -888,8 +887,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return refusal_adjusted_frequency
 
     def get_adjusted_frequency_for_patient_refusal(self, case, frequency=None):
-        if case == 'Unknown':
-            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS['Unknown'][0]
+        if type(case) is str:
+            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[case][0]
         else:
             risk = self.convert_case_to_risk(case)
             return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[risk][frequency][0]

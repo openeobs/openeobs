@@ -172,4 +172,3 @@ class TestPatientRefusal(TransactionCase):
 
         self.datetime_test_utils\
             .assert_datetimes_equal_disregarding_seconds(expected, actual)
-
