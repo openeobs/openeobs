@@ -924,7 +924,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
             nh_clinical_patient_observation_ews, self).create_activity(
             cr, uid, vals_activity, vals_data, context=context)
 
-    # TODO Make generic and move to nh.clinical.patient.observation model.
+    # TODO EOBS-704: Make 'get_form_description' generic and move from ews.py
+    # to observations.py
     def get_form_description(self, cr, uid, patient_id, context=None):
         """
         Returns a description in dictionary format of the input fields
