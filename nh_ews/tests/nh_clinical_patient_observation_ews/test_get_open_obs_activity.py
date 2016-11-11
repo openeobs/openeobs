@@ -39,6 +39,8 @@ class TestGetOpenObsActivity(TransactionCase):
         self.ews = self.ews_activity.data_ref
 
     def test_get_open_obs_activity(self):
-        open_obs_list = self.ews_model.get_open_obs_activity(self.spell_activity_id)
+        open_obs_list = self.ews_model.get_open_obs_activity(
+            self.spell_activity_id
+        )
         self.assertEqual(len(open_obs_list), 1)
         self.assertEqual(self.ews_activity_id, open_obs_list[0].id)
