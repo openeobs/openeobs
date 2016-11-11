@@ -953,14 +953,14 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].update(
             cr, uid, patient_id, data, context=context)
 
-    def register(self, cr, uid, patient_id, data, context=None):
+    def register(self, cr, uid, hospital_number, data, context=None):
         """
         Wraps :meth:`register()<api.nh_clinical_api.register>`,
         register a :class:`patient<base.nh_clinical_patient>` in the
         system.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the following
             about the patient: ``patient_identifier``, ``family_name``,
             ``given_name``, ``middle_names``, ``dob``, ``gender``,
@@ -971,7 +971,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         return self.pool['nh.clinical.api'].register(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
     def admit(self, cr, uid, hospital_number, data, context=None):
         """
@@ -1081,15 +1081,15 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].merge(
             cr, uid, patient_id, data, context=context)
 
-    def transfer(self, cr, uid, patient_id, data, context=None):
+    def transfer(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`transfer()<api.nh_clinical_api.transfer>`, transferring
         a :class:`patient<base.nh_clinical_patient>` to a
         :class:`location<base.nh_clinical_location>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the key
             ``location``
         :returns: ``True``
@@ -1097,7 +1097,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].transfer(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
         return res
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):

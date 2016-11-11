@@ -2,7 +2,8 @@
 from datetime import datetime, timedelta
 
 from openerp.addons.nh_observations import frequencies
-from openerp.addons.nh_odoo_fixes.tests.common.datetime_test_utils import DatetimeTestUtils
+from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
+    import DatetimeTestUtils
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 

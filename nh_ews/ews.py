@@ -820,7 +820,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             )
 
         date_scheduled = dt.strptime(date_completed, dtf) \
-                         + timedelta(minutes=refusal_adjusted_frequency)
+            + timedelta(minutes=refusal_adjusted_frequency)
         return date_scheduled
 
     def can_decrease_obs_frequency(self, cr, uid, patient_id,

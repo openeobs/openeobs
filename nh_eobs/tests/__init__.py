@@ -12,7 +12,6 @@ from .nh_eobs_ward_dashboard import *
 from .observation_report import *
 from .wardboard import *
 
-
 # Disabled tests
 # from . import test_api_demo
 # from openeobs.nh_eobs.tests.wardboard import test_wardboard

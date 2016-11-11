@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
 from openerp.addons.nh_observations import frequencies
-from openerp.addons.nh_odoo_fixes.tests.common.datetime_test_utils import DatetimeTestUtils
+from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
+    import DatetimeTestUtils
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
@@ -44,7 +45,7 @@ class TestPatientRefusal(TransactionCase):
         self.observation_test_utils = self.env['observation_test_utils']
 
     def test_refusal_with_unknown_clinical_risk(self):
-        refused_obs = self.ews_model.get_open_obs_activity(
+        self.ews_model.get_open_obs_activity(
             self.spell_activity_id
         )
         obs_activity_after_refused = \
