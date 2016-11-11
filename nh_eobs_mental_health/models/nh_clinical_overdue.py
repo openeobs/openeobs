@@ -1,13 +1,4 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
-# -*- coding: utf-8 -*-
-"""
-Defines :class:`overdue<nh_clinical_overdue>` and
-:class:`doctors activities<nh_clinical_doctor_activities>`.
-"""
-from openerp.osv import orm, fields
-import logging
-
-_logger = logging.getLogger(__name__)
+from openerp.osv import orm
 
 
 class nh_clinical_overdue(orm.Model):
@@ -20,27 +11,7 @@ class nh_clinical_overdue(orm.Model):
     """
 
     _name = "nh.clinical.overdue"
-    _inherits = {'nh.activity': 'activity_id'}
-    _description = "Overdue Activities View"
-    _auto = False
-    _table = "nh_clinical_overdue"
-    _states = [('new', 'New'), ('scheduled', 'Scheduled'),
-               ('started', 'Started'), ('completed', 'Completed'),
-               ('cancelled', 'Cancelled')]
-    _columns = {
-        'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
-                                       ondelete='restrict'),
-        'name': fields.char('Activity Name', size=100),
-        'delay': fields.integer('Delay'),
-        'delay_string': fields.char('Overdue Time', size=100),
-        'location': fields.char('Location', size=100),
-        'parent_location': fields.char('Parent Location', size=100),
-        'patient_name': fields.char('Patient Name', size=100),
-        'nhs_number': fields.char('NHS Number', size=100),
-        'user_name': fields.char('Assigned to', size=100),
-        'state': fields.selection(_states, 'State'),
-        'groups': fields.text('Doable By')
-    }
+    _inherit = "nh.clinical.overdue"
 
     def init(self, cr):
         # TODO: EOBS-695: Refactor Overdue Tasks to use groups that can access
@@ -74,6 +45,9 @@ class nh_clinical_overdue(orm.Model):
                             when strpos(activity.data_model, 'hca') != 0
                                 then 'HCA'
                             when strpos(activity.data_model, 'doctor') != 0
+                                then 'Doctor'
+                            when activity.data_model =
+                                'nh.clinical.notification.clinical_review'
                                 then 'Doctor'
                             when strpos(activity.data_model, 'notification')
                                 != 0 then 'Nurse'
@@ -119,57 +93,5 @@ class nh_clinical_overdue(orm.Model):
                         groups
                     from activity
                     order by delay
-                )
-        """ % (self._table, self._table))
-
-
-class nh_clinical_doctor_activities(orm.Model):
-    """
-    Extends :class:`activity<activity.nh_activity>` to create doctor
-    activities used by view `Doctor Tasks`.
-    Shows all
-    :class:`doctor assessment
-    <notifications.nh_clinical_notification_doctor_assessment>`
-    activities still pending. i.e. not `completed` or `cancelled`.
-    """
-
-    _name = "nh.clinical.doctor_activities"
-    _inherits = {'nh.activity': 'activity_id'}
-    _description = "Doctor Activities View"
-    _auto = False
-    _table = "nh_clinical_doctor_activities"
-    _columns = {
-        'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
-                                       ondelete='restrict'),
-        'summary': fields.text('Summary'),
-        'location': fields.text('Location'),
-    }
-
-    def init(self, cr):
-        # TODO EOBS-682: Refactor Doctor Tasks SQL to show tasks assigned to
-        # doctors on ward
-        cr.execute("""
-                drop view if exists %s;
-                create or replace view %s as (
-                    select
-                        activity.id as id,
-                        spell.id as activity_id,
-                        activity.summary as summary,
-                        location.name || ' (' || parent_location.name || ')'
-                            as location
-                    from nh_activity activity
-                    inner join nh_clinical_patient patient
-                        on activity.patient_id = patient.id
-                    inner join nh_clinical_location location
-                        on activity.location_id = location.id
-                    inner join nh_clinical_location parent_location
-                        on location.parent_id = parent_location.id
-                    left join nh_activity spell
-                        on spell.data_model = 'nh.clinical.spell'
-                        and spell.patient_id = activity.patient_id
-                    where activity.state not in ('completed','cancelled')
-                    and activity.data_model =
-                        'nh.clinical.notification.doctor_assessment'
-                    and spell.state = 'started'
                 )
         """ % (self._table, self._table))
