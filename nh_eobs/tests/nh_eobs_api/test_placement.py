@@ -32,7 +32,6 @@ class TestPlacement(TransactionCase):
         open_obs_activity = open_obs_activities[0]
         self.assertEqual(open_obs_activity.data_ref.frequency, 15)
 
-
     def test_new_obs_due_in_15_minutes_after_transfer(self):
         test_data_creator_transfer.place_patient(self)
         open_obs_activities = self.activity_model.search(self.domain)
