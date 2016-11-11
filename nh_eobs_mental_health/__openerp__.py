@@ -13,7 +13,8 @@
     'data': ['data/master_data.xml',
              'views/wardboard_view.xml',
              'views/ward_dashboard_view.xml',
-             'views/static_include.xml'
+             'views/static_include.xml',
+             'security/ir.model.access.csv'
              ],
     'qweb': [],
     'application': True,
