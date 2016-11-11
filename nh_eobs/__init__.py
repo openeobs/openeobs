@@ -17,5 +17,3 @@ from . import wardboard
 from . import wizard
 from . import workload
 from .models import nh_clinical_patient_monitoring_exception
-
-from .tests.common import test_data_creator_transfer
