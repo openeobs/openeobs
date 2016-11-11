@@ -7,23 +7,38 @@ class TestGetOpenObsActivity(TransactionCase):
     def setUp(self):
         super(TestGetOpenObsActivity, self).setUp()
         self.activity_model = self.env['nh.activity']
-        self.api_model = self.env['nh.eobs.api']
+        self.activity_pool = self.registry('nh.activity')
         self.ews_model = self.env['nh.clinical.patient.observation.ews']
+        self.patient_model = self.env['nh.clinical.patient']
+        self.spell_model = self.env['nh.clinical.spell']
 
-        self.patient_id = self.api_model.register(
-            self.hospital_number,
-            {
-                'family_name': 'Testersen',
-                'given_name': 'Test'
-            }
+        self.patient = self.patient_model.create({
+            'given_name': 'Jon',
+            'family_name': 'Snow',
+            'patient_identifier': 'a_patient_identifier'
+        })
+
+        self.spell_activity_id = self.spell_model.create_activity(
+            {},
+            {'patient_id': self.patient.id, 'pos_id': 1}
         )
 
+        self.spell_activity = self.activity_model.browse(
+            self.spell_activity_id
+        )
+
+        self.spell = self.spell_activity.data_ref
+
+        # Fails in spell.get_patient_by_id() if not started.
+        self.activity_pool.start(self.env.cr, self.env.uid,
+                                 self.spell_activity_id)
+
         self.ews_activity_id = \
-            self.ews_model.create_activity({}, {'patient_id': self.patient_id})
+            self.ews_model.create_activity({}, {'patient_id': self.patient.id})
         self.ews_activity = self.activity_model.browse(self.ews_activity_id)
         self.ews = self.ews_activity.data_ref
 
     def test_get_open_obs_activity(self):
-        open_obs_list = self.ews.get_open_obs_activity(1)
+        open_obs_list = self.ews_model.get_open_obs_activity(self.spell_activity_id)
         self.assertEqual(len(open_obs_list), 1)
         self.assertEqual(self.ews_activity_id, open_obs_list[0].id)
