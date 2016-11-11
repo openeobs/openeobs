@@ -88,9 +88,9 @@ def admit_patient(self):
     )
 
     self.spell = self.spell_model.search(
-        [['patient_id', '=', self.patient_id]])[0]
-    self.spell_activity_id = \
-        self.spell.activity_id.id
+        [('patient_id', '=', self.patient_id)]
+    )[0]
+    self.spell_activity_id = self.spell.activity_id.id
 
 
 def place_patient(self):
