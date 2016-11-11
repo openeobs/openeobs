@@ -3,6 +3,7 @@ def admit_and_place_patient(self):
     admit_patient(self)
     place_patient(self)
 
+
 def admit_patient(self):
     self.api_model = self.env['nh.eobs.api']
     self.spell_model = self.env['nh.clinical.spell']
@@ -90,6 +91,7 @@ def admit_patient(self):
         [['patient_id', '=', self.patient_id]])[0]
     self.spell_activity_id = \
         self.spell.activity_id.id
+
 
 def place_patient(self):
     self.placement = self.activity_model.search(
