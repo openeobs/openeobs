@@ -805,10 +805,11 @@ class nh_clinical_patient_observation_ews(orm.Model):
             case = 'Obs Restart'
         else:
             try:
-                last_full_obs = self.get_last_full_obs(
+                last_full_obs_activity = self.get_last_full_obs(
                     next_obs_activity.parent_id.id
                 )
-                case = self.get_case(last_full_obs.data_ref)
+                frequency = last_full_obs_activity.data_ref.frequency
+                case = self.get_case(last_full_obs_activity.data_ref)
             except ValueError:
                 # Without being able to get the last full obs,
                 # clinical risk is unknown.
