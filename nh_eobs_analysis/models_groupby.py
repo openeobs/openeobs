@@ -1,8 +1,9 @@
-from openerp.models import BaseModel
-import pytz
-import dateutil.relativedelta
 import datetime
+
 import babel.dates
+import dateutil.relativedelta
+import pytz
+from openerp.models import BaseModel
 
 
 def read_group_process_groupby_override(self, gb, query, context):
@@ -88,6 +89,7 @@ def read_group_format_result_override(self, data, annotated_groupbys, groupby,
         data['__context'] = {'group_by': groupby[len(annotated_groupbys):]}
     del data['id']
     return data
+
 
 BaseModel._read_group_process_groupby = read_group_process_groupby_override
 BaseModel._read_group_format_result = read_group_format_result_override
