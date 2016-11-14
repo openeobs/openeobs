@@ -290,6 +290,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                     "as the placement activity which would mean there are no "
                     "full obs for this spell."
                 )
+            if not obs_activity.data_ref.is_partial:
+                return obs_activity
             if not obs_activity.creator_id:
                 raise ValueError(
                     "Encountered an observation this has no creator id and "
@@ -298,8 +300,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                     "the patient has no full observations, or an observation "
                     "was created without the creator id populated."
                 )
-            if not obs_activity.data_ref.is_partial:
-                return obs_activity
             previous_obs_activity_id = obs_activity.creator_id.id
             obs_activity = activity_pool.browse(
                 self.env.cr, self.env.uid, previous_obs_activity_id
