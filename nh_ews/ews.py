@@ -888,8 +888,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def adjust_frequency_for_patient_refusal(self, case, frequency=None):
         refusal_adjusted_frequency = \
             self.get_adjusted_frequency_for_patient_refusal(case, frequency)
-        if refusal_adjusted_frequency != frequency:
-            self.write({'frequency': refusal_adjusted_frequency})
+        if refusal_adjusted_frequency != self.frequency:
+            self.frequency = refusal_adjusted_frequency
         return refusal_adjusted_frequency
 
     def get_adjusted_frequency_for_patient_refusal(self, case, frequency=None):
