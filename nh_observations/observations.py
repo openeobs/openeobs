@@ -275,11 +275,21 @@ class nh_clinical_patient_observation(orm.AbstractModel):
 
     @api.model
     def get_last_full_obs(self, spell_activity_id):
+        activity = self.env['nh.activity'].browse(spell_activity_id)
+        if activity.data_model != 'nh.clinical.spell':
+            raise ValueError("The passed activity id is not for a spell.")
+
         obs_activity = self.get_open_obs_activity(spell_activity_id)
         activity_pool = self.pool['nh.activity']
         while True:
-            if not obs_activity.data_ref.is_partial:
-                return obs_activity
+            if 'nh.clinical.patient.observation' \
+                    not in obs_activity.data_model:
+                raise ValueError(
+                    "Encountered an activity that is not an observation. It "
+                    "may be that the creator_ids have been traced as far back "
+                    "as the placement activity which would mean there are no "
+                    "full obs for this spell."
+                )
             if not obs_activity.creator_id:
                 raise ValueError(
                     "Encountered an observation this has no creator id and "
@@ -288,6 +298,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                     "the patient has no full observations, or an observation "
                     "was created without the creator id populated."
                 )
+            if not obs_activity.data_ref.is_partial:
+                return obs_activity
             previous_obs_activity_id = obs_activity.creator_id.id
             obs_activity = activity_pool.browse(
                 self.env.cr, self.env.uid, previous_obs_activity_id
