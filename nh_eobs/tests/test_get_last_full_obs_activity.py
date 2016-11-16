@@ -51,7 +51,8 @@ class TestGetLastFullObs(TransactionCase):
         self.assertEqual(self.initial_medium_risk_obs_activity.id,
                          obs_activity.id)
 
-    def test_returns_obs_from_before_transfer_after_placement_and_refusal(self):
+    def test_returns_obs_from_before_transfer_after_placement_and_refusal(
+            self):
         self.initial_medium_risk_obs_activity = \
             self.observation_test_utils.create_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,

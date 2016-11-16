@@ -48,7 +48,6 @@ class TestPatientRefusalAfterTransfer(TransactionCase):
         obs_after_refusal = obs_activity_after_refusal.data_ref
         self.assertEqual(obs_after_refusal.frequency, 15)
 
-
     def test_obs_frequency_after_refusal_with_medium_risk(self):
         self.initial_medium_risk_obs_activity = \
             self.observation_test_utils.create_ews_obs_activity(
