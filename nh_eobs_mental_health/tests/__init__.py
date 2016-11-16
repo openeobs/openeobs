@@ -7,5 +7,4 @@ from .nh_clinical_wardboard import *
 from .nh_eobs_api import *
 from .nh_eobs_settings import *
 from .nh_eobs_ward_dashboard import *
-
 from .nh_clinical_overdue import *
