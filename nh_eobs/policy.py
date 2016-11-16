@@ -6,7 +6,6 @@ Defines the `policy` for :mod:`operations<operations>` and
 See :meth:`trigger_policy()<activity.nh_activity_data.trigger_policy>`
 for how policies are executed.
 """
-from openerp import api
 from openerp.osv import orm
 
 
@@ -95,23 +94,6 @@ class nh_clinical_patient_transfer(orm.Model):
                                }, 'case': 2}
                               ]
                }
-
-    @api.model
-    def complete(self, activity_id, context=None):
-        super(nh_clinical_patient_transfer, self).complete(
-            activity_id, context=context
-        )
-        activity_model = self.env['nh.activity']
-        transfer_activity = activity_model.browse(activity_id)
-        spell_activity_id = transfer_activity.parent_id.id
-        cancel_reason = self.env['ir.model.data'].get_object(
-            'nh_eobs', 'cancel_reason_transfer'
-        )
-
-        activity_model.cancel_open_activities(
-            spell_activity_id, 'nh.clinical.patient.observation.ews',
-            cancel_reason.id
-        )
 
 
 class nh_clinical_adt_spell_update(orm.Model):
