@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from openerp.tests import common
-from faker import Faker
 import logging
+
+from faker import Faker
+from openerp.tests import common
 
 _logger = logging.getLogger(__name__)
 fake = Faker()

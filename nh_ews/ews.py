@@ -803,15 +803,16 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if self.patient_monitoring_exception_before_refusals(
                 spell_activity_id):
             case = 'Obs Restart'
+        elif frequency == 15 and \
+                self.placement_before_refusals(spell_activity_id):
+            case = 'Placement'
         else:
-            try:
-                last_full_obs_activity = self.get_last_full_obs(
-                    next_obs_activity.parent_id.id
-                )
+            last_full_obs_activity = self.get_last_full_obs_activity(
+                next_obs_activity.parent_id.id
+            )
+            if last_full_obs_activity:
                 case = self.get_case(last_full_obs_activity.data_ref)
-            except ValueError:
-                # Without being able to get the last full obs,
-                # clinical risk is unknown.
+            else:
                 case = 'Unknown'
 
         refusal_adjusted_frequency = \
@@ -883,6 +884,34 @@ class nh_clinical_patient_observation_ews(orm.Model):
         return api_pool.change_activity_frequency(
             cr, uid, patient_id, name, frequency, context=context
         )
+
+    # Ideally this method would be in `nh_observations` as it could apply
+    # to many different types of observation, but it is difficult to test
+    # there because `nh.clinical.patient.observation` is an abstract
+    # model and so you cannot create records of it to use in tests.
+    @api.model
+    def get_last_full_obs_activity(self, spell_activity_id):
+        """
+        Gets the most recent full observation.
+
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :return: observation activity
+        :rtype: nh.activity
+        """
+        domain = [
+            ('spell_activity_id', '=', spell_activity_id),
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('state', '=', 'completed')
+        ]
+        activity_model = self.env['nh.activity']
+        obs_activities = activity_model.search(
+            domain, order='create_date desc, id desc'
+        )
+        for obs_activity in obs_activities:
+            if obs_activity.data_ref.is_partial is False:
+                return obs_activity
+        return None
 
     @api.multi
     def adjust_frequency_for_patient_refusal(self, case, frequency=None):

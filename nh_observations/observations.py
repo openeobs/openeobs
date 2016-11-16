@@ -273,38 +273,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             ('state', 'not in', ['completed', 'cancelled']),
         ]
 
-    @api.model
-    def get_last_full_obs(self, spell_activity_id):
-        activity = self.env['nh.activity'].browse(spell_activity_id)
-        if activity.data_model != 'nh.clinical.spell':
-            raise ValueError("The passed activity id is not for a spell.")
-
-        obs_activity = self.get_open_obs_activity(spell_activity_id)
-        activity_pool = self.pool['nh.activity']
-        while True:
-            if 'nh.clinical.patient.observation' \
-                    not in obs_activity.data_model:
-                raise ValueError(
-                    "Encountered an activity that is not an observation. It "
-                    "may be that the creator_ids have been traced as far back "
-                    "as the placement activity which would mean there are no "
-                    "full obs for this spell."
-                )
-            if not obs_activity.data_ref.is_partial:
-                return obs_activity
-            if not obs_activity.creator_id:
-                raise ValueError(
-                    "Encountered an observation this has no creator id and "
-                    "have found only partial observations so far. "
-                    "Either this is the first observation for the spell and "
-                    "the patient has no full observations, or an observation "
-                    "was created without the creator id populated."
-                )
-            previous_obs_activity_id = obs_activity.creator_id.id
-            obs_activity = activity_pool.browse(
-                self.env.cr, self.env.uid, previous_obs_activity_id
-            )
-
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
     @api.model
@@ -336,6 +304,35 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             # refusals.
             elif creator_activity.data_model == \
                     'nh.clinical.patient_monitoring_exception':
+                return True
+            return False
+
+    @api.model
+    def placement_before_refusals(self, spell_activity_id):
+        obs_activity = self.get_open_obs_activity(spell_activity_id)
+
+        # Keep iterating until we get the first refusal.
+        while True:
+            if not obs_activity or not obs_activity.creator_id:
+                return False
+
+            creator_activity = \
+                self.get_previous_obs_activity(obs_activity)
+
+            if creator_activity.data_model \
+                    == 'nh.clinical.patient.observation.ews' \
+                    and creator_activity.data_ref.partial_reason == 'refused':
+                obs_activity = creator_activity
+                continue
+            # Because the first condition failed we know the creator of the
+            # current refused obs activity is not a refused obs activity
+            # itself.
+            # If it is a patient monitoring exception then it must be one that
+            # spawned the current refused obs activity and therefore there was
+            # indeed a patient monitoring exception immediately prior to the
+            # refusals.
+            elif creator_activity.data_model == \
+                    'nh.clinical.patient.placement':
                 return True
             return False
 

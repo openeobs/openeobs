@@ -41,7 +41,7 @@ class ObservationTestUtils(AbstractModel):
         )
         return ews_model.get_open_obs_activity(spell_activity_id)
 
-    def create_obs(self, patient_id, spell_id, obs_data):
+    def create_ews_obs_activity(self, patient_id, spell_id, obs_data):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_pool = self.pool['nh.activity']
         activity_model = self.env['nh.activity']

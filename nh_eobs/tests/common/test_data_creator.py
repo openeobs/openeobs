@@ -5,7 +5,10 @@ def admit_and_place_patient(self):
 
 
 def admit_patient(self):
-    self.api_model = self.env['nh.eobs.api']
+    try:
+        self.api_model = self.env['nh.eobs.api']
+    except KeyError:
+        self.api_model = self.env['nh.clinical.api']
     self.spell_model = self.env['nh.clinical.spell']
     self.patient_model = self.env['nh.clinical.patient']
     self.location_model = self.env['nh.clinical.location']
@@ -13,7 +16,6 @@ def admit_patient(self):
     self.pos_model = self.env['nh.clinical.pos']
     self.activity_pool = self.registry['nh.activity']
     self.activity_model = self.env['nh.activity']
-    self.wardboard_model = self.env['nh.clinical.wardboard']
     self.ews_model = self.env['nh.clinical.patient.observation.ews']
     self.context_pool = self.env['nh.clinical.context']
 
@@ -82,6 +84,7 @@ def admit_patient(self):
             'given_name': 'Test'
         }
     )
+    self.patient = self.patient_model.browse(self.patient_id)
 
     self.api_model.admit(
         self.hospital_number, {'location': 'WA'}

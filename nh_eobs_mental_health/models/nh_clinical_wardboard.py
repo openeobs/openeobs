@@ -250,7 +250,8 @@ class NHClinicalWardboard(orm.Model):
         new_ews_id = ews_model.create_activity(
             {'parent_id': self.spell_activity_id.id,
              'creator_id': ended_patient_monitoring_exception_id},
-            {'patient_id': self.patient_id.id})
+            {'patient_id': self.patient_id.id}
+        )
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 
