@@ -806,10 +806,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 spell_activity_id):
             case = 'Obs Restart'
         elif frequency == 15 \
-            and len(placement_model.get_placement_activities_for_spell(
+                and len(placement_model.get_placement_activities_for_spell(
                     spell_activity_id
                 )) > 1 \
-            and self.placement_before_refusals(spell_activity_id):
+                and self.placement_before_refusals(spell_activity_id):
             case = 'Transfer'
         else:
             last_full_obs_activity = self.get_last_full_obs_activity(

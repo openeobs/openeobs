@@ -5,10 +5,7 @@ def admit_and_place_patient(self):
 
 
 def admit_patient(self):
-    try:
-        self.api_model = self.env['nh.eobs.api']
-    except KeyError:
-        self.api_model = self.env['nh.clinical.api']
+    self.api_model = self.env['nh.eobs.api']
     self.spell_model = self.env['nh.clinical.spell']
     self.patient_model = self.env['nh.clinical.patient']
     self.location_model = self.env['nh.clinical.location']
