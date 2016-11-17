@@ -796,6 +796,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
     @api.model
     def get_date_scheduled_for_refusal(self, previous_obs_activity,
                                        next_obs_activity):
+        placement_model = self.env['nh.clinical.patient.placement']
+
         frequency = previous_obs_activity.data_ref.frequency
         date_completed = previous_obs_activity.date_terminated
         spell_activity_id = next_obs_activity.spell_activity_id.id
@@ -803,9 +805,12 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if self.patient_monitoring_exception_before_refusals(
                 spell_activity_id):
             case = 'Obs Restart'
-        elif frequency == 15 and \
-                self.placement_before_refusals(spell_activity_id):
-            case = 'Placement'
+        elif frequency == 15 \
+            and len(placement_model.get_placement_activities_for_spell(
+                    spell_activity_id
+                )) > 1 \
+            and self.placement_before_refusals(spell_activity_id):
+            case = 'Transfer'
         else:
             last_full_obs_activity = self.get_last_full_obs_activity(
                 next_obs_activity.parent_id.id

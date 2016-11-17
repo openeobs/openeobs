@@ -63,7 +63,7 @@ PATIENT_REFUSAL_ADJUSTMENTS = {
         EVERY_30_MINUTES[0]: EVERY_30_MINUTES
     },
     'Unknown': EVERY_4_HOURS,
-    'Placement': EVERY_15_MINUTES,
+    'Transfer': EVERY_15_MINUTES,
     'Obs Restart': EVERY_HOUR
 }
 
