@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
+from openerp.addons.nh_eobs.tests.common import test_data_creator
 from openerp.addons.nh_observations import frequencies
 from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
     import DatetimeTestUtils
@@ -12,41 +13,20 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
 
     def setUp(self):
         super(TestPatientRefusalAfterPatientMonitoringException, self).setUp()
-        self.patient_model = self.env['nh.clinical.patient']
-        self.spell_model = self.env['nh.clinical.spell']
-        self.activity_model = self.env['nh.activity']
-        self.activity_pool = self.registry('nh.activity')
+        test_data_creator.admit_and_place_patient(self)
+        self.env.uid = self.nurse.id
+
+        self.patient = self.patient_model.browse(self.patient_id)
+        self.spell_activity = \
+            self.activity_model.browse(self.spell_activity_id)
+
+        self.wardboard_model = self.env['nh.clinical.wardboard']
         self.reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
-        self.wardboard_model = self.env['nh.clinical.wardboard']
-        self.wizard_model = \
-            self.env['nh.clinical.patient_monitoring_exception.select_reason']
-        self.ews_model = self.env['nh.clinical.patient.observation.ews']
-
-        self.patient = self.patient_model.create({
-            'given_name': 'Jon',
-            'family_name': 'Snow',
-            'patient_identifier': 'a_patient_identifier'
-        })
-
-        self.spell_activity_id = self.spell_model.create_activity(
-            {},
-            {'patient_id': self.patient.id, 'pos_id': 1}
-        )
-
-        self.spell_activity = self.activity_model.browse(
-            self.spell_activity_id
-        )
-
-        # Fails in spell.get_patient_by_id() if not started.
-        self.activity_pool.start(self.env.cr, self.env.uid,
-                                 self.spell_activity_id)
-
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,
             'patient_id': self.patient
         })
-
         self.observation_test_utils = self.env['observation_test_utils']
         self.datetime_test_utils = DatetimeTestUtils()
 

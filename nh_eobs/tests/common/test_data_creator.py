@@ -15,6 +15,7 @@ def admit_patient(self):
     self.activity_model = self.env['nh.activity']
     self.ews_model = self.env['nh.clinical.patient.observation.ews']
     self.context_pool = self.env['nh.clinical.context']
+    self.category_model = self.env['res.partner.category']
 
     hospital_search = self.location_model.search(
         [('usage', '=', 'hospital')]
@@ -31,14 +32,6 @@ def admit_patient(self):
         self.pos = pos_search[0]
     else:
         raise ValueError('Could not find POS with location ID of hospital')
-
-    self.user = self.user_model.browse(self.env.uid)
-    self.user.write(
-        {
-            'pos_id': self.pos.id,
-            'pos_ids': [[4, self.pos.id]]
-        }
-    )
 
     self.ward = self.location_model.create(
         {
@@ -72,9 +65,28 @@ def admit_patient(self):
         }
     )
 
-    self.hospital_number = 'TESTHN001'
+    self.nurse_role = self.category_model.search([('name', '=', 'Nurse')])[0]
 
-    self.patient_id = self.api_model.register(
+    # Create nurse and associate him with bed location and nurse role.
+    self.nurse = self.user_model.create({
+        'name': 'Jon',
+        'login': 'iknownothing',
+        'password': 'atall',
+        'category_id': [[4, self.nurse_role.id]],
+        'location_ids': [[4, self.bed.id]]
+    })
+
+    self.admin = self.user_model.browse(self.env.uid)
+    # Associate admin with POS.
+    self.admin.write(
+        {
+            'pos_id': self.pos.id,
+            'pos_ids': [[4, self.pos.id]]
+        }
+    )
+
+    self.hospital_number = 'TESTHN001'
+    self.patient_id = self.api_model.sudo().register(
         self.hospital_number,
         {
             'family_name': 'Testersen',
