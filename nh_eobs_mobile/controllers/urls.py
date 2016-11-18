@@ -283,4 +283,5 @@ def get_urls():
         r[route['name']] = URL_PREFIX+route['endpoint']
     return r
 
+
 URLS = get_urls()

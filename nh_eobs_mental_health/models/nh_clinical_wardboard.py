@@ -1,9 +1,10 @@
-from openerp.osv import orm, osv, fields
+import copy
 from datetime import datetime, timedelta
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
 from openerp import api
 from openerp.addons.nh_eobs import helpers
-import copy
+from openerp.osv import orm, osv, fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class NHClinicalWardboard(orm.Model):
@@ -201,7 +202,7 @@ class NHClinicalWardboard(orm.Model):
             )
 
         self.set_obs_stop_flag(spell_id, False)
-        self.create_new_ews()
+        self.create_new_ews(patient_monitoring_exception_activity_id)
 
     def set_obs_stop_flag(self, cr, uid, spell_id, value, context=None):
         """
@@ -235,10 +236,11 @@ class NHClinicalWardboard(orm.Model):
             cr, uid, escalation_task_domain, context=context))
 
     @api.multi
-    def create_new_ews(self):
+    def create_new_ews(self, ended_patient_monitoring_exception_id):
         """
         Create a new EWS task an hour in the future. Used when patient is
-        take off obs_stop
+        take off obs_stop.
+
         :return: ID of created EWS
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
@@ -246,8 +248,10 @@ class NHClinicalWardboard(orm.Model):
         api_model = self.env['nh.clinical.api']
 
         new_ews_id = ews_model.create_activity(
-            {'parent_id': self.spell_activity_id.id},
-            {'patient_id': self.patient_id.id})
+            {'parent_id': self.spell_activity_id.id,
+             'creator_id': ended_patient_monitoring_exception_id},
+            {'patient_id': self.patient_id.id}
+        )
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 

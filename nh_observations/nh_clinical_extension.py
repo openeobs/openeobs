@@ -4,9 +4,10 @@
 `nh_clinical_extension.py` extends several NH Clinical classes to add
 relevant observations related functionality.
 """
-from openerp.osv import orm
-from openerp import SUPERUSER_ID
 from datetime import datetime as dt, timedelta as td
+
+from openerp import SUPERUSER_ID
+from openerp.osv import orm
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
@@ -59,6 +60,10 @@ class nh_clinical_api_extension(orm.AbstractModel):
         Creates and completes a new
         :mod:`rev frequency<notifications.nh_clinical_notification_frequency>`
         task to update the frequency of the specified activity type.
+
+        The update of the frequency also triggers an update of the
+        `date_scheduled`. See :method:`nh_observations.observations
+        .nh_clinical_patient_observation.write`.
 
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id.
         :type patient_id: int
