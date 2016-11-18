@@ -19,7 +19,8 @@ openerp.nh_eobs_mental_health = function (instance) {
                     "Medium Risk": "medium",
                     "Low Risk": "low",
                     "No Risk": "no",
-                    "Obs Stop": "none"
+                    "Obs Stop": "none",
+                    "Refused": "none"
                 };
                 for (i = 0; i < heads.length; i++) {
                     column_string = $(titles[i]).text().trim();

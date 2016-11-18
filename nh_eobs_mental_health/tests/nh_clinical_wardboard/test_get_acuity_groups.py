@@ -22,7 +22,8 @@ class TestGetAcuityGroups(SingleTransactionCase):
             ('Medium', 'Medium Risk'),
             ('Low', 'Low Risk'),
             ('None', 'No Risk'),
-            ('ObsStop', 'Obs Stop')
+            ('ObsStop', 'Obs Stop'),
+            ('Refused', 'Refused')
         ]
         self.assertEqual(self.groups[0], expected_groups)
 
@@ -37,7 +38,8 @@ class TestGetAcuityGroups(SingleTransactionCase):
                 'Medium': False,
                 'Low': False,
                 'None': False,
-                'ObsStop': False
+                'ObsStop': False,
+                'Refused': False
             }
         for key, value in expected_states.iteritems():
             self.assertEqual(self.groups[1][key], value)

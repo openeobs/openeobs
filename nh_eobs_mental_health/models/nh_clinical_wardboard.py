@@ -34,7 +34,8 @@ class NHClinicalWardboard(orm.Model):
         ('Medium', 'Medium Risk'),
         ('Low', 'Low Risk'),
         ('None', 'No Risk'),
-        ('ObsStop', 'Obs Stop')
+        ('ObsStop', 'Obs Stop'),
+        ('Refused', 'Refused')
     ]
 
     _columns = {
@@ -391,8 +392,25 @@ class NHClinicalWardboard(orm.Model):
 
         :param cr: Odoo Cursor
         """
+        settings_pool = self.pool['nh.clinical.settings']
         nh_eobs_sql = self.pool['nh.clinical.sql']
+        dt_period = \
+            settings_pool.get_setting(cr, 1, 'discharge_transfer_period')
         cr.execute("""
         CREATE OR REPLACE VIEW last_finished_pme AS ({last_pme});
-        """.format(last_pme=nh_eobs_sql.get_last_finished_pme()))
+        CREATE OR REPLACE VIEW ews_activities AS ({ews_activities});
+        CREATE OR REPLACE VIEW refused_ews_activities AS ({refused_ews});
+        """.format(
+            last_pme=nh_eobs_sql.get_last_finished_pme(),
+            ews_activities=nh_eobs_sql.get_ews_activities(),
+            refused_ews=nh_eobs_sql.get_refused_ews_activities()
+        ))
         super(NHClinicalWardboard, self).init(cr)
+        cr.execute("""
+        CREATE OR REPLACE VIEW refused_last_ews AS ({refused_last_ews});
+        CREATE OR REPLACE VIEW nh_clinical_wardboard AS ({refused_wardboard});
+        """.format(
+            refused_last_ews=nh_eobs_sql.get_refused_last_ews(),
+            refused_wardboard=nh_eobs_sql.get_refused_wardboard(
+                '{0}d'.format(dt_period))
+        ))

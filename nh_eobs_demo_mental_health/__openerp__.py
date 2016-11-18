@@ -14,7 +14,8 @@
         'data/ward_b/obs_stop.xml',
         'data/ward_c/obs_stop.xml',
         'data/ward_d/obs_stop.xml',
-        'data/ward_e/obs_stop.xml'
+        'data/ward_e/obs_stop.xml',
+        'data/ward_a/refused_obs.xml'
     ],
     'application': True,
     'installable': True,

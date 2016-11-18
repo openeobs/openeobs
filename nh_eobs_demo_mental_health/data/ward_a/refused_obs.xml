@@ -1,0 +1,137 @@
+<openerp>
+    <data noupdate="1">
+
+        <!-- Refused Observation -->
+        <record id="nhc_activity_refused_news_23_0" model="nh.activity">
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_23" />
+            <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_news_23_360" />
+            <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_23" />
+            <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_23" />
+            <field name="state">completed</field>
+            <field eval="1000" name="sequence" />
+            <field name="data_model">nh.clinical.patient.observation.ews</field>
+            <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wa_b23" />
+            <field eval="(datetime.now() + timedelta(minutes=-15)).strftime('%Y-%m-%d %H:%M:%S')" name="date_scheduled" />
+            <field eval="(datetime.now() + timedelta(minutes=-15)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+            <field name="terminate_uid" ref="nh_eobs_demo.nhc_def_conf_nurse_nathan_user" />
+        </record>
+
+        <record id="nhc_refused_news_23_0" model="nh.clinical.patient.observation.ews">
+            <field name="activity_id" ref="nhc_activity_refused_news_23_0" />
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_23" />
+            <field eval="720" name="frequency" />
+            <field eval="11" name="respiration_rate" />
+            <field eval="False" name="oxygen_administration_flag" />
+            <field eval="False" name="body_temperature" />
+            <field eval="False" name="blood_pressure_systolic" />
+            <field eval="False" name="blood_pressure_diastolic" />
+            <field eval="False" name="pulse_rate" />
+            <field name="avpu_text">A</field>
+            <field name="partial_reason">refused</field>
+        </record>
+
+        <record id="nhc_activity_refused_news_23_0" model="nh.activity">
+            <field eval="'nh.clinical.patient.observation.ews,' + str(ref('nhc_refused_news_23_0'))" name="data_ref" />
+        </record>
+
+        <!-- Partial Observation created by Refused Observation -->
+        <record id="nhc_activity_partial_news_23_0" model="nh.activity">
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_23" />
+            <field name="creator_id" ref="nhc_activity_refused_news_23_0" />
+            <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_23" />
+            <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_23" />
+            <field name="state">completed</field>
+            <field eval="1001" name="sequence" />
+            <field name="data_model">nh.clinical.patient.observation.ews</field>
+            <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wa_b23" />
+            <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_scheduled" />
+            <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+            <field name="terminate_uid" ref="nh_eobs_demo.nhc_def_conf_nurse_nathan_user" />
+        </record>
+
+        <record id="nhc_partial_news_23_0" model="nh.clinical.patient.observation.ews">
+            <field name="activity_id" ref="nhc_activity_partial_news_23_0" />
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_23" />
+            <field eval="60" name="frequency" />
+            <field eval="18" name="respiration_rate" />
+            <field eval="False" name="oxygen_administration_flag" />
+            <field eval="False" name="body_temperature" />
+            <field eval="False" name="blood_pressure_systolic" />
+            <field eval="False" name="blood_pressure_diastolic" />
+            <field eval="False" name="pulse_rate" />
+            <field name="avpu_text">A</field>
+            <field name="partial_reason">asleep</field>
+        </record>
+
+        <record id="nhc_activity_partial_news_23_0" model="nh.activity">
+            <field eval="'nh.clinical.patient.observation.ews,' + str(ref('nhc_partial_news_23_0'))" name="data_ref" />
+        </record>
+        
+        <!-- Refused Observation -->
+        <record id="nhc_activity_refused_news_22_0" model="nh.activity">
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_22" />
+            <field name="creator_id" ref="nh_eobs_demo.nhc_activity_demo_news_22_337" />
+            <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_22" />
+            <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_22" />
+            <field name="state">completed</field>
+            <field eval="1000" name="sequence" />
+            <field name="data_model">nh.clinical.patient.observation.ews</field>
+            <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wa_b23" />
+            <field eval="(datetime.now() + timedelta(minutes=-15)).strftime('%Y-%m-%d %H:%M:%S')" name="date_scheduled" />
+            <field eval="(datetime.now() + timedelta(minutes=-15)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+            <field name="terminate_uid" ref="nh_eobs_demo.nhc_def_conf_nurse_nathan_user" />
+        </record>
+
+        <record id="nhc_refused_news_22_0" model="nh.clinical.patient.observation.ews">
+            <field name="activity_id" ref="nhc_activity_refused_news_22_0" />
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_22" />
+            <field eval="720" name="frequency" />
+            <field eval="11" name="respiration_rate" />
+            <field eval="False" name="oxygen_administration_flag" />
+            <field eval="False" name="body_temperature" />
+            <field eval="False" name="blood_pressure_systolic" />
+            <field eval="False" name="blood_pressure_diastolic" />
+            <field eval="False" name="pulse_rate" />
+            <field name="avpu_text">A</field>
+            <field name="partial_reason">refused</field>
+        </record>
+
+        <record id="nhc_activity_refused_news_22_0" model="nh.activity">
+            <field eval="'nh.clinical.patient.observation.ews,' + str(ref('nhc_refused_news_22_0'))" name="data_ref" />
+        </record>
+
+        <!-- Full obs after Refused -->
+        <record id="nhc_activity_full_news_22_0" model="nh.activity">
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_22" />
+            <field name="creator_id" ref="nhc_activity_refused_news_22_0" />
+            <field name="parent_id" ref="nh_eobs_demo.nhc_activity_demo_spell_22" />
+            <field name="spell_activity_id" ref="nh_eobs_demo.nhc_activity_demo_spell_22" />
+            <field name="state">completed</field>
+            <field eval="1001" name="sequence" />
+            <field name="data_model">nh.clinical.patient.observation.ews</field>
+            <field name="location_id" ref="nh_eobs_demo.nhc_def_conf_location_wa_b23" />
+            <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_scheduled" />
+            <field eval="(datetime.now()).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+            <field name="terminate_uid" ref="nh_eobs_demo.nhc_def_conf_nurse_nathan_user" />
+        </record>
+
+        <record id="nhc_full_news_22_0" model="nh.clinical.patient.observation.ews">
+            <field name="activity_id" ref="nhc_activity_full_news_22_0" />
+            <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_22" />
+            <field eval="240" name="frequency" />
+            <field eval="15" name="respiration_rate" />
+            <field eval="99" name="indirect_oxymetry_spo2" />
+            <field eval="False" name="oxygen_administration_flag" />
+            <field eval="40.5" name="body_temperature" />
+            <field eval="120" name="blood_pressure_systolic" />
+            <field eval="80" name="blood_pressure_diastolic" />
+            <field eval="65" name="pulse_rate" />
+            <field name="avpu_text">A</field>
+        </record>
+
+        <record id="nhc_activity_full_news_22_0" model="nh.activity">
+            <field eval="'nh.clinical.patient.observation.ews,' + str(ref('nhc_full_news_22_0'))" name="data_ref" />
+        </record>
+
+    </data>
+</openerp>

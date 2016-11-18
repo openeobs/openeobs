@@ -222,3 +222,121 @@ class NHEobsSQL(orm.AbstractModel):
 
     def get_last_finished_pme(self):
         return self.last_finished_pme_for_spell_skeleton
+
+    # Start REFUSED EWS
+
+    ews_activities_skeleton = """
+    SELECT  ews.id AS ews_id,
+            activity.id AS id,
+            activity.data_ref,
+            activity.data_model,
+            ews.partial_reason,
+            activity.spell_activity_id,
+            activity.creator_id,
+            activity.state,
+            activity.summary
+    FROM nh_activity as activity
+    INNER JOIN nh_clinical_patient_observation_ews as ews
+    ON split_part(activity.data_ref, ',', 2)::int = ews.id
+    WHERE activity.data_model = 'nh.clinical.patient.observation.ews'
+    """
+
+    refused_ews_skeleton = """
+    WITH RECURSIVE refused_ews_tree AS (
+        --Select the fields we want to use from the original table
+        SELECT  id,
+                ews_id,
+                creator_id,
+                data_model,
+                data_ref,
+                spell_activity_id,
+                state,
+                ARRAY[id] as activity_ids,
+                partial_reason,
+                ARRAY[partial_reason] as partial_tree,
+                id as first_activity_id,
+                id as last_activity_id,
+                true as refused
+        FROM ews_activities
+        --Make sure we only get EWS
+        WHERE partial_reason = 'refused'
+        AND state = 'completed'
+        --Join the two tables
+        UNION ALL
+        --Select the same table but join it with parent row (via creator_id)
+        SELECT  child_act.id,
+                child_act.ews_id,
+                child_act.creator_id,
+                child_act.data_model,
+                child_act.data_ref,
+                child_act.spell_activity_id,
+                child_act.state,
+                array_append(act.activity_ids, child_act.id) AS activity_ids,
+                child_act.partial_reason,
+                array_append(act.partial_tree, child_act.partial_reason)
+                  AS partial_tree,
+                activity_ids[1] AS first_activity_id,
+                child_act.id AS last_activity_id,
+                NOT array_to_string(
+                  array_cat(
+                    partial_tree,
+                    ARRAY[child_act.partial_reason]
+                  ), ', ') <> array_to_string(
+                  array_cat(
+                    partial_tree,
+                    ARRAY[child_act.partial_reason]
+                  ), ', ', '(null)')
+                AS refused
+        FROM ews_activities as child_act
+        INNER JOIN refused_ews_tree as act
+        ON (child_act.creator_id = act.id)
+        WHERE child_act.state = 'completed'
+    )
+
+    SELECT *
+    FROM refused_ews_tree
+    ORDER BY id
+    """
+
+    refused_last_ews_skeleton = """
+    SELECT  refused.id,
+            refused.ews_id,
+            refused.refused,
+            acts.spell_id
+    from refused_ews_activities AS refused
+    RIGHT OUTER JOIN wb_activity_ranked AS acts
+    ON acts.id = refused.id
+    WHERE acts.rank = 1
+    AND acts.state = 'completed'
+    AND acts.data_model = 'nh.clinical.patient.observation.ews'
+    """
+
+    def get_ews_activities(self):
+        return self.ews_activities_skeleton
+
+    def get_refused_ews_activities(self):
+        return self.refused_ews_skeleton
+
+    def get_refused_last_ews(self):
+        return self.refused_last_ews_skeleton
+
+    def get_refused_wardboard(self, interval):
+        """
+        Override wardboard SQL view to include acuity index
+        :param interval: Time interval used for recently transferred /
+        discharged
+        :return: SQL statement used in nh_eobs.init()
+        """
+        wardboard = self.get_wardboard(interval)
+        wardboard = wardboard.replace(
+            'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' ',
+            'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' '
+            'WHEN refused_last_ews.refused = true THEN \'Refused\' ')
+        return wardboard.replace(
+            'LEFT JOIN param ON param.spell_id = spell.id',
+            'LEFT JOIN param ON param.spell_id = spell.id '
+            'LEFT JOIN refused_last_ews '
+            'ON refused_last_ews.spell_id = spell.id'
+        )
+
+    # End REFUSED EWS

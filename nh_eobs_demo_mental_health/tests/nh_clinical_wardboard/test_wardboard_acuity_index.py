@@ -41,6 +41,7 @@ class TestWardboardAcuityIndex(TransactionCase):
         self.obs_stop_spells = obs_stop_spells.ids
         self.restarted_obs_spells = restarted_obs_spells
         self.clinical_risk_spells = clinical_risk_spells.ids
+        self.refused_spell = 23
 
     def test_wardboard_acuity_index_obs_stop(self):
         """
@@ -65,3 +66,11 @@ class TestWardboardAcuityIndex(TransactionCase):
         for spell in self.clinical_risk_spells:
             wardboard = self.wardboard_model.browse(spell)
             self.assertEqual(wardboard.acuity_index, wardboard.clinical_risk)
+
+    def test_wardboard_acuity_index_refused(self):
+        """
+        Test that the spell with the refused status has the correct
+        acuity_index
+        """
+        wardboard = self.wardboard_model.browse(self.refused_spell)
+        self.assertEqual(wardboard.acuity_index, 'Refused')

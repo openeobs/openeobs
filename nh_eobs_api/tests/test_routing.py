@@ -693,11 +693,6 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
         )
 
 
-######################
-# ROUTING SYSTEM TESTS
-######################
-
-# Define server's routing constants to be used for the routing tests
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = "{0}".format(config['xmlrpc_port'])
