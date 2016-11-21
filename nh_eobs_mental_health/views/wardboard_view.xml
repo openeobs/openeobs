@@ -11,6 +11,7 @@
                 </xpath>
                 <xpath expr="//sheet/field" position="after">
                     <field name="obs_stop" readonly="1" invisible="1"/>
+                    <field name="acuity_index" readonly="1" invisible="1"/>
                 </xpath>
             </field>
         </record>
@@ -64,6 +65,7 @@
             <field name="arch" type="xml">
                 <xpath expr="//tree/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
+                    <field name="acuity_index" readonly="1" invisible="1"/>
                 </xpath>
             </field>
         </record>
