@@ -1021,7 +1021,4 @@ class nh_clinical_patient_observation_ews(orm.Model):
             else case
         return case
 
-    def patient_has_spell(self, cr, uid, patient_id):
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
-        return bool(spell_id)
+

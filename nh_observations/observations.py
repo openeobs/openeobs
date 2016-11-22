@@ -273,6 +273,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             ('state', 'not in', ['completed', 'cancelled']),
         ]
 
+    def patient_has_spell(self, cr, uid, patient_id):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        return spell_id
+
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
     @api.model
@@ -461,19 +466,30 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             refused = True
             continue
 
+    # @api.model
+    # def is_patient_refusal_in_effect(self, patient_id):
+    #     last_obs = \
+    #         self.get_last_obs(patient_id)
+    #     return True if last_obs.partial_reason == 'refused' else False
+
     @api.model
     def is_patient_refusal_in_effect(self, patient_id):
-        spell_id = self.patient_has_spell(patient_id)
         cr, uid, context = self._cr, self._uid, self._context
-        if not spell_id:
+        activity_pool = self.pool['nh.activity']
+        spell_activity_id = activity_pool.search(
+            cr, uid, [
+                ['data_model', '=', 'nh.clinical.spell'],
+                ['state', '=', 'started'],
+                ['patient_id', '=', patient_id],
+            ], context=context)
+        if not spell_activity_id:
             return False
         refused_domain = [
             ['data_model', '=', self._name],
             ['state', '=', 'completed'],
-            ['parent_id', '=', spell_id],
+            ['parent_id', '=', spell_activity_id],
             ['data_ref.partial_reason', '=', 'refused']
         ]
-        activity_pool = self.pool['nh.activity']
         observation_ids = activity_pool.search(
             cr, uid, refused_domain,
             order='date_terminated desc, sequence desc',
@@ -482,10 +498,10 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             return False
         last_refused = activity_pool.browse(
             cr, uid, observation_ids[0], context=context)
-        if self.get_open_obs_activity()[0] in last_refused.child_ids:
+        open_ob = self.get_open_obs_activity(spell_activity_id)
+        if open_ob and open_ob[0] in last_refused.child_ids._ids:
             return True
-        refused = self.full_observation_since_refused(last_refused)
-        return refused
+        return self.full_observation_since_refused(last_refused)
 
 
 class nh_clinical_patient_observation_height(orm.Model):
