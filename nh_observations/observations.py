@@ -440,6 +440,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:
             return last_obs_activity.data_ref
+
     @api.model
     def full_observation_since_refused(self, obs_activity):
         refused = False
@@ -448,11 +449,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 return False
 
             if not obs_activity.data_ref.partial_reason \
-                and obs_activity.state in ['completed', 'cancelled']:
+                    and obs_activity.state in ['completed', 'cancelled']:
                 return False
 
             if not refused \
-                and obs_activity.data_ref.partial_reason != 'refused':
+                    and obs_activity.data_ref.partial_reason != 'refused':
                 return False
 
             child_activity = \

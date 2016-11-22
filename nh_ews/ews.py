@@ -1020,5 +1020,3 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case = 2 if last_obs_activity.data_ref.three_in_one and case < 3 \
             else case
         return case
-
-

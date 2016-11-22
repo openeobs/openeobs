@@ -79,7 +79,8 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         """
         Test returns False if no observations for spell
         """
-        self.assertFalse(self.observation_model
+        self.assertFalse(
+            self.observation_model
                 .with_context(test='no_obs')
                 .is_patient_refusal_in_effect(1))
 
