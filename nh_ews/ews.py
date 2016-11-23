@@ -778,8 +778,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         activity_pool = self.pool['nh.activity']
         patient_id = partial_obs_activity.data_ref.patient_id.id
 
-        patient_refusal_in_effect = \
-            self.is_patient_refusal_in_effect(patient_id)
+        patient_refusal_in_effect = self.is_last_obs_refused(patient_id)
         if patient_refusal_in_effect:
             date_scheduled = self.get_date_scheduled_for_refusal(
                 partial_obs_activity, next_obs_activity
