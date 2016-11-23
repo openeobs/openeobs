@@ -1,14 +1,14 @@
 from openerp.tests.common import SingleTransactionCase
 
 
-class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
+class TestPatientListObsStop(SingleTransactionCase):
     """
     Test that the override of process patient list is working correctly
     """
 
     @classmethod
     def setUpClass(cls):
-        super(TestNHEobsMobileProcessPatientList, cls).setUpClass()
+        super(TestPatientListObsStop, cls).setUpClass()
         cls.spell_model = cls.registry('nh.clinical.spell')
         cls.mobile_model = cls.registry('nh.eobs.mobile.mental')
 
@@ -57,7 +57,7 @@ class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
         cls.spell_model._revert_method('search')
         cls.spell_model._revert_method('read')
         cls.mobile_model._revert_method('calculate_ews_class')
-        super(TestNHEobsMobileProcessPatientList, cls).tearDownClass()
+        super(TestPatientListObsStop, cls).tearDownClass()
 
     def test_obs_stopped_deadline_string(self):
         """
@@ -67,7 +67,7 @@ class TestNHEobsMobileProcessPatientList(SingleTransactionCase):
         self.assertEqual(
             self.patients[1].get('deadline_time'), 'Observations Stopped')
 
-    def test_obs_stopped_deadline_string(self):
+    def test_non_obs_stopped_deadline_string(self):
         """
         Test that the deadline string is set to 'Observations stopped' when
         the obs_stop flag is set to true

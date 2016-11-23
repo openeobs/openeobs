@@ -10,6 +10,7 @@ class NHEobsMobileMain(orm.AbstractModel):
 
     def process_patient_list(self, cr, uid, patient_list, context=None):
         spell_model = self.pool['nh.clinical.spell']
+        ews_model = self.pool['nh.clinical.patient.observation.ews']
         patient_ids = [patient.get('id') for patient in patient_list]
         spell_ids = spell_model.search(cr, uid, [
             ['patient_id', 'in', patient_ids],
@@ -33,6 +34,10 @@ class NHEobsMobileMain(orm.AbstractModel):
                 patient['ews_trend'])
             if obs_stop.get(patient.get('id')):
                 patient['deadline_time'] = 'Observations Stopped'
+            elif ews_model.is_patient_refusal_in_effect(
+                    cr, uid, patient.get('id'), context=context):
+                patient['deadline_time'] = \
+                    'Refused - {0}'.format(patient.get('next_ews_time'))
             else:
                 patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient.get('summary', False)
