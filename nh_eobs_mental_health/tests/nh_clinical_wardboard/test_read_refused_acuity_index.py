@@ -39,15 +39,9 @@ class TestReadRefusedAcuityIndex(SingleTransactionCase):
             return [1]
 
         def patch_spell_read(*args, **kwargs):
-            context = kwargs.get('context', {})
-            test = context.get('test', '')
             res = {
                 'id': 1,
             }
-            if test == 'refused':
-                res = {
-                    'id': 1,
-                }
             return res
 
         cls.spell_model._patch_method('search', patch_spell_search)

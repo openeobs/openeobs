@@ -116,8 +116,8 @@ class TestIsPatientRefusalInEffect(TransactionCase):
 
     def test_open_obs_child(self):
         """
-        Test returns True if currently open obs is direct child of last refused
-        obs
+        Test call full_observation_Since_refused_child if the open_ob is not
+        a child of the last refused observation
         """
         self.assertEqual(
             self.observation_model
