@@ -467,14 +467,14 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             refused = True
             continue
 
-    # @api.model
-    # def is_patient_refusal_in_effect(self, patient_id):
-    #     last_obs = \
-    #         self.get_last_obs(patient_id)
-    #     return True if last_obs.partial_reason == 'refused' else False
-
     @api.model
     def is_patient_refusal_in_effect(self, patient_id):
+        last_obs = \
+            self.get_last_obs(patient_id)
+        return True if last_obs.partial_reason == 'refused' else False
+
+    @api.model
+    def is_patient_refusing(self, patient_id):
         cr, uid, context = self._cr, self._uid, self._context
         activity_pool = self.pool['nh.activity']
         spell_activity_id = activity_pool.search(

@@ -1,15 +1,15 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestIsPatientRefusalInEffect(TransactionCase):
+class TestIsPatientRefusing(TransactionCase):
     """
-    Test that the is_patient_refusal_in_effect method is returning True if
+    Test that the is_patient_refusing method is returning True if
     the patient's last refused observation has had no full observations taken
     since
     """
 
     def setUp(self):
-        super(TestIsPatientRefusalInEffect, self).setUp()
+        super(TestIsPatientRefusing, self).setUp()
         self.observation_model = self.env['nh.clinical.patient.observation']
         self.activity_model = self.env['nh.activity']
         self.no_obs_called = False
@@ -64,7 +64,7 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.observation_model._revert_method('get_open_obs_activity')
         self.activity_model._revert_method('search')
         self.activity_model._revert_method('browse')
-        super(TestIsPatientRefusalInEffect, self).tearDown()
+        super(TestIsPatientRefusing, self).tearDown()
 
     def test_no_spell_id(self):
         """
@@ -73,7 +73,7 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.assertFalse(
             self.observation_model
                 .with_context(test='no_spell')
-                .is_patient_refusal_in_effect(1))
+                .is_patient_refusing(1))
 
     def test_no_obs_ids(self):
         """
@@ -82,7 +82,7 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.assertFalse(
             self.observation_model
                 .with_context(test='no_obs')
-                .is_patient_refusal_in_effect(1))
+                .is_patient_refusing(1))
 
     def test_no_open_obs(self):
         """
@@ -92,7 +92,7 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.assertEqual(
             self.observation_model
                 .with_context(test='no_open_obs')
-                .is_patient_refusal_in_effect(1),
+                .is_patient_refusing(1),
             'full_observation_since_refused_called'
         )
 
@@ -104,7 +104,7 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.assertEqual(
             self.observation_model
                 .with_context(test='open_obs_not_child')
-                .is_patient_refusal_in_effect(1),
+                .is_patient_refusing(1),
             'full_observation_since_refused_called'
         )
 
@@ -116,5 +116,5 @@ class TestIsPatientRefusalInEffect(TransactionCase):
         self.assertTrue(
             self.observation_model
                 .with_context(test='open_obs_is_child')
-                .is_patient_refusal_in_effect(1)
+                .is_patient_refusing(1)
         )
