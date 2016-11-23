@@ -339,4 +339,19 @@ class NHEobsSQL(orm.AbstractModel):
             'ON refused_last_ews.spell_id = spell.id'
         )
 
+    def get_collect_activities_sql(self, activity_ids_sql):
+        sql = self.collect_activities_skeleton.replace(
+            'left join ews1 on ews1.spell_activity_id = spell.id',
+            'left join ews1 on ews1.spell_activity_id = spell.id '
+            'LEFT JOIN refused_last_ews '
+            'ON refused_last_ews.spell_id = spell.id '
+        )
+        sql = sql.replace(
+            'then \'overdue: \' else \'\' end ||',
+            'then \'overdue: \' '
+            'when refused_last_ews.refused = true '
+            'then \'Refused - \' else \'\' end ||'
+        )
+        return sql.format(activity_ids=activity_ids_sql)
+
     # End REFUSED EWS
