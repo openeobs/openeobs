@@ -358,7 +358,8 @@ class NHEobsSQL(orm.AbstractModel):
         sql = self.collect_patients_skeleton.replace(
             'left join ews0 on ews0.spell_activity_id = activity.id',
             'left join ews0 on ews0.spell_activity_id = activity.id '
-            'left join refused_last_ews on refused_last_ews.spell_activity_id = activity.id'
+            'left join refused_last_ews '
+            'on refused_last_ews.spell_activity_id = activity.id'
         )
         sql = sql.replace(
             'patient.other_identifier,',

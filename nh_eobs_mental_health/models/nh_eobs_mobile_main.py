@@ -10,7 +10,6 @@ class NHEobsMobileMain(orm.AbstractModel):
 
     def process_patient_list(self, cr, uid, patient_list, context=None):
         spell_model = self.pool['nh.clinical.spell']
-        ews_model = self.pool['nh.clinical.patient.observation.ews']
         patient_ids = [patient.get('id') for patient in patient_list]
         spell_ids = spell_model.search(cr, uid, [
             ['patient_id', 'in', patient_ids],
