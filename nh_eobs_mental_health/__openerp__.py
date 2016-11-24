@@ -14,6 +14,7 @@
              'views/wardboard_view.xml',
              'views/ward_dashboard_view.xml',
              'views/static_include.xml',
+             'views/mobile_override.xml',
              'security/ir.model.access.csv'
              ],
     'qweb': [],

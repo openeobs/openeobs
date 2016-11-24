@@ -347,10 +347,9 @@ class NHEobsSQL(orm.AbstractModel):
             'ON refused_last_ews.spell_id = spell.id '
         )
         sql = sql.replace(
-            'then \'overdue: \' else \'\' end ||',
-            'then \'overdue: \' '
-            'when refused_last_ews.refused = true '
-            'then \'Refused - \' else \'\' end ||'
+            'end as deadline_time,',
+            'end as deadline_time,'
+            'refused_last_ews.refused as refusal_in_effect,'
         )
         return sql.format(activity_ids=activity_ids_sql)
 
