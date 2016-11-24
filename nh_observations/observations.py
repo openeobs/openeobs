@@ -350,21 +350,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         )
 
     @api.model
-    def get_next_obs_activity(self, obs_activity, data_model):
-        activity_pool = self.pool['nh.activity']
-        cr, uid, context = self.env.cr, self.env.uid, self._context
-        domain = [
-            ['creator_id', '=', obs_activity.id],
-            ['data_model', '=', data_model]
-        ]
-        next_obs_id = activity_pool.search(cr, uid, domain, context=context)
-        if next_obs_id:
-            next_obs_id = next_obs_id[0]
-        else:
-            return False
-        return activity_pool.browse(cr, uid, next_obs_id, context=context)
-
-    @api.model
     def get_first_obs_created_after_datetime(
             self, spell_activity_id, date_time):
         activity_model = self.env['nh.activity']
@@ -442,76 +427,9 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             return last_obs_activity.data_ref
 
     @api.model
-    def full_observation_since_refused(self, obs_activity):
-        refused = False
-        while True:
-            if not obs_activity:
-                return False
-
-            if not obs_activity.data_ref.partial_reason \
-                    and obs_activity.state in ['completed', 'cancelled']:
-                return False
-
-            if not refused \
-                    and obs_activity.data_ref.partial_reason != 'refused':
-                return False
-
-            child_activity = \
-                self.get_next_obs_activity(obs_activity, self._name)
-
-            if not child_activity:
-                if obs_activity.state not in ['completed', 'cancelled']:
-                    return True
-
-            obs_activity = child_activity
-            refused = True
-            continue
-
-    @api.model
     def is_last_obs_refused(self, patient_id):
         last_obs = self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
-
-    @api.model
-    def is_patient_refusal_in_effect(self, patient_id):
-        cr, uid, context = self._cr, self._uid, self._context
-        activity_pool = self.pool['nh.activity']
-        spell_activity_id = activity_pool.search(
-            cr, uid, [
-                ['data_model', '=', 'nh.clinical.spell'],
-                ['state', '=', 'started'],
-                ['patient_id', '=', patient_id],
-            ], context=context)
-        if not spell_activity_id:
-            return False
-        refused_obs_domain = [
-            ['is_partial', '=', True],
-            ['patient_id', '=', patient_id],
-            ['partial_reason', '=', 'refused']
-        ]
-        refused_obs = self.search(refused_obs_domain)
-        if not refused_obs:
-            return False
-        refused_data_refs = \
-            ['{0},{1}'.format(self._name, ob.id) for ob in refused_obs]
-        refused_activities_domain = [
-            ['data_model', '=', self._name],
-            ['state', '=', 'completed'],
-            ['parent_id', '=', spell_activity_id],
-            ['data_ref', 'in', refused_data_refs]
-        ]
-        observation_ids = activity_pool.search(
-            cr, uid, refused_activities_domain,
-            order='date_terminated desc, sequence desc',
-            context=context)
-        if not observation_ids:
-            return False
-        last_refused = activity_pool.browse(
-            cr, uid, observation_ids[0], context=context)
-        open_ob = self.get_open_obs_activity(spell_activity_id)
-        if open_ob and open_ob[0] in last_refused.child_ids._ids:
-            return True
-        return self.full_observation_since_refused(last_refused)
 
 
 class nh_clinical_patient_observation_height(orm.Model):

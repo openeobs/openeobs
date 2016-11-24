@@ -34,10 +34,6 @@ class NHEobsMobileMain(orm.AbstractModel):
                 patient['ews_trend'])
             if obs_stop.get(patient.get('id')):
                 patient['deadline_time'] = 'Observations Stopped'
-            elif ews_model.is_patient_refusal_in_effect(
-                    cr, uid, patient.get('id'), context=context):
-                patient['deadline_time'] = \
-                    'Refused - {0}'.format(patient.get('next_ews_time'))
             else:
                 patient['deadline_time'] = patient['next_ews_time']
             patient['summary'] = patient.get('summary', False)

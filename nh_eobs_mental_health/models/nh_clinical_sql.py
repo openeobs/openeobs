@@ -302,7 +302,8 @@ class NHEobsSQL(orm.AbstractModel):
     SELECT  refused.id,
             refused.ews_id,
             refused.refused,
-            acts.spell_id
+            acts.spell_id,
+            acts.spell_activity_id
     from refused_ews_activities AS refused
     RIGHT OUTER JOIN wb_activity_ranked AS acts
     ON acts.id = refused.id
@@ -352,5 +353,18 @@ class NHEobsSQL(orm.AbstractModel):
             'refused_last_ews.refused as refusal_in_effect,'
         )
         return sql.format(activity_ids=activity_ids_sql)
+
+    def get_collect_patients_sql(self, spell_ids):
+        sql = self.collect_patients_skeleton.replace(
+            'left join ews0 on ews0.spell_activity_id = activity.id',
+            'left join ews0 on ews0.spell_activity_id = activity.id '
+            'left join refused_last_ews on refused_last_ews.spell_activity_id = activity.id'
+        )
+        sql = sql.replace(
+            'patient.other_identifier,',
+            'patient.other_identifier, '
+            'refused_last_ews.refused as refusal_in_effect,'
+        )
+        return sql.format(spell_ids=spell_ids)
 
     # End REFUSED EWS

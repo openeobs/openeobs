@@ -653,78 +653,10 @@ class nh_eobs_api(orm.AbstractModel):
         :return: list of dicts
         """
         activity_pool = self.pool['nh.activity']
+        sql_model = self.pool['nh.clinical.sql']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
-        sql = """
-        select distinct activity.id,
-            patient.id,
-            patient.dob,
-            patient.gender,
-            patient.sex,
-            patient.other_identifier,
-            case char_length(patient.patient_identifier) = 10
-                when true then substring(patient.patient_identifier from 1
-                  for 3) || ' ' || substring(patient.patient_identifier from 4
-                  for 3) || ' ' || substring(patient.patient_identifier from 7
-                  for 4)
-                else patient.patient_identifier
-            end as patient_identifier,
-            coalesce(patient.family_name, '') || ', ' ||
-              coalesce(patient.given_name, '') || ' ' ||
-              coalesce(patient.middle_names,'') as full_name,
-            case
-                when ews0.date_scheduled is not null then
-                  case when greatest(now() at time zone 'UTC',
-                    ews0.date_scheduled) != ews0.date_scheduled
-                    then 'overdue: ' else '' end ||
-                  case when extract(days from (greatest(now() at time zone
-                    'UTC', ews0.date_scheduled) - least(now() at time zone
-                    'UTC', ews0.date_scheduled))) > 0
-                    then extract(days from (greatest(now() at time zone 'UTC',
-                      ews0.date_scheduled) - least(now() at time zone 'UTC',
-                      ews0.date_scheduled))) || ' day(s) '
-                    else '' end ||
-                  to_char(justify_hours(greatest(now() at time zone 'UTC',
-                    ews0.date_scheduled) - least(now() at time zone 'UTC',
-                    ews0.date_scheduled)), 'HH24:MI') || ' hours'
-                else to_char((interval '0s'), 'HH24:MI') || ' hours'
-            end as next_ews_time,
-            location.name as location,
-            location_parent.name as parent_location,
-            case
-                when ews1.score is not null then ews1.score::text
-                else ''
-            end as ews_score,
-            ews1.clinical_risk,
-            case
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) = 0 then 'same'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) > 0 then 'up'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) < 0 then 'down'
-                when ews1.id is null and ews2.id is null then 'none'
-                when ews1.id is not null and ews2.id is null then 'first'
-                when ews1.id is null and ews2.id is not null then 'no latest'
-            end as ews_trend,
-            case
-                when ews0.frequency is not null then ews0.frequency
-                else 0
-            end as frequency
-        from nh_activity activity
-        inner join nh_clinical_patient patient
-          on patient.id = activity.patient_id
-        inner join nh_clinical_location location
-          on location.id = activity.location_id
-        inner join nh_clinical_location location_parent
-          on location_parent.id = location.parent_id
-        left join ews1 on ews1.spell_activity_id = activity.id
-        left join ews2 on ews2.spell_activity_id = activity.id
-        left join ews0 on ews0.spell_activity_id = activity.id
-        where activity.state = 'started' and activity.data_model =
-          'nh.clinical.spell' and activity.id in (%s)
-        order by location
-        """ % spell_ids_sql
+        sql = sql_model.get_collect_patients_sql(spell_ids_sql)
         patient_values = []
         if spell_ids:
             cr.execute(sql)
