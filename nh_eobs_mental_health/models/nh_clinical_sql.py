@@ -190,11 +190,16 @@ class NHEobsSQL(orm.AbstractModel):
             'FROM last_finished_pme '
             'WHERE spell_id = spell.id '
             ') >= ( '
-            'SELECT date_terminated '
-            'FROM ews1 '
-            'WHERE ews1.spell_id = spell.id '
+            'SELECT ews_acts.date_terminated '
+            'FROM ews_activities as ews_acts '
+            'WHERE ews_acts.spell_activity_id = spell.activity_id '
+            'AND ews_acts.state = \'completed\' '
+            'AND (ews_acts.partial_reason IS NULL '
+            'OR ews_acts.partial_reason = \'refused\') '
+            'ORDER BY ews_acts.sequence DESC '
+            'LIMIT 1'
             ') '
-            'THEN \'NoScore\''
+            'THEN \'NoScore\' '
             'ELSE '
             'CASE '
             'WHEN ews1.id IS NULL THEN \'NoScore\' '
@@ -234,7 +239,9 @@ class NHEobsSQL(orm.AbstractModel):
             activity.spell_activity_id,
             activity.creator_id,
             activity.state,
-            activity.summary
+            activity.summary,
+            activity.date_terminated,
+            activity.sequence
     FROM nh_activity as activity
     INNER JOIN nh_clinical_patient_observation_ews as ews
     ON split_part(activity.data_ref, ',', 2)::int = ews.id
@@ -330,9 +337,16 @@ class NHEobsSQL(orm.AbstractModel):
         """
         wardboard = self.get_wardboard(interval)
         wardboard = wardboard.replace(
-            'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' ',
-            'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' '
-            'WHEN refused_last_ews.refused = true THEN \'Refused\' ')
+            'ORDER BY ews_acts.sequence DESC '
+            'LIMIT 1'
+            ') '
+            'THEN \'NoScore\' ',
+            'ORDER BY ews_acts.sequence DESC '
+            'LIMIT 1'
+            ') '
+            'THEN \'NoScore\' '
+            'WHEN refused_last_ews.refused = true THEN \'Refused\' '
+        )
         return wardboard.replace(
             'LEFT JOIN param ON param.spell_id = spell.id',
             'LEFT JOIN param ON param.spell_id = spell.id '
