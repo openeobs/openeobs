@@ -25,7 +25,7 @@
                                 </div>
                                 <div>
                                     <t t-if="record.date_scheduled.raw_value &amp;&amp; record.date_scheduled.raw_value &lt; (new Date())" t-set="red">oe_kanban_text_red</t>
-                                    <span t-attf-class="#{red || ''}"><i><t t-esc="record.date_scheduled.raw_value.format('d/m/Y H:m')"/></i></span>
+                                    <span t-attf-class="#{red || ''}"><i><t t-esc="record.date_scheduled.raw_value.format('%d/%m/%Y %H:%M')"/></i></span>
                                 </div>
                                 <t t-if="record.patient_other_id.raw_value != ''">
                                     <div>Hospital Number: <field name="patient_other_id"/></div>
