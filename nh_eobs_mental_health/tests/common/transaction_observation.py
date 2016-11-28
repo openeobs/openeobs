@@ -1,4 +1,7 @@
 from openerp.tests.common import TransactionCase
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class TransactionObservationCase(TransactionCase):
@@ -7,6 +10,7 @@ class TransactionObservationCase(TransactionCase):
     """
 
     def setUp(self):
+        _logger.info('TransactionObservaitionCase setup')
         super(TransactionObservationCase, self).setUp()
         cr, uid = self.cr, self.uid
         self.location_pool = self.registry('nh.clinical.location')
@@ -23,12 +27,14 @@ class TransactionObservationCase(TransactionCase):
         self.expected_risk = None
         self.expected_freq = None
 
+        _logger.info('Searching for hospital')
         hosp_id_search = self.location_pool.search(
             cr, uid, [['code', '=', 'SLAM'], ['usage', '=', 'hospital']]
         )
         if hosp_id_search:
             self.hospital_id = hosp_id_search[0]
         else:
+            _logger.info('Creating hospital')
             self.hospital_id = self.location_pool.create(
                 cr, uid, {
                     'name': 'Test Hospital',
@@ -37,12 +43,14 @@ class TransactionObservationCase(TransactionCase):
                 }
             )
 
+        _logger.info('Searching for POS')
         pos_id_search = self.pos_pool.search(
             cr, uid, [['location_id', '=', self.hospital_id]]
         )
         if pos_id_search:
             self.pos_id = pos_id_search[0]
         else:
+            _logger.info('Creating POS')
             self.pos_id = self.pos_pool.create(
                 cr, uid, {
                     'name': 'Test POS',
@@ -50,6 +58,7 @@ class TransactionObservationCase(TransactionCase):
                 }
             )
 
+        _logger.info('Searching for nurse & adt group')
         nurse_group_ids = self.group_pool.search(
             cr, uid, [['name', 'in', ['NH Clinical Nurse Group']]])
 
@@ -59,14 +68,17 @@ class TransactionObservationCase(TransactionCase):
         if adt_id_search:
             self.adt_id = adt_id_search[0]
         else:
+            _logger.info('Setting ADT user to UID')
             self.adt_id = uid
 
+        _logger.info('Setting POS for ADT and UID')
         self.user_pool.write(cr, uid, uid, {'pos_id': self.pos_id})
         self.user_pool.write(cr, uid, self.adt_id, {
             'pos_id': self.pos_id,
             'pos_ids': [[6, 0, [self.pos_id]]]
         })
 
+        _logger.info('Searching for ward')
         ward_id_search = self.location_pool.search(
             cr, uid, [
                 ['usage', '=', 'ward'],
@@ -76,6 +88,7 @@ class TransactionObservationCase(TransactionCase):
         if ward_id_search:
             self.eobs_ward_id = ward_id_search[0]
         else:
+            _logger.info('Creating ward')
             self.eobs_ward_id = self.location_pool.create(
                 cr, uid, {
                     'name': 'Test Ward',
@@ -85,6 +98,7 @@ class TransactionObservationCase(TransactionCase):
                 }
             )
 
+        _logger.info('Searching for bed')
         bed_ids_search = self.location_pool.search(
             cr, uid, [
                 ['usage', '=', 'bed'],
@@ -94,6 +108,7 @@ class TransactionObservationCase(TransactionCase):
         if bed_ids_search and len(bed_ids_search) >= 10:
             self.bed_ids = bed_ids_search[:10]
         else:
+            _logger.info('Creating bed')
             self.bed_ids = self.location_pool.create(
                 cr, uid, {
                     'name': 'Test Bed 1',
@@ -104,6 +119,7 @@ class TransactionObservationCase(TransactionCase):
             )
 
         # create nurse
+        _logger.info('Creating nurse user')
         self.user_id = self.user_pool.create(
             cr, uid, {
                 'name': 'Test Nurse',
@@ -116,6 +132,7 @@ class TransactionObservationCase(TransactionCase):
         )
 
         # register, admit and place patient
+        _logger.info('Creating patient')
         self.patient_id = self.api_pool.register(
             cr, self.adt_id, 'TESTHN001',
             {
@@ -123,13 +140,16 @@ class TransactionObservationCase(TransactionCase):
                 'given_name': 'Test'
             }
         )
+        _logger.info('Admitting patient')
         self.api_pool.admit(
             cr, self.adt_id, 'TESTHN001', {'location': 'SLAM'}
         )
+        _logger.info('Finding spell')
         self.spell_id = self.activity_pool.search(
             cr, uid, [['data_model', '=', 'nh.clinical.spell'],
                       ['patient_id', '=', self.patient_id]])[0]
 
+        _logger.info('Finding placement')
         placement_id = self.activity_pool.search(
             cr, uid, [
                 ['data_model', '=', 'nh.clinical.patient.placement'],
@@ -137,13 +157,16 @@ class TransactionObservationCase(TransactionCase):
                 ['state', '=', 'scheduled']
             ]
         )
+        _logger.info('Submitting placement')
         self.activity_pool.submit(
             cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
         )
+        _logger.info('completing placement')
         self.activity_pool.complete(cr, uid, placement_id[0])
         self.get_obs()
 
     def get_obs(self):
+        _logger.info('Searching for scheduled EWS for patient')
         ews_activity_search = self.activity_pool.search(
             self.cr,
             self.uid,
@@ -158,6 +181,7 @@ class TransactionObservationCase(TransactionCase):
         else:
             raise ValueError('Could not find EWS Activity ID')
 
+        _logger.info('Assigning EWS to user')
         self.api_pool.assign(
             self.cr,
             self.user_id,
@@ -167,6 +191,7 @@ class TransactionObservationCase(TransactionCase):
 
     def complete_obs(self, obs_data):
         # policy triggered by activity completion
+        _logger.info('Completing observation with {0}'.format(obs_data))
         self.api_pool.complete(
             self.cr,
             self.user_id,
@@ -179,6 +204,7 @@ class TransactionObservationCase(TransactionCase):
             self.ews_activity_id
         )
 
+        _logger.info('Searching for next EWS')
         next_ews_domain = [
             ('creator_id', '=', self.ews_activity.id),
             ('state', 'not in', ['complete', 'cancelled']),
@@ -187,6 +213,7 @@ class TransactionObservationCase(TransactionCase):
         self.ews_activity_ids = self.activity_pool.search(self.cr, self.uid,
                                                           next_ews_domain)
 
+        _logger.info('Searching for triggered activities')
         triggered_ids_domain = [
             ('creator_id', '=', self.ews_activity_id),
             ('state', 'not in', ['completed', 'cancelled']),

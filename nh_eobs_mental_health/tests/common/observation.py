@@ -59,22 +59,7 @@ class ObservationCase(SingleTransactionCase):
         if adt_id_search:
             cls.adt_id = adt_id_search[0]
         else:
-            adt_group_ids = cls.group_pool.search(
-                cr, uid, [
-                    ['name', 'in', [
-                        'NH Clinical Admin Group',
-                        'Contact Creation'
-                    ]]
-                ]
-            )
-            cls.adt_id = cls.user_pool.create(
-                cr, uid, {
-                    'name': 'Test ADT',
-                    'login': 'testadt',
-                    'groups_id': [[6, 0, adt_group_ids]],
-                    'pos_id': cls.pos_id
-                }
-            )
+            cls.adt_id = uid
 
         cls.user_pool.write(cr, uid, uid, {'pos_id': cls.pos_id})
         cls.user_pool.write(cr, uid, cls.adt_id, {

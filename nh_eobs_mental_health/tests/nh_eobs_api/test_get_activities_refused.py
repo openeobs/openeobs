@@ -1,6 +1,9 @@
 from openerp.addons.nh_eobs_mental_health\
     .tests.common.transaction_observation import TransactionObservationCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class TestGetActivitiesRefused(TransactionObservationCase):
@@ -10,26 +13,35 @@ class TestGetActivitiesRefused(TransactionObservationCase):
     """
 
     def setUp(self):
+        _logger.info('Setting up TestGetActivitiesRefused')
         super(TestGetActivitiesRefused, self).setUp()
         self.settings_model = self.registry('nh.clinical.settings')
 
         def patch_settings_activity_period(*args, **kwargs):
+            _logger.info('inside patch of get settings')
             if len(args) > 3 and args[3] == 'activity_period':
+                _logger.info('Returning a day')
                 return 1440
+            _logger.info('Returning origin method')
             return patch_settings_activity_period.origin(*args, **kwargs)
 
+        _logger.info('patching get_setting')
         self.settings_model._patch_method(
             'get_setting', patch_settings_activity_period)
 
     def tearDown(self):
+        _logger.info('reverting get_setting')
         self.settings_model._revert_method('get_setting')
         super(TestGetActivitiesRefused, self).tearDown()
 
     def get_refusal_in_effect(self, obs_data):
+        _logger.info('Completing first obs')
         self.complete_obs(obs_data)
         self.get_obs()
+        _logger.info('Completing refused obs')
         self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
         self.get_obs()
+        _logger.info('Getting activities')
         activities = self.api_pool.get_activities(self.cr, self.user_id, [])
         for activity in activities:
             if activity.get('id') == self.ews_activity_id:
