@@ -139,7 +139,10 @@ class TransactionObservationCase(TransactionCase):
                 'location_ids': [[6, 0, self.bed_ids]]
             }
             _logger.info('nurse data: {0}'.format(nurse_dict))
-            self.user_id = self.user_pool.create(cr, uid, nurse_dict)
+            try:
+                self.user_id = self.user_pool.create(cr, uid, nurse_dict)
+            except Exception as e:
+                _logger.info('nurse failed {0}'.format(e))
 
         # register, admit and place patient
         _logger.info('Creating patient')
