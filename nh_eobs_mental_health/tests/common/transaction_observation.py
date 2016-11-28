@@ -109,7 +109,7 @@ class TransactionObservationCase(TransactionCase):
             self.bed_ids = bed_ids_search[:10]
         else:
             _logger.info('Creating bed')
-            self.bed_ids = self.location_pool.create(
+            bed_id = self.location_pool.create(
                 cr, uid, {
                     'name': 'Test Bed 1',
                     'parent_id': self.eobs_ward_id,
@@ -117,6 +117,7 @@ class TransactionObservationCase(TransactionCase):
                     'code': 'TESTWARDBED1'
                 }
             )
+            self.bed_ids = [bed_id]
 
         # create nurse
         _logger.info('Searching for nurse user')
