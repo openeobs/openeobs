@@ -263,7 +263,8 @@ class NHEobsSQL(orm.AbstractModel):
                 ARRAY[partial_reason] as partial_tree,
                 id as first_activity_id,
                 id as last_activity_id,
-                true as refused
+                true as refused,
+                sequence
         FROM ews_activities
         --Make sure we only get EWS
         WHERE partial_reason = 'refused'
@@ -293,7 +294,8 @@ class NHEobsSQL(orm.AbstractModel):
                     partial_tree,
                     ARRAY[child_act.partial_reason]
                   ), ', ', '(null)')
-                AS refused
+                AS refused,
+                act.sequence
         FROM ews_activities as child_act
         INNER JOIN refused_ews_tree as act
         ON (child_act.creator_id = act.id)
@@ -302,7 +304,8 @@ class NHEobsSQL(orm.AbstractModel):
 
     SELECT *
     FROM refused_ews_tree
-    ORDER BY id
+    ORDER BY sequence DESC
+    LIMIT 1
     """
 
     refused_last_ews_skeleton = """
@@ -359,7 +362,7 @@ class NHEobsSQL(orm.AbstractModel):
             'left join ews1 on ews1.spell_activity_id = spell.id',
             'left join ews1 on ews1.spell_activity_id = spell.id '
             'LEFT JOIN refused_last_ews '
-            'ON refused_last_ews.spell_id = spell.id '
+            'ON refused_last_ews.spell_activity_id = spell.id '
         )
         sql = sql.replace(
             'end as deadline_time,',
