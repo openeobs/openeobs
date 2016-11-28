@@ -129,17 +129,17 @@ class TransactionObservationCase(TransactionCase):
             self.user_id = nurse_ids_search[0]
         else:
             _logger.info('Creating nurse user')
-            self.user_id = self.user_pool.create(
-                cr, uid, {
-                    'name': 'Test Nurse',
-                    'login': 'testnurse',
-                    'password': 'testnurse',
-                    'groups_id':
-                        [[4, group_id] for group_id in nurse_group_ids],
-                    'pos_id': self.pos_id,
-                    'location_ids': [[6, 0, self.bed_ids]]
-                }
-            )
+            nurse_dict = {
+                'name': 'Test Nurse',
+                'login': 'testnurse',
+                'password': 'testnurse',
+                'groups_id':
+                    [[4, group_id] for group_id in nurse_group_ids],
+                'pos_id': self.pos_id,
+                'location_ids': [[6, 0, self.bed_ids]]
+            }
+            _logger.info('nurse data: {0}'.format(nurse_dict))
+            self.user_id = self.user_pool.create(cr, uid, nurse_dict)
 
         # register, admit and place patient
         _logger.info('Creating patient')
