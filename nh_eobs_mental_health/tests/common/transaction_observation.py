@@ -119,17 +119,27 @@ class TransactionObservationCase(TransactionCase):
             )
 
         # create nurse
-        _logger.info('Creating nurse user')
-        self.user_id = self.user_pool.create(
-            cr, uid, {
-                'name': 'Test Nurse',
-                'login': 'testnurse',
-                'password': 'testnurse',
-                'groups_id': [[4, group_id] for group_id in nurse_group_ids],
-                'pos_id': self.pos_id,
-                'location_ids': [[6, 0, self.bed_ids]]
-            }
+        _logger.info('Searching for nurse user')
+        nurse_ids_search = self.user_pool.search(
+            cr, uid, [
+                ['login', '=', 'testnurse']
+            ]
         )
+        if nurse_ids_search:
+            self.user_id = nurse_ids_search[0]
+        else:
+            _logger.info('Creating nurse user')
+            self.user_id = self.user_pool.create(
+                cr, uid, {
+                    'name': 'Test Nurse',
+                    'login': 'testnurse',
+                    'password': 'testnurse',
+                    'groups_id':
+                        [[4, group_id] for group_id in nurse_group_ids],
+                    'pos_id': self.pos_id,
+                    'location_ids': [[6, 0, self.bed_ids]]
+                }
+            )
 
         # register, admit and place patient
         _logger.info('Creating patient')
