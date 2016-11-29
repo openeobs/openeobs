@@ -302,10 +302,14 @@ class NHEobsSQL(orm.AbstractModel):
         WHERE child_act.state = 'completed'
     )
 
-    SELECT *
+    SELECT  *,
+            row_number() over(
+                partition by spell_activity_id
+                ORDER BY spell_activity_id ASC,
+                first_activity_id DESC,
+                last_activity_id DESC
+            ) AS rank
     FROM refused_ews_tree
-    ORDER BY sequence DESC
-    LIMIT 1
     """
 
     refused_last_ews_skeleton = """
@@ -316,7 +320,7 @@ class NHEobsSQL(orm.AbstractModel):
             acts.spell_activity_id
     from refused_ews_activities AS refused
     RIGHT OUTER JOIN wb_activity_ranked AS acts
-    ON acts.id = refused.id
+    ON acts.id = refused.id AND refused.rank = 1
     WHERE acts.rank = 1
     AND acts.state = 'completed'
     AND acts.data_model = 'nh.clinical.patient.observation.ews'
