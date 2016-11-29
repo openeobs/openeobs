@@ -1019,3 +1019,16 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case = 2 if last_obs_activity.data_ref.three_in_one and case < 3 \
             else case
         return case
+
+    @api.model
+    def get_last_risk(self, patient_id):
+        case = self.get_last_case(patient_id)
+        if case is not False:
+            return self.convert_case_to_risk(case)
+        else:
+            return 'Unknown'
+
+    def patient_has_spell(self, cr, uid, patient_id):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        return bool(spell_id)

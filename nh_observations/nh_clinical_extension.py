@@ -179,9 +179,14 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 d_values = {
                     'patient_id': values.get('patient_id')
                 }
+                # Populate required observation fields for
+                # nh.clinical.notification.frequency and it's children.
+                # TODO EOBS-731: Refactor creation of activities from
+                # triggered notifications
                 if n['model'] in ['frequency',
                                   'select_frequency',
-                                  'weekly_frequency']:
+                                  'weekly_frequency',
+                                  'clinical_review_frequency']:
                     activity_pool = self.pool['nh.activity']
                     domain = [
                         ('patient_id', '=', values.get('patient_id')),

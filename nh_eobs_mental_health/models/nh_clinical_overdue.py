@@ -49,6 +49,10 @@ class nh_clinical_overdue(orm.Model):
                             when activity.data_model =
                                 'nh.clinical.notification.clinical_review'
                                 then 'Doctor'
+                            when activity.data_model =
+                                'nh.clinical.notification'
+                                '.clinical_review_frequency'
+                                then 'Nurse, Doctor'
                             when strpos(activity.data_model, 'notification')
                                 != 0 then 'Nurse'
                             when strpos(activity.data_model, 'observation')

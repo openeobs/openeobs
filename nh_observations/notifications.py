@@ -9,10 +9,11 @@ it refers to was done.
 The abstract definition of a notification from which all other
 notifications inherit is also included here.
 """
-from openerp.osv import orm, fields
-from openerp.addons.nh_observations import frequencies
-from openerp import api
 import logging
+
+from openerp import api
+from openerp.addons.nh_observations import frequencies
+from openerp.osv import orm, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -31,6 +32,8 @@ class nh_clinical_notification(orm.AbstractModel):
             'nh.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
     }
+    # TODO EOBS-729: Get form description returns a list with 1 dictionary
+    # - list appears to be redundant
     _form_description = []
 
     def get_form_description(self, cr, uid, patient_id, context=None):
@@ -141,6 +144,13 @@ class nh_clinical_notification_frequency(orm.Model):
     ]
 
     def set_form_description_frequencies(self, available_frequencies):
+        """
+        Sets frequencies that appear in the tasks dropdown in the GUI.
+
+        :param available_frequencies: a list of integers
+        :type available_frequencies: list
+        :return:
+        """
         frequency = [field for field in self._form_description if
                      field['name'] == 'frequency'][0]
         frequency['selection'] = available_frequencies
