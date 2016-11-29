@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from datetime import datetime
 
 
 class TestInitSQL(TransactionCase):
@@ -92,6 +93,23 @@ class TestInitSQL(TransactionCase):
             {
                 'patient_id': self.patient_id
             })
+
+        clinical_review_frequency_model = \
+            self.env['nh.clinical.notification.clinical_review_frequency']
+        self.clinical_review_frequency_id = \
+            clinical_review_frequency_model.create_activity(
+                {
+                    'creator_id': spell_activity_id.id,
+                    'parent_id': spell_activity_id.id,
+                    'date_scheduled': due_date,
+                    'date_deadline': due_date
+                },
+                {
+                    'patient_id': self.patient_id,
+                    'observation': 'nh.clinical.patient.observation.ews'
+                }
+            )
+
         doc_assess_model = \
             self.env['nh.clinical.notification.doctor_assessment']
         self.doctor_assessment_id = doc_assess_model.create_activity({
@@ -103,6 +121,7 @@ class TestInitSQL(TransactionCase):
             {
                 'patient_id': self.patient_id
             })
+
         self.doctor_activities_model = \
             self.env['nh.clinical.doctor_activities']
         self.doctor_activities = self.doctor_activities_model.search(
@@ -122,3 +141,7 @@ class TestInitSQL(TransactionCase):
         nh.clinical.notification.clinical_review tasks
         """
         self.assertTrue(self.clinical_review_id in self.doctor_activities.ids)
+
+    def test_returns_clinical_review_frequency(self):
+        self.assertTrue(
+            self.clinical_review_frequency_id in self.doctor_activities.ids)

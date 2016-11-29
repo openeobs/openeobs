@@ -36,8 +36,9 @@ class NHClinicalDoctorActivities(orm.Model):
                     and activity.data_model in
                         (
                           'nh.clinical.notification.doctor_assessment',
-                          'nh.clinical.notification.clinical_review'
-                          )
+                          'nh.clinical.notification.clinical_review',
+                          'nh.clinical.notification.clinical_review_frequency'
+                        )
                     and spell.state = 'started'
                 )
         """ % (self._table, self._table))

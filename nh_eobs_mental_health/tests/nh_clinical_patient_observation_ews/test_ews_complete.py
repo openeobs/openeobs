@@ -1,5 +1,6 @@
-from openerp.tests import SingleTransactionCase
 import __builtin__
+
+from openerp.tests import SingleTransactionCase
 
 
 class FakeEWSSuper(object):

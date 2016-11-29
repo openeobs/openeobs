@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-A single place for different frequency values to be read from.
-Times are in minutes.
-"""
+"""A single place for different frequency values to be read from."""
+# Frequencies in minutes.
 FIFTEEN_MINUTES = 15
 THIRTY_MINUTES = 30
 ONE_HOUR = 60
@@ -29,6 +27,22 @@ EVERY_12_HOURS = (TWELVE_HOURS, 'Every 12 Hours')
 EVERY_DAY = (ONE_DAY, 'Every Day')
 EVERY_3_DAYS = (THREE_DAYS, 'Every 3 Days')
 EVERY_WEEK = (ONE_WEEK, 'Every Week')
+
+# Dictionary to lookup tuples by frequency in minutes.
+ALL_FREQUENCIES = {
+    FIFTEEN_MINUTES: EVERY_15_MINUTES,
+    THIRTY_MINUTES: EVERY_30_MINUTES,
+    ONE_HOUR: EVERY_HOUR,
+    TWO_HOURS: EVERY_2_HOURS,
+    FOUR_HOURS: EVERY_4_HOURS,
+    SIX_HOURS: EVERY_6_HOURS,
+    EIGHT_HOURS: EVERY_8_HOURS,
+    TEN_HOURS: EVERY_10_HOURS,
+    TWELVE_HOURS: EVERY_12_HOURS,
+    ONE_DAY: EVERY_DAY,
+    THREE_DAYS: EVERY_3_DAYS,
+    ONE_WEEK: EVERY_WEEK
+}
 
 # To summarise the mappings below, frequencies after refusals are capped at
 # 24 hours.
@@ -68,21 +82,22 @@ PATIENT_REFUSAL_ADJUSTMENTS = {
 }
 
 
-def as_list():
-    return [
-        EVERY_15_MINUTES,
-        EVERY_30_MINUTES,
-        EVERY_HOUR,
-        EVERY_2_HOURS,
-        EVERY_4_HOURS,
-        EVERY_6_HOURS,
-        EVERY_8_HOURS,
-        EVERY_10_HOURS,
-        EVERY_12_HOURS,
-        EVERY_DAY,
-        EVERY_3_DAYS,
-        EVERY_WEEK
-    ]
+def as_list(max=None):
+    """
+    Returns frequency tuples in a list.
+    Passing the max keyword argument will only return frequencies up to and
+    including that frequency (in ascending order).
+
+    :param max:
+    :type max: int
+    :return:
+    """
+    frequency_tuples = sorted(ALL_FREQUENCIES.values())
+    if max:
+        frequency_minutes = sorted(ALL_FREQUENCIES.keys())
+        index = frequency_minutes.index(max) + 1
+        frequency_tuples = frequency_tuples[:index]
+    return frequency_tuples
 
 
 def minutes_only():

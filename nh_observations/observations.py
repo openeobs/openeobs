@@ -378,7 +378,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return self.get_open_obs_activity(spell_id).data_ref
 
     def get_last_obs_activity(self, cr, uid, patient_id, context=None):
-        """ Get the activity for the last observation made for the given
+        """ Get the activity for the last full observation made for the given
         patient_id.
 
         :param cr:

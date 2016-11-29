@@ -1,6 +1,7 @@
+from datetime import datetime
+
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from datetime import datetime
 
 
 class TestOverdueInitSQL(TransactionCase):
@@ -92,6 +93,23 @@ class TestOverdueInitSQL(TransactionCase):
             {
                 'patient_id': self.patient_id
             })
+
+        clinical_review_frequency_model = \
+            self.env['nh.clinical.notification.clinical_review_frequency']
+        self.clinical_review_frequency_id = \
+            clinical_review_frequency_model.create_activity(
+                {
+                    'creator_id': spell_activity_id.id,
+                    'parent_id': spell_activity_id.id,
+                    'date_scheduled': due_date,
+                    'date_deadline': due_date
+                },
+                {
+                    'patient_id': self.patient_id,
+                    'observation': 'nh.clinical.patient.observation.ews'
+                }
+            )
+
         doc_assess_model = \
             self.env['nh.clinical.notification.doctor_assessment']
         self.doctor_assessment_id = doc_assess_model.create_activity({
@@ -103,6 +121,7 @@ class TestOverdueInitSQL(TransactionCase):
             {
                 'patient_id': self.patient_id
             })
+
         self.overdue_tasks_model = self.env['nh.clinical.overdue']
         self.overdue_tasks = self.overdue_tasks_model.search_read(
             [['user_ids', 'in', [doctor.id]]])
@@ -116,6 +135,7 @@ class TestOverdueInitSQL(TransactionCase):
         doctor_assessment = \
             [task for task in self.overdue_tasks
              if task.get('display_name') == 'Assessment Required']
+        self.assertEqual(1, len(doctor_assessment))
         self.assertEqual(doctor_assessment[0].get('groups'), 'Doctor')
 
     def test_clinical_review_for_doctor(self):
@@ -127,4 +147,18 @@ class TestOverdueInitSQL(TransactionCase):
         clinical_review = \
             [task for task in self.overdue_tasks
              if task.get('display_name') == 'Clinical Review']
+        self.assertEqual(1, len(clinical_review))
         self.assertEqual(clinical_review[0].get('groups'), 'Doctor')
+
+    def test_clinical_review_frequency_for_doctor(self):
+        """
+        Test that the override returns the
+        nh.clinical.notification.clinical_review_frequency task and that the
+        group for the task is 'Doctor'.
+        """
+        clinical_review_frequency = \
+            [task for task in self.overdue_tasks
+             if task.get('display_name') == 'Clinical Review Frequency']
+        self.assertEqual(1, len(clinical_review_frequency))
+        self.assertEqual(clinical_review_frequency[0].get('groups'),
+                         'Nurse, Doctor')
