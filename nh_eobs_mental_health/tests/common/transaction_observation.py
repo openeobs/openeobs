@@ -98,6 +98,15 @@ class TransactionObservationCase(TransactionCase):
                 }
             )
 
+            self.eobs_ward_2_id = self.location_pool.create(
+                cr, uid, {
+                    'name': 'Test Ward 2',
+                    'usage': 'ward',
+                    'parent_id': self.hospital_id,
+                    'code': 'TESTWARD2'
+                }
+            )
+
         _logger.info('Searching for bed')
         bed_ids_search = self.location_pool.search(
             cr, uid, [
@@ -117,7 +126,15 @@ class TransactionObservationCase(TransactionCase):
                     'code': 'TESTWARDBED1'
                 }
             )
-            self.bed_ids = [bed_id]
+            bed_2_id = self.location_pool.create(
+                cr, uid, {
+                    'name': 'Test Bed 2',
+                    'parent_id': self.eobs_ward_2_id,
+                    'usage': 'bed',
+                    'code': 'TESTWARDBED2'
+                }
+            )
+            self.bed_ids = [bed_id, bed_2_id]
 
         # create nurse
         _logger.info('Searching for nurse user')
@@ -154,14 +171,28 @@ class TransactionObservationCase(TransactionCase):
                 'given_name': 'Test'
             }
         )
+        self.patient_2_id = self.api_pool.register(
+            cr, self.adt_id, 'TESTHN002',
+            {
+                'family_name': 'Testersen',
+                'given_name': 'Test'
+            }
+        )
         _logger.info('Admitting patient')
         self.api_pool.admit(
             cr, self.adt_id, 'TESTHN001', {'location': 'SLAM'}
+        )
+        self.api_pool.admit(
+            cr, self.adt_id, 'TESTHN002', {'location': 'SLAM'}
         )
         _logger.info('Finding spell')
         self.spell_id = self.activity_pool.search(
             cr, uid, [['data_model', '=', 'nh.clinical.spell'],
                       ['patient_id', '=', self.patient_id]])[0]
+
+        self.spell_2_id = self.activity_pool.search(
+            cr, uid, [['data_model', '=', 'nh.clinical.spell'],
+                      ['patient_id', '=', self.patient_2_id]])[0]
 
         _logger.info('Finding placement')
         placement_id = self.activity_pool.search(
@@ -171,22 +202,36 @@ class TransactionObservationCase(TransactionCase):
                 ['state', '=', 'scheduled']
             ]
         )
+
+        placement_2_id = self.activity_pool.search(
+            cr, uid, [
+                ['data_model', '=', 'nh.clinical.patient.placement'],
+                ['patient_id', '=', self.patient_2_id],
+                ['state', '=', 'scheduled']
+            ]
+        )
         _logger.info('Submitting placement')
         self.activity_pool.submit(
             cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
         )
+        self.activity_pool.submit(
+            cr, uid, placement_2_id[0], {'location_id': self.bed_ids[1]}
+        )
         _logger.info('completing placement')
         self.activity_pool.complete(cr, uid, placement_id[0])
+        self.activity_pool.complete(cr, uid, placement_2_id[0])
         self.get_obs()
 
-    def get_obs(self):
+    def get_obs(self, patient_id=None):
         _logger.info('Searching for scheduled EWS for patient')
+        if not patient_id:
+            patient_id = self.patient_id
         ews_activity_search = self.activity_pool.search(
             self.cr,
             self.uid,
             [
                 ['data_model', '=', 'nh.clinical.patient.observation.ews'],
-                ['patient_id', '=', self.patient_id],
+                ['patient_id', '=', patient_id],
                 ['state', '=', 'scheduled']
             ]
         )

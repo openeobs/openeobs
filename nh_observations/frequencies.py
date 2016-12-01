@@ -71,9 +71,12 @@ PATIENT_REFUSAL_ADJUSTMENTS = {
         EVERY_WEEK[0]: EVERY_DAY
     },
     'Medium': {
+        EVERY_15_MINUTES[0]: EVERY_15_MINUTES,
+        EVERY_30_MINUTES[0]: EVERY_30_MINUTES,
         EVERY_HOUR[0]: EVERY_HOUR
     },
     'High': {
+        EVERY_15_MINUTES[0]: EVERY_15_MINUTES,
         EVERY_30_MINUTES[0]: EVERY_30_MINUTES
     },
     'Unknown': EVERY_4_HOURS,
