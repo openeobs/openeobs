@@ -46,7 +46,8 @@ class TestGetPatientsRefused(TransactionObservationCase):
         Test that if the patient refuses their first observation then
         refusal_in_effect is set to True
         """
-        self.assertTrue(self.get_refusal_in_effect(
+        self.assertTrue(
+            self.get_refusal_in_effect(
                 [
                     clinical_risk_sample_data.REFUSED_DATA
                 ]
