@@ -28,7 +28,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient with no risk has an acuity index of 'None'
         """
         self.complete_obs(clinical_risk_sample_data.NO_RISK_DATA)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'None')
 
     def test_low_risk(self):
@@ -36,7 +36,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient with low risk has an acuity index of 'Low'
         """
         self.complete_obs(clinical_risk_sample_data.LOW_RISK_DATA)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'Low')
 
     def test_medium_risk(self):
@@ -44,7 +44,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient with medium risk has an acuity index of 'Medium'
         """
         self.complete_obs(clinical_risk_sample_data.MEDIUM_RISK_DATA)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'Medium')
 
     def test_high_risk(self):
@@ -52,7 +52,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient with high risk has an acuity index of 'High'
         """
         self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'High')
 
     def test_transferred_in(self):
@@ -75,14 +75,14 @@ class TestAcuityIndex(TransactionObservationCase):
             cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
         )
         self.activity_pool.complete(cr, uid, placement_id[0])
-        wardboard = self.wardboard_model.browse(self.patient_2_id)
+        wardboard = self.wardboard_model.browse(self.spell_2_id)
         self.assertEqual(wardboard.acuity_index, 'NoScore')
 
     def test_obs_stop(self):
         """
         Test that patient on PME/Obs Stop has an acuity index of 'ObsStop'
         """
-        spell = self.spell_model.browse(self.patient_id)
+        spell = self.spell_model.browse(self.spell_id)
         spell.write({'obs_stop': True})
         pme_model = self.env['nh.clinical.patient_monitoring_exception']
         activity_id = pme_model.create_activity(
@@ -93,7 +93,7 @@ class TestAcuityIndex(TransactionObservationCase):
         pme_activity = activity_model.browse(activity_id)
         pme_activity.spell_activity_id = spell.activity_id
         pme_model.start(activity_id)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'ObsStop')
 
     # def test_obs_restart(self):
@@ -102,7 +102,8 @@ class TestAcuityIndex(TransactionObservationCase):
     #     has an acuity index of 'NoScore'
     #     """
     #     self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
-    #     spell = self.spell_model.browse(self.patient_id)
+    #     time.sleep(2)
+    #     spell = self.spell_model.browse(self.spell_id)
     #     spell.write({'obs_stop': True})
     #     pme_model = self.env['nh.clinical.patient_monitoring_exception']
     #     activity_id = pme_model.create_activity(
@@ -113,20 +114,18 @@ class TestAcuityIndex(TransactionObservationCase):
     #     pme_activity = activity_model.browse(activity_id)
     #     pme_activity.spell_activity_id = spell.activity_id
     #     pme_model.start(activity_id)
-    #     wardboard = self.wardboard_model.browse(self.patient_id)
-    #     time.sleep(2)
+    #     wardboard = self.wardboard_model.browse(self.spell_id)
     #     wardboard.end_patient_monitoring_exception()
-    #     wardboard_2 = self.wardboard_model.browse(self.patient_id)
-    #     self.assertEqual(wardboard_2.acuity_index, 'NoScore')
+    #     self.assertEqual(wardboard.acuity_index, 'NoScore')
 
     def test_refused(self):
         """
         Test that patient that is refusing obs has an acuity index of 'Refused'
         """
         self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
-        wardboard = self.wardboard_model.browse(self.patient_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'Refused')
-    #
+
     # def test_refused_transferred_in(self):
     #     """
     #     Test that patient that was refusing and then was transferred to the
@@ -149,5 +148,5 @@ class TestAcuityIndex(TransactionObservationCase):
     #         cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
     #     )
     #     self.activity_pool.complete(cr, uid, placement_id[0])
-    #     wardboard = self.wardboard_model.browse(self.patient_2_id)
+    #     wardboard = self.wardboard_model.browse(self.spell_2_id)
     #     self.assertEqual(wardboard.acuity_index, 'NoScore')

@@ -22,6 +22,7 @@ class TransactionObservationCase(TransactionCase):
         self.api_pool = self.registry('nh.eobs.api')
         self.activity_pool = self.registry('nh.activity')
         self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
+        self.spell_pool = self.registry('nh.clinical.spell')
         self.obs_data = None
         self.expected_score = None
         self.expected_risk = None
@@ -185,13 +186,22 @@ class TransactionObservationCase(TransactionCase):
         self.api_pool.admit(
             cr, self.adt_id, 'TESTHN002', {'location': 'SLAM'}
         )
-        _logger.info('Finding spell')
-        self.spell_id = self.activity_pool.search(
+        _logger.info('Finding spell activities')
+        self.spell_activity_id = self.activity_pool.search(
             cr, uid, [['data_model', '=', 'nh.clinical.spell'],
                       ['patient_id', '=', self.patient_id]])[0]
 
-        self.spell_2_id = self.activity_pool.search(
+        self.spell_activity_2_id = self.activity_pool.search(
             cr, uid, [['data_model', '=', 'nh.clinical.spell'],
+                      ['patient_id', '=', self.patient_2_id]])[0]
+
+        _logger.info('Finding spell')
+        self.spell_id = self.spell_pool.search(
+            cr, uid, [['state', 'not in', ['completed', 'cancelled']],
+                      ['patient_id', '=', self.patient_id]])[0]
+
+        self.spell_2_id = self.spell_pool.search(
+            cr, uid, [['state', 'not in', ['completed', 'cancelled']],
                       ['patient_id', '=', self.patient_2_id]])[0]
 
         _logger.info('Finding placement')
