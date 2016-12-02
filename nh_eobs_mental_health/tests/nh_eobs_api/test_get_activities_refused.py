@@ -54,8 +54,7 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         refusal_in_effect is set to True
         """
         self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
-        activities = self.api_pool.get_activities(
-            self.cr, self.user_id, [self.patient_id])
+        activities = self.api_pool.get_activities(self.cr, self.user_id, [])
         self.assertTrue(activities[1].get('refusal_in_effect'))
 
     def test_refused_no_risk(self):
