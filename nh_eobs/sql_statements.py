@@ -352,16 +352,18 @@ class NHEobsSQL(orm.AbstractModel):
                 else false
             end as notification
         from nh_activity activity
-        inner join nh_activity spell on spell.id = activity.parent_id
+        inner join nh_activity spell_activity
+        on spell_activity.id = activity.parent_id
         inner join nh_clinical_patient patient
           on patient.id = activity.patient_id
         inner join nh_clinical_location location
-          on location.id = spell.location_id
+          on location.id = spell_activity.location_id
         inner join nh_clinical_location location_parent
           on location_parent.id = location.parent_id
-        left join ews1 on ews1.spell_activity_id = spell.id
-        left join ews2 on ews2.spell_activity_id = spell.id
-        where activity.id in ({activity_ids}) and spell.state = 'started'
+        left join ews1 on ews1.spell_activity_id = spell_activity.id
+        left join ews2 on ews2.spell_activity_id = spell_activity.id
+        where activity.id in ({activity_ids})
+        and spell_activity.state = 'started'
         order by deadline asc, activity.id desc
     """
 

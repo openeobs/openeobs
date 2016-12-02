@@ -367,15 +367,22 @@ class NHEobsSQL(orm.AbstractModel):
 
     def get_collect_activities_sql(self, activity_ids_sql):
         sql = self.collect_activities_skeleton.replace(
-            'left join ews1 on ews1.spell_activity_id = spell.id',
-            'left join ews1 on ews1.spell_activity_id = spell.id '
+            'left join ews1 on ews1.spell_activity_id = spell_activity.id',
+            'left join ews1 on ews1.spell_activity_id = spell_activity.id '
+            'LEFT JOIN nh_clinical_spell AS spell '
+            'ON spell.activity_id = spell_activity.id '
+            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
             'LEFT JOIN refused_last_ews '
-            'ON refused_last_ews.spell_activity_id = spell.id '
+            'ON refused_last_ews.spell_activity_id = spell_activity.id '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'AND coalesce(refused_last_ews.date_terminated >= '
+            'pme.activity_date_terminated, TRUE) '
         )
         sql = sql.replace(
             'end as deadline_time,',
-            'end as deadline_time,'
-            'refused_last_ews.refused as refusal_in_effect,'
+            'end as deadline_time, '
+            'refused_last_ews.refused AS refusal_in_effect, '
         )
         return sql.format(activity_ids=activity_ids_sql)
 
@@ -383,13 +390,21 @@ class NHEobsSQL(orm.AbstractModel):
         sql = self.collect_patients_skeleton.replace(
             'left join ews0 on ews0.spell_activity_id = activity.id',
             'left join ews0 on ews0.spell_activity_id = activity.id '
-            'left join refused_last_ews '
-            'on refused_last_ews.spell_activity_id = activity.id'
+            'LEFT JOIN nh_clinical_spell AS spell '
+            'ON spell.activity_id = activity.id '
+            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN refused_last_ews '
+            'ON refused_last_ews.spell_activity_id = activity.id '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'AND coalesce(refused_last_ews.date_terminated >= '
+            'pme.activity_date_terminated, TRUE) '
+            'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
         )
         sql = sql.replace(
             'patient.other_identifier,',
             'patient.other_identifier, '
-            'refused_last_ews.refused as refusal_in_effect,'
+            'refused_last_ews.refused AS refusal_in_effect,'
         )
         return sql.format(spell_ids=spell_ids)
 

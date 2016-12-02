@@ -7,40 +7,22 @@ import time
 _logger = logging.getLogger(__name__)
 
 
-class TestGetActivitiesRefused(TransactionObservationCase):
+class TestGetPatientsRefused(TransactionObservationCase):
     """
     Test that the get_activities method is returning the refusal_in_effect
     column as true for patient's who are currently refusing obs
     """
 
     def setUp(self):
-        _logger.info('Setting up TestGetActivitiesRefused')
-        super(TestGetActivitiesRefused, self).setUp()
-        self.settings_model = self.registry('nh.clinical.settings')
+        _logger.info('Setting up TestGetPatientsRefused')
+        super(TestGetPatientsRefused, self).setUp()
         self.spell_model = self.env['nh.clinical.spell']
         self.wardboard_model = self.env['nh.clinical.wardboard']
         pme_reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
         self.pme_reason = pme_reason_model.browse(1)
 
-        def patch_settings_activity_period(*args, **kwargs):
-            _logger.info('inside patch of get settings')
-            if len(args) > 3 and args[3] == 'activity_period':
-                _logger.info('Returning a day')
-                return 1440
-            _logger.info('Returning origin method')
-            return patch_settings_activity_period.origin(*args, **kwargs)
-
-        _logger.info('patching get_setting')
-        self.settings_model._patch_method(
-            'get_setting', patch_settings_activity_period)
-
         self.completed_obs = []
-
-    def tearDown(self):
-        _logger.info('reverting get_setting')
-        self.settings_model._revert_method('get_setting')
-        super(TestGetActivitiesRefused, self).tearDown()
 
     def get_refusal_in_effect(self, obs_list=None, patient_id=None):
         if not obs_list:
@@ -53,10 +35,10 @@ class TestGetActivitiesRefused(TransactionObservationCase):
             self.complete_obs(ob)
             self.get_obs(patient_id)
         _logger.info('Getting activities')
-        activities = self.api_pool.get_activities(self.cr, self.user_id, [])
-        for activity in activities:
-            if activity.get('id') == self.ews_activity_id:
-                return activity.get('refusal_in_effect')
+        patient = self.api_pool.get_patients(
+            self.cr, self.user_id, [patient_id])
+        if patient:
+            return patient[0].get('refusal_in_effect')
         return False
 
     def test_refused_first_obs(self):
@@ -141,11 +123,9 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         wardboard = self.wardboard_model.browse(self.spell_id)
         wardboard.start_patient_monitoring_exception(
             self.pme_reason, self.spell_id, self.spell_activity_id)
-        activities = self.api_pool.get_activities(self.cr, self.user_id, [])
-        refusal_in_effect = [
-            act.get('refusal_in_effect') for act in activities
-            if act.get('id') == self.ews_activity_id]
-        self.assertFalse(refusal_in_effect)
+        patient = self.api_pool.get_patients(
+            self.cr, self.user_id, [self.patient_id])
+        self.assertFalse(patient[0].get('refusal_in_effect'))
 
     def test_refused_obs_restart(self):
         """
@@ -163,12 +143,9 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         wardboard.start_patient_monitoring_exception(
             self.pme_reason, self.spell_id, self.spell_activity_id)
         wardboard.end_patient_monitoring_exception()
-        self.get_obs()
-        activities = self.api_pool.get_activities(self.cr, self.user_id, [])
-        refusal_in_effect = [
-            act.get('refusal_in_effect') for act in activities
-            if act.get('id') == self.ews_activity_id]
-        self.assertFalse(refusal_in_effect[0])
+        patient = self.api_pool.get_patients(
+            self.cr, self.user_id, [self.patient_id])
+        self.assertFalse(patient[0].get('refusal_in_effect'))
 
     def test_refused_transfer(self):
         """
@@ -197,9 +174,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
             cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
         )
         self.activity_pool.complete(cr, uid, placement_id[0])
-        self.get_obs(self.patient_2_id)
-        activities = self.api_pool.get_activities(self.cr, self.user_id, [])
-        refusal_in_effect = [
-            act.get('refusal_in_effect') for act in activities
-            if act.get('id') == self.ews_activity_id]
-        self.assertFalse(refusal_in_effect[0])
+        patient = self.api_pool.get_patients(
+            self.cr, self.user_id, [self.patient_2_id])
+        self.assertFalse(patient[0].get('refusal_in_effect'))
