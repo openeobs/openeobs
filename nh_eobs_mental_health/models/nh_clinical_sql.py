@@ -317,7 +317,8 @@ class NHEobsSQL(orm.AbstractModel):
             refused.ews_id,
             refused.refused,
             acts.spell_id,
-            acts.spell_activity_id
+            acts.spell_activity_id,
+            acts.date_terminated
     from refused_ews_activities AS refused
     RIGHT OUTER JOIN wb_activity_ranked AS acts
     ON acts.id = refused.id AND refused.rank = 1
@@ -352,7 +353,10 @@ class NHEobsSQL(orm.AbstractModel):
             'LIMIT 1'
             ') '
             'THEN \'NoScore\' '
-            'WHEN refused_last_ews.refused = true THEN \'Refused\' '
+            'WHEN refused_last_ews.refused = true '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'THEN \'Refused\' '
         )
         return wardboard.replace(
             'LEFT JOIN param ON param.spell_id = spell.id',

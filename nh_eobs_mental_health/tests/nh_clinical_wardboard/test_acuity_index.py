@@ -130,27 +130,30 @@ class TestAcuityIndex(TransactionObservationCase):
         wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'Refused')
 
-    # def test_refused_transferred_in(self):
-    #     """
-    #     Test that patient that was refusing and then was transferred to the
-    #      ward has an acuity index of 'NoScore'
-    #     """
-    #     cr, uid = self.cr, self.uid
-    #     self.get_obs(self.patient_2_id)
-    #     self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
-    #     self.api_pool.transfer(
-    #         cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
-    #     self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {})
-    #     placement_id = self.activity_pool.search(
-    #         cr, uid, [
-    #             ['data_model', '=', 'nh.clinical.patient.placement'],
-    #             ['patient_id', '=', self.patient_2_id],
-    #             ['state', '=', 'scheduled']
-    #         ]
-    #     )
-    #     self.activity_pool.submit(
-    #         cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
-    #     )
-    #     self.activity_pool.complete(cr, uid, placement_id[0])
-    #     wardboard = self.wardboard_model.browse(self.spell_2_id)
-    #     self.assertEqual(wardboard.acuity_index, 'NoScore')
+    def test_refused_transferred_in(self):
+        """
+        Test that patient that had a high risk obs, then refused and then
+        was transferred to the ward has an acuity index of 'High'
+        """
+        cr, uid = self.cr, self.uid
+        self.get_obs(self.patient_2_id)
+        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
+        self.get_obs(self.patient_2_id)
+        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
+        time.sleep(2)
+        self.api_pool.transfer(
+            cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
+        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {})
+        placement_id = self.activity_pool.search(
+            cr, uid, [
+                ['data_model', '=', 'nh.clinical.patient.placement'],
+                ['patient_id', '=', self.patient_2_id],
+                ['state', '=', 'scheduled']
+            ]
+        )
+        self.activity_pool.submit(
+            cr, uid, placement_id[0], {'location_id': self.bed_ids[0]}
+        )
+        self.activity_pool.complete(cr, uid, placement_id[0])
+        wardboard = self.wardboard_model.browse(self.spell_2_id)
+        self.assertEqual(wardboard.acuity_index, 'High')
