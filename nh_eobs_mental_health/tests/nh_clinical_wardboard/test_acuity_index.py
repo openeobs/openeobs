@@ -96,27 +96,31 @@ class TestAcuityIndex(TransactionObservationCase):
         wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'ObsStop')
 
-    # def test_obs_restart(self):
-    #     """
-    #     Test that patient that's just had observations restarted
-    #     has an acuity index of 'NoScore'
-    #     """
-    #     self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
-    #     time.sleep(2)
-    #     spell = self.spell_model.browse(self.spell_id)
-    #     spell.write({'obs_stop': True})
-    #     pme_model = self.env['nh.clinical.patient_monitoring_exception']
-    #     activity_id = pme_model.create_activity(
-    #         {},
-    #         {'reason': 1, 'spell': spell.id}
-    #     )
-    #     activity_model = self.env['nh.activity']
-    #     pme_activity = activity_model.browse(activity_id)
-    #     pme_activity.spell_activity_id = spell.activity_id
-    #     pme_model.start(activity_id)
-    #     wardboard = self.wardboard_model.browse(self.spell_id)
-    #     wardboard.end_patient_monitoring_exception()
-    #     self.assertEqual(wardboard.acuity_index, 'NoScore')
+    def test_obs_restart(self):
+        """
+        Test that patient that's just had observations restarted
+        has an acuity index of 'NoScore'
+        """
+        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
+        time.sleep(2)
+        spell = self.spell_model.browse(self.spell_id)
+        spell.write({'obs_stop': True})
+        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        activity_id = pme_model.create_activity(
+            {},
+            {'reason': 1, 'spell': spell.id}
+        )
+        activity_model = self.env['nh.activity']
+        pme_activity = activity_model.browse(activity_id)
+        pme_activity.spell_activity_id = spell.activity_id
+        pme_model.start(activity_id)
+        wardboard = self.wardboard_model.browse(self.spell_id)
+        wardboard.end_patient_monitoring_exception()
+        # Have to invalidate the cache as the browse was still returning the
+        # old cached value
+        self.env.invalidate_all()
+        wardboard_2 = self.wardboard_model.browse(self.spell_id)
+        self.assertEqual(wardboard_2.acuity_index, 'NoScore')
 
     def test_refused(self):
         """
