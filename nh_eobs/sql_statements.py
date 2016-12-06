@@ -279,3 +279,168 @@ class NHEobsSQL(orm.AbstractModel):
                     cases=case_sql)
         return self.workload_skeleton.format(
             proximity_interval=proximity_interval)
+
+    collect_activities_skeleton = """
+    select distinct activity.id,
+            activity.summary,
+            patient.id as patient_id,
+            ews1.clinical_risk,
+            case
+                when activity.date_scheduled is not null then
+                activity.date_scheduled::text
+                when activity.create_date is not null then
+                activity.create_date::text
+                else ''
+            end as deadline,
+            case
+                when activity.date_scheduled is not null then
+                  case when greatest(
+                    now() at time zone 'UTC', activity.date_scheduled) !=
+                    activity.date_scheduled
+                    then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(
+                    now() at time zone 'UTC', activity.date_scheduled) -
+                    least(now() at time zone 'UTC',
+                    activity.date_scheduled))) > 0
+                    then extract(days from (greatest(
+                      now() at time zone 'UTC', activity.date_scheduled) -
+                      least(now() at time zone 'UTC', activity.date_scheduled)
+                      )) || ' day(s) '
+                  else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC',
+                  activity.date_scheduled) - least(now() at time zone 'UTC',
+                  activity.date_scheduled)), 'HH24:MI') || ' hours'
+                when activity.create_date is not null then
+                  case when greatest(now() at time zone 'UTC',
+                    activity.create_date) != activity.create_date
+                    then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone
+                    'UTC', activity.create_date) - least(now() at time zone
+                    'UTC', activity.create_date))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC',
+                      activity.create_date) - least(now() at time zone 'UTC',
+                      activity.create_date))) || ' day(s) '
+                  else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC',
+                  activity.create_date) - least(now() at time zone 'UTC',
+                  activity.create_date)), 'HH24:MI') || ' hours'
+                else to_char((interval '0s'), 'HH24:MI') || ' hours'
+            end as deadline_time,
+            coalesce(patient.family_name, '') || ', ' ||
+              coalesce(patient.given_name, '') || ' ' ||
+              coalesce(patient.middle_names,'') as full_name,
+            location.name as location,
+            location_parent.name as parent_location,
+            case
+                when ews1.score is not null then ews1.score::text
+                else ''
+            end as ews_score,
+            case
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) = 0 then 'same'
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) > 0 then 'up'
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) < 0 then 'down'
+                when ews1.id is null and ews2.id is null then 'none'
+                when ews1.id is not null and ews2.id is null then 'first'
+                when ews1.id is null and ews2.id is not null then 'no latest'
+            end as ews_trend,
+            case
+                when position('notification' in activity.data_model)::bool
+                  then true
+                else false
+            end as notification
+        from nh_activity activity
+        inner join nh_activity spell_activity
+        on spell_activity.id = activity.parent_id
+        inner join nh_clinical_patient patient
+          on patient.id = activity.patient_id
+        inner join nh_clinical_location location
+          on location.id = spell_activity.location_id
+        inner join nh_clinical_location location_parent
+          on location_parent.id = location.parent_id
+        left join ews1 on ews1.spell_activity_id = spell_activity.id
+        left join ews2 on ews2.spell_activity_id = spell_activity.id
+        where activity.id in ({activity_ids})
+        and spell_activity.state = 'started'
+        order by deadline asc, activity.id desc
+    """
+
+    def get_collect_activities_sql(self, activity_ids_sql):
+        return self.collect_activities_skeleton.format(
+            activity_ids=activity_ids_sql)
+
+    collect_patients_skeleton = """
+    select distinct activity.id,
+            patient.id,
+            patient.dob,
+            patient.gender,
+            patient.sex,
+            patient.other_identifier,
+            case char_length(patient.patient_identifier) = 10
+                when true then substring(patient.patient_identifier from 1
+                  for 3) || ' ' || substring(patient.patient_identifier from 4
+                  for 3) || ' ' || substring(patient.patient_identifier from 7
+                  for 4)
+                else patient.patient_identifier
+            end as patient_identifier,
+            coalesce(patient.family_name, '') || ', ' ||
+              coalesce(patient.given_name, '') || ' ' ||
+              coalesce(patient.middle_names,'') as full_name,
+            case
+                when ews0.date_scheduled is not null then
+                  case when greatest(now() at time zone 'UTC',
+                    ews0.date_scheduled) != ews0.date_scheduled
+                    then 'overdue: ' else '' end ||
+                  case when extract(days from (greatest(now() at time zone
+                    'UTC', ews0.date_scheduled) - least(now() at time zone
+                    'UTC', ews0.date_scheduled))) > 0
+                    then extract(days from (greatest(now() at time zone 'UTC',
+                      ews0.date_scheduled) - least(now() at time zone 'UTC',
+                      ews0.date_scheduled))) || ' day(s) '
+                    else '' end ||
+                  to_char(justify_hours(greatest(now() at time zone 'UTC',
+                    ews0.date_scheduled) - least(now() at time zone 'UTC',
+                    ews0.date_scheduled)), 'HH24:MI') || ' hours'
+                else to_char((interval '0s'), 'HH24:MI') || ' hours'
+            end as next_ews_time,
+            location.name as location,
+            location_parent.name as parent_location,
+            case
+                when ews1.score is not null then ews1.score::text
+                else ''
+            end as ews_score,
+            ews1.clinical_risk,
+            case
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) = 0 then 'same'
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) > 0 then 'up'
+                when ews1.id is not null and ews2.id is not null and
+                  (ews1.score - ews2.score) < 0 then 'down'
+                when ews1.id is null and ews2.id is null then 'none'
+                when ews1.id is not null and ews2.id is null then 'first'
+                when ews1.id is null and ews2.id is not null then 'no latest'
+            end as ews_trend,
+            case
+                when ews0.frequency is not null then ews0.frequency
+                else 0
+            end as frequency
+        from nh_activity activity
+        inner join nh_clinical_patient patient
+          on patient.id = activity.patient_id
+        inner join nh_clinical_location location
+          on location.id = activity.location_id
+        inner join nh_clinical_location location_parent
+          on location_parent.id = location.parent_id
+        left join ews1 on ews1.spell_activity_id = activity.id
+        left join ews2 on ews2.spell_activity_id = activity.id
+        left join ews0 on ews0.spell_activity_id = activity.id
+        where activity.state = 'started' and activity.data_model =
+          'nh.clinical.spell' and activity.id in ({spell_ids})
+        order by location
+    """
+
+    def get_collect_patients_sql(self, spell_ids):
+        return self.collect_patients_skeleton.format(spell_ids=spell_ids)

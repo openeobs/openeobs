@@ -41,3 +41,13 @@ HIGH_RISK_DATA = {
     'pulse_rate': 130,
     'avpu_text': 'A'
 }
+
+REFUSED_DATA = {
+    'respiration_rate': 11,
+    'partial_reason': 'refused'
+}
+
+PARTIAL_DATA = {
+    'respiration_rate': 11,
+    'partial_reason': 'asleep'
+}
