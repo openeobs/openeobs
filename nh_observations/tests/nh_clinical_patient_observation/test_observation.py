@@ -9,7 +9,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 _logger = logging.getLogger(__name__)
 
-
+# TODO Merge with the 'nh.clinical.test_utils' model.
 class TestObservation(common.SingleTransactionCase):
 
     @classmethod
