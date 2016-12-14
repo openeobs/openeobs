@@ -15,8 +15,8 @@ class TestAvailableFrequencies(TransactionCase):
 
         self.test_utils_model \
             .create_patient_and_spell_and_complete_clinical_review()
-        self.clinical_review_frequency_notification = \
-            self.test_utils_model.clinical_review_frequency_notification
+        self.clinical_review_notification_activity = \
+            self.test_utils_model.clinical_review_notification_activity
 
         triggered_ids_domain = [
             ('creator_id', '=', self.clinical_review_notification_activity.id),

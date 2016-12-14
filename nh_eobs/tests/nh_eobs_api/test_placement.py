@@ -8,6 +8,7 @@ class TestPlacement(TransactionCase):
         super(TestPlacement, self).setUp()
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_patient()
+        self.hospital_number = self.test_utils_model.hospital_number
 
         self.spell_activity_id = self.test_utils_model.spell_activity_id
         self.domain = [
