@@ -1,11 +1,7 @@
 var NHGraphLib,
-    bind = function (fn, me) {
-      return function () {
-        return fn.apply(me, arguments);
-      };
-    };
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-NHGraphLib = (function () {
+NHGraphLib = (function() {
   function NHGraphLib(element) {
     this.date_to_string = bind(this.date_to_string, this);
     var self;
@@ -80,7 +76,7 @@ NHGraphLib = (function () {
     self = this;
   }
 
-  NHGraphLib.prototype.date_from_string = function (date_string) {
+  NHGraphLib.prototype.date_from_string = function(date_string) {
     var date;
     date = new Date(date_string);
     if (isNaN(date.getTime())) {
@@ -92,7 +88,7 @@ NHGraphLib = (function () {
     return date;
   };
 
-  NHGraphLib.prototype.date_to_string = function (date, day_flag) {
+  NHGraphLib.prototype.date_to_string = function(date, day_flag) {
     var days, final;
     if (day_flag == null) {
       day_flag = true;
@@ -108,11 +104,11 @@ NHGraphLib = (function () {
     return final += date.getDate() + '/' + this.leading_zero(date.getMonth() + 1) + "/" + this.leading_zero(date.getFullYear()) + " " + this.leading_zero(date.getHours()) + ":" + this.leading_zero(date.getMinutes());
   };
 
-  NHGraphLib.prototype.leading_zero = function (date_element) {
+  NHGraphLib.prototype.leading_zero = function(date_element) {
     return ("0" + date_element).slice(-2);
   };
 
-  NHGraphLib.prototype.mobile_date_start_change = function (self, event) {
+  NHGraphLib.prototype.mobile_date_start_change = function(self, event) {
     var current_date, dates, new_date;
     if (self.focus != null) {
       current_date = self.focus.axes.x.min;
@@ -123,7 +119,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.mobile_date_end_change = function (self, event) {
+  NHGraphLib.prototype.mobile_date_end_change = function(self, event) {
     var current_date, dates, new_date;
     if (self.focus != null) {
       current_date = self.focus.axes.x.max;
@@ -134,7 +130,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.is_landscape = function () {
+  NHGraphLib.prototype.is_landscape = function() {
     if (window.innerWidth > window.innerHeight) {
       return 1;
     } else {
@@ -142,7 +138,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.mobile_time_start_change = function (self, event) {
+  NHGraphLib.prototype.mobile_time_start_change = function(self, event) {
     var current_date, new_time, time;
     if (self.focus != null) {
       current_date = self.focus.axes.x.min;
@@ -153,7 +149,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.mobile_time_end_change = function (self, event) {
+  NHGraphLib.prototype.mobile_time_end_change = function(self, event) {
     var current_date, new_time, time;
     if (self.focus != null) {
       current_date = self.focus.axes.x.max;
@@ -164,7 +160,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.redraw_resize = function (event) {
+  NHGraphLib.prototype.redraw_resize = function(event) {
     var ref, ref1, ref2, ref3;
     if (this.is_alive() && !event.handled) {
       this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
@@ -176,7 +172,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.rangify_graphs = function () {
+  NHGraphLib.prototype.rangify_graphs = function() {
     var graph, i, len, ranged, ref;
     this.options.ranged = this.options.controls.rangify.checked;
     ranged = this.options.ranged;
@@ -190,7 +186,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.add_listeners = function () {
+  NHGraphLib.prototype.add_listeners = function() {
     var rangify;
     if (typeof _ !== "undefined" && _ !== null) {
       this.options.handler.resize = _.debounce(this.redraw_resize.bind(this), 250);
@@ -205,7 +201,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.remove_listeners = function () {
+  NHGraphLib.prototype.remove_listeners = function() {
     var rangify;
     window.removeEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
@@ -214,7 +210,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.is_alive = function () {
+  NHGraphLib.prototype.is_alive = function() {
     if (this.obj[0][0].baseURI) {
       return true;
     } else {
@@ -223,7 +219,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.init = function () {
+  NHGraphLib.prototype.init = function() {
     var container_el, end, ref, ref1, ref2, ref3, ref4, ref5, ref6, self, start;
     if (this.el != null) {
       container_el = nh_graphs.select(this.el);
@@ -257,22 +253,22 @@ NHGraphLib = (function () {
       document.getElementsByTagName('body')[0].appendChild(this.popup);
       self = this;
       if ((ref3 = this.options.controls.date.start) != null) {
-        ref3.addEventListener('change', function (event) {
+        ref3.addEventListener('change', function(event) {
           self.mobile_date_start_change(self, event);
         });
       }
       if ((ref4 = this.options.controls.date.end) != null) {
-        ref4.addEventListener('change', function (event) {
+        ref4.addEventListener('change', function(event) {
           self.mobile_date_end_change(self, event);
         });
       }
       if ((ref5 = this.options.controls.time.start) != null) {
-        ref5.addEventListener('change', function (event) {
+        ref5.addEventListener('change', function(event) {
           self.mobile_time_start_change(self, event);
         });
       }
       if ((ref6 = this.options.controls.time.end) != null) {
-        ref6.addEventListener('change', function (event) {
+        ref6.addEventListener('change', function(event) {
           self.mobile_time_end_change(self, event);
         });
       }
@@ -282,7 +278,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.draw = function () {
+  NHGraphLib.prototype.draw = function() {
     var ref, ref1;
     if (this.data.raw.length > 0) {
       if ((ref = this.context) != null) {
@@ -299,7 +295,7 @@ NHGraphLib = (function () {
     }
   };
 
-  NHGraphLib.prototype.draw_table = function (self) {
+  NHGraphLib.prototype.draw_table = function(self) {
     var cells, container, header_row, raw_data, rows, table_el, tbody, thead;
     table_el = nh_graphs.select(self.table.element);
     container = nh_graphs.select('#table-content').append('table');
@@ -311,7 +307,7 @@ NHGraphLib = (function () {
       }
     ];
     raw_data = self.data.raw.reverse();
-    thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function (d) {
+    thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
       var date_rotate, term_date;
       term_date = d.date_terminated;
       if (d.date_terminated !== "Date") {
@@ -324,7 +320,7 @@ NHGraphLib = (function () {
       return date_rotate[1] + '<br>' + date_rotate[0];
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
-    return cells = rows.selectAll('td').data(function (d) {
+    return cells = rows.selectAll('td').data(function(d) {
       var data, fix_val, i, j, key, len, len1, o, obj, ref, t, v;
       data = [
         {
@@ -371,7 +367,7 @@ NHGraphLib = (function () {
         }
       }
       return data;
-    }).enter().append('td').html(function (d) {
+    }).enter().append('td').html(function(d) {
       var i, len, o, ref, text;
       if (typeof d.value === 'object') {
         text = '';

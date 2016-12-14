@@ -1,8 +1,7 @@
-
 /*
-  Created by Jon Wyatt on 18/10/15
+ Created by Jon Wyatt on 18/10/15
  */
-describe('Rangify', function() {
+describe('Rangify', function () {
 
     var context, focus, graphlib, pulse_graph, score_graph, test_area, bp_graph, rangify;
     graphlib = null;
@@ -76,19 +75,19 @@ describe('Rangify', function() {
         score_graph.axes.y.min = 0;
         score_graph.axes.y.max = 22;
         score_graph.drawables.background.data = [
-          {
-            "class": "green",
-            s: 1,
-            e: 4
-          }, {
-            "class": "amber",
-            s: 4,
-            e: 6
-          }, {
-            "class": "red",
-            s: 6,
-            e: 22
-          }
+            {
+                "class": "green",
+                s: 1,
+                e: 4
+            }, {
+                "class": "amber",
+                s: 4,
+                e: 6
+            }, {
+                "class": "red",
+                s: 6,
+                e: 22
+            }
         ];
         score_graph.style.label_width = 60;
 
@@ -154,34 +153,34 @@ describe('Rangify', function() {
         }
     });
 
-    describe("Properties", function() {
+    describe("Properties", function () {
 
-        beforeEach(function() {
-          graphlib.init();
+        beforeEach(function () {
+            graphlib.init();
         });
-        it("nhgraphlib.graph has ranged_extent property", function() {
-          expect(bp_graph.axes.y.ranged_extent).toBeDefined();
+        it("nhgraphlib.graph has ranged_extent property", function () {
+            expect(bp_graph.axes.y.ranged_extent).toBeDefined();
         });
-        it("nhgraphlib.graph initialises range_extent with correct range", function() {
-          expect(bp_graph.axes.y.ranged_extent[1]).toBe(120);
+        it("nhgraphlib.graph initialises range_extent with correct range", function () {
+            expect(bp_graph.axes.y.ranged_extent[1]).toBe(120);
         });
-        it("nhgraphlib.graph has rangify method", function() {
-          expect(bp_graph.rangify_graph).toBeDefined();
+        it("nhgraphlib.graph has rangify method", function () {
+            expect(bp_graph.rangify_graph).toBeDefined();
         });
-        it("nhgraphlib has link to rangify checkbox element", function() {
-          expect(graphlib.options.controls.rangify).toBeDefined();
+        it("nhgraphlib has link to rangify checkbox element", function () {
+            expect(graphlib.options.controls.rangify).toBeDefined();
         });
     });
 
-    describe("Ranged Default", function() {
+    describe("Ranged Default", function () {
 
         var graphs;
 
-        beforeEach(function() {
+        beforeEach(function () {
             graphs = [bp_graph, pulse_graph];
         });
 
-        it("nhgraphlib.graph initialises rangified if ranged option true", function() {
+        it("nhgraphlib.graph initialises rangified if ranged option true", function () {
             graphlib.init();
             graphlib.draw();
             var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
@@ -217,7 +216,7 @@ describe('Rangify', function() {
             }
         });
 
-        it("nhgraphlib.graph initialises not ranged if option false", function() {
+        it("nhgraphlib.graph initialises not ranged if option false", function () {
             graphlib.options.ranged = false;
             graphlib.options.controls.rangify.checked = false;
             graphlib.init();
@@ -257,133 +256,133 @@ describe('Rangify', function() {
         });
     });
 
-  describe("Events", function() {
-    var graphs;
-    graphs = null;
+    describe("Events", function () {
+        var graphs;
+        graphs = null;
 
-    beforeEach(function() {
-      spyOn(bp_graph, 'redraw').and.callThrough();
-      spyOn(bp_graph, 'rangify_graph').and.callThrough();
-      spyOn(pulse_graph, 'redraw').and.callThrough();
-      spyOn(pulse_graph, 'rangify_graph').and.callThrough();
+        beforeEach(function () {
+            spyOn(bp_graph, 'redraw').and.callThrough();
+            spyOn(bp_graph, 'rangify_graph').and.callThrough();
+            spyOn(pulse_graph, 'redraw').and.callThrough();
+            spyOn(pulse_graph, 'rangify_graph').and.callThrough();
 
-      graphs = [bp_graph, pulse_graph];
-      graphlib.init();
-      graphlib.draw();
+            graphs = [bp_graph, pulse_graph];
+            graphlib.init();
+            graphlib.draw();
+        });
+
+        describe("Check", function () {
+
+            it("calls rangify method on all graphs when checkbox clicked", function () {
+                var count;
+                ev.mouse('click', rangify);
+                count = bp_graph.rangify_graph.calls.count();
+                count += pulse_graph.rangify_graph.calls.count();
+                expect(count).toBe(2);
+            });
+
+            it("calls redraw method on all graphs", function () {
+                var count;
+                ev.mouse('click', rangify);
+                count = bp_graph.redraw.calls.count();
+                count += pulse_graph.redraw.calls.count();
+                expect(count).toBe(2);
+            });
+
+            it("switches axes to ranged min/max", function () {
+                var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
+                ev.mouse('click', rangify);
+                ev.mouse('click', rangify);
+                for (i = 0, len = graphs.length; i < len; i++) {
+                    graph = graphs[i];
+                    padding = graph.style.range_padding;
+                    expectedMin = graph.axes.y.ranged_extent[0] - padding;
+                    expectedMax = graph.axes.y.ranged_extent[1] + padding;
+                    ticks = graph.axes.obj[0][0].querySelectorAll('.tick text');
+                    expect(ticks.length).toBeGreaterThan(2);
+                    min = 300;
+                    for (j = 0, len1 = ticks.length; j < len1; j++) {
+                        tick = ticks[j];
+                        if (tick.textContent !== '') {
+                            val = +tick.textContent;
+                            if (val < min) {
+                                min = val;
+                            }
+                        }
+                    }
+                    expect(min).toBeGreaterThan(expectedMin - 2);
+                    max = 0;
+                    for (k = 0, len2 = ticks.length; k < len2; k++) {
+                        tick = ticks[k];
+                        if (tick.textContent !== '') {
+                            val = +tick.textContent;
+                            if (val > max) {
+                                max = val;
+                            }
+                        }
+                    }
+                    expect(max).toBeLessThan(expectedMax + 2);
+                }
+            });
+        });
+
+        describe("Uncheck", function () {
+
+            beforeEach(function () {
+                rangify.checked = true;
+            });
+
+            it("calls rangify method on all graphs when checkbox clicked", function () {
+                var count;
+                ev.mouse('click', rangify);
+                count = bp_graph.rangify_graph.calls.count();
+                count += pulse_graph.rangify_graph.calls.count();
+                expect(count).toBe(2);
+            });
+
+            it("calls redraw method on all graphs", function () {
+                var count;
+                ev.mouse('click', rangify);
+                count = bp_graph.redraw.calls.count();
+                count += pulse_graph.redraw.calls.count();
+                expect(count).toBe(2);
+            });
+
+            it("switches axes back to initial min/max on all graphs", function () {
+                var expectedMax, expectedMin, i, j, len, len1, max, min, tick, ticks, val;
+                ev.mouse('click', rangify);
+
+                // Should be axes.y.min but
+                expectedMin = 40;
+                expectedMax = pulse_graph.axes.y.max;
+                ticks = pulse_graph.axes.obj[0][0].querySelectorAll('.tick text');
+
+                expect(ticks.length).toBeGreaterThan(2);
+
+                min = 300;
+                for (i = 0, len = ticks.length; i < len; i++) {
+                    tick = ticks[i];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val < min) {
+                            min = val;
+                        }
+                    }
+                }
+                expect(min).toBe(expectedMin);
+
+                max = 0;
+                for (j = 0, len1 = ticks.length; j < len1; j++) {
+                    tick = ticks[j];
+                    if (tick.textContent !== '') {
+                        val = +tick.textContent;
+                        if (val > max) {
+                            max = val;
+                        }
+                    }
+                }
+                expect(max).toBe(expectedMax);
+            });
+        });
     });
-
-    describe("Check", function() {
-
-      it("calls rangify method on all graphs when checkbox clicked", function() {
-        var count;
-        ev.mouse('click',rangify);
-        count = bp_graph.rangify_graph.calls.count();
-        count += pulse_graph.rangify_graph.calls.count();
-        expect(count).toBe(2);
-      });
-
-      it("calls redraw method on all graphs", function() {
-        var count;
-        ev.mouse('click',rangify);
-        count = bp_graph.redraw.calls.count();
-        count += pulse_graph.redraw.calls.count();
-        expect(count).toBe(2);
-      });
-
-      it("switches axes to ranged min/max", function() {
-        var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
-        ev.mouse('click',rangify);
-        ev.mouse('click',rangify);
-        for (i = 0, len = graphs.length; i < len; i++) {
-          graph = graphs[i];
-          padding = graph.style.range_padding;
-          expectedMin = graph.axes.y.ranged_extent[0] - padding;
-          expectedMax = graph.axes.y.ranged_extent[1] + padding;
-          ticks = graph.axes.obj[0][0].querySelectorAll('.tick text');
-          expect(ticks.length).toBeGreaterThan(2);
-          min = 300;
-          for (j = 0, len1 = ticks.length; j < len1; j++) {
-            tick = ticks[j];
-            if (tick.textContent !== '') {
-              val = +tick.textContent;
-              if (val < min) {
-                min = val;
-              }
-            }
-          }
-          expect(min).toBeGreaterThan(expectedMin - 2);
-          max = 0;
-          for (k = 0, len2 = ticks.length; k < len2; k++) {
-            tick = ticks[k];
-            if (tick.textContent !== '') {
-              val = +tick.textContent;
-              if (val > max) {
-                max = val;
-              }
-            }
-          }
-          expect(max).toBeLessThan(expectedMax + 2);
-        }
-      });
-    });
-
-    describe("Uncheck", function() {
-
-      beforeEach(function() {
-        rangify.checked = true;
-      });
-
-      it("calls rangify method on all graphs when checkbox clicked", function() {
-        var count;
-        ev.mouse('click',rangify);
-        count = bp_graph.rangify_graph.calls.count();
-        count += pulse_graph.rangify_graph.calls.count();
-        expect(count).toBe(2);
-      });
-
-      it("calls redraw method on all graphs", function() {
-        var count;
-        ev.mouse('click',rangify);
-        count = bp_graph.redraw.calls.count();
-        count += pulse_graph.redraw.calls.count();
-        expect(count).toBe(2);
-      });
-
-      it("switches axes back to initial min/max on all graphs", function() {
-        var expectedMax, expectedMin, i, j, len, len1, max, min, tick, ticks, val;
-        ev.mouse('click',rangify);
-
-        // Should be axes.y.min but
-        expectedMin = 40;
-        expectedMax = pulse_graph.axes.y.max;
-        ticks = pulse_graph.axes.obj[0][0].querySelectorAll('.tick text');
-
-        expect(ticks.length).toBeGreaterThan(2);
-
-        min = 300;
-        for (i = 0, len = ticks.length; i < len; i++) {
-          tick = ticks[i];
-          if (tick.textContent !== '') {
-            val = +tick.textContent;
-            if (val < min) {
-              min = val;
-            }
-          }
-        }
-        expect(min).toBe(expectedMin);
-
-        max = 0;
-        for (j = 0, len1 = ticks.length; j < len1; j++) {
-          tick = ticks[j];
-          if (tick.textContent !== '') {
-            val = +tick.textContent;
-            if (val > max) {
-              max = val;
-            }
-          }
-        }
-        expect(max).toBe(expectedMax);
-      });
-    });
-  });
 });

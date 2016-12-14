@@ -1,13 +1,9 @@
 
 /* istanbul ignore next */
 var NHFocus,
-    bind = function (fn, me) {
-      return function () {
-        return fn.apply(me, arguments);
-      };
-    };
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-NHFocus = (function () {
+NHFocus = (function() {
   function NHFocus() {
     this.redraw = bind(this.redraw, this);
     this.draw = bind(this.draw, this);
@@ -55,7 +51,7 @@ NHFocus = (function () {
     self = this;
   }
 
-  NHFocus.prototype.handle_resize = function (self, event) {
+  NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
     if (!event.handled) {
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
@@ -82,7 +78,7 @@ NHFocus = (function () {
     }
   };
 
-  NHFocus.prototype.init = function (parent_svg) {
+  NHFocus.prototype.init = function(parent_svg) {
     var final, graph, h_mb, h_mn_pt, h_mt, i, j, len, len1, pl_ml, ref, ref1, self, table, top_offset;
     if (parent_svg != null) {
       this.parent_obj = parent_svg;
@@ -137,7 +133,7 @@ NHFocus = (function () {
     }
   };
 
-  NHFocus.prototype.draw = function (parent_svg) {
+  NHFocus.prototype.draw = function(parent_svg) {
     var graph, i, j, len, len1, ref, ref1, table;
     ref = this.graphs;
     for (i = 0, len = ref.length; i < len; i++) {
@@ -151,7 +147,7 @@ NHFocus = (function () {
     }
   };
 
-  NHFocus.prototype.redraw = function (extent) {
+  NHFocus.prototype.redraw = function(extent) {
     var graph, i, j, len, len1, ref, ref1, table;
     ref = this.graphs;
     for (i = 0, len = ref.length; i < len; i++) {
