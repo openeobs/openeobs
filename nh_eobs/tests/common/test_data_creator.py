@@ -17,21 +17,7 @@ def admit_patient(self):
     self.context_pool = self.env['nh.clinical.context']
     self.category_model = self.env['res.partner.category']
 
-    hospital_search = self.location_model.search(
-        [('usage', '=', 'hospital')]
-    )
-    if hospital_search:
-        self.hospital = hospital_search[0]
-    else:
-        raise ValueError('Could not find hospital ID')
-
-    pos_search = self.pos_model.search(
-        [('location_id', '=', self.hospital.id)]
-    )
-    if pos_search:
-        self.pos = pos_search[0]
-    else:
-        raise ValueError('Could not find POS with location ID of hospital')
+    search_for_hospital_and_pos(self)
 
     self.ward = self.location_model.create(
         {
@@ -103,6 +89,23 @@ def admit_patient(self):
         [('patient_id', '=', self.patient_id)]
     )[0]
     self.spell_activity_id = self.spell.activity_id.id
+
+
+def search_for_hospital_and_pos(self):
+    hospital_search = self.location_model.search(
+        [('usage', '=', 'hospital')]
+    )
+    if hospital_search:
+        self.hospital = hospital_search[0]
+    else:
+        raise ValueError('Could not find hospital ID')
+    pos_search = self.pos_model.search(
+        [('location_id', '=', self.hospital.id)]
+    )
+    if pos_search:
+        self.pos = pos_search[0]
+    else:
+        raise ValueError('Could not find POS with location ID of hospital')
 
 
 def place_patient(self):
