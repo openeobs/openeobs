@@ -525,8 +525,9 @@ describe('Background', function() {
             graph.options.label = 'RR';
             graphlib.init();
             label = document.querySelectorAll('.background .label');
+            yValue = +label[0].getAttribute('y')
             expect(+label[0].getAttribute('x')).toBe(388);
-            expect(+label[0].getAttribute('y')).toBe(162);
+            expect(yValue > 160 && yValue < 165).toBeTruthy();
         });
     });
 
