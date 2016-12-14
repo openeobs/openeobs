@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from openerp.addons.nh_eobs_mental_health.tests.common \
-    import test_data_creator_clinical_review
 from openerp.tests.common import TransactionCase
 
 
@@ -8,8 +6,11 @@ class TestComplete(TransactionCase):
 
     def setUp(self):
         super(TestComplete, self).setUp()
-        test_data_creator_clinical_review\
-            .create_patient_and_spell_and_complete_clinical_review(self)
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model \
+            .create_patient_and_spell_and_complete_clinical_review()
+        self.clinical_review_frequency_notification = \
+            self.test_utils_model.clinical_review_frequency_notification
         self.env.uid = self.nurse.id
 
     def test_triggers_clinical_review_frequency_notification(self):

@@ -1,4 +1,3 @@
-from openerp.addons.nh_eobs.tests.common import test_data_creator
 from openerp.tests.common import TransactionCase
 
 
@@ -9,7 +8,8 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
     """
     def setUp(self):
         super(TestTransferDuringPatientMonitoringException, self).setUp()
-        test_data_creator.admit_and_place_patient(self)
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model.admit_and_place_patient()
 
         self.pme_reason = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
@@ -69,7 +69,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
                 'location': 'WB'
             }
         )
-        test_data_creator.place_patient(self)
+        self.test_utils_model.place_patient()
 
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),

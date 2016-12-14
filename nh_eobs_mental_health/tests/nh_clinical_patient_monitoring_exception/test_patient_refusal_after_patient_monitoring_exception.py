@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.nh_eobs.tests.common import test_data_creator
 from openerp.addons.nh_observations import frequencies
 from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
     import DatetimeTestUtils
@@ -13,7 +12,8 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
 
     def setUp(self):
         super(TestPatientRefusalAfterPatientMonitoringException, self).setUp()
-        test_data_creator.admit_and_place_patient(self)
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model.admit_and_place_patient()
         self.env.uid = self.nurse.id
 
         self.patient = self.patient_model.browse(self.patient_id)
@@ -27,7 +27,7 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
             'spell_activity_id': self.spell_activity_id,
             'patient_id': self.patient
         })
-        self.observation_test_utils = self.env['observation_test_utils']
+        self.test_utils_model = self.env['nh.clinical.test_utils']
         self.datetime_test_utils = DatetimeTestUtils()
 
     def test_obs_after_refusal_due_in_one_hour(self):
@@ -42,7 +42,7 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
         refused_obs = \
             self.ews_model.get_open_obs_activity(self.spell_activity_id)
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 

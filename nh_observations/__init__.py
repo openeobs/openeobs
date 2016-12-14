@@ -5,5 +5,3 @@ from . import nh_clinical_extension
 from . import notifications
 from . import observations
 from . import parameters
-
-from .tests.common import observation_test_utils

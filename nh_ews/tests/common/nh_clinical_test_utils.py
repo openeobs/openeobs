@@ -4,9 +4,26 @@ from datetime import datetime
 from openerp.models import AbstractModel
 
 
-class ObservationTestUtils(AbstractModel):
+class NhClinicalTestUtils(AbstractModel):
 
-    _name = 'observation_test_utils'
+    _name = 'nh.clinical.test_utils'
+    _inherit = 'nh.clinical.test_utils'
+
+    # Utility methods
+    def create_ews_obs_activity(self, patient_id, spell_id, obs_data):
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+        activity_pool = self.pool['nh.activity']
+        activity_model = self.env['nh.activity']
+
+        obs_activity_id = ews_model.create_activity(
+            {'date_scheduled': datetime.now(),
+             'parent_id': spell_id},
+            {'patient_id': patient_id}
+        )
+        activity_pool.submit(self.env.cr, self.env.uid,
+                             obs_activity_id, obs_data)
+        activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
+        return activity_model.browse(obs_activity_id)
 
     def refuse_open_obs(self, patient_id, spell_activity_id):
         activity_model = self.env['nh.activity']
@@ -40,18 +57,3 @@ class ObservationTestUtils(AbstractModel):
             self.env.cr, self.env.uid, obs_activity_current.id
         )
         return ews_model.get_open_obs_activity(spell_activity_id)
-
-    def create_ews_obs_activity(self, patient_id, spell_id, obs_data):
-        ews_model = self.env['nh.clinical.patient.observation.ews']
-        activity_pool = self.pool['nh.activity']
-        activity_model = self.env['nh.activity']
-
-        obs_activity_id = ews_model.create_activity(
-            {'date_scheduled': datetime.now(),
-             'parent_id': spell_id},
-            {'patient_id': patient_id}
-        )
-        activity_pool.submit(self.env.cr, self.env.uid,
-                             obs_activity_id, obs_data)
-        activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
-        return activity_model.browse(obs_activity_id)

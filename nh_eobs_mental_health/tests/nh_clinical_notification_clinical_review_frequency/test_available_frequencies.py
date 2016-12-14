@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from openerp.addons.nh_eobs_mental_health.tests.common \
-    import test_data_creator_clinical_review
 from openerp.tests.common import TransactionCase
 
 
@@ -12,10 +10,13 @@ class TestAvailableFrequencies(TransactionCase):
     """
     def setUp(self):
         super(TestAvailableFrequencies, self).setUp()
+        self.test_utils_model = self.env['nh.clinical.test_utils']
         self.ews_model = self.env['nh.clinical.patient.observation.ews']
 
-        test_data_creator_clinical_review \
-            .create_patient_and_spell_and_complete_clinical_review(self)
+        self.test_utils_model \
+            .create_patient_and_spell_and_complete_clinical_review()
+        self.clinical_review_frequency_notification = \
+            self.test_utils_model.clinical_review_frequency_notification
 
         triggered_ids_domain = [
             ('creator_id', '=', self.clinical_review_notification_activity.id),
