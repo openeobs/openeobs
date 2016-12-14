@@ -11,6 +11,11 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_and_place_patient()
 
+        self.spell_activity_id = self.test_utils_model.spell_activity_id
+
+        self.api_model = self.env['nh.eobs.api']
+        self.wardboard_model = self.env['nh.clinical.wardboard']
+
         self.pme_reason = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
         reason = self.pme_reason.browse(1)

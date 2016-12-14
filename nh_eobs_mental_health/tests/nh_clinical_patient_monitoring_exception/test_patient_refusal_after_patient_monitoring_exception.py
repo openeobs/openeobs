@@ -12,9 +12,15 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
 
     def setUp(self):
         super(TestPatientRefusalAfterPatientMonitoringException, self).setUp()
+        self.patient_model = self.env['nh.clinical.patient']
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_and_place_patient()
+
+        self.nurse = self.test_utils_model.nurse
         self.env.uid = self.nurse.id
+        self.patient_id = self.test_utils_model.patient.id
+
+        self.activity_model = self.env['nh.activity']
 
         self.patient = self.patient_model.browse(self.patient_id)
         self.spell_activity = \
