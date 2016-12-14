@@ -95,6 +95,42 @@ class NHEobsSQL(orm.AbstractModel):
     ON avail.location_id = obs_stop.location_id
     """
 
+    ward_dashboard_refused_obs_count_skeleton = """
+    SELECT  ward_beds.location_id,
+            coalesce(sum(CASE WHEN refused.refused = TRUE THEN 1 ELSE 0 END),0)
+            AS count
+    FROM refused_last_ews AS refused
+      LEFT JOIN wb_activity_ranked AS acts
+      ON acts.id = refused.id
+      LEFT JOIN ward_beds
+      ON acts.location_id = ANY(bed_ids)
+      LEFT JOIN nh_clinical_spell as spell
+      ON refused.spell_id = spell.id
+      LEFT JOIN nh_activity as spell_activity
+      ON spell.activity_id = spell_activity.id
+      LEFT JOIN last_finished_pme as pme
+      ON pme.spell_id = spell.id
+      LEFT JOIN wdb_transfer_ranked AS transfer
+      ON transfer.spell_id = spell.id
+      AND transfer.rank = 1
+    WHERE acts.rank = 1
+      AND acts.state = 'completed'
+      AND acts.data_model = 'nh.clinical.patient.observation.ews'
+      AND spell_activity.state not in ('completed', 'cancelled')
+      AND refused.refused = TRUE
+      -- Often one of the date operands below is null. This causes the whole
+      -- expression to evaluate to null which is falsey and therefore fails the
+      -- where clause, returning nothing.
+      -- This is why the 'OR foo IS NULL' is necessary.
+      AND (pme.activity_date_terminated <= acts.date_terminated
+      OR pme.activity_date_terminated IS NULL)
+      AND (spell.obs_stop = 'f'
+      OR spell.obs_stop IS NULL)
+      AND (transfer.date_terminated <= acts.date_terminated
+      OR transfer.date_terminated IS NULL)
+    GROUP BY ward_beds.location_id
+    """
+
     ward_dashboard_skeleton = """
     -- Create Ward Dashboard
     SELECT
@@ -124,7 +160,8 @@ class NHEobsSQL(orm.AbstractModel):
         extended_leave.count AS extended_leave_count,
         capacity.count AS capacity_count,
         workload.count AS workload_count,
-        on_ward.count AS on_ward_count
+        on_ward.count AS on_ward_count,
+        refused_obs.count AS refused_obs_count
     FROM nh_clinical_location AS location
     LEFT JOIN loc_waiting_patients AS lwp
         ON lwp.location_id = location.id
@@ -139,6 +176,8 @@ class NHEobsSQL(orm.AbstractModel):
         ON workload.location_id = location.id
     LEFT JOIN wdb_on_ward_count AS on_ward
         ON on_ward.location_id = location.id
+    LEFT JOIN wdb_refused_obs_count AS refused_obs
+        ON refused_obs.location_id = location.id
     LEFT JOIN loc_availability AS avail
         ON avail.location_id = location.id
     LEFT JOIN child_loc_users AS clu1
@@ -222,6 +261,9 @@ class NHEobsSQL(orm.AbstractModel):
     def get_ward_dashboard_on_ward_count(self):
         return self.ward_dashboard_on_ward_skeleton
 
+    def get_ward_dashboard_refused_obs_count(self):
+        return self.ward_dashboard_refused_obs_count_skeleton
+
     def get_ward_dashboard(self):
         return self.ward_dashboard_skeleton
 
@@ -304,10 +346,10 @@ class NHEobsSQL(orm.AbstractModel):
 
     SELECT  *,
             row_number() over(
-                partition by spell_activity_id
-                ORDER BY spell_activity_id ASC,
-                first_activity_id DESC,
-                last_activity_id DESC
+              partition by spell_activity_id
+              ORDER BY spell_activity_id ASC,
+              first_activity_id DESC,
+              last_activity_id DESC
             ) AS rank
     FROM refused_ews_tree
     """

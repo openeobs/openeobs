@@ -28,21 +28,13 @@ class TransactionObservationCase(TransactionCase):
         self.expected_risk = None
         self.expected_freq = None
 
-        _logger.info('Searching for hospital')
-        hosp_id_search = self.location_pool.search(
-            cr, uid, [['code', '=', 'SLAM'], ['usage', '=', 'hospital']]
+        self.hospital_id = self.location_pool.create(
+            cr, uid, {
+                'name': 'Test Hospital',
+                'code': 'TEST',
+                'usage': 'hospital'
+            }
         )
-        if hosp_id_search:
-            self.hospital_id = hosp_id_search[0]
-        else:
-            _logger.info('Creating hospital')
-            self.hospital_id = self.location_pool.create(
-                cr, uid, {
-                    'name': 'Test Hospital',
-                    'code': 'SLAM',
-                    'usage': 'hospital'
-                }
-            )
 
         _logger.info('Searching for POS')
         pos_id_search = self.pos_pool.search(
@@ -62,6 +54,9 @@ class TransactionObservationCase(TransactionCase):
         _logger.info('Searching for nurse & adt group')
         nurse_group_ids = self.group_pool.search(
             cr, uid, [['name', 'in', ['NH Clinical Nurse Group']]])
+        sc_group_ids = self.group_pool.search(
+            cr, uid, [['name', 'in', ['NH Clinical Shift Coordinator Group']]]
+        )
 
         adt_id_search = self.user_pool.search(
             cr, uid, [['login', 'like', 'adt']]
@@ -162,6 +157,28 @@ class TransactionObservationCase(TransactionCase):
                 self.user_id = self.user_pool.create(cr, uid, nurse_dict)
             except Exception as e:
                 _logger.info('nurse failed {0}'.format(e))
+
+        sc_ids_search = self.user_pool.search(
+            cr, uid, [
+                ['login', '=', 'testsc']
+            ]
+        )
+        if sc_ids_search:
+            self.sc_id = sc_ids_search[0]
+        else:
+            sc_dict = {
+                'name': 'Test SC',
+                'login': 'testsc',
+                'password': 'testsc',
+                'groups_id':
+                    [[4, group_id] for group_id in sc_group_ids],
+                'pos_id': self.pos_id,
+                'location_ids': [[6, 0, [self.eobs_ward_id]]]
+            }
+            try:
+                self.sc_id = self.user_pool.create(cr, uid, sc_dict)
+            except Exception as e:
+                _logger.info('sc failed {0}'.format(e))
 
         # register, admit and place patient
         _logger.info('Creating patient')

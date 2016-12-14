@@ -444,3 +444,22 @@ class NHEobsSQL(orm.AbstractModel):
 
     def get_collect_patients_sql(self, spell_ids):
         return self.collect_patients_skeleton.format(spell_ids=spell_ids)
+
+    wb_transfer_ranked_skeleton = """
+    select *
+    from (
+        select
+            spell.id as spell_id,
+            activity.*,
+            split_part(activity.data_ref, ',', 2)::int as data_id,
+            rank() over (partition by spell.id, activity.data_model,
+                activity.state order by activity.sequence desc)
+    from nh_clinical_spell spell
+    inner join nh_activity activity
+        on activity.spell_activity_id = spell.activity_id
+        and activity.data_model = 'nh.clinical.patient.transfer') sub_query
+    where rank = 1
+    """
+
+    def get_wb_transfer_ranked_sql(self):
+        return self.wb_transfer_ranked_skeleton
