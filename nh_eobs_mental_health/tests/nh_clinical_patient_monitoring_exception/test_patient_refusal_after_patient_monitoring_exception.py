@@ -17,18 +17,21 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
         self.test_utils_model.admit_and_place_patient()
 
         self.nurse = self.test_utils_model.nurse
+        self.spell_activity_id = self.test_utils_model.spell_activity_id
+
         self.env.uid = self.nurse.id
         self.patient_id = self.test_utils_model.patient.id
 
         self.activity_model = self.env['nh.activity']
+        self.wardboard_model = self.env['nh.clinical.wardboard']
+        self.reason_model = \
+            self.env['nh.clinical.patient_monitoring_exception.reason']
+        self.ews_model = self.env['nh.clinical.observation.ews']
 
         self.patient = self.patient_model.browse(self.patient_id)
         self.spell_activity = \
             self.activity_model.browse(self.spell_activity_id)
 
-        self.wardboard_model = self.env['nh.clinical.wardboard']
-        self.reason_model = \
-            self.env['nh.clinical.patient_monitoring_exception.reason']
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,
             'patient_id': self.patient

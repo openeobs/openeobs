@@ -15,6 +15,7 @@ class TestComplete(TransactionCase):
         self.nurse = self.test_utils_model.nurse
         self.spell_activity_id = self.test_utils_model.spell_activity_id
 
+        self.activity_model = self.env['nh.activity']
         self.env.uid = self.nurse.id
 
     def test_triggers_clinical_review_frequency_notification(self):
