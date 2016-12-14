@@ -1171,6 +1171,7 @@ class nh_clinical_wardboard(orm.Model):
         last_transfer_users = \
             nh_eobs_sql.get_last_transfer_users('{0}d'.format(dt_period))
         wardboard = nh_eobs_sql.get_wardboard('{0}d'.format(dt_period))
+        wb_transfer_ranked = nh_eobs_sql.get_wb_transfer_ranked_sql()
         cr.execute("""
 
 drop view if exists wb_activity_ranked cascade;
@@ -1246,21 +1247,7 @@ wb_spell_ranked as(
 
 create or replace view
 -- transfer per spell, data_model, state
-wb_transfer_ranked as(
-    select *
-    from (
-        select
-            spell.id as spell_id,
-            activity.*,
-            split_part(activity.data_ref, ',', 2)::int as data_id,
-            rank() over (partition by spell.id, activity.data_model,
-                activity.state order by activity.sequence desc)
-    from nh_clinical_spell spell
-    inner join nh_activity activity
-        on activity.spell_activity_id = spell.activity_id
-        and activity.data_model = 'nh.clinical.patient.transfer') sub_query
-    where rank = 1
-);
+wb_transfer_ranked as({wb_transfer_ranked});
 
 create or replace view
 -- discharge per spell, data_model, state
@@ -1528,4 +1515,5 @@ create or replace view
 nh_clinical_wardboard as({wardboard});
 """.format(last_discharge_users=last_discharge_users,
            last_transfer_users=last_transfer_users,
-           wardboard=wardboard))
+           wardboard=wardboard,
+           wb_transfer_ranked=wb_transfer_ranked))

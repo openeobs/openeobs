@@ -1,0 +1,14 @@
+<openerp>
+    <data>
+        <template id="nh_eobs_mental_health.patient_task_list" inherit_id="nh_eobs_mobile.patient_task_list">
+            <xpath expr="//t/div/ul/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
+                 <p class="aside">
+                     <t t-if="item.get('refusal_in_effect') == True">
+                         Refused -
+                     </t>
+                     <t t-esc="item['deadline_time']"/>
+                 </p>
+            </xpath>
+        </template>
+    </data>
+</openerp>

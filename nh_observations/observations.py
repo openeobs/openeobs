@@ -273,6 +273,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             ('state', 'not in', ['completed', 'cancelled']),
         ]
 
+    def patient_has_spell(self, cr, uid, patient_id):
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
+        return spell_id
+
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
     @api.model
@@ -422,9 +427,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             return last_obs_activity.data_ref
 
     @api.model
-    def is_patient_refusal_in_effect(self, patient_id):
-        last_obs = \
-            self.get_last_obs(patient_id)
+    def is_last_obs_refused(self, patient_id):
+        last_obs = self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
 
 

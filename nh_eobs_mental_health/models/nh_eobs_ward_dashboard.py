@@ -4,8 +4,8 @@
 Gives an overview of the current state of ward and bed
 :class:`locations<base.nh_clinical_location>`.
 """
-from openerp.osv import orm, fields
 from openerp import api
+from openerp.osv import orm, fields
 
 
 class NHClinicalWardDashboard(orm.Model):
@@ -31,7 +31,9 @@ class NHClinicalWardDashboard(orm.Model):
         'capacity_count': fields.integer('Free Beds'),
         'workload_count': fields.integer('All patients associated with ward'),
         'on_ward_count': fields.integer(
-            'All patients in bed and not on Patient Monitoring Exception')
+            'All patients in bed and not on Patient Monitoring Exception'),
+        'refused_obs_count': fields.integer(
+            'All patients currently refusing observations')
     }
 
     @api.multi
@@ -61,6 +63,7 @@ class NHClinicalWardDashboard(orm.Model):
         cr.execute(
             """
             -- Create Helper Views
+            CREATE OR REPLACE VIEW wdb_transfer_ranked AS ({transfer_ranked});
             CREATE OR REPLACE VIEW wdb_reasons AS ({reasons_view});
             CREATE OR REPLACE VIEW wdb_awol_count AS ({awol_count});
             CREATE OR REPLACE VIEW wdb_extended_leave_count
@@ -72,6 +75,8 @@ class NHClinicalWardDashboard(orm.Model):
             CREATE OR REPLACE VIEW wdb_capacity_count AS ({capacity});
             CREATE OR REPLACE VIEW wdb_obs_stop_count AS ({obs_stop});
             CREATE OR REPLACE VIEW wdb_on_ward_count AS ({on_ward});
+            CREATE OR REPLACE VIEW wdb_refused_obs_count
+            AS ({ref_obs});
 
             -- Create Ward Dashboard
             CREATE OR REPLACE VIEW nh_eobs_ward_dashboard AS ({dashboard});
@@ -86,6 +91,8 @@ class NHClinicalWardDashboard(orm.Model):
                 capacity=sql_statements.get_ward_dashboard_capacity_count(),
                 obs_stop=sql_statements.get_ward_dashboard_obs_stop_count(),
                 on_ward=sql_statements.get_ward_dashboard_on_ward_count(),
-                dashboard=sql_statements.get_ward_dashboard()
+                ref_obs=sql_statements.get_ward_dashboard_refused_obs_count(),
+                dashboard=sql_statements.get_ward_dashboard(),
+                transfer_ranked=sql_statements.get_wb_transfer_ranked_sql()
             )
         )

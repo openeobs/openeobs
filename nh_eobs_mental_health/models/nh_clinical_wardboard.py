@@ -345,6 +345,9 @@ class NHClinicalWardboard(orm.Model):
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
+                elif rec.get('acuity_index') == 'Refused':
+                    rec['frequency'] = 'Refused - {0}'.format(rec['frequency'])
+                    rec['next_diff'] = 'Refused - {0}'.format(rec['next_diff'])
         if was_single_record:
             return res[0]
         return res

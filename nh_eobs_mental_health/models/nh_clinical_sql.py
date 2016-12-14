@@ -95,6 +95,42 @@ class NHEobsSQL(orm.AbstractModel):
     ON avail.location_id = obs_stop.location_id
     """
 
+    ward_dashboard_refused_obs_count_skeleton = """
+    SELECT  ward_beds.location_id,
+            coalesce(sum(CASE WHEN refused.refused = TRUE THEN 1 ELSE 0 END),0)
+            AS count
+    FROM refused_last_ews AS refused
+      LEFT JOIN wb_activity_ranked AS acts
+      ON acts.id = refused.id
+      LEFT JOIN ward_beds
+      ON acts.location_id = ANY(bed_ids)
+      LEFT JOIN nh_clinical_spell as spell
+      ON refused.spell_id = spell.id
+      LEFT JOIN nh_activity as spell_activity
+      ON spell.activity_id = spell_activity.id
+      LEFT JOIN last_finished_pme as pme
+      ON pme.spell_id = spell.id
+      LEFT JOIN wdb_transfer_ranked AS transfer
+      ON transfer.spell_id = spell.id
+      AND transfer.rank = 1
+    WHERE acts.rank = 1
+      AND acts.state = 'completed'
+      AND acts.data_model = 'nh.clinical.patient.observation.ews'
+      AND spell_activity.state not in ('completed', 'cancelled')
+      AND refused.refused = TRUE
+      -- Often one of the date operands below is null. This causes the whole
+      -- expression to evaluate to null which is falsey and therefore fails the
+      -- where clause, returning nothing.
+      -- This is why the 'OR foo IS NULL' is necessary.
+      AND (pme.activity_date_terminated <= acts.date_terminated
+      OR pme.activity_date_terminated IS NULL)
+      AND (spell.obs_stop = 'f'
+      OR spell.obs_stop IS NULL)
+      AND (transfer.date_terminated <= acts.date_terminated
+      OR transfer.date_terminated IS NULL)
+    GROUP BY ward_beds.location_id
+    """
+
     ward_dashboard_skeleton = """
     -- Create Ward Dashboard
     SELECT
@@ -124,7 +160,8 @@ class NHEobsSQL(orm.AbstractModel):
         extended_leave.count AS extended_leave_count,
         capacity.count AS capacity_count,
         workload.count AS workload_count,
-        on_ward.count AS on_ward_count
+        on_ward.count AS on_ward_count,
+        refused_obs.count AS refused_obs_count
     FROM nh_clinical_location AS location
     LEFT JOIN loc_waiting_patients AS lwp
         ON lwp.location_id = location.id
@@ -139,6 +176,8 @@ class NHEobsSQL(orm.AbstractModel):
         ON workload.location_id = location.id
     LEFT JOIN wdb_on_ward_count AS on_ward
         ON on_ward.location_id = location.id
+    LEFT JOIN wdb_refused_obs_count AS refused_obs
+        ON refused_obs.location_id = location.id
     LEFT JOIN loc_availability AS avail
         ON avail.location_id = location.id
     LEFT JOIN child_loc_users AS clu1
@@ -222,6 +261,9 @@ class NHEobsSQL(orm.AbstractModel):
     def get_ward_dashboard_on_ward_count(self):
         return self.ward_dashboard_on_ward_skeleton
 
+    def get_ward_dashboard_refused_obs_count(self):
+        return self.ward_dashboard_refused_obs_count_skeleton
+
     def get_ward_dashboard(self):
         return self.ward_dashboard_skeleton
 
@@ -263,7 +305,8 @@ class NHEobsSQL(orm.AbstractModel):
                 ARRAY[partial_reason] as partial_tree,
                 id as first_activity_id,
                 id as last_activity_id,
-                true as refused
+                true as refused,
+                sequence
         FROM ews_activities
         --Make sure we only get EWS
         WHERE partial_reason = 'refused'
@@ -293,26 +336,34 @@ class NHEobsSQL(orm.AbstractModel):
                     partial_tree,
                     ARRAY[child_act.partial_reason]
                   ), ', ', '(null)')
-                AS refused
+                AS refused,
+                act.sequence
         FROM ews_activities as child_act
         INNER JOIN refused_ews_tree as act
         ON (child_act.creator_id = act.id)
         WHERE child_act.state = 'completed'
     )
 
-    SELECT *
+    SELECT  *,
+            row_number() over(
+              partition by spell_activity_id
+              ORDER BY spell_activity_id ASC,
+              first_activity_id DESC,
+              last_activity_id DESC
+            ) AS rank
     FROM refused_ews_tree
-    ORDER BY id
     """
 
     refused_last_ews_skeleton = """
     SELECT  refused.id,
             refused.ews_id,
             refused.refused,
-            acts.spell_id
+            acts.spell_id,
+            acts.spell_activity_id,
+            acts.date_terminated
     from refused_ews_activities AS refused
     RIGHT OUTER JOIN wb_activity_ranked AS acts
-    ON acts.id = refused.id
+    ON acts.id = refused.id AND refused.rank = 1
     WHERE acts.rank = 1
     AND acts.state = 'completed'
     AND acts.data_model = 'nh.clinical.patient.observation.ews'
@@ -344,7 +395,10 @@ class NHEobsSQL(orm.AbstractModel):
             'LIMIT 1'
             ') '
             'THEN \'NoScore\' '
-            'WHEN refused_last_ews.refused = true THEN \'Refused\' '
+            'WHEN refused_last_ews.refused = true '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'THEN \'Refused\' '
         )
         return wardboard.replace(
             'LEFT JOIN param ON param.spell_id = spell.id',
@@ -352,5 +406,48 @@ class NHEobsSQL(orm.AbstractModel):
             'LEFT JOIN refused_last_ews '
             'ON refused_last_ews.spell_id = spell.id'
         )
+
+    def get_collect_activities_sql(self, activity_ids_sql):
+        sql = self.collect_activities_skeleton.replace(
+            'left join ews1 on ews1.spell_activity_id = spell_activity.id',
+            'left join ews1 on ews1.spell_activity_id = spell_activity.id '
+            'LEFT JOIN nh_clinical_spell AS spell '
+            'ON spell.activity_id = spell_activity.id '
+            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN refused_last_ews '
+            'ON refused_last_ews.spell_activity_id = spell_activity.id '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'AND coalesce(refused_last_ews.date_terminated >= '
+            'pme.activity_date_terminated, TRUE) '
+        )
+        sql = sql.replace(
+            'end as deadline_time,',
+            'end as deadline_time, '
+            'refused_last_ews.refused AS refusal_in_effect, '
+        )
+        return sql.format(activity_ids=activity_ids_sql)
+
+    def get_collect_patients_sql(self, spell_ids):
+        sql = self.collect_patients_skeleton.replace(
+            'left join ews0 on ews0.spell_activity_id = activity.id',
+            'left join ews0 on ews0.spell_activity_id = activity.id '
+            'LEFT JOIN nh_clinical_spell AS spell '
+            'ON spell.activity_id = activity.id '
+            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN refused_last_ews '
+            'ON refused_last_ews.spell_activity_id = activity.id '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '>= spell.move_date, TRUE) '
+            'AND coalesce(refused_last_ews.date_terminated >= '
+            'pme.activity_date_terminated, TRUE) '
+            'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
+        )
+        sql = sql.replace(
+            'patient.other_identifier,',
+            'patient.other_identifier, '
+            'refused_last_ews.refused AS refusal_in_effect,'
+        )
+        return sql.format(spell_ids=spell_ids)
 
     # End REFUSED EWS

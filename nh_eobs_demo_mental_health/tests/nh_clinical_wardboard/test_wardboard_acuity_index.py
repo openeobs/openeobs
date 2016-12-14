@@ -17,6 +17,7 @@ class TestWardboardAcuityIndex(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         spell_model = self.env['nh.clinical.spell']
         activity_model = self.env['nh.activity']
+        self.refused_spell = 23
         ward_a = location_model.search([['code', '=', 'A']])[0]
         obs_stop_spells = spell_model.search([
             ['patient_id', 'in', ward_a.patient_ids.ids],
@@ -35,13 +36,13 @@ class TestWardboardAcuityIndex(TransactionCase):
             ['patient_id', 'in', ward_a.patient_ids.ids],
             ['location_id.usage', '=', 'bed'],
             ['obs_stop', '=', False],
-            ['id', 'not in', restarted_obs_spells]
+            ['id', 'not in', restarted_obs_spells],
+            ['id', '!=', self.refused_spell]
         ])
 
         self.obs_stop_spells = obs_stop_spells.ids
         self.restarted_obs_spells = restarted_obs_spells
         self.clinical_risk_spells = clinical_risk_spells.ids
-        self.refused_spell = 23
 
     def test_wardboard_acuity_index_obs_stop(self):
         """

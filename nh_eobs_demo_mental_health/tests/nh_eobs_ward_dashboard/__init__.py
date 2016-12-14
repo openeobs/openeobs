@@ -7,3 +7,4 @@ from . import test_obs_stop_count
 from . import test_on_ward_count
 from . import test_ward_dashboard
 from . import test_workload_count
+from . import test_refused_obs_count

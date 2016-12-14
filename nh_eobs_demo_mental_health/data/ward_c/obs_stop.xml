@@ -1,20 +1,6 @@
 <openerp>
     <data noupdate="1">
 
-        <!-- Flags on Spell -->
-        <record id="nh_eobs_demo.nhc_demo_spell_106" model="nh.clinical.spell">
-            <field name="obs_stop" eval="True"/>
-        </record>
-
-        <record id="nh_eobs_demo.nhc_demo_spell_107" model="nh.clinical.spell">
-            <field name="obs_stop" eval="True"/>
-        </record>
-
-        <record id="nh_eobs_demo.nhc_demo_spell_108" model="nh.clinical.spell">
-            <field name="obs_stop" eval="True"/>
-        </record>
-        <!-- End Flags on Spell -->
-
         <!-- Patient Monitoring Exception Activities -->
         <record id="nhc_activity_demo_pme_104" model="nh.activity">
           <field name="patient_id" ref="nh_eobs_demo.nhc_demo_patient_104" />
@@ -125,5 +111,134 @@
           <field name="data_ref" eval="'nh.clinical.patient_monitoring_exception,' + str(ref('nhc_demo_pme_9'))"/>
         </record>
         <!-- End Update Patient Monitoring Exceptions -->
+
+        <!-- Add Obs Stop False On Spell -->
+        <record id="nh_eobs_demo.nhc_demo_spell_106" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+
+        <record id="nh_eobs_demo.nhc_demo_spell_107" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+
+        <record id="nh_eobs_demo.nhc_demo_spell_108" model="nh.clinical.spell">
+            <field name="obs_stop" eval="True"/>
+        </record>
+        <!-- End Add Obs Stop False On Spell -->
+
+        <!-- TODO EOBS-703: Move PME up to nh_eobs or into it's own module -->
+        <!-- Add Obs Stop False On Spell -->
+        <record id="nh_eobs_demo.nhc_demo_spell_81" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_82" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_83" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_84" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_85" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_86" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_87" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_88" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_89" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_90" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_91" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_92" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_93" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_94" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_95" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_96" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_97" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_98" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_99" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_100" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_101" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_102" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_103" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_104" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_105" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_109" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_110" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_111" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_112" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_113" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_114" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_115" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_116" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_117" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_118" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_119" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <record id="nh_eobs_demo.nhc_demo_spell_120" model="nh.clinical.spell">
+            <field name="obs_stop" eval="False"/>
+        </record>
+        <!-- End Add Obs Stop False On Spell -->
     </data>
 </openerp>
