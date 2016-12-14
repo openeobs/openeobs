@@ -563,7 +563,7 @@ NHGraph = (function(superClass) {
           }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          return self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+          self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             var bottom, keys_valid, none_vals, partial, top;
             partial = self.options.plot_partial;
             top = d[self.options.keys[0]];
@@ -595,6 +595,23 @@ NHGraph = (function(superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
+          }).on('mouseout', function(d) {
+            return self.hide_popup();
+          });
+          return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            var key, none_vals, refused;
+            none_vals = d.none_values;
+            key = self.options.keys[0];
+            refused = self.parent_obj.parent_obj.options.refused;
+            if (none_vals !== "[]" && d[key] === false && refused) {
+              return d;
+            }
+          })).enter().append("text").attr("x", function(d) {
+            return self.axes.x.scale(self.date_from_string(d.date_terminated));
+          }).attr("y", function(d) {
+            return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
+          }).text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+            return self.show_popup('Refused observation: ', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
             return self.hide_popup();
           });

@@ -752,6 +752,33 @@ class NHGraph extends NHGraphLib
           .on('mouseout', (d) ->
             self.hide_popup()
           )
+          self.drawables.data.selectAll(".refused_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            none_vals = d.none_values
+            key = self.options.keys[0]
+            refused = self.parent_obj.parent_obj.options.refused
+            if none_vals isnt "[]" and d[key] is false and refused
+              return d
+            )
+          )
+          .enter().append("text")
+          .attr("x", (d) ->
+            return self.axes.x.scale(self.date_from_string(d.date_terminated))
+          )
+          .attr("y", (d) ->
+            return self.axes.y.scale(self.axes.y.scale.domain()[1]/2)
+          )
+          .text('R')
+          .attr("class", "refused_point")
+          .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+          .on('mouseover', (d) ->
+            self.show_popup('Refused observation: ',
+              event.pageX,
+              event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
         else
           # Throw error if given incorrect number of keys to plot
           throw new Error('Cannot plot ranged graph with ' +

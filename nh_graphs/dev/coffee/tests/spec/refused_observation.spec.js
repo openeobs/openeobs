@@ -213,6 +213,22 @@ describe('Refused observation visualisation', function () {
                 expect(refused_point.textContent).toBe('R');
             });
         });
+        describe('Ranged Focus refused observation with value data points', function() {
+            it('Draws the ranged caps and extent with white fills and black borders', function() {
+                var valued_extent = bp_graph.drawables.data.select('.extent')[0][0];
+                var valued_top_cap = bp_graph.drawables.data.select('.top')[0][0];
+                var valued_bottom_cap = bp_graph.drawables.data.select('.bottom')[0][0];
+                expect(valued_extent.getAttribute('class')).toBe('range extent empty_point');
+                expect(valued_top_cap.getAttribute('class')).toBe('range top empty_point');
+                expect(valued_bottom_cap.getAttribute('class')).toBe('range bottom empty_point');
+            });
+        });
+        describe('Ranged Focus refused observation without value data points', function(){
+           it('Draws the data poit with a \'R\' symbol', function(){
+              var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
+                expect(refused_point.textContent).toBe('R');
+           });
+        });
     });
     describe('Ranged Y-Axis positioning', function () {
         beforeEach(function(){
@@ -241,6 +257,26 @@ describe('Refused observation visualisation', function () {
                 expect(refused_y > 129 && refused_y < 133).toBeTruthy();
             });
         });
+        describe('Ranged Focus refused observation with value data points', function() {
+            it('Draws the ranged caps and extent at the value\'s position on the Y-Axis', function() {
+               var valued_extent = bp_graph.drawables.data.select('.extent')[0][0];
+                var valued_top_cap = bp_graph.drawables.data.select('.top')[0][0];
+                var valued_bottom_cap = bp_graph.drawables.data.select('.bottom')[0][0];
+                var extent_y = parseInt(valued_extent.getAttribute('y'));
+                var top_y = parseInt(valued_top_cap.getAttribute('y'));
+                var bottom_y = parseInt(valued_bottom_cap.getAttribute('y'));
+                expect(extent_y > 232 && extent_y < 236).toBeTruthy();
+                expect(top_y > 232 && top_y < 236).toBeTruthy();
+                expect(bottom_y > 248 && bottom_y < 252).toBeTruthy();
+            });
+        });
+        describe('Ranged Focus refused observation without value data points', function(){
+           it('Puts the data point in the middle of the Y-Axis', function(){
+              var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
+            var refused_y = parseInt(refused_point.getAttribute('y'));
+            expect(refused_y > 338 && refused_y < 342).toBeTruthy();
+           });
+        });
     });
     describe('Unranged Y-Axis positioning', function () {
         beforeEach(function(){
@@ -268,6 +304,26 @@ describe('Refused observation visualisation', function () {
                 var refused_y = parseInt(refused_point.getAttribute('y'));
                 expect(refused_y > 129 && refused_y < 133).toBeTruthy();
             });
+        });
+        describe('Ranged Focus refused observation with value data points', function() {
+            it('Draws the ranged caps and extent at the value\'s position on the Y-Axis', function() {
+               var valued_extent = bp_graph.drawables.data.select('.extent')[0][0];
+                var valued_top_cap = bp_graph.drawables.data.select('.top')[0][0];
+                var valued_bottom_cap = bp_graph.drawables.data.select('.bottom')[0][0];
+                var extent_y = parseInt(valued_extent.getAttribute('y'));
+                var top_y = parseInt(valued_top_cap.getAttribute('y'));
+                var bottom_y = parseInt(valued_bottom_cap.getAttribute('y'));
+                expect(extent_y > 180 && extent_y < 184).toBeTruthy();
+                expect(top_y > 180 && top_y < 184).toBeTruthy();
+                expect(bottom_y > 265 && bottom_y < 269).toBeTruthy();
+            });
+        });
+        describe('Ranged Focus refused observation without value data points', function(){
+           it('Puts the data point in the middle of the Y-Axis', function(){
+              var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
+            var refused_y = parseInt(refused_point.getAttribute('y'));
+            expect(refused_y > 338 && refused_y < 342).toBeTruthy();
+           });
         });
     });
 });
