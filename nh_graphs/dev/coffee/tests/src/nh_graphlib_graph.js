@@ -379,7 +379,7 @@ NHGraph = (function(superClass) {
         }).on('mouseout', function(d) {
           return self.hide_popup();
         });
-        return self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+        self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
           var key, none_vals, partial;
           none_vals = d.none_values;
           key = self.options.keys[0];
@@ -393,6 +393,23 @@ NHGraph = (function(superClass) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
+        }).on('mouseout', function(d) {
+          return self.hide_popup();
+        });
+        return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+          var key, none_vals, refused;
+          none_vals = d.none_values;
+          key = self.options.keys[0];
+          refused = self.parent_obj.parent_obj.options.refused;
+          if (none_vals !== "[]" && d[key] === false && refused) {
+            return d;
+          }
+        })).enter().append("text").attr("x", function(d) {
+          return self.axes.x.scale(self.date_from_string(d.date_terminated));
+        }).attr("y", function(d) {
+          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
+        }).text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+          return self.show_popup('Refused observation: ', event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
         });
@@ -667,6 +684,11 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
+        });
+        self.drawables.data.selectAll('.refused_point').attr('cx', function(d) {
+          return self.axes.x.scale(self.date_from_string(d.date_terminated));
+        }).attr("cy", function(d) {
+          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
         });
         break;
       case 'range':

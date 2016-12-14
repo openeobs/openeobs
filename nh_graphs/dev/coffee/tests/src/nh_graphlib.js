@@ -40,6 +40,7 @@ NHGraphLib = (function() {
         }
       },
       ranged: null,
+      refused: false,
       controls: {
         date: {
           start: null,
@@ -161,13 +162,15 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.redraw_resize = function(event) {
-    var ref, ref1, ref2, ref3;
+    var ref, ref1, ref2, ref3, ref4;
     if (this.is_alive() && !event.handled) {
       this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
       if ((ref3 = this.obj) != null) {
         ref3.attr('width', this.style.dimensions.width);
       }
-      this.context.handle_resize(this.context, this.obj, event);
+      if ((ref4 = this.context) != null) {
+        ref4.handle_resize(this.context, this.obj, event);
+      }
       event.handled = true;
     }
   };

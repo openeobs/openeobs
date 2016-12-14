@@ -138,10 +138,13 @@ describe('Refused observation visualisation', function () {
 
         graphlib.focus = focus;
         graphlib.context = context;
-        graphlib.data.raw = ews_data.multi_partial;
+        graphlib.data.raw = ews_data.refused_observation;
         graphlib.options.controls.rangify = rangify;
-        graphlib.options.controls.rangify.checked = true;
-        graphlib.options.ranged = true;
+        graphlib.options.controls.rangify.checked = false;
+        graphlib.options.ranged = false;
+        graphlib.options.refused = true;
+        graphlib.init();
+        graphlib.draw();
     });
     afterEach(function () {
         if (graphlib !== null) {
@@ -194,51 +197,76 @@ describe('Refused observation visualisation', function () {
     describe('Data Point Styling', function () {
         describe('Context refused observation data points', function () {
             it('Draws the data point with a \'R\' symbol', function () {
-                expect(true).toBe(false);
+                var score_point = score_graph.drawables.data.select('text')[0][0];
+                expect(score_point.textContent).toBe('R');
             });
         });
         describe('Focus refused observation with value data points', function () {
             it('Draws the data point with a white circle with black border', function () {
-                expect(true).toBe(false);
+                var valued_point = pulse_graph.drawables.data.select('circle')[0][0];
+                expect(valued_point.getAttribute('class')).toBe('empty_point');
             });
         });
         describe('Focus refused observation without value data points', function () {
             it('Draws the data point with a \'R\' symbol', function () {
-                expect(true).toBe(false);
+                var refused_point = resp_graph.drawables.data.select('text')[0][0];
+                expect(refused_point.textContent).toBe('R');
             });
         });
     });
     describe('Ranged Y-Axis positioning', function () {
+        beforeEach(function(){
+           if(rangify.checked){
+                ev.mouse('click', rangify)
+           }
+        });
         describe('Context refused observation data points', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
-                expect(true).toBe(false);
+                var score_point = score_graph.drawables.data.select('text')[0][0];
+                var score_y = parseInt(score_point.getAttribute('y'));
+                expect(score_y > 38 && score_y < 42).toBeTruthy();
             });
         });
         describe('Focus refused observation with value data points', function () {
             it('Puts the data point at the value\'s position on the Y-Axis', function () {
-                expect(true).toBe(false);
+                var valued_point = pulse_graph.drawables.data.select('circle')[0][0];
+                var valued_y = parseInt(valued_point.getAttribute('cy'));
+                expect(valued_y > 47 && valued_y < 51).toBeTruthy();
             });
         });
         describe('Focus refused observation without value data points', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
-                expect(true).toBe(false);
+                var refused_point = resp_graph.drawables.data.select('text')[0][0];
+                var refused_y = parseInt(refused_point.getAttribute('y'));
+                expect(refused_y > 129 && refused_y < 133).toBeTruthy();
             });
         });
     });
     describe('Unranged Y-Axis positioning', function () {
+        beforeEach(function(){
+           if(!rangify.checked){
+                ev.mouse('click', rangify)
+           }
+        });
         describe('Context refused observation data points', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
-                expect(true).toBe(false);
+                var score_point = score_graph.drawables.data.select('text')[0][0];
+                var score_y = parseInt(score_point.getAttribute('y'));
+                expect(score_y > 38 && score_y < 42).toBeTruthy();
             });
         });
         describe('Focus refused observation with value data points', function () {
             it('Puts the data point at the value\'s position on the Y-Axis', function () {
-                expect(true).toBe(false);
+                var valued_point = pulse_graph.drawables.data.select('circle')[0][0];
+                var valued_y = parseInt(valued_point.getAttribute('cy'));
+                expect(valued_y > 33 && valued_y < 37).toBeTruthy();
             });
         });
         describe('Focus refused observation without value data points', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
-                expect(true).toBe(false);
+                var refused_point = resp_graph.drawables.data.select('text')[0][0];
+                var refused_y = parseInt(refused_point.getAttribute('y'));
+                expect(refused_y > 129 && refused_y < 133).toBeTruthy();
             });
         });
     });
