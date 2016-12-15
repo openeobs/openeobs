@@ -20,6 +20,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.pme_reason = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
+        self.activity_model = self.env['nh.activity']
 
         reason = self.pme_reason.browse(1)
         wardboard = self.wardboard_model.browse(self.spell.id)
