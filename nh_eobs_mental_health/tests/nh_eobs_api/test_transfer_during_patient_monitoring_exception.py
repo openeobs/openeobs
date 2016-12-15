@@ -1,4 +1,3 @@
-from openerp.addons.nh_eobs.tests.common import test_data_creator
 from openerp.tests.common import TransactionCase
 
 
@@ -9,12 +8,21 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
     """
     def setUp(self):
         super(TestTransferDuringPatientMonitoringException, self).setUp()
-        test_data_creator.admit_and_place_patient(self)
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model.admit_and_place_patient()
 
+        self.spell = self.test_utils_model.spell
+        self.spell_activity_id = self.test_utils_model.spell_activity_id
+        self.patient = self.test_utils_model.patient
+        self.hospital_number = self.test_utils_model.hospital_number
+
+        self.api_model = self.env['nh.eobs.api']
+        self.wardboard_model = self.env['nh.clinical.wardboard']
         self.pme_reason = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
+        self.activity_model = self.env['nh.activity']
+
         reason = self.pme_reason.browse(1)
-        self.wardboard_model = self.env['nh.clinical.wardboard']
         wardboard = self.wardboard_model.browse(self.spell.id)
         wardboard.start_patient_monitoring_exception(
             reason, self.spell.id, self.spell_activity_id
@@ -58,7 +66,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.wardboard = self.wardboard_model.new({
             'spell_activity_id': self.spell_activity_id,
-            'patient_id': self.patient_id
+            'patient_id': self.patient.id
         })
         self.wardboard.end_patient_monitoring_exception()
 
@@ -69,7 +77,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
                 'location': 'WB'
             }
         )
-        test_data_creator.place_patient(self)
+        self.test_utils_model.place_patient()
 
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
