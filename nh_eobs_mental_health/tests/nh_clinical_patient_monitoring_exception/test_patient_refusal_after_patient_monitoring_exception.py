@@ -26,7 +26,7 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
-        self.ews_model = self.env['nh.clinical.observation.ews']
+        self.ews_model = self.env['nh.clinical.patient.observation.ews']
 
         self.patient = self.patient_model.browse(self.patient_id)
         self.spell_activity = \
