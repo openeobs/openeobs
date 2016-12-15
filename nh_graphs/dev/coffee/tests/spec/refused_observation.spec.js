@@ -240,7 +240,7 @@ describe('Refused observation visualisation', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
                 var score_point = score_graph.drawables.data.select('text')[0][0];
                 var score_y = parseInt(score_point.getAttribute('y'));
-                expect(score_y > 38 && score_y < 42).toBeTruthy();
+                expect(score_y > 39 && score_y < 43).toBeTruthy();
             });
         });
         describe('Focus refused observation with value data points', function () {
@@ -254,7 +254,7 @@ describe('Refused observation visualisation', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
                 var refused_point = resp_graph.drawables.data.select('text')[0][0];
                 var refused_y = parseInt(refused_point.getAttribute('y'));
-                expect(refused_y > 129 && refused_y < 133).toBeTruthy();
+                expect(refused_y > 123 && refused_y < 127).toBeTruthy();
             });
         });
         describe('Ranged Focus refused observation with value data points', function() {
@@ -274,7 +274,7 @@ describe('Refused observation visualisation', function () {
            it('Puts the data point in the middle of the Y-Axis', function(){
               var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
             var refused_y = parseInt(refused_point.getAttribute('y'));
-            expect(refused_y > 338 && refused_y < 342).toBeTruthy();
+            expect(refused_y > 333 && refused_y < 337).toBeTruthy();
            });
         });
     });
@@ -288,7 +288,7 @@ describe('Refused observation visualisation', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
                 var score_point = score_graph.drawables.data.select('text')[0][0];
                 var score_y = parseInt(score_point.getAttribute('y'));
-                expect(score_y > 38 && score_y < 42).toBeTruthy();
+                expect(score_y > 39 && score_y < 43).toBeTruthy();
             });
         });
         describe('Focus refused observation with value data points', function () {
@@ -302,7 +302,7 @@ describe('Refused observation visualisation', function () {
             it('Puts the data point in the middle of the Y-Axis', function () {
                 var refused_point = resp_graph.drawables.data.select('text')[0][0];
                 var refused_y = parseInt(refused_point.getAttribute('y'));
-                expect(refused_y > 129 && refused_y < 133).toBeTruthy();
+                expect(refused_y > 123 && refused_y < 127).toBeTruthy();
             });
         });
         describe('Ranged Focus refused observation with value data points', function() {
@@ -322,7 +322,7 @@ describe('Refused observation visualisation', function () {
            it('Puts the data point in the middle of the Y-Axis', function(){
               var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
             var refused_y = parseInt(refused_point.getAttribute('y'));
-            expect(refused_y > 338 && refused_y < 342).toBeTruthy();
+            expect(refused_y > 333 && refused_y < 337).toBeTruthy();
            });
         });
     });

@@ -518,11 +518,17 @@ class NHGraph extends NHGraphLib
         )
         .enter().append("text")
         .attr("x", (d) ->
-          return self.axes.x.scale(self.date_from_string(d.date_terminated))
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
         )
         .attr("y", (d) ->
-          return self.axes.y.scale(self.axes.y.scale.domain()[1]/2)
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
         )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
         .text('R')
         .attr("class", "refused_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
@@ -763,11 +769,17 @@ class NHGraph extends NHGraphLib
           )
           .enter().append("text")
           .attr("x", (d) ->
-            return self.axes.x.scale(self.date_from_string(d.date_terminated))
+            point_x = self.date_from_string(d.date_terminated)
+            return self.axes.x.scale(point_x)
           )
           .attr("y", (d) ->
-            return self.axes.y.scale(self.axes.y.scale.domain()[1]/2)
+            domainStart = self.axes.y.scale.domain()[0]
+            domainEnd = self.axes.y.scale.domain()[1]
+            point_y = (((domainEnd - domainStart)/2) + domainStart)
+            return self.axes.y.scale(point_y)
           )
+          .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+          .attr('dy', '5px')  # font-size is 10px so R is 10px high
           .text('R')
           .attr("class", "refused_point")
           .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
@@ -876,11 +888,18 @@ class NHGraph extends NHGraphLib
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
-        self.drawables.data.selectAll('.refused_point').attr('cx', (d) ->
-          return self.axes.x.scale(self.date_from_string(d.date_terminated))
-        ).attr("cy", (d) ->
-          return self.axes.y.scale(self.axes.y.scale.domain()[1]/2)
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
         )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
       # Redraw the range caps and extent with the new scales
       when 'range' then (
@@ -906,6 +925,18 @@ class NHGraph extends NHGraphLib
           return self.axes.y.scale(d[self.options.keys[1]]) -
             self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
 
       when 'star' then console.log('star')

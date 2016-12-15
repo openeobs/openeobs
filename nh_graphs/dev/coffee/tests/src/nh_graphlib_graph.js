@@ -405,10 +405,16 @@ NHGraph = (function(superClass) {
             return d;
           }
         })).enter().append("text").attr("x", function(d) {
-          return self.axes.x.scale(self.date_from_string(d.date_terminated));
+          var point_x;
+          point_x = self.date_from_string(d.date_terminated);
+          return self.axes.x.scale(point_x);
         }).attr("y", function(d) {
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
-        }).text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+          var domainEnd, domainStart, point_y;
+          domainEnd = self.axes.y.scale.domain()[1];
+          domainStart = self.axes.y.scale.domain()[0];
+          point_y = ((domainEnd - domainStart) / 2) + domainStart;
+          return self.axes.y.scale(point_y);
+        }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Refused observation: ', event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -607,10 +613,16 @@ NHGraph = (function(superClass) {
               return d;
             }
           })).enter().append("text").attr("x", function(d) {
-            return self.axes.x.scale(self.date_from_string(d.date_terminated));
+            var point_x;
+            point_x = self.date_from_string(d.date_terminated);
+            return self.axes.x.scale(point_x);
           }).attr("y", function(d) {
-            return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
-          }).text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+            var domainEnd, domainStart, point_y;
+            domainStart = self.axes.y.scale.domain()[0];
+            domainEnd = self.axes.y.scale.domain()[1];
+            point_y = ((domainEnd - domainStart) / 2) + domainStart;
+            return self.axes.y.scale(point_y);
+          }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
             return self.show_popup('Refused observation: ', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
             return self.hide_popup();
@@ -702,11 +714,17 @@ NHGraph = (function(superClass) {
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         });
-        self.drawables.data.selectAll('.refused_point').attr('cx', function(d) {
-          return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).attr("cy", function(d) {
-          return self.axes.y.scale(self.axes.y.scale.domain()[1] / 2);
-        });
+        self.drawables.data.selectAll('.refused_point').attr('x', function(d) {
+          var point_x;
+          point_x = self.date_from_string(d.date_terminated);
+          return self.axes.x.scale(point_x);
+        }).attr("y", function(d) {
+          var domainEnd, domainStart, point_y;
+          domainEnd = self.axes.y.scale.domain()[1];
+          domainStart = self.axes.y.scale.domain()[0];
+          point_y = ((domainEnd - domainStart) / 2) + domainStart;
+          return self.axes.y.scale(point_y);
+        }).attr('dx', '-4px').attr('dy', '5px');
         break;
       case 'range':
         self.drawables.data.selectAll('.range.top').attr('x', function(d) {
