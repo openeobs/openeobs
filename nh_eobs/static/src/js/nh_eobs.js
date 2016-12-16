@@ -450,6 +450,7 @@ openerp.nh_eobs = function (instance) {
             this.dataset.parent_view = this.view;
             this.dataset.child_name = this.name;
             this.ranged = true;
+            this.refused = false;
         },
         set_value: function (value_) {
             this.set({'value': value_});
@@ -484,6 +485,10 @@ openerp.nh_eobs = function (instance) {
                     obs.forEach(function (d) {
                         if (d.body_temperature) {
                             d.body_temperature = parseFloat(d.body_temperature.toFixed(1));
+                        }
+
+                        if (d.partial_reason === 'refused' && self.refused){
+                            d.score = false;
                         }
 
 
@@ -662,6 +667,7 @@ openerp.nh_eobs = function (instance) {
                     svg.options.controls.rangify = document.getElementById('rangify');
                     svg.options.controls.rangify.checked = self.ranged;
                     svg.options.ranged = self.ranged;
+                    svg.options.refused = self.refused;
                     svg.data.raw = obs;
                     svg.init();
                     svg.draw();
