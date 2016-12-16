@@ -2146,3 +2146,27 @@ if (!window.NH) {
 if (typeof window !== "undefined" && window !== null) {
   window.NH.NHModal = NHModal;
 }
+
+var NHMobilePatientMentalHealth,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
+
+NHMobilePatientMentalHealth = (function(superClass) {
+  extend(NHMobilePatientMentalHealth, superClass);
+
+  function NHMobilePatientMentalHealth() {
+    var refused;
+    NHMobilePatientMentalHealth.__super__.constructor.call(this, refused = true);
+  }
+
+  return NHMobilePatientMentalHealth;
+
+})(NHMobilePatient);
+
+if (!window.NH) {
+  window.NH = {};
+}
+
+if (typeof window !== "undefined" && window !== null) {
+  window.NH.NHMobilePatient = NHMobilePatientMentalHealth;
+}
