@@ -42,14 +42,14 @@ class TestPatientRefusal(TransactionCase):
 
         self.spell = self.spell_activity.data_ref
 
-        self.observation_test_utils = self.env['observation_test_utils']
+        self.test_utils_model = self.env['nh.clinical.test_utils']
 
     def test_refusal_with_unknown_clinical_risk(self):
         self.ews_model.get_open_obs_activity(
             self.spell_activity_id
         )
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
@@ -69,7 +69,7 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_no_clinical_risk(self):
         self.initial_no_risk_obs_activity = \
-            self.observation_test_utils.create_ews_obs_activity(
+            self.test_utils_model.create_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.NO_RISK_DATA
             )
@@ -77,7 +77,7 @@ class TestPatientRefusal(TransactionCase):
             self.spell_activity_id
         )
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
@@ -97,14 +97,14 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_low_clinical_risk(self):
         self.initial_low_risk_obs_activity = \
-            self.observation_test_utils.create_ews_obs_activity(
+            self.test_utils_model.create_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.LOW_RISK_DATA
             )
         refused_obs = \
             self.ews_model.get_open_obs_activity(self.spell_activity_id)
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
@@ -124,14 +124,14 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_medium_clinical_risk(self):
         self.initial_medium_risk_obs_activity = \
-            self.observation_test_utils.create_ews_obs_activity(
+            self.test_utils_model.create_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )
         refused_obs = \
             self.ews_model.get_open_obs_activity(self.spell_activity_id)
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
@@ -151,14 +151,14 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_high_clinical_risk(self):
         self.initial_high_risk_obs_activity = \
-            self.observation_test_utils.create_ews_obs_activity(
+            self.test_utils_model.create_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.HIGH_RISK_DATA
             )
         refused_obs = \
             self.ews_model.get_open_obs_activity(self.spell_activity_id)
         obs_activity_after_refused = \
-            self.observation_test_utils.refuse_open_obs(
+            self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
