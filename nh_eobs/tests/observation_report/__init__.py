@@ -6,4 +6,4 @@ from . import test_report_get_triggered_actions
 from . import test_report_start_and_end_date
 from . import test_report_structure
 from . import test_report_without_dob
-from . import test_table_structure
+# from . import test_table_structure

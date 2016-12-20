@@ -1,3 +1,10 @@
+obs_data = obs_data.map(function(obs){
+   if(obs.partial_reason === 'refused'){
+       obs.score = false
+   }
+   return obs
+});
+
 var svg = new window.NH.NHGraphLib('#chart');
 svg.style.padding.top = 0;
 svg.style.padding.bottom = 0;
@@ -94,6 +101,7 @@ context.graph = score_graph;
 context.title = 'NEWS Score';
 context.style.margin.bottom = 0;
 //context.style.margin.top = 35;
+svg.options.refused = true;
 svg.focus = focus;
 svg.context = context;
 svg.data.raw = obs_data;

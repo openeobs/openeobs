@@ -276,7 +276,12 @@ class NHGraph extends NHGraphLib
           return d[self.options.keys[0]]
         else return null
       )
-
+    ranged_extent = @.axes.y.ranged_extent
+    if not ranged_extent[0] and not ranged_extent[1]
+      @.axes.y.ranged_extent = [
+        @.axes.y.min + self.style.range_padding,
+        @.axes.y.max - self.style.range_padding
+      ]
     # Create ranged and not ranged scaled
     d0 = self.axes.y.ranged_extent[0] - self.style.range_padding
     d1 = self.axes.y.ranged_extent[1] + self.style.range_padding
@@ -507,6 +512,40 @@ class NHGraph extends NHGraphLib
         .on('mouseout', (d) ->
           self.hide_popup()
         )
+        self.drawables.data.selectAll(".refused_point")
+        .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+          none_vals = d.none_values
+          key = self.options.keys[0]
+          refused = self.parent_obj.parent_obj.options.refused
+          refused_ob = refused and d.partial_reason is 'refused'
+          if none_vals isnt "[]" and d[key] is false and refused_ob
+            return d
+          )
+        )
+        .enter().append("text")
+        .attr("x", (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        )
+        .attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
+        .text('R')
+        .attr("class", "refused_point")
+        .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+        .on('mouseover', (d) ->
+          self.show_popup('Refused observation',
+            event.pageX,
+            event.pageY)
+        )
+        .on('mouseout', (d) ->
+          self.hide_popup()
+        )
       )
       # Draw a ranged graph, which involves:
       # 1. Check that given two keys otherwise can't draw graph properly
@@ -725,6 +764,40 @@ class NHGraph extends NHGraphLib
           .on('mouseout', (d) ->
             self.hide_popup()
           )
+          self.drawables.data.selectAll(".refused_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            none_vals = d.none_values
+            key = self.options.keys[0]
+            refused = self.parent_obj.parent_obj.options.refused
+            refused_ob = refused and d.partial_reason is 'refused'
+            if none_vals isnt "[]" and d[key] is false and refused_ob
+              return d
+            )
+          )
+          .enter().append("text")
+          .attr("x", (d) ->
+            point_x = self.date_from_string(d.date_terminated)
+            return self.axes.x.scale(point_x)
+          )
+          .attr("y", (d) ->
+            domainStart = self.axes.y.scale.domain()[0]
+            domainEnd = self.axes.y.scale.domain()[1]
+            point_y = (((domainEnd - domainStart)/2) + domainStart)
+            return self.axes.y.scale(point_y)
+          )
+          .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+          .attr('dy', '5px')  # font-size is 10px so R is 10px high
+          .text('R')
+          .attr("class", "refused_point")
+          .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+          .on('mouseover', (d) ->
+            self.show_popup('Refused observation',
+              event.pageX,
+              event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
         else
           # Throw error if given incorrect number of keys to plot
           throw new Error('Cannot plot ranged graph with ' +
@@ -822,6 +895,18 @@ class NHGraph extends NHGraphLib
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
       # Redraw the range caps and extent with the new scales
       when 'range' then (
@@ -847,6 +932,18 @@ class NHGraph extends NHGraphLib
           return self.axes.y.scale(d[self.options.keys[1]]) -
             self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
 
       when 'star' then console.log('star')

@@ -1,31 +1,15 @@
 
 /* istanbul ignore next */
 var NHGraph,
-    bind = function (fn, me) {
-      return function () {
-        return fn.apply(me, arguments);
-      };
-    },
-    extend = function (child, parent) {
-      for (var key in parent) {
-        if (hasProp.call(parent, key)) child[key] = parent[key];
-      }
-      function ctor() {
-        this.constructor = child;
-      }
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-      ctor.prototype = parent.prototype;
-      child.prototype = new ctor();
-      child.__super__ = parent.prototype;
-      return child;
-    },
-    hasProp = {}.hasOwnProperty;
-
-Array.prototype.min = function () {
+Array.prototype.min = function() {
   return Math.min.apply(null, this);
 };
 
-NHGraph = (function (superClass) {
+NHGraph = (function(superClass) {
   extend(NHGraph, superClass);
 
   function NHGraph() {
@@ -122,7 +106,7 @@ NHGraph = (function (superClass) {
     this.parent_obj = null;
   }
 
-  NHGraph.prototype.show_popup = function (string, x, y) {
+  NHGraph.prototype.show_popup = function(string, x, y) {
     var cp;
     cp = document.getElementById('chart_popup');
     cp.innerHTML = string;
@@ -131,13 +115,13 @@ NHGraph = (function (superClass) {
     return cp.classList.remove('hidden');
   };
 
-  NHGraph.prototype.hide_popup = function () {
+  NHGraph.prototype.hide_popup = function() {
     var cp;
     cp = document.getElementById('chart_popup');
     return cp.classList.add('hidden');
   };
 
-  NHGraph.prototype.rangify_graph = function (self, ranged) {
+  NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
     if (ranged) {
       d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
@@ -147,7 +131,7 @@ NHGraph = (function (superClass) {
       self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max]);
     }
     self.redraw(self.parent_obj);
-    self.axes.y.obj.selectAll('.tick line').filter(function (d) {
+    self.axes.y.obj.selectAll('.tick line').filter(function(d) {
       if (self.style.axis.step < 1) {
         if (!(d % 1 === 0)) {
           return d;
@@ -156,7 +140,7 @@ NHGraph = (function (superClass) {
     }).attr('class', 'y-minor-tick');
   };
 
-  NHGraph.prototype.resize_graph = function (self, event) {
+  NHGraph.prototype.resize_graph = function(self, event) {
     var ref;
     self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right)) - this.style.label_width;
     self.obj.attr('width', self.style.dimensions.width);
@@ -166,8 +150,8 @@ NHGraph = (function (superClass) {
     self.redraw(self.parent_obj);
   };
 
-  NHGraph.prototype.init = function (parent_obj) {
-    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+  NHGraph.prototype.init = function(parent_obj) {
+    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ranged_extent, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -188,7 +172,7 @@ NHGraph = (function (superClass) {
       tick_font_size = line_self.style.axis_label_font_size;
       tick_line_height = line_self.style.axis_label_line_height;
       adjusted_line = Math.round(((tick_font_size * tick_line_height) * 10) / 10);
-      this.axes.obj.selectAll(".x.axis g text").each(function (d) {
+      this.axes.obj.selectAll(".x.axis g text").each(function(d) {
         var el, i, j, len, top_lines, tspan, word, words;
         el = nh_graphs.select(this);
         words = line_self.date_to_string(d).split(" ");
@@ -227,13 +211,17 @@ NHGraph = (function (superClass) {
       }
       this.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values));
     } else {
-      this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function (d) {
+      this.axes.y.ranged_extent = nh_graphs.extent(self.parent_obj.parent_obj.data.raw, function(d) {
         if (typeof d[self.options.keys[0]] === 'number') {
           return d[self.options.keys[0]];
         } else {
           return null;
         }
       });
+    }
+    ranged_extent = this.axes.y.ranged_extent;
+    if (!ranged_extent[0] && !ranged_extent[1]) {
+      this.axes.y.ranged_extent = [this.axes.y.min + self.style.range_padding, this.axes.y.max - self.style.range_padding];
     }
     d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
     d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
@@ -257,7 +245,7 @@ NHGraph = (function (superClass) {
         'y': y_label,
         'class': 'label'
       });
-      this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function (d, i) {
+      this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
         var raw;
         raw = self.parent_obj.parent_obj.data.raw;
         if (i !== self.options.keys.length - 1) {
@@ -275,13 +263,13 @@ NHGraph = (function (superClass) {
         }
       }).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,
-        'y': function (d, i) {
+        'y': function(d, i) {
           return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
         },
         'class': 'measurement'
       });
     }
-    (function (self) {
+    (function(self) {
       var max, min, valid, yMax, yMin;
       valid = true;
       if ((self.options.normal.min != null) && (self.options.normal.max != null)) {
@@ -310,7 +298,7 @@ NHGraph = (function (superClass) {
     })(this);
   };
 
-  NHGraph.prototype.draw = function (parent_obj) {
+  NHGraph.prototype.draw = function(parent_obj) {
     var background_object, j, len, ref, self;
     self = this;
     if (self.drawables.background.data != null) {
@@ -318,16 +306,16 @@ NHGraph = (function (superClass) {
       for (j = 0, len = ref.length; j < len; j++) {
         background_object = ref[j];
         self.drawables.background.obj.selectAll(".range").data(self.drawables.background.data).enter().append("rect").attr({
-          "class": function (d) {
+          "class": function(d) {
             return d["class"] + ' range';
           },
           x: self.axes.x.scale(self.axes.x.scale.domain()[0]),
-          y: function (d) {
+          y: function(d) {
             return self.axes.y.scale(d.e) - 1;
           },
           width: self.style.dimensions.width,
           "clip-path": "url(#" + self.options.keys.join('-') + '-clip' + ")",
-          height: function (d) {
+          height: function(d) {
             return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1);
           }
         });
@@ -335,22 +323,22 @@ NHGraph = (function (superClass) {
     }
     self.drawables.background.obj.selectAll('.normal').data([self.options.normal]).enter().append("rect").attr({
       'class': 'normal',
-      'y': function (d) {
+      'y': function(d) {
         return self.axes.y.scale(d.max);
       },
       'x': self.axes.x.scale(self.axes.x.scale.domain()[0]),
       'width': self.style.dimensions.width,
       'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')',
-      'height': function (d) {
+      'height': function(d) {
         return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max));
       }
     });
     self.drawables.background.obj.selectAll(".grid.vertical").data(self.axes.x.scale.ticks()).enter().append("line").attr({
       "class": "vertical grid",
-      x1: function (d) {
+      x1: function(d) {
         return self.axes.x.scale(d);
       },
-      x2: function (d) {
+      x2: function(d) {
         return self.axes.x.scale(d);
       },
       y1: self.axes.y.scale.range()[1],
@@ -360,42 +348,42 @@ NHGraph = (function (superClass) {
       "class": "horizontal grid",
       x1: self.axes.x.scale(self.axes.x.scale.domain()[0]),
       x2: self.axes.x.scale(self.axes.x.scale.domain()[1]),
-      y1: function (d) {
+      y1: function(d) {
         return self.axes.y.scale(d);
       },
-      y2: function (d) {
+      y2: function(d) {
         return self.axes.y.scale(d);
       }
     });
     switch (self.style.data_style) {
       case 'stepped':
       case 'linear':
-        self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function (d) {
+        self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
           if (d.none_values === "[]") {
             return d;
           }
-        }).x(function (d) {
+        }).x(function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).y(function (d) {
+        }).y(function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         });
         if (self.parent_obj.parent_obj.data.raw.length > 1) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
-        self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+        self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
           if (d.none_values === "[]") {
             return d;
           }
-        })).enter().append("circle").attr("cx", function (d) {
+        })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).attr("cy", function (d) {
+        }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function (d) {
+        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup(d[self.options.keys[0]], event.pageX, event.pageY);
-        }).on('mouseout', function (d) {
+        }).on('mouseout', function(d) {
           return self.hide_popup();
         });
-        return self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+        self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
           var key, none_vals, partial;
           none_vals = d.none_values;
           key = self.options.keys[0];
@@ -403,33 +391,57 @@ NHGraph = (function (superClass) {
           if (none_vals !== "[]" && d[key] !== false && partial) {
             return d;
           }
-        })).enter().append("circle").attr("cx", function (d) {
+        })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).attr("cy", function (d) {
+        }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function (d) {
+        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
-        }).on('mouseout', function (d) {
+        }).on('mouseout', function(d) {
+          return self.hide_popup();
+        });
+        return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+          var key, none_vals, refused, refused_ob;
+          none_vals = d.none_values;
+          key = self.options.keys[0];
+          refused = self.parent_obj.parent_obj.options.refused;
+          refused_ob = refused && d.partial_reason === 'refused';
+          if (none_vals !== "[]" && d[key] === false && refused_ob) {
+            return d;
+          }
+        })).enter().append("text").attr("x", function(d) {
+          var point_x;
+          point_x = self.date_from_string(d.date_terminated);
+          return self.axes.x.scale(point_x);
+        }).attr("y", function(d) {
+          var domainEnd, domainStart, point_y;
+          domainEnd = self.axes.y.scale.domain()[1];
+          domainStart = self.axes.y.scale.domain()[0];
+          point_y = ((domainEnd - domainStart) / 2) + domainStart;
+          return self.axes.y.scale(point_y);
+        }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+          return self.show_popup('Refused observation', event.pageX, event.pageY);
+        }).on('mouseout', function(d) {
           return self.hide_popup();
         });
       case 'range':
         if (self.options.keys.length === 2) {
-          self.drawables.data.selectAll(".range.top").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.top").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             if (d.none_values === "[]" && d[self.options.keys[0]]) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[0]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
             },
             'height': self.style.range.cap.height,
             'width': self.style.range.cap.width,
             'class': 'range top',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -438,25 +450,25 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          self.drawables.data.selectAll(".range.bottom").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.bottom").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             if (d.none_values === "[]" && d[self.options.keys[1]]) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[1]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
             },
             'height': self.style.range.cap.height,
             'width': self.style.range.cap.width,
             'class': 'range bottom',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -465,10 +477,10 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.extent").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             var bottom, top;
             top = d[self.options.keys[0]];
             bottom = d[self.options.keys[1]];
@@ -476,19 +488,19 @@ NHGraph = (function (superClass) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[0]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated));
             },
-            'height': function (d) {
+            'height': function(d) {
               return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]]);
             },
             'width': self.style.range.width,
             'class': 'range extent',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = '';
             ref1 = self.options.keys;
@@ -497,10 +509,10 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             var key, none_vals, partial;
             none_vals = d.none_values;
             key = self.options.keys[0];
@@ -509,17 +521,17 @@ NHGraph = (function (superClass) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[0]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
             },
             'height': self.style.range.cap.height,
             'width': self.style.range.cap.width,
             'class': 'range top empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -528,10 +540,10 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             var key, none_vals, partial;
             none_vals = d.none_values;
             key = self.options.keys[1];
@@ -540,17 +552,17 @@ NHGraph = (function (superClass) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[1]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
             },
             'height': self.style.range.cap.height,
             'width': self.style.range.cap.width,
             'class': 'range bottom empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation:<br>';
             ref1 = self.options.keys;
@@ -559,10 +571,10 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
-          return self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function (d) {
+          self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
             var bottom, keys_valid, none_vals, partial, top;
             partial = self.options.plot_partial;
             top = d[self.options.keys[0]];
@@ -573,19 +585,19 @@ NHGraph = (function (superClass) {
               return d;
             }
           })).enter().append("rect").attr({
-            'y': function (d) {
+            'y': function(d) {
               return self.axes.y.scale(d[self.options.keys[0]]);
             },
-            'x': function (d) {
+            'x': function(d) {
               return self.axes.x.scale(self.date_from_string(d.date_terminated));
             },
-            'height': function (d) {
+            'height': function(d) {
               return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]]);
             },
             'width': self.style.range.width,
             'class': 'range extent empty_point',
             'clip-path': 'url(#' + self.options.keys.join('-') + '-clip' + ')'
-          }).on('mouseover', function (d) {
+          }).on('mouseover', function(d) {
             var k, key, len1, ref1, string_to_use;
             string_to_use = 'Partial Observation<br>';
             ref1 = self.options.keys;
@@ -594,7 +606,31 @@ NHGraph = (function (superClass) {
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>';
             }
             return self.show_popup('<p>' + string_to_use + '</p>', event.pageX, event.pageY);
-          }).on('mouseout', function (d) {
+          }).on('mouseout', function(d) {
+            return self.hide_popup();
+          });
+          return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
+            var key, none_vals, refused, refused_ob;
+            none_vals = d.none_values;
+            key = self.options.keys[0];
+            refused = self.parent_obj.parent_obj.options.refused;
+            refused_ob = refused && d.partial_reason === 'refused';
+            if (none_vals !== "[]" && d[key] === false && refused_ob) {
+              return d;
+            }
+          })).enter().append("text").attr("x", function(d) {
+            var point_x;
+            point_x = self.date_from_string(d.date_terminated);
+            return self.axes.x.scale(point_x);
+          }).attr("y", function(d) {
+            var domainEnd, domainStart, point_y;
+            domainStart = self.axes.y.scale.domain()[0];
+            domainEnd = self.axes.y.scale.domain()[1];
+            point_y = ((domainEnd - domainStart) / 2) + domainStart;
+            return self.axes.y.scale(point_y);
+          }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+            return self.show_popup('Refused observation', event.pageX, event.pageY);
+          }).on('mouseout', function(d) {
             return self.hide_popup();
           });
         } else {
@@ -611,7 +647,7 @@ NHGraph = (function (superClass) {
     }
   };
 
-  NHGraph.prototype.redraw = function (parent_obj) {
+  NHGraph.prototype.redraw = function(parent_obj) {
     var adjusted_line, self, tick_font_size, tick_line_height;
     self = this;
     self.axes.obj.select('.x.axis').call(self.axes.x.axis);
@@ -619,7 +655,7 @@ NHGraph = (function (superClass) {
     tick_font_size = self.style.axis_label_font_size;
     tick_line_height = self.style.axis_label_line_height;
     adjusted_line = tick_font_size * tick_line_height;
-    this.axes.obj.selectAll(".x.axis g text").each(function (d) {
+    this.axes.obj.selectAll(".x.axis g text").each(function(d) {
       var el, i, j, len, top_lines, tspan, word, words;
       el = nh_graphs.select(this);
       words = self.date_to_string(d).split(" ");
@@ -636,20 +672,20 @@ NHGraph = (function (superClass) {
       return el.attr("y", "-" + Math.round((top_lines * 10) / 10));
     });
     self.drawables.background.obj.selectAll('.range').attr('width', self.axes.x.scale.range()[1]).attr({
-      'y': function (d) {
+      'y': function(d) {
         return self.axes.y.scale(d.e) - 1;
       }
     }).attr({
-      'height': function (d) {
+      'height': function(d) {
         return self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - 1);
       }
     });
     self.drawables.background.obj.selectAll('.normal').attr({
       'width': self.axes.x.scale.range()[1],
-      'y': function (d) {
+      'y': function(d) {
         return self.axes.y.scale(d.max);
       },
-      'height': function (d) {
+      'height': function(d) {
         return self.axes.y.scale(d.min) - (self.axes.y.scale(d.max));
       }
     });
@@ -659,14 +695,14 @@ NHGraph = (function (superClass) {
     self.drawables.background.obj.selectAll('.measurement').attr({
       'x': self.axes.x.scale.range()[1] + self.style.label_text_height
     });
-    self.drawables.background.obj.selectAll(".grid.vertical").data(self.axes.x.scale.ticks()).attr('x1', function (d) {
+    self.drawables.background.obj.selectAll(".grid.vertical").data(self.axes.x.scale.ticks()).attr('x1', function(d) {
       return self.axes.x.scale(d);
-    }).attr('x2', function (d) {
+    }).attr('x2', function(d) {
       return self.axes.x.scale(d);
     });
-    self.drawables.background.obj.selectAll('.grid.horizontal').data(self.axes.y.scale.ticks()).attr('x2', self.axes.x.scale.range()[1]).attr('y1', function (d) {
+    self.drawables.background.obj.selectAll('.grid.horizontal').data(self.axes.y.scale.ticks()).attr('x2', self.axes.x.scale.range()[1]).attr('y1', function(d) {
       return self.axes.y.scale(d);
-    }).attr('y2', function (d) {
+    }).attr('y2', function(d) {
       return self.axes.y.scale(d);
     });
     self.obj.selectAll('.clip').selectAll('rect').attr('width', self.axes.x.scale.range()[1]);
@@ -674,43 +710,65 @@ NHGraph = (function (superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.data.selectAll('.path').attr("d", self.drawables.area);
-        self.drawables.data.selectAll('.point').attr('cx', function (d) {
+        self.drawables.data.selectAll('.point').attr('cx', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).attr('cy', function (d) {
+        }).attr('cy', function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         });
-        self.drawables.data.selectAll('.empty_point').attr('cx', function (d) {
+        self.drawables.data.selectAll('.empty_point').attr('cx', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
-        }).attr("cy", function (d) {
+        }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
         });
+        self.drawables.data.selectAll('.refused_point').attr('x', function(d) {
+          var point_x;
+          point_x = self.date_from_string(d.date_terminated);
+          return self.axes.x.scale(point_x);
+        }).attr("y", function(d) {
+          var domainEnd, domainStart, point_y;
+          domainEnd = self.axes.y.scale.domain()[1];
+          domainStart = self.axes.y.scale.domain()[0];
+          point_y = ((domainEnd - domainStart) / 2) + domainStart;
+          return self.axes.y.scale(point_y);
+        }).attr('dx', '-4px').attr('dy', '5px');
         break;
       case 'range':
-        self.drawables.data.selectAll('.range.top').attr('x', function (d) {
+        self.drawables.data.selectAll('.range.top').attr('x', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
         }).attr({
-          'y': function (d) {
+          'y': function(d) {
             return self.axes.y.scale(d[self.options.keys[0]]);
           }
         });
-        self.drawables.data.selectAll('.range.bottom').attr('x', function (d) {
+        self.drawables.data.selectAll('.range.bottom').attr('x', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated)) - (self.style.range.cap.width / 2) + 1;
         }).attr({
-          'y': function (d) {
+          'y': function(d) {
             return self.axes.y.scale(d[self.options.keys[1]]);
           }
         });
-        self.drawables.data.selectAll('.range.extent').attr('x', function (d) {
+        self.drawables.data.selectAll('.range.extent').attr('x', function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr({
-          'y': function (d) {
+          'y': function(d) {
             return self.axes.y.scale(d[self.options.keys[0]]);
           }
         }).attr({
-          'height': function (d) {
+          'height': function(d) {
             return self.axes.y.scale(d[self.options.keys[1]]) - self.axes.y.scale(d[self.options.keys[0]]);
           }
         });
+        self.drawables.data.selectAll('.refused_point').attr('x', function(d) {
+          var point_x;
+          point_x = self.date_from_string(d.date_terminated);
+          return self.axes.x.scale(point_x);
+        }).attr("y", function(d) {
+          var domainEnd, domainStart, point_y;
+          domainEnd = self.axes.y.scale.domain()[1];
+          domainStart = self.axes.y.scale.domain()[0];
+          point_y = ((domainEnd - domainStart) / 2) + domainStart;
+          return self.axes.y.scale(point_y);
+        }).attr('dx', '-4px').attr('dy', '5px');
         break;
       case 'star':
         console.log('star');

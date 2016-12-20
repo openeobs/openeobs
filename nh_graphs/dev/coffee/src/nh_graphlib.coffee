@@ -54,6 +54,7 @@ class NHGraphLib
         }
       },
       ranged: null,
+      refused: false,
       controls: {
         date: {
           start: null,
@@ -211,7 +212,7 @@ class NHGraphLib
         nh_graphs.select(@el)?[0]?[0]?.clientWidth -
         (@style.margin.left + @style.margin.right)
       @obj?.attr('width', @style.dimensions.width)
-      @.context.handle_resize(@.context, @.obj, event)
+      @.context?.handle_resize(@.context, @.obj, event)
       event.handled = true
     return
 
