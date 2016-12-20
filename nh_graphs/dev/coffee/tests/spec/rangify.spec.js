@@ -180,6 +180,10 @@ describe('Rangify', function () {
             graphs = [bp_graph, pulse_graph];
         });
 
+        afterEach(function() {
+            graphlib.data.raw = ews_data.multi_partial;
+        });
+
         it("nhgraphlib.graph initialises rangified if ranged option true", function () {
             graphlib.init();
             graphlib.draw();
@@ -252,6 +256,21 @@ describe('Rangify', function () {
                     }
                 }
                 expect(max).toBeGreaterThan(expectedMax - 10);
+            }
+        });
+
+        it("nhgraphlib.graph has rangified extent even if no data present - EOBS-830", function () {
+            graphlib.data.raw = ews_data.empty_partial;
+            graphlib.init();
+            graphlib.draw();
+            var expectedMax, expectedMin, graph, i, j, k, len, len1, len2, max, min, padding, tick, ticks, val;
+            for (i = 0, len = graphs.length; i < len; i++) {
+                graph = graphs[i];
+                padding = graph.style.range_padding;
+                expectedMin = graph.axes.y.ranged_extent[0] - padding;
+                expectedMax = graph.axes.y.ranged_extent[1] + padding;
+                ticks = graph.axes.obj[0][0].querySelectorAll('.tick text');
+                expect(ticks.length).toBeGreaterThanOrEqual(2);
             }
         });
     });

@@ -224,7 +224,7 @@ describe('Refused observation visualisation', function () {
             });
         });
         describe('Ranged Focus refused observation without value data points', function(){
-           it('Draws the data poit with a \'R\' symbol', function(){
+           it('Draws the data point with a \'R\' symbol', function(){
               var refused_point = empty_bp_graph.drawables.data.select('text')[0][0];
                 expect(refused_point.textContent).toBe('R');
            });

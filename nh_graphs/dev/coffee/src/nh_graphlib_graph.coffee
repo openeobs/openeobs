@@ -276,7 +276,12 @@ class NHGraph extends NHGraphLib
           return d[self.options.keys[0]]
         else return null
       )
-
+    ranged_extent = @.axes.y.ranged_extent
+    if not ranged_extent[0] and not ranged_extent[1]
+      @.axes.y.ranged_extent = [
+        @.axes.y.min + self.style.range_padding,
+        @.axes.y.max - self.style.range_padding
+      ]
     # Create ranged and not ranged scaled
     d0 = self.axes.y.ranged_extent[0] - self.style.range_padding
     d1 = self.axes.y.ranged_extent[1] + self.style.range_padding
@@ -512,7 +517,8 @@ class NHGraph extends NHGraphLib
           none_vals = d.none_values
           key = self.options.keys[0]
           refused = self.parent_obj.parent_obj.options.refused
-          if none_vals isnt "[]" and d[key] is false and refused
+          refused_ob = refused and d.partial_reason is 'refused'
+          if none_vals isnt "[]" and d[key] is false and refused_ob
             return d
           )
         )
@@ -533,7 +539,7 @@ class NHGraph extends NHGraphLib
         .attr("class", "refused_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
-          self.show_popup('Refused observation: ',
+          self.show_popup('Refused observation',
             event.pageX,
             event.pageY)
         )
@@ -763,7 +769,8 @@ class NHGraph extends NHGraphLib
             none_vals = d.none_values
             key = self.options.keys[0]
             refused = self.parent_obj.parent_obj.options.refused
-            if none_vals isnt "[]" and d[key] is false and refused
+            refused_ob = refused and d.partial_reason is 'refused'
+            if none_vals isnt "[]" and d[key] is false and refused_ob
               return d
             )
           )
@@ -784,7 +791,7 @@ class NHGraph extends NHGraphLib
           .attr("class", "refused_point")
           .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
           .on('mouseover', (d) ->
-            self.show_popup('Refused observation: ',
+            self.show_popup('Refused observation',
               event.pageX,
               event.pageY)
           )

@@ -915,7 +915,7 @@ NHGraph = (function(superClass) {
   };
 
   NHGraph.prototype.init = function(parent_obj) {
-    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
+    var adjusted_line, d0, d1, dom, j, k, key, left_offset, len, len1, line_self, ob, ranged_extent, ref, ref1, scaleNot, scaleRanged, self, tick_font_size, tick_line_height, top_offset, values, y_label;
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
@@ -982,6 +982,10 @@ NHGraph = (function(superClass) {
           return null;
         }
       });
+    }
+    ranged_extent = this.axes.y.ranged_extent;
+    if (!ranged_extent[0] && !ranged_extent[1]) {
+      this.axes.y.ranged_extent = [this.axes.y.min + self.style.range_padding, this.axes.y.max - self.style.range_padding];
     }
     d0 = self.axes.y.ranged_extent[0] - self.style.range_padding;
     d1 = self.axes.y.ranged_extent[1] + self.style.range_padding;
@@ -1161,11 +1165,12 @@ NHGraph = (function(superClass) {
           return self.hide_popup();
         });
         return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          var key, none_vals, refused;
+          var key, none_vals, refused, refused_ob;
           none_vals = d.none_values;
           key = self.options.keys[0];
           refused = self.parent_obj.parent_obj.options.refused;
-          if (none_vals !== "[]" && d[key] === false && refused) {
+          refused_ob = refused && d.partial_reason === 'refused';
+          if (none_vals !== "[]" && d[key] === false && refused_ob) {
             return d;
           }
         })).enter().append("text").attr("x", function(d) {
@@ -1179,7 +1184,7 @@ NHGraph = (function(superClass) {
           point_y = ((domainEnd - domainStart) / 2) + domainStart;
           return self.axes.y.scale(point_y);
         }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
-          return self.show_popup('Refused observation: ', event.pageX, event.pageY);
+          return self.show_popup('Refused observation', event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
         });
@@ -1369,11 +1374,12 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           return self.drawables.data.selectAll(".refused_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var key, none_vals, refused;
+            var key, none_vals, refused, refused_ob;
             none_vals = d.none_values;
             key = self.options.keys[0];
             refused = self.parent_obj.parent_obj.options.refused;
-            if (none_vals !== "[]" && d[key] === false && refused) {
+            refused_ob = refused && d.partial_reason === 'refused';
+            if (none_vals !== "[]" && d[key] === false && refused_ob) {
               return d;
             }
           })).enter().append("text").attr("x", function(d) {
@@ -1387,7 +1393,7 @@ NHGraph = (function(superClass) {
             point_y = ((domainEnd - domainStart) / 2) + domainStart;
             return self.axes.y.scale(point_y);
           }).attr('dx', '-4px').attr('dy', '5px').text('R').attr("class", "refused_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
-            return self.show_popup('Refused observation: ', event.pageX, event.pageY);
+            return self.show_popup('Refused observation', event.pageX, event.pageY);
           }).on('mouseout', function(d) {
             return self.hide_popup();
           });
