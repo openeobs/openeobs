@@ -187,14 +187,14 @@ class RefusedObservationsSQL(orm.AbstractModel):
     refused_chain_count_skeleton = """
     SELECT  (
                 with reasons (reason) as (
-   		            select unnest(partial_tree)
-	            )
-	            select count(*)
-	            from reasons
-	            where reason = 'refused'
-	        ) as count,
-       	    first_activity_id as activity_id,
-       	    spell_activity_id
+                    select unnest(partial_tree)
+                )
+                select count(*)
+                from reasons
+                where reason = 'refused'
+            ) as count,
+            first_activity_id as activity_id,
+            spell_activity_id
     FROM (
         SELECT *,
         row_number() over(
@@ -220,14 +220,14 @@ class RefusedObservationsSQL(orm.AbstractModel):
         return self.refused_chain_count_skeleton
 
     refused_review_chain_skeleton = """
-    SELECT 	rchain.count,
-        rchain.spell_activity_id,
-        review_activity.state as review_state,
-        review_activity.date_terminated as review_date_terminated,
-        review_activity.terminate_uid as review_terminate_uid,
-        freq_activity.state as freq_state,
-        freq_activity.date_terminated as freq_date_terminated,
-       	freq_activity.terminate_uid as freq_terminate_uid
+    SELECT  rchain.count,
+            rchain.spell_activity_id,
+            review_activity.state as review_state,
+            review_activity.date_terminated as review_date_terminated,
+            review_activity.terminate_uid as review_terminate_uid,
+            freq_activity.state as freq_state,
+            freq_activity.date_terminated as freq_date_terminated,
+            freq_activity.terminate_uid as freq_terminate_uid
     FROM refused_chain_count AS rchain
     LEFT JOIN nh_activity AS review_activity
     ON review_activity.creator_id = rchain.activity_id

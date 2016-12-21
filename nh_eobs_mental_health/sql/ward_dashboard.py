@@ -97,7 +97,9 @@ class WardDashboardSQL(orm.AbstractModel):
 
     ward_dashboard_refused_obs_count_skeleton = """
         SELECT  ward_beds.location_id,
-                coalesce(sum(CASE WHEN refused.refused = TRUE THEN 1 ELSE 0 END),0)
+                coalesce(
+                  sum(
+                    CASE WHEN refused.refused = TRUE THEN 1 ELSE 0 END),0)
                 AS count
         FROM refused_last_ews AS refused
           LEFT JOIN wb_activity_ranked AS acts
@@ -118,9 +120,9 @@ class WardDashboardSQL(orm.AbstractModel):
           AND acts.data_model = 'nh.clinical.patient.observation.ews'
           AND spell_activity.state not in ('completed', 'cancelled')
           AND refused.refused = TRUE
-          -- Often one of the date operands below is null. This causes the whole
-          -- expression to evaluate to null which is falsey and therefore fails the
-          -- where clause, returning nothing.
+          -- Often one of the date operands below is null. This causes the
+          -- whole expression to evaluate to null which is falsey and
+          -- therefore fails the where clause, returning nothing.
           -- This is why the 'OR foo IS NULL' is necessary.
           AND (pme.activity_date_terminated <= acts.date_terminated
           OR pme.activity_date_terminated IS NULL)
