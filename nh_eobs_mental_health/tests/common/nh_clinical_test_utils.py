@@ -78,3 +78,8 @@ class NhClinicalTestUtils(AbstractModel):
 
     def end_pme(self):
         self.wardboard.end_patient_monitoring_exception()
+
+    def complete_clinical_review(self, ews_id=None):
+        if not ews_id:
+            ews_id = self.ews_activity.id
+
