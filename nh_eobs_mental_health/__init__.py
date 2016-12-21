@@ -5,7 +5,7 @@ from .models import nh_clinical_overdue
 from .models import nh_clinical_patient_observation_ews
 from .models import nh_clinical_settings
 from .models import nh_clinical_spell
-from .models import nh_clinical_sql
+from .sql import *
 from .models import nh_clinical_wardboard
 from .models import nh_eobs_api
 from .models import nh_eobs_mobile_main
@@ -13,4 +13,3 @@ from .models import nh_eobs_ward_dashboard
 from .models import report_nh_clinical_observation_report
 from .tests.common import nh_clinical_test_utils
 from .wizard import nh_clinical_patient_monitoring_exception_select_reason
-

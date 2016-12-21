@@ -9,6 +9,50 @@ class NhClinicalTestUtils(AbstractModel):
     _name = 'nh.clinical.test_utils'
     _inherit = 'nh.clinical.test_utils'
 
+    def get_open_obs(self, patient_id=None, data_model=None, user_id=None):
+        api_model = self.pool['nh.eobs.api']
+        activity_model = self.env['nh.activity']
+
+        if not patient_id:
+            patient_id = self.patient_id
+        if not data_model:
+            data_model = 'nh.clinical.patient.observation.ews'
+        if not user_id:
+            user_id = self.nurse.id
+
+        ews_activity_search = activity_model.search(
+            [
+                ['data_model', '=', data_model],
+                ['patient_id', '=', patient_id],
+                ['state', '=', 'scheduled']
+            ]
+        )
+        if ews_activity_search:
+            self.ews_activity = ews_activity_search[0]
+        else:
+            raise ValueError('Could not find EWS Activity ID')
+
+        api_model.assign(
+            self.env.cr,
+            user_id,
+            self.ews_activity.id,
+            {'user_id': user_id}
+        )
+
+    def complete_obs(self, obs_data, obs_id=None, user_id=None):
+        api_pool = self.pool['nh.eobs.api']
+        if not obs_id:
+            obs_id = self.ews_activity.id
+        if not user_id:
+            user_id = self.nurse.id
+
+        api_pool.complete(
+            self.env.cr,
+            user_id,
+            obs_id,
+            obs_data
+        )
+
     # Utility methods
     def create_ews_obs_activity(self, patient_id, spell_id, obs_data):
         ews_model = self.env['nh.clinical.patient.observation.ews']

@@ -63,3 +63,19 @@ class NhClinicalTestUtils(AbstractModel):
         self.activity_pool.complete(
             self.env.cr, self.env.uid, self.placement.id
         )
+
+    def discharge_patient(self, hospital_number=None):
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.eobs.api']
+        api_model.discharge(hospital_number, {
+            'location': 'DISL'
+        })
+
+    def transfer_patient(self, location_code, hospital_number=None):
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.eobs.api']
+        api_model.transfer(hospital_number, {
+            'location': location_code
+        })
