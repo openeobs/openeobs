@@ -20,6 +20,7 @@ class NhClinicalTestUtils(AbstractModel):
         self.search_for_hospital_and_pos()
         self.create_locations()
         self.create_nurse()
+        self.create_doctor()
         self.create_and_register_patient()
 
         self.api_model.admit(

@@ -1,5 +1,7 @@
 from openerp.tests.common import TransactionCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from datetime import datetime
 
 
 class TestGetRefusalEpisodesClinicalReview(TransactionCase):
@@ -20,6 +22,40 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.partial_obs = clinical_risk_sample_data.PARTIAL_DATA
         self.full_obs = clinical_risk_sample_data.MEDIUM_RISK_DATA
 
+    def validate_triggered_review(self, values):
+        self.assertEqual(values[0].get('review_state'), 'new')
+        self.assertIsNone(values[0].get('review_date_terminated'))
+        self.assertIsNone(values[0].get('review_terminate_uid'))
+        self.assertIsNone(values[0].get('freq_state'))
+        self.assertIsNone(values[0].get('freq_date_terminated'))
+        self.assertIsNone(values[0].get('freq_terminate_uid'))
+
+    def validate_completed_review(self, values):
+        self.assertEqual(values[0].get('review_state'), 'completed')
+        review_date = datetime.strptime(
+            values[0].get('review_date_terminated'), dtf)
+        test_date = datetime.utcnow()
+        self.assertEqual(review_date.year, test_date.year)
+        self.assertEqual(review_date.month, test_date.month)
+        self.assertEqual(review_date.day, test_date.day)
+        self.assertEqual(review_date.hour, test_date.hour)
+        self.assertEqual(review_date.minute, test_date.minute)
+        self.assertEqual(
+            values[0].get('review_terminate_uid'),
+            self.test_utils_model.doctor.id
+        )
+        self.assertEqual(values[0].get('freq_state'), 'new')
+        self.assertIsNone(values[0].get('freq_date_terminated'))
+        self.assertIsNone(values[0].get('freq_terminate_uid'))
+
+    def validate_cancelled_review(self, values):
+        self.assertIsNone(values[0].get('review_state'))
+        self.assertIsNone(values[0].get('review_date_terminated'))
+        self.assertIsNone(values[0].get('review_terminate_uid'))
+        self.assertIsNone(values[0].get('freq_state'))
+        self.assertIsNone(values[0].get('freq_date_terminated'))
+        self.assertIsNone(values[0].get('freq_terminate_uid'))
+
     def test_no_refusals(self):
         """
         Test that on finding no refusals the method returns an empty array
@@ -38,63 +74,119 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
-        self.assertEqual(values[0].get('review_state'), 'new')
-        self.assertIsNone(values[0].get('review_date_terminated'))
-        self.assertIsNone(values[0].get('review_terminate_uid'))
-        self.assertIsNone(values[0].get('freq_state'))
-        self.assertIsNone(values[0].get('freq_date_terminated'))
-        self.assertIsNone(values[0].get('freq_terminate_uid'))
+        self.validate_triggered_review(values)
+
 
     def test_refused_completed(self):
         """
-        Test that having a refusal returns a count of 1
+        Test that having a completing the clinical review task triggers the
+        freq task
         """
         self.test_utils_model.complete_obs(self.refused_obs)
         self.ews_model.schedule_clinical_review_notification(
             self.test_utils_model.ews_activity.id)
+        self.test_utils_model.find_and_complete_clinical_review()
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
-        self.assertEqual(values[0].get('review_state'), 'new')
-        self.assertIsNone(values[0].get('review_date_terminated'))
-        self.assertIsNone(values[0].get('review_terminate_uid'))
+        self.validate_completed_review(values)
 
-    # def test_refused_then_full(self):
-    #     """
-    #     Test that having a refusal then a full observation returns a count of
-    #     1
-    #     """
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     self.test_utils_model.get_open_obs()
-    #     self.test_utils_model.complete_obs(self.full_obs)
-    #     values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-    #     self.assertEqual(len(values), 1)
-    #     self.assertEqual(values[0].get('count'), 1)
-    #
-    # def test_refused_then_partial(self):
-    #     """
-    #     Test that having a refusal then a partial observation returns a
-    #     count of 1
-    #     """
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     self.test_utils_model.get_open_obs()
-    #     self.test_utils_model.complete_obs(self.partial_obs)
-    #     values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-    #     self.assertEqual(len(values), 1)
-    #     self.assertEqual(values[0].get('count'), 1)
-    #
-    # def test_refused_then_refused(self):
-    #     """
-    #     Test that having a refusal then another refusal returns a count of
-    #     2
-    #     """
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     self.test_utils_model.get_open_obs()
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-    #     self.assertEqual(len(values), 1)
-    #     self.assertEqual(values[0].get('count'), 2)
+    def test_refused_then_full_triggered(self):
+        """
+        Test that having a refusal and the cron job triggers the clinical
+        review
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.full_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_cancelled_review(values)
+
+    def test_refused_then_full_completed(self):
+        """
+        Test that having a completing the clinical review task triggers the
+        freq task
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.full_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(
+            self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_cancelled_review(values)
+
+
+    def test_refused_then_partial_triggered(self):
+        """
+        Test that having a refusal then a partial observation returns a
+        count of 1 and triggers clinical review
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.partial_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_triggered_review(values)
+
+    def test_refused_then_partial_completed(self):
+        """
+        Test that having a refusal then a partial observation and completing
+        clinical review is in the returned dictionary
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.partial_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        self.test_utils_model.find_and_complete_clinical_review(ews_id)
+        values = self.report_model.get_refusal_episodes(
+            self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_completed_review(values)
+
+    def test_refused_then_refused_triggered(self):
+        """
+        Test that having a refusal then another refusal triggers only one
+        clinical review
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.refused_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 2)
+        self.validate_triggered_review(values)
+
+    def test_refused_then_refused_completed(self):
+        """
+        Test that having a refusal then another refusal triggers only one
+        clinical review
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        ews_id = self.test_utils_model.ews_activity.id
+        self.test_utils_model.get_open_obs()
+        self.test_utils_model.complete_obs(self.refused_obs)
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        self.test_utils_model.find_and_complete_clinical_review(ews_id)
+        values = self.report_model.get_refusal_episodes(
+            self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 2)
+        self.validate_completed_review(values)
     #
     # def test_refused_then_pme(self):
     #     """
