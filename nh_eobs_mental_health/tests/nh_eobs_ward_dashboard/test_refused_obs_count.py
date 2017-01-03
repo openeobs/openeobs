@@ -1,8 +1,9 @@
+import time
+
 from openerp.addons.nh_eobs_mental_health\
     .tests.common.transaction_observation import TransactionObservationCase
 from openerp.addons.nh_ews.tests.common.clinical_risk_sample_data import \
-    REFUSED_DATA, LOW_RISK_DATA, PARTIAL_DATA
-import time
+    REFUSED_DATA, LOW_RISK_DATA, PARTIAL_DATA_ASLEEP
 
 
 class TestRefusedObsCount(TransactionObservationCase):
@@ -81,7 +82,7 @@ class TestRefusedObsCount(TransactionObservationCase):
             self.user_id, [self.patient_id], REFUSED_DATA)
         self.assertEqual(self.get_refused_count(), 1)
         self.complete_observation(
-            self.user_id, [self.patient_id], PARTIAL_DATA)
+            self.user_id, [self.patient_id], PARTIAL_DATA_ASLEEP)
         self.assertEqual(self.get_refused_count(), 1)
 
     def test_returns_correct_number_of_patients_after_pme(self):

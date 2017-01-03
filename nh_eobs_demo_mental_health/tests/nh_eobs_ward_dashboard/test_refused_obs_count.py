@@ -1,6 +1,6 @@
-from openerp.tests.common import TransactionCase
 from openerp.addons.nh_ews.tests.common.clinical_risk_sample_data import \
-    REFUSED_DATA, LOW_RISK_DATA, PARTIAL_DATA
+    REFUSED_DATA, LOW_RISK_DATA, PARTIAL_DATA_ASLEEP
+from openerp.tests.common import TransactionCase
 
 
 class TestRefusedObsCount(TransactionCase):
@@ -80,7 +80,8 @@ class TestRefusedObsCount(TransactionCase):
         Test refused obs count stays the same when a patient who was refusing
         has a partial observation taken
         """
-        self.complete_observation(self.nurse_id, [3], PARTIAL_DATA)
+        self.complete_observation(self.nurse_id, [3],
+                                  PARTIAL_DATA_ASLEEP)
         self.assertEqual(self.get_refused_count(), 4)
 
     def test_returns_correct_number_of_patients_after_pme(self):
