@@ -1,0 +1,1 @@
+from . import test_current_patient_refusal_was_triggered_by

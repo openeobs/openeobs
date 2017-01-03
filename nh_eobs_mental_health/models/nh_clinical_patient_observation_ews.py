@@ -1,7 +1,8 @@
-from openerp.osv import orm, fields
 from datetime import datetime, timedelta
+
 from openerp import SUPERUSER_ID
 from openerp import api
+from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
@@ -88,7 +89,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         return res
 
     @api.model
-    def schedule_clinical_review_notification(self, activity_id):
+    def schedule_clinical_review_notification(self, refused_ews_activity_id):
         """
         Determines if a Clinical Review notification needs to be created based
         on if a full NEWS observation has been completed since the partial
@@ -96,28 +97,37 @@ class NHClinicalPatientObservationEWS(orm.Model):
 
         :return: Nothing, only side effects
         """
-        # Find all ews that have been done since the activity
         activity_model = self.env['nh.activity']
-        activity = activity_model.browse(activity_id)
-        ews_gen = self.get_child_activity(
-            activity_model, activity, self._name, context=self._context)
-        next_full_ews = list(ews_gen)
-        next_ews_complete = False
-        if next_full_ews:
-            next_ews_complete = next_full_ews[0].state == 'completed'
-        if not next_full_ews or not next_ews_complete:
-            clinical_review_model = \
-                self.pool['nh.clinical.notification.clinical_review']
-            due_date = datetime.now().strftime(DTF)
-            clinical_review_model.create_activity(
-                self._cr, SUPERUSER_ID,
-                {
-                    'creator_id': activity.id,
-                    'parent_id': activity.spell_activity_id.id,
-                    'date_scheduled': due_date,
-                    'date_deadline': due_date
-                },
-                {
-                    'patient_id': activity.data_ref.patient_id.id
-                }
-            )
+        refused_ews_activity = activity_model.browse(refused_ews_activity_id)
+        patient = refused_ews_activity.patient_id
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+
+        if ews_model.patient_refusal_in_effect(patient.id) \
+                and ews_model.current_patient_refusal_was_triggered_by(
+                    refused_ews_activity):
+            self.create_clinical_review_task(refused_ews_activity)
+
+    @api.model
+    def create_clinical_review_task(self, activity):
+        """
+        Create a 'nh.clinical.notification.clinical_review' record and
+        associated activity.
+
+        :param activity:
+        :type activity: 'nh.activity' record
+        """
+        clinical_review_model = \
+            self.pool['nh.clinical.notification.clinical_review']
+        due_date = datetime.now().strftime(DTF)
+        clinical_review_model.create_activity(
+            self._cr, SUPERUSER_ID,
+            {
+                'creator_id': activity.id,
+                'parent_id': activity.spell_activity_id.id,
+                'date_scheduled': due_date,
+                'date_deadline': due_date
+            },
+            {
+                'patient_id': activity.data_ref.patient_id.id
+            }
+        )

@@ -47,7 +47,12 @@ REFUSED_DATA = {
     'partial_reason': 'refused'
 }
 
-PARTIAL_DATA = {
+PARTIAL_DATA_ASLEEP = {
     'respiration_rate': 11,
     'partial_reason': 'asleep'
+}
+
+PARTIAL_DATA_AWAY_FROM_BED = {
+    'respiration_rate': 11,
+    'partial_reason': 'patient_away_from_bed'
 }
