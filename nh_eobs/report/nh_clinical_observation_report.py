@@ -8,13 +8,18 @@ Terminology
 ===========
 report entry: A single line on the report. One activity may result in multiple
 'entries' on the report.
+
+report data: A giant dictionary containing all data that will be used to
+generate the report.
 """
-from openerp import api, models
-from datetime import datetime
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.osv import fields
-import json
 import copy
+import json
+from datetime import datetime
+
+from openerp import api, models
+from openerp.osv import fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+
 from . import helpers
 
 
