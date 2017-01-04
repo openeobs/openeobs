@@ -1,9 +1,10 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from openerp.tests.common import TransactionCase
-from datetime import datetime, timedelta
 import logging
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from datetime import datetime, timedelta
+
 from openerp.addons.nh_eobs.report.helpers import data_dict_to_obj
+from openerp.tests.common import TransactionCase
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 _logger = logging.getLogger(__name__)
 

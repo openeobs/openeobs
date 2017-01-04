@@ -1,7 +1,8 @@
-from openerp.tests.common import TransactionCase
-from datetime import timedelta
-from datetime import datetime
 import copy
+from datetime import datetime
+from datetime import timedelta
+
+from openerp.tests.common import TransactionCase
 
 
 class OxygenLevel(object):
