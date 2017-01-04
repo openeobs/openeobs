@@ -40,7 +40,9 @@ class RefusedObservationsSQL(orm.AbstractModel):
                 id as first_activity_id,
                 id as last_activity_id,
                 true as refused,
-                sequence
+                sequence,
+                date_terminated as first_activity_date_terminated,
+                date_terminated as last_activity_date_terminated
         FROM ews_activities
         --Make sure we only get EWS
         WHERE partial_reason = 'refused'
@@ -71,7 +73,9 @@ class RefusedObservationsSQL(orm.AbstractModel):
                     ARRAY[child_act.partial_reason]
                   ), ', ', '(null)')
                 AS refused,
-                act.sequence
+                act.sequence,
+                act.first_activity_date_terminated as first_activity_date_terminated,
+                child_act.date_terminated as last_activity_date_terminated
         FROM ews_activities as child_act
         INNER JOIN refused_ews_tree as act
         ON (child_act.creator_id = act.id)
@@ -194,7 +198,8 @@ class RefusedObservationsSQL(orm.AbstractModel):
                 where reason = 'refused'
             ) as count,
             first_activity_id as activity_id,
-            spell_activity_id
+            spell_activity_id,
+            first_activity_date_terminated
     FROM (
         SELECT *,
         row_number() over(
@@ -227,7 +232,9 @@ class RefusedObservationsSQL(orm.AbstractModel):
             review_activity.terminate_uid as review_terminate_uid,
             freq_activity.state as freq_state,
             freq_activity.date_terminated as freq_date_terminated,
-            freq_activity.terminate_uid as freq_terminate_uid
+            freq_activity.terminate_uid as freq_terminate_uid,
+            rchain.first_activity_date_terminated
+            as first_refusal_date_terminated
     FROM refused_chain_count AS rchain
     LEFT JOIN nh_activity AS review_activity
     ON review_activity.creator_id = rchain.activity_id
