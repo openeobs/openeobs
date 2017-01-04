@@ -1,5 +1,5 @@
-from openerp.tests.common import TransactionCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
+from openerp.tests.common import TransactionCase
 
 
 class TestGetRefusalEpisodes(TransactionCase):
@@ -15,7 +15,7 @@ class TestGetRefusalEpisodes(TransactionCase):
         self.test_utils_model.get_open_obs()
         self.spell_activity_id = self.test_utils_model.spell_activity_id
         self.refused_obs = clinical_risk_sample_data.REFUSED_DATA
-        self.partial_obs = clinical_risk_sample_data.PARTIAL_DATA
+        self.partial_obs = clinical_risk_sample_data.PARTIAL_DATA_ASLEEP
         self.full_obs = clinical_risk_sample_data.MEDIUM_RISK_DATA
 
     def test_no_refusals(self):
