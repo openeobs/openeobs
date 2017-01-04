@@ -5,3 +5,4 @@ from . import nh_clinical_extension
 from . import notifications
 from . import observations
 from . import parameters
+from .models import nh_clinical_spell

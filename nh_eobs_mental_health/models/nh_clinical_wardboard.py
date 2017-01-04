@@ -17,7 +17,7 @@ class NHClinicalWardboard(orm.Model):
         """
         Function field to return obs_stop flag from spell
         :param cr: Odoo cursor
-        :param uid: User ID of user doing operatoin
+        :param uid: User ID of user doing operation
         :param ids: Ids to read
         :param field_name: name of field
         :param arg: arguments
