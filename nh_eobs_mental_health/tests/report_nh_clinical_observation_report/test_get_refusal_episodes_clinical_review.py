@@ -76,7 +76,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.assertEqual(values[0].get('count'), 1)
         self.validate_triggered_review(values[0])
 
-
     def test_refused_completed(self):
         """
         Test that having a completing the clinical review task triggers the
@@ -122,7 +121,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
         self.validate_cancelled_review(values[0])
-
 
     def test_refused_then_partial_triggered(self):
         """
@@ -253,7 +251,8 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
     #     """
     #     self.test_utils_model.complete_obs(self.refused_obs)
     #     self.test_utils_model.transfer_patient('WB')
-    #     values = self.report_model.get_refusal_episodes(self.spell_activity_id)
+    #     values =
+        # self.report_model.get_refusal_episodes(self.spell_activity_id)
     #     self.assertEqual(len(values), 1)
     #     self.assertEqual(values[0].get('count'), 1)
     #
@@ -263,6 +262,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
     #     """
     #     self.test_utils_model.complete_obs(self.refused_obs)
     #     self.test_utils_model.discharge_patient()
-    #     values = self.report_model.get_refusal_episodes(self.spell_activity_id)
+    #     values =
+        # self.report_model.get_refusal_episodes(self.spell_activity_id)
     #     self.assertEqual(len(values), 1)
     #     self.assertEqual(values[0].get('count'), 1)
