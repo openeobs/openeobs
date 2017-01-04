@@ -87,4 +87,5 @@ class NhClinicalTestUtils(AbstractModel):
             ['data_model', '=', 'nh.clinical.notification.clinical_review'],
             ['state', 'not in', ['completed', 'cancelled']]
         ])
-        self.activity_model.sudo(self.doctor).complete(clinical_review.id)
+        if clinical_review:
+            self.activity_model.sudo(self.doctor).complete(clinical_review.id)

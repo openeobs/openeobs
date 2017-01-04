@@ -2,6 +2,7 @@ from openerp.tests.common import TransactionCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from datetime import datetime
+import time
 
 
 class TestGetRefusalEpisodesClinicalReview(TransactionCase):
@@ -19,7 +20,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
         self.spell_activity_id = self.test_utils_model.spell_activity_id
         self.refused_obs = clinical_risk_sample_data.REFUSED_DATA
-        self.partial_obs = clinical_risk_sample_data.PARTIAL_DATA
+        self.partial_obs = clinical_risk_sample_data.PARTIAL_DATA_ASLEEP
         self.full_obs = clinical_risk_sample_data.MEDIUM_RISK_DATA
 
     def validate_triggered_review(self, values):
@@ -135,7 +136,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
-        self.validate_triggered_review(values)
+        self.validate_triggered_review(values[0])
 
     def test_refused_then_partial_completed(self):
         """
@@ -209,11 +210,13 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
+        time.sleep(2)
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
+        time.sleep(2)
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
         self.assertEqual(len(values), 2)
         self.assertEqual(values[0].get('count'), 1)
@@ -230,11 +233,13 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
+        time.sleep(2)
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
+        time.sleep(2)
         self.test_utils_model.find_and_complete_clinical_review(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
