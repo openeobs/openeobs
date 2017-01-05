@@ -1,7 +1,8 @@
-from openerp.tests.common import TransactionCase
-from datetime import timedelta
-from datetime import datetime
 import copy
+from datetime import datetime
+from datetime import timedelta
+
+from openerp.tests.common import TransactionCase
 
 
 class OxygenLevel(object):
@@ -41,6 +42,7 @@ class ObservationReportHelpers(TransactionCase):
         'score': '1',
         'clinical_risk': 'Medium',
         'is_partial': False,
+        'partial_reason': 'refused',
         'device_id': [1, 'Test Device'],
         'flow_rate': 5,
         'concentration': 0,
@@ -590,7 +592,7 @@ class ObservationReportHelpers(TransactionCase):
         def mock_triggered_actions(*args, **kwargs):
             return [17]
 
-        self.report_pool._patch_method('get_triggered_actions',
+        self.report_pool._patch_method('get_triggered_action_ids',
                                        mock_triggered_actions)
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
@@ -657,5 +659,5 @@ class ObservationReportHelpers(TransactionCase):
         self.partner_pool._revert_method('read')
         self.company_pool._revert_method('read')
         self.o2level_pool._revert_method('browse')
-        self.report_pool._revert_method('get_triggered_actions')
+        self.report_pool._revert_method('get_triggered_action_ids')
         super(ObservationReportHelpers, self).tearDown()
