@@ -249,25 +249,33 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.validate_cancelled_review(values[0])
         self.validate_completed_review(values[1])
 
-    #
-    # def test_refused_then_transfer(self):
-    #     """
-    #     Test that having a refusal then a transfer returns a count of 1
-    #     """
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     self.test_utils_model.transfer_patient('WB')
-    #     values =
-        # self.report_model.get_refusal_episodes(self.spell_activity_id)
-    #     self.assertEqual(len(values), 1)
-    #     self.assertEqual(values[0].get('count'), 1)
-    #
-    # def test_refused_then_discharge(self):
-    #     """
-    #     Test that having a refusal then a discharge returns a count of 1
-    #     """
-    #     self.test_utils_model.complete_obs(self.refused_obs)
-    #     self.test_utils_model.discharge_patient()
-    #     values =
-        # self.report_model.get_refusal_episodes(self.spell_activity_id)
-    #     self.assertEqual(len(values), 1)
-    #     self.assertEqual(values[0].get('count'), 1)
+
+    def test_refused_then_transfer(self):
+        """
+        Test that having a refusal then a transfer returns a count of 1
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        self.test_utils_model.transfer_patient('WB')
+        ews_id = self.test_utils_model.ews_activity.id
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(
+            self.spell_activity_id)
+        self.report_model.get_refusal_episodes(self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_cancelled_review(values[0])
+
+    def test_refused_then_discharge(self):
+        """
+        Test that having a refusal then a discharge returns a count of 1
+        """
+        self.test_utils_model.complete_obs(self.refused_obs)
+        self.test_utils_model.discharge_patient()
+        ews_id = self.test_utils_model.ews_activity.id
+        self.ews_model.schedule_clinical_review_notification(ews_id)
+        values = self.report_model.get_refusal_episodes(
+            self.spell_activity_id)
+        self.report_model.get_refusal_episodes(self.spell_activity_id)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0].get('count'), 1)
+        self.validate_cancelled_review(values[0])
