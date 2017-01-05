@@ -1,5 +1,5 @@
 from openerp.addons.nh_eobs.tests.nh_clinical_observation_report\
-    .observation_report import observation_report_helpers
+    import observation_report_helpers
 from openerp.addons.nh_eobs.report import helpers
 
 
