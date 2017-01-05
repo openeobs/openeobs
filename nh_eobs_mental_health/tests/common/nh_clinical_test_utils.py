@@ -89,3 +89,15 @@ class NhClinicalTestUtils(AbstractModel):
         ])
         if clinical_review:
             self.activity_model.sudo(self.doctor).complete(clinical_review.id)
+        return clinical_review
+
+    def find_and_complete_clinical_review_freq(self, review_id=None):
+        clinical_review_freq = self.activity_model.search([
+            ['creator_id', '=', review_id],
+            ['data_model', '=',
+             'nh.clinical.notification.clinical_review_frequency'],
+            ['state', 'not in', ['completed', 'cancelled']]
+        ])
+        if clinical_review_freq:
+            self.activity_model.sudo(self.doctor).complete(
+                clinical_review_freq.id)
