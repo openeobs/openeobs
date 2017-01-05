@@ -1,6 +1,6 @@
-from openerp.addons.nh_eobs.tests.nh_clinical_observation_report\
-    import observation_report_helpers
 from openerp.addons.nh_eobs.report import helpers
+from openerp.addons.nh_eobs.tests.report_nh_clinical_observation_report\
+    import observation_report_helpers
 
 
 class TestGetReportData(observation_report_helpers.ObservationReportHelpers):
