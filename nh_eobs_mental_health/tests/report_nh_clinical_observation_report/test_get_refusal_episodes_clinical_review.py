@@ -249,7 +249,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.validate_cancelled_review(values[0])
         self.validate_completed_review(values[1])
 
-
     def test_refused_then_transfer(self):
         """
         Test that having a refusal then a transfer returns a count of 1
