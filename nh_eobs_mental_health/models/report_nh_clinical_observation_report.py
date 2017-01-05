@@ -53,3 +53,85 @@ class MentalHealthObservationReport(models.AbstractModel):
             refused_chain_sql=sql_model.get_refused_chain_count_sql(),
             refused_review=sql_model.get_refused_review_chain_sql()
         ))
+
+    def get_patient_refusal_events_data(self, spell_activity_id):
+        refusal_episodes = self.get_refusal_episodes(spell_activity_id)
+
+        patient_refusal_events_data = []
+        for episode in refusal_episodes:
+            patient_refusal_event_data = {
+                'first_refusal':
+                    self.get_first_refusal_column_data(episode),
+                'refusals_until_news_obs_taken':
+                    self.get_refusals_until_news_obs_taken_column_data(episode),
+                'clinical_review':
+                    self.get_clinical_review_column_data(episode),
+                'clinical_review_frequency_set':
+                    self.get_clinical_review_frequency_set_column_data(episode)
+            }
+            patient_refusal_events_data.append(patient_refusal_event_data)
+
+        return patient_refusal_events_data
+
+    def get_first_refusal_column_data(self, refusal_episode):
+        key = 'first_refusal_date_terminated'
+        self.validate_refusal_episode_dict_key(refusal_episode, key)
+
+        datetime_utils = self.env['datetime_utils']
+        first_refusal_column_data = \
+            datetime_utils.reformat_server_datetime_for_frontend(
+                refusal_episode[key]
+            )
+        return first_refusal_column_data
+
+    def get_refusals_until_news_obs_taken_column_data(self, refusal_episode):
+        key = 'count'
+        self.validate_refusal_episode_dict_key(refusal_episode, key)
+        return refusal_episode[key]
+
+    def get_clinical_review_column_data(self, refusal_episode):
+        self.validate_dict(refusal_episode)
+        review_state = refusal_episode['review_state']
+
+        if review_state is None:
+            return 'N/A'
+        elif review_state == 'started':
+            return 'Task in progress'
+        elif review_state == 'completed':
+            exception_message = \
+                "Clinical review task's {} is falsey according to the " \
+                "passed refusal episode, this should not be the case " \
+                "when the clinical review is completed."
+            if not refusal_episode['review_date_terminated']:
+                raise ValueError(exception_message.format('date terminated'))
+            if not refusal_episode['review_terminate_uid']:
+                raise ValueError(exception_message.format('terminate uid'))
+
+            return {
+                'date': refusal_episode['review_date_terminated'],
+                'by': refusal_episode['review_terminate_uid']
+            }
+        raise ValueError("Unknown state.")
+
+    def get_clinical_review_frequency_set_column_data(self, refusal_episode):
+        pass
+
+    @classmethod
+    def validate_dict(cls, dictionary):
+        if not isinstance(dictionary, dict):
+            raise TypeError("Argument is not a dictionary.")
+        if not dictionary:
+            raise ValueError("Argument cannot be falsey.")
+
+    def validate_refusal_episode_dict_key(self, refusal_episode, key):
+        self.validate_dict(refusal_episode)
+        try:
+            if refusal_episode[key] is None:
+                raise ValueError(
+                    "None is not an acceptable value for the {} key, "
+                    "something went wrong.".format(key)
+                )
+        except KeyError, e:
+            e.message += "\nExpected a {} key, " \
+                         "check return of SQL view.".format(key)
+            raise e
