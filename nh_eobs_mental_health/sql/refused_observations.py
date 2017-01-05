@@ -74,7 +74,8 @@ class RefusedObservationsSQL(orm.AbstractModel):
                   ), ', ', '(null)')
                 AS refused,
                 act.sequence,
-                act.first_activity_date_terminated as first_activity_date_terminated,
+                act.first_activity_date_terminated
+                as first_activity_date_terminated,
                 child_act.date_terminated as last_activity_date_terminated
         FROM ews_activities as child_act
         INNER JOIN refused_ews_tree as act
