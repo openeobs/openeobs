@@ -1,0 +1,36 @@
+<openerp>
+    <data>
+        <template id="observation_report" inherit_id="nh_eobs.triggered_actions" name="Observation Report">
+            <!-- Set some variables. -->
+            <xpath expr="tr[@class = 'main-entry']" position="before">
+                <t t-set="is_partial" t-value="observation['values']['is_partial']"/>
+                <t t-set="partial_message" t-value="'Partial - N/A'"/>
+                <t t-set="refused_reason" t-value="'Reason: {}'.format(observation['values']['partial_reason'])"/>
+            </xpath>
+            <!-- Change what's in score column when obs is partial. -->
+            <xpath expr="tr[@class = 'main-entry']/td[@id = 'triggered_actions_score']" position="replace">
+                <td id="triggered_actions_score" class="col-xs-2">
+                    <t t-if="is_partial">
+                        <t t-esc="partial_message"/>
+                        <br/>
+                        <t t-esc="refused_reason"/>
+                    </t>
+                    <t t-if="not is_partial">
+                        <t t-esc="score"/>
+                    </t>
+                </td>
+            </xpath>
+            <!-- Change what's in clinical risk column when obs is partial. -->
+            <xpath expr="tr[@class = 'main-entry']/td[@id = 'triggered_actions_clinical_risk']" position="replace">
+                <td id="triggered_actions_clinical_risk" class="col-xs-2">
+                    <t t-if="is_partial">
+                        <t t-esc="partial_message"/>
+                    </t>
+                    <t t-if="not is_partial">
+                        <t t-esc="clinical_risk"/>
+                    </t>
+                </td>
+            </xpath>
+        </template>
+    </data>
+</openerp>

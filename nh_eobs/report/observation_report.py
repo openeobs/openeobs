@@ -9,12 +9,14 @@ Terminology
 report entry: A single line on the report. One activity may result in multiple
 'entries' on the report.
 """
-from openerp import api, models
-from datetime import datetime
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from openerp.osv import fields
-import json
 import copy
+import json
+from datetime import datetime
+
+from openerp import api, models
+from openerp.osv import fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+
 from . import helpers
 
 
@@ -38,7 +40,7 @@ class ObservationReport(models.AbstractModel):
     def render_html(self, data=None):
         """"
         This is a special method that the Odoo report module executes instead
-        of it's built-in `render_html` method when trying generating a report.
+        of it's built-in `render_html` method when generating a report.
         """
         if isinstance(data, dict):
             data = helpers.data_dict_to_obj(data)
@@ -61,8 +63,8 @@ class ObservationReport(models.AbstractModel):
         Returns a dictionary that will be used to populate the report.
         Most of the values are themselves dictionaries returned by
         `activity.read()`. However they also have an additional key named
-        'values' that contains the model record as dictionaries returned by
-        `model.read()`.
+        'values' that contains the activities `data_ref` record as dictionaries
+        returned by `model.read()`.
 
         :param data:
         :param ews_only:
@@ -270,7 +272,7 @@ class ObservationReport(models.AbstractModel):
         a dictionary.
 
         :param spell_id:
-        :type spell: int
+        :type spell_id: int
         :param model:
         :type model: str
         :param start:
@@ -424,7 +426,41 @@ class ObservationReport(models.AbstractModel):
             time_generated
         )
 
-    def get_triggered_actions(self, cr, uid, activity_id, activity_list=None):
+    @api.model
+    def add_triggered_action_keys_to_obs_dicts(self, obs_dict_list):
+        for observation in obs_dict_list:
+            triggered_actions = self.get_triggered_actions(observation['id'])
+            for t in triggered_actions:
+                ds = t.get('date_started', False)
+                dt = t.get('date_terminated', False)
+                if ds:
+                    t['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                            self.env.cr, self.env.uid,
+                            datetime.strptime(t['date_started'], dtf),
+                            self.pretty_date_format
+                        )
+                if dt:
+                    t['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                            self.env.cr, self.env.uid,
+                            datetime.strptime(t['date_terminated'], dtf),
+                            self.pretty_date_format
+                        )
+            observation['triggered_actions'] = triggered_actions
+
+    @api.model
+    def get_triggered_actions(self, observation_activity_id,
+                              activity_list=None):
+        triggered_actions_ids = self.get_triggered_action_ids(
+            observation_activity_id, activity_list=activity_list
+        )
+        return self.pool['nh.activity'].read(
+            self.env.cr, self.env.uid, triggered_actions_ids
+        )
+
+    def get_triggered_action_ids(self, cr, uid,
+                                 activity_id, activity_list=None):
         """
         Recursively get the triggered actions of the activity passed to it
         and then it's children and so on.
@@ -446,8 +482,8 @@ class ObservationReport(models.AbstractModel):
         if created_ids:
             activity_list += created_ids
             for created_id in created_ids:
-                self.get_triggered_actions(cr, uid, created_id,
-                                           activity_list=activity_list)
+                self.get_triggered_action_ids(cr, uid, created_id,
+                                              activity_list=activity_list)
         return activity_list
 
     @api.multi
@@ -467,6 +503,7 @@ class ObservationReport(models.AbstractModel):
         ews = self.get_model_data(spell_activity_id,
                                   ews_model,
                                   data.start_time, data.end_time)
+        ews = self.convert_partial_reasons_to_labels(ews)
         for observation in ews:
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
@@ -482,28 +519,21 @@ class ObservationReport(models.AbstractModel):
             observation['values']['o2_target'] = False
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
-            triggered_actions = self.pool['nh.activity'].read(
-                cr, uid, self.get_triggered_actions(observation['id'])
-            )
-            for t in triggered_actions:
-                ds = t.get('date_started', False)
-                dt = t.get('date_terminated', False)
-                if ds:
-                    t['date_started'] = \
-                        helpers.convert_db_date_to_context_date(
-                            cr, uid,
-                            datetime.strptime(t['date_started'], dtf),
-                            self.pretty_date_format
-                        )
-                if dt:
-                    t['date_terminated'] = \
-                        helpers.convert_db_date_to_context_date(
-                            cr, uid,
-                            datetime.strptime(t['date_terminated'], dtf),
-                            self.pretty_date_format
-                        )
-            observation['triggered_actions'] = triggered_actions
+        self.add_triggered_action_keys_to_obs_dicts(ews)
         return ews
+
+    @api.model
+    def convert_partial_reasons_to_labels(self, ews_obs):
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+        for ews in ews_obs:
+            if ews['values']['partial_reason'] == 'refused':
+                ews['values']['partial_reason'] = 'Refusal'
+            else:
+                ews['values']['partial_reason'] = \
+                    ews_model.get_partial_reason_label(
+                        ews['values']['partial_reason']
+                    )
+        return ews_obs
 
     @staticmethod
     def convert_bristol_stools_booleans(model_data):

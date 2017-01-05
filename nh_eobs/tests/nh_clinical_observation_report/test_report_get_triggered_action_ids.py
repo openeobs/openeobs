@@ -1,13 +1,13 @@
 from openerp.tests.common import SingleTransactionCase
 
 
-class TestObsReportGetTriggeredActions(SingleTransactionCase):
+class TestObsReportGetTriggeredActionIds(SingleTransactionCase):
 
     times_called = 0
 
     @classmethod
     def setUpClass(cls):
-        super(TestObsReportGetTriggeredActions, cls).setUpClass()
+        super(TestObsReportGetTriggeredActionIds, cls).setUpClass()
         cr, uid, registry = cls.cr, cls.uid, cls.registry
         r_model = registry('ir.actions.report.xml')
         domain = [('report_name', 'like', 'observation_report')]
@@ -20,7 +20,7 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
 
     def setUp(self):
         # Set up the report
-        super(TestObsReportGetTriggeredActions, self).setUp()
+        super(TestObsReportGetTriggeredActionIds, self).setUp()
         registry = self.registry
         self.times_called = 0
 
@@ -43,13 +43,13 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
             return mock_triggered_actions.origin(*args, **kwargs)
 
         registry('nh.activity')._patch_method('search', mock_activity_search)
-        self.report_pool._patch_method('get_triggered_actions',
+        self.report_pool._patch_method('get_triggered_action_ids',
                                        mock_triggered_actions)
 
     def tearDown(self):
-        super(TestObsReportGetTriggeredActions, self).tearDown()
+        super(TestObsReportGetTriggeredActionIds, self).tearDown()
         self.registry('nh.activity')._revert_method('search')
-        self.report_pool._revert_method('get_triggered_actions')
+        self.report_pool._revert_method('get_triggered_action_ids')
 
     def test_get_no_triggered_actions(self):
         """
@@ -57,12 +57,12 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
         and only made 1 call
         """
         triggered_actions = \
-            self.report_pool.get_triggered_actions(self.cr, self.uid,
-                                                   'no_triggered_actions')
+            self.report_pool.get_triggered_action_ids(self.cr, self.uid,
+                                                      'no_triggered_actions')
         self.assertEqual(triggered_actions, [])
         self.assertEqual(self.times_called, 1)
 
-    def test_get_triggered_actions_depth_one(self):
+    def test_get_triggered_action_ids_depth_one(self):
         """
         Test gets triggered actions at a single depth i.e:
         initial_activity
@@ -71,12 +71,12 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
         Should give [triggered_action] and makes 2 calls
         """
         triggered_actions = \
-            self.report_pool.get_triggered_actions(self.cr, self.uid,
-                                                   '1_triggered_action')
+            self.report_pool.get_triggered_action_ids(self.cr, self.uid,
+                                                      '1_triggered_action')
         self.assertEqual(triggered_actions, ['triggered_action'])
         self.assertEqual(self.times_called, 2)
 
-    def test_get_triggered_actions_depth_one_multi(self):
+    def test_get_triggered_action_ids_depth_one_multi(self):
         """
         Test gets multiple triggered actions at single depth i.e:
         initial_activity
@@ -86,13 +86,13 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
         Should give [triggered_action_1, triggered_action_2] and makes 3 calls
         """
         triggered_actions = \
-            self.report_pool.get_triggered_actions(self.cr, self.uid,
-                                                   '2_triggered_actions')
+            self.report_pool.get_triggered_action_ids(self.cr, self.uid,
+                                                      '2_triggered_actions')
         self.assertEqual(triggered_actions, ['triggered_action_1',
                                              'triggered_action_2'])
         self.assertEqual(self.times_called, 3)
 
-    def test_get_triggered_actions_depth_two(self):
+    def test_get_triggered_action_ids_depth_two(self):
         """
         Test gets triggered actions when nested twice i.e:
         initial_activity
@@ -102,13 +102,13 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
         Should give [triggered_action_1, triggered_action_2] and makes 3 calls
         """
         triggered_actions = \
-            self.report_pool.get_triggered_actions(self.cr, self.uid,
-                                                   '1_triggered_action_a')
+            self.report_pool.get_triggered_action_ids(self.cr, self.uid,
+                                                      '1_triggered_action_a')
         self.assertEqual(triggered_actions, ['1_triggered_action_1',
                                              'triggered_action_2'])
         self.assertEqual(self.times_called, 3)
 
-    def test_get_triggered_actions_depth_two_multi(self):
+    def test_get_triggered_action_ids_depth_two_multi(self):
         """
         Test gets multiple triggered actions when nested twice i.e:
         initial_activity
@@ -121,8 +121,8 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
                      triggered_action_2, triggered_action_3] and makes 5 calls
         """
         triggered_actions = \
-            self.report_pool.get_triggered_actions(self.cr, self.uid,
-                                                   '1_triggered_action_b')
+            self.report_pool.get_triggered_action_ids(self.cr, self.uid,
+                                                      '1_triggered_action_b')
         self.assertEqual(triggered_actions, ['2_triggered_actions',
                                              'triggered_action_3',
                                              'triggered_action_1',

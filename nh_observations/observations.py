@@ -39,6 +39,14 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         ['doctors_request', 'Doctor\'s request']
     ]
 
+    def get_partial_reason_label(self, reason):
+        if not reason:
+            return reason
+        partial_reasons = \
+            [partial_reason[0] for partial_reason in self._partial_reasons]
+        reason_index = partial_reasons.index(reason)
+        return self._partial_reasons[reason_index][1]
+
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required:
