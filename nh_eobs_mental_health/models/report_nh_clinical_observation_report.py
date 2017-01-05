@@ -21,8 +21,12 @@ class MentalHealthObservationReport(models.AbstractModel):
         """
         report_data = super(MentalHealthObservationReport, self)\
             .get_report_data(data, ews_only=ews_only)
+
         report_data['draw_graph_js'] = \
             '/nh_eobs_mental_health/static/src/js/observation_report.js'
+        report_data['refusal_events_data'] = \
+            self.get_refusal_events_data(self.spell_activity_id)
+
         return report_data
 
     def get_refusal_episodes(self, spell_activity_id):
@@ -54,8 +58,8 @@ class MentalHealthObservationReport(models.AbstractModel):
             refused_review=sql_model.get_refused_review_chain_sql()
         ))
 
-    def get_refusal_events_data(self, spell_activity_id):
-        refusal_episodes = self.get_refusal_episodes(spell_activity_id)
+    def get_refusal_events_data(self):
+        refusal_episodes = self.get_refusal_episodes(self.spell_activity_id)
 
         patient_refusal_events_data = []
         for episode in refusal_episodes:
