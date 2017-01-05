@@ -54,7 +54,7 @@ class MentalHealthObservationReport(models.AbstractModel):
             refused_review=sql_model.get_refused_review_chain_sql()
         ))
 
-    def get_patient_refusal_events_data(self, spell_activity_id):
+    def get_refusal_events_data(self, spell_activity_id):
         refusal_episodes = self.get_refusal_episodes(spell_activity_id)
 
         patient_refusal_events_data = []
@@ -90,31 +90,56 @@ class MentalHealthObservationReport(models.AbstractModel):
         return refusal_episode[key]
 
     def get_clinical_review_column_data(self, refusal_episode):
-        self.validate_dict(refusal_episode)
-        review_state = refusal_episode['review_state']
+        return self.get_task_column_data(refusal_episode,
+                                  clinical_review_frequency=False)
 
+    def get_clinical_review_frequency_set_column_data(self, refusal_episode):
+        return self.get_task_column_data(refusal_episode,
+                                  clinical_review_frequency=True)
+
+    def get_task_column_data(self, refusal_episode,
+                             clinical_review_frequency=False):
+        self.validate_dict(refusal_episode)
+
+        state_key = 'freq_state' if clinical_review_frequency else \
+            'review_state'
+        date_terminated_key = 'freq_date_terminated' if \
+            clinical_review_frequency else 'review_date_terminated'
+        terminate_uid_key = 'freq_terminate_uid' if clinical_review_frequency \
+            else 'review_terminate_uid'
+        task_name = 'clinical review frequency' if \
+            clinical_review_frequency else 'clinical review'
+
+        review_state = refusal_episode[state_key]
         if review_state is None:
             return 'N/A'
         elif review_state == 'started':
             return 'Task in progress'
         elif review_state == 'completed':
             exception_message = \
-                "Clinical review task's {} is falsey according to the " \
+                "{} task's {} is falsey according to the " \
                 "passed refusal episode, this should not be the case " \
                 "when the clinical review is completed."
-            if not refusal_episode['review_date_terminated']:
-                raise ValueError(exception_message.format('date terminated'))
-            if not refusal_episode['review_terminate_uid']:
-                raise ValueError(exception_message.format('terminate uid'))
+
+            if not refusal_episode[date_terminated_key]:
+                raise ValueError(
+                    exception_message.format(task_name.title(),
+                                             'date terminated')
+                )
+            if not refusal_episode[terminate_uid_key]:
+                raise ValueError(
+                    exception_message.format(task_name.title(),
+                                             'terminate uid')
+                )
 
             return {
-                'date': refusal_episode['review_date_terminated'],
-                'by': refusal_episode['review_terminate_uid']
+                'date': refusal_episode[date_terminated_key],
+                'by': refusal_episode[terminate_uid_key]
             }
-        raise ValueError("Unknown state.")
-
-    def get_clinical_review_frequency_set_column_data(self, refusal_episode):
-        pass
+        raise ValueError(
+            "Unexpected state '{}' for {} task."
+                .format(review_state, task_name.title())
+        )
 
     @classmethod
     def validate_dict(cls, dictionary):
