@@ -24,11 +24,13 @@ from . import helpers
 
 
 class ObservationReport(models.AbstractModel):
+
     _name = 'report.nh.clinical.observation_report'
 
     pretty_date_format = '%H:%M %d/%m/%y'
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
+    spell_activity_id = None
 
     monitoring_dict = {
         'targeto2': 'nh.clinical.patient.o2target',
@@ -86,6 +88,7 @@ class ObservationReport(models.AbstractModel):
         spell = spell_pool.read(cr, uid, [spell_id])[0]
         dates = self.process_report_dates(data, spell, base_report)
         spell_activity_id = spell['activity_id'][0]
+        self.spell_activity_id = spell_activity_id
 
         spell_docs = spell['con_doctor_ids']
         spell['consultants'] = False
