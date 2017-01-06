@@ -1,9 +1,10 @@
 from openerp.addons.nh_eobs.report import helpers
-from openerp.addons.nh_eobs.tests.report_nh_clinical_observation_report\
-    import observation_report_helpers
+from openerp.tests.common import TransactionCase
+
+from . import patient_refusal_event_mocks
 
 
-class TestGetReportData(observation_report_helpers.ObservationReportHelpers):
+class TestGetReportData(TransactionCase):
     """
     Test the override of the get_model_data_as_json that sets the score to
     false for refused observations so they show on the chart correctly
@@ -41,3 +42,14 @@ class TestGetReportData(observation_report_helpers.ObservationReportHelpers):
             report_data.get('draw_graph_js'),
             '/nh_eobs_mental_health/static/src/js/observation_report.js'
         )
+
+    def test_adds_patient_refusal_events_data_to_dict(self):
+        self.report_model = self.env['report.nh.clinical.observation_report']
+        self.report_model._patch_method(
+            'get_refusal_episodes',
+            patient_refusal_event_mocks.mock_get_refusal_episodes
+        )
+        try:
+            pass
+        finally:
+            self.report_model._revert_method('get_refusal_episodes')
