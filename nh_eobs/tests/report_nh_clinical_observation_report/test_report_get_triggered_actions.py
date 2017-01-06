@@ -23,6 +23,7 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
         super(TestObsReportGetTriggeredActions, self).setUp()
         registry = self.registry
         self.times_called = 0
+        self.activity_model = registry('nh.activity')
 
         def mock_activity_search(*args, **kwargs):
             creator_id = args[3][0][2]
@@ -38,18 +39,23 @@ class TestObsReportGetTriggeredActions(SingleTransactionCase):
                 return ['2_triggered_actions', 'triggered_action_3']
             return []
 
-        def mock_triggered_actions(*args, **kwargs):
+        def mock_triggered_action_ids(*args, **kwargs):
             self.times_called += 1
-            return mock_triggered_actions.origin(*args, **kwargs)
+            return mock_triggered_action_ids.origin(*args, **kwargs)
 
-        registry('nh.activity')._patch_method('search', mock_activity_search)
-        self.report_pool._patch_method('get_triggered_actions',
-                                       mock_triggered_actions)
+        def mock_activity_read(*args, **kwargs):
+            return args[3]
+
+        self.activity_model._patch_method('search', mock_activity_search)
+        self.activity_model._patch_method('read', mock_activity_read)
+        self.report_pool._patch_method('get_triggered_action_ids',
+                                       mock_triggered_action_ids)
 
     def tearDown(self):
         super(TestObsReportGetTriggeredActions, self).tearDown()
-        self.registry('nh.activity')._revert_method('search')
-        self.report_pool._revert_method('get_triggered_actions')
+        self.activity_model._revert_method('search')
+        self.activity_model._revert_method('read')
+        self.report_pool._revert_method('get_triggered_action_ids')
 
     def test_get_no_triggered_actions(self):
         """

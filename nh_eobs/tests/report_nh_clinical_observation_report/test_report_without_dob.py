@@ -18,8 +18,11 @@ class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
                 'patient_identifier': 'HOS1234123'
             }]
 
-        self.patient_pool._revert_method('read')
         self.patient_pool._patch_method('read', new_patient_pool_mock_patient)
+
+    def tearDown(self):
+        super(TestObsReportNoDOB, self).setUp()
+        self.patient_pool._revert_method('read')
 
     def test_observation_report_without_dob(self):
         """

@@ -589,7 +589,7 @@ class ObservationReportHelpers(TransactionCase):
             return copy.deepcopy(self.company_name_values)
 
         def mock_triggered_actions(*args, **kwargs):
-            return [17]
+            return []
 
         self.report_pool._patch_method('get_triggered_actions',
                                        mock_triggered_actions)
