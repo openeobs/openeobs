@@ -18,6 +18,7 @@
              'views/ward_dashboard_view.xml',
              'views/static_include.xml',
              'views/mobile_override.xml',
+             'views/observation_report_template.xml',
              'security/ir.model.access.csv'
              ],
     'qweb': [],

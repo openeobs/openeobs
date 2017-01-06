@@ -1,6 +1,8 @@
 obs_data = obs_data.map(function(obs){
-   if(obs.partial_reason === 'refused'){
-       obs.score = false
+    // Observation report changes refused -> Refusal so we need to change it back
+   if(obs.partial_reason === 'Refusal'){
+       obs.score = false;
+       obs.partial_reason = 'refused';
    }
    return obs
 });

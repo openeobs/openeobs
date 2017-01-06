@@ -1,6 +1,7 @@
 from .models import nh_clinical_doctor_activities
 from .models import nh_clinical_notification_clinical_review
 from .models import nh_clinical_notification_clinical_review_frequency
+from .models import nh_clinical_observation_report
 from .models import nh_clinical_overdue
 from .models import nh_clinical_patient_observation_ews
 from .models import nh_clinical_settings

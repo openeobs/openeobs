@@ -821,10 +821,10 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="ews" t-as="observation">
-                                        <t t-if="not observation['values']['is_partial']">
+                                        <t t-if="observation.get('state') != 'cancelled'">
                                             <t t-call="nh_eobs.triggered_actions"/>
                                         </t>
-                                        <t t-if="'state' in observation and observation['state'] == 'cancelled'">
+                                        <t t-if="observation.get('state') == 'cancelled'">
                                             <t t-call="nh_eobs.observation_cancellation"/>
                                         </t>
                                     </t>
@@ -837,13 +837,15 @@
         </template>
 
         <template id="triggered_actions">
+            <t t-set="score" t-value="observation['values']['score']"/>
+            <t t-set="clinical_risk" t-value="observation['values']['clinical_risk']"/>
             <tr class="main-entry">
-                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
-                <td class="col-xs-2"><t t-esc="observation['values']['score']"/></td>
-                <td class="col-xs-2"><t t-esc="observation['values']['clinical_risk']"/></td>
+                <td id="triggered_actions_date" class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                <td id="triggered_actions_score" class="col-xs-2"><t t-esc="score"/></td>
+                <td id="triggered_actions_clinical_risk" class="col-xs-2"><t t-esc="clinical_risk"/></td>
                 <td class="col-xs-5 pre-pre-compact-data">
                     <table class="pre-compact-data col-xs-12 row">
-                        <t t-foreach="observation['triggered_actions']" t-as="task">
+                        <t t-foreach="observation.get('triggered_actions', [])" t-as="task">
                             <t t-call="nh_eobs.triggered_actions_tasks"/>
                         </t>
                     </table>
@@ -852,12 +854,12 @@
         </template>
 
         <template id="triggered_actions_tasks">
-            <tr>
+            <tr class="triggered_action_task">
                 <td class="col-xs-12">
                     <table class="compact-data col-xs-12">
                         <tr>
                             <td colspan="2" class="header col-xs-12">
-                                <h4>
+                                <h4 class="triggered_action_task_header">
                                     <t t-if="'summary' in task and task['summary']">
                                         <t t-esc="task['summary']"/>
                                     </t>
@@ -872,12 +874,14 @@
                         <tr>
                             <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
                             <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                            <td class="col-xs-6">
+                            <td class="col-xs-6 triggered_action_task_body">
                                 <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
                                 <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
                                     <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
                                 </t><br/>
-                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">Task still in progress</t>
+                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">
+                                    Task still in progress
+                                </t>
                             </td>
                         </tr>
                     </table>
