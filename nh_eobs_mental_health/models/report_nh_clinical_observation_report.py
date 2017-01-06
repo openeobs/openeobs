@@ -67,7 +67,8 @@ class MentalHealthObservationReport(models.AbstractModel):
                 'first_refusal':
                     self.get_first_refusal_column_data(episode),
                 'refusals_until_news_obs_taken':
-                    self.get_refusals_until_news_obs_taken_column_data(episode),
+                    self.get_refusals_until_news_obs_taken_column_data(
+                        episode),
                 'clinical_review':
                     self.get_clinical_review_column_data(episode),
                 'clinical_review_frequency_set':
@@ -95,11 +96,11 @@ class MentalHealthObservationReport(models.AbstractModel):
 
     def get_clinical_review_column_data(self, refusal_episode):
         return self.get_task_column_data(refusal_episode,
-                                  clinical_review_frequency=False)
+                                         clinical_review_frequency=False)
 
     def get_clinical_review_frequency_set_column_data(self, refusal_episode):
         return self.get_task_column_data(refusal_episode,
-                                  clinical_review_frequency=True)
+                                         clinical_review_frequency=True)
 
     def get_task_column_data(self, refusal_episode,
                              clinical_review_frequency=False):
@@ -141,8 +142,8 @@ class MentalHealthObservationReport(models.AbstractModel):
                 'by': refusal_episode[terminate_uid_key]
             }
         raise ValueError(
-            "Unexpected state '{}' for {} task."
-                .format(review_state, task_name.title())
+            "Unexpected state '{}' for {} task.".format(
+                review_state, task_name.title())
         )
 
     @classmethod
