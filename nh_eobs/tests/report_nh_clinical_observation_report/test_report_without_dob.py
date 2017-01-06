@@ -24,7 +24,6 @@ class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
     # def tearDown(self):
     #     super(TestObsReportNoDOB, self).setUp()
 
-
     def test_observation_report_without_dob(self):
         """
         Test that when patient doesn't have DOB that it doesn't break report
