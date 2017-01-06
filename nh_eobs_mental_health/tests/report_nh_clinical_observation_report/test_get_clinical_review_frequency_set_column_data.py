@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+from copy import deepcopy
+
 from openerp.tests.common import TransactionCase
+
+from . import patient_refusal_event_mocks
 
 
 class TestClinicalReviewFrequencySetColumnData(TransactionCase):
@@ -8,17 +12,8 @@ class TestClinicalReviewFrequencySetColumnData(TransactionCase):
         super(TestClinicalReviewFrequencySetColumnData, self).setUp()
         self.report_model = self.env['report.nh.clinical.observation_report']
 
-        self.mock_refusal_episode = {
-            'count': 1,
-            'first_refusal_date_terminated': '2017-01-03 17:49:11.36621',
-            'freq_date_terminated': None,
-            'freq_state': None,
-            'freq_terminate_uid': None,
-            'review_date_terminated': None,
-            'review_state': None,
-            'review_terminate_uid': None,
-            'spell_activity_id': 10
-        }
+        self.mock_refusal_episode = \
+            deepcopy(patient_refusal_event_mocks.mock_refusal_episode_first)
         self.not_applicable = 'N/A'
         self.task_in_progress = 'Task in progress'
 
