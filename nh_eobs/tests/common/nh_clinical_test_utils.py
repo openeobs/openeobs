@@ -31,6 +31,7 @@ class NhClinicalTestUtils(AbstractModel):
             [('patient_id', '=', self.patient_id)]
         )[0]
         self.spell_activity_id = self.spell.activity_id.id
+        self.spell_activity = self.spell_model.browse(self.spell_activity_id)
 
     def create_and_register_patient(self):
         self.api_model = self.env['nh.eobs.api']

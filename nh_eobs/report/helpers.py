@@ -1,7 +1,8 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+from datetime import datetime
+
 from openerp.osv import fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-from datetime import datetime
 
 
 def merge_dicts(*dict_args):
@@ -44,7 +45,7 @@ class ReportDates(object):
 
 
 def create_search_filter(spell_activity_id, model,
-                         start_date, end_date,
+                         start_datetime, end_datetime,
                          states='completed',
                          date_field='date_terminated'):
     if not spell_activity_id:
@@ -52,22 +53,23 @@ def create_search_filter(spell_activity_id, model,
     if not model:
         raise ValueError('No model supplied.')
 
-    operator = 'in' if isinstance(states, list) else '='
-    filter = [('parent_id', '=', spell_activity_id),
-              ('data_model', '=', model),
-              ('state', operator, states)]
-    if start_date:
-        if isinstance(start_date, datetime):
-            filter.append([date_field, '>=', start_date.strftime(dtf)])
-        elif isinstance(start_date, str):
-            filter.append([date_field, '>=', start_date])
+    domain = [('parent_id', '=', spell_activity_id),
+              ('data_model', '=', model)]
+    if states:
+        operator = 'in' if isinstance(states, list) else '='
+        domain.append(['state', operator, states])
+    if start_datetime:
+        if isinstance(start_datetime, datetime):
+            domain.append([date_field, '>=', start_datetime.strftime(dtf)])
+        elif isinstance(start_datetime, str):
+            domain.append([date_field, '>=', start_datetime])
 
-    if end_date:
-        if isinstance(end_date, datetime):
-            filter.append([date_field, '<=', end_date.strftime(dtf)])
-        elif isinstance(end_date, str):
-            filter.append([date_field, '<=', end_date])
-    return filter
+    if end_datetime:
+        if isinstance(end_datetime, datetime):
+            domain.append([date_field, '<=', end_datetime.strftime(dtf)])
+        elif isinstance(end_datetime, str):
+            domain.append([date_field, '<=', end_datetime])
+    return domain
 
 
 def convert_db_date_to_context_date(cr, uid, date_string, dformat,

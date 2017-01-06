@@ -15,8 +15,6 @@ from .report_nh_clinical_observation_report import *
 from .wardboard import *
 
 
-
-
 # Disabled tests
 # from . import test_api_demo
 # from openeobs.nh_eobs.tests.wardboard import test_wardboard
