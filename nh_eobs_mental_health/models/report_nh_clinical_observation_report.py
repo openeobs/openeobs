@@ -24,7 +24,7 @@ class MentalHealthObservationReport(models.AbstractModel):
 
         report_data['draw_graph_js'] = \
             '/nh_eobs_mental_health/static/src/js/observation_report.js'
-        report_data['refusal_events_data'] = \
+        report_data['patient_refusal_events'] = \
             self.get_refusal_events_data()
 
         return report_data

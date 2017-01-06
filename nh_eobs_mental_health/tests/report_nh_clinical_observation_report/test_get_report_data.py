@@ -50,6 +50,9 @@ class TestGetReportData(TransactionCase):
             patient_refusal_event_mocks.mock_get_refusal_episodes
         )
         try:
-            pass
+            report_data = self.report_model.get_report_data(self.example_data)
+            self.assertTrue('patient_refusal_events' in report_data)
+            number_of_events = len(report_data['patient_refusal_events'])
+            self.assertEqual(3, number_of_events)
         finally:
             self.report_model._revert_method('get_refusal_episodes')
