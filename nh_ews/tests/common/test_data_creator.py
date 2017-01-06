@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
-    import DatetimeTestUtils
-
-
 def create_patient_and_spell(self):
     """
     Create patient and spell. Assigns various objects to instance variables.
@@ -17,7 +13,7 @@ def create_patient_and_spell(self):
     self.ews_model = self.env['nh.clinical.patient.observation.ews']
     # nh.eobs.api not available to this module
     self.api_model = self.env['nh.clinical.api']
-    self.datetime_test_utils = DatetimeTestUtils()
+    self.datetime_test_utils = self.env['datetime_test_utils']
 
     self.patient = self.patient_model.create({
         'given_name': 'Jon',
