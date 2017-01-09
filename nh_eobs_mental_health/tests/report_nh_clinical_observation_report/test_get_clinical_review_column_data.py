@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from openerp.tests.common import TransactionCase
 
-from . import patient_refusal_event_mocks
+from . import patient_refusal_event_fixtures
 
 
 class TestClinicalReviewColumnData(TransactionCase):
@@ -12,23 +12,23 @@ class TestClinicalReviewColumnData(TransactionCase):
         super(TestClinicalReviewColumnData, self).setUp()
         self.report_model = self.env['report.nh.clinical.observation_report']
 
-        self.mock_refusal_episode = \
-            deepcopy(patient_refusal_event_mocks.mock_refusal_episode_first)
+        self.refusal_episode_fixture = \
+            deepcopy(patient_refusal_event_fixtures.refusal_episode_first)
         self.not_applicable = 'N/A'
         self.task_in_progress = 'Task in progress'
 
     def call_test(self, review_state=None):
         if review_state is 'started':
-            self.mock_refusal_episode['review_state'] = review_state
+            self.refusal_episode_fixture['review_state'] = review_state
         elif review_state is 'completed':
-            self.mock_refusal_episode['review_state'] = review_state
-            self.mock_refusal_episode['review_date_terminated'] = \
+            self.refusal_episode_fixture['review_state'] = review_state
+            self.refusal_episode_fixture['review_date_terminated'] = \
                 '2017-02-03 13:45:16:35541'
-            self.mock_refusal_episode['review_terminate_uid'] = 1
+            self.refusal_episode_fixture['review_terminate_uid'] = 1
 
         self.clinical_review_column_data = \
             self.report_model.get_clinical_review_column_data(
-                self.mock_refusal_episode)
+                self.refusal_episode_fixture)
 
     def test_review_state_none_returns_not_applicable(self):
         self.call_test()
@@ -44,8 +44,8 @@ class TestClinicalReviewColumnData(TransactionCase):
         self.call_test('completed')
         expected = {
             'date_terminated':
-                self.mock_refusal_episode['review_date_terminated'],
-            'user_id': self.mock_refusal_episode['review_terminate_uid']
+                self.refusal_episode_fixture['review_date_terminated'],
+            'user_id': self.refusal_episode_fixture['review_terminate_uid']
         }
         self.assertEqual(self.clinical_review_column_data,
                          expected)

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from openerp.tests.common import TransactionCase
 
-from . import patient_refusal_event_mocks
+from . import patient_refusal_event_fixtures
 
 
 class TestGetRefusalEventsData(TransactionCase):
@@ -19,7 +19,7 @@ class TestGetRefusalEventsData(TransactionCase):
         self.report_model.spell_activity_id = self.mock_spell_activity_id
         self.report_model._patch_method(
             'get_refusal_episodes',
-            patient_refusal_event_mocks.mock_get_refusal_episodes
+            patient_refusal_event_fixtures.mock_get_refusal_episodes
         )
 
     def tearDown(self):
@@ -35,7 +35,7 @@ class TestGetRefusalEventsData(TransactionCase):
     def test_number_of_report_entries(self):
         self.call_test()
         expected = \
-            len(patient_refusal_event_mocks.mock_get_refusal_episodes)
+            len(patient_refusal_event_fixtures.mock_get_refusal_episodes)
         actual = len(self.refusal_events_data)
         self.assertEqual(expected, actual)
 

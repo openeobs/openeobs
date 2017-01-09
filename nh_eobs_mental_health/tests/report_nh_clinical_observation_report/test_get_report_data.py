@@ -1,7 +1,7 @@
 from openerp.addons.nh_eobs.report import helpers
 from openerp.tests.common import TransactionCase
 
-from . import patient_refusal_event_mocks
+from . import patient_refusal_event_fixtures
 
 
 class TestGetReportData(TransactionCase):
@@ -47,7 +47,7 @@ class TestGetReportData(TransactionCase):
         self.report_model = self.env['report.nh.clinical.observation_report']
         self.report_model._patch_method(
             'get_refusal_episodes',
-            patient_refusal_event_mocks.mock_get_refusal_episodes
+            patient_refusal_event_fixtures.mock_get_refusal_episodes
         )
         try:
             report_data = self.report_model.get_report_data(self.example_data)

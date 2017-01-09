@@ -532,7 +532,7 @@ class ObservationReport(models.AbstractModel):
     def convert_partial_reasons_to_labels(self, ews_obs):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         for ews in ews_obs:
-            partial_reason = ews['values'].get('partial_reason', None)
+            partial_reason = ews.get('values', {}).get('partial_reason', None)
             if not partial_reason:
                 continue
             if ews['values']['partial_reason'] == 'refused':

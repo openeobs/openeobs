@@ -4,7 +4,7 @@ from datetime import datetime
 
 from openerp.tests.common import TransactionCase
 
-from . import patient_refusal_event_mocks
+from . import patient_refusal_event_fixtures
 
 
 class TestGetFirstRefusalColumnData(TransactionCase):
@@ -15,12 +15,12 @@ class TestGetFirstRefusalColumnData(TransactionCase):
         super(TestGetFirstRefusalColumnData, self).setUp()
         self.report_model = self.env['report.nh.clinical.observation_report']
 
-        self.mock_refusal_episode = \
-            deepcopy(patient_refusal_event_mocks.mock_refusal_episode_first)
+        self.refusal_episode_fixture = \
+            deepcopy(patient_refusal_event_fixtures.refusal_episode_first)
 
     def call_test(self, arg=False):
         if arg is False:
-            arg = self.mock_refusal_episode
+            arg = self.refusal_episode_fixture
         self.first_refusal_column_data = \
             self.report_model.get_first_refusal_column_data(arg)
 
@@ -28,38 +28,7 @@ class TestGetFirstRefusalColumnData(TransactionCase):
         self.call_test()
         self.assertTrue(isinstance(self.first_refusal_column_data, str))
 
-    # def test_number_of_report_entries(self):
-    #     self.call_test()
-    #     self.assertEqual(len(self.mock_refusal_episodes),
-    #                      len(self.first_refusal_column_data))
-
     def test_date_format(self):
         self.call_test()
         datetime.strptime(self.first_refusal_column_data, self.datetime_format)
         # If no exception is raised from parsing, then the format is correct.
-
-    # def test_date(self):
-    #     self.call_test()
-    #     expected = datetime.strptime(self.mock_refusal_episodes.keys()[0],
-    #                                  self.datetime_format)
-    #     actual = datetime.strptime(self.first_refusal_column_data[0],
-    #                                self.datetime_format)
-    #     self.assertEqual(expected, actual)
-
-    # def test_ordered_chronologically_ascending(self):
-    #     self.call_test()
-    #     datetime_objects = [datetime.strptime(episode, self.datetime_format)
-    #                         for episode in self.first_refusal_column_data]
-    #     datetime_objects_sorted = deepcopy(datetime_objects)
-    #     sorted(datetime_objects_sorted)
-    #
-    #     self.assertEqual(datetime_objects,
-    #                      datetime_objects_sorted)
-    #
-    # def test_empty_list_arg_raises_value_error(self):
-    #     with self.assertRaises(ValueError):
-    #         self.call_test(arg=[])
-    #
-    # def test_invalid_arg_type_raises_type_error(self):
-    #     with self.assertRaises(TypeError):
-    #         self.call_test(arg='')
