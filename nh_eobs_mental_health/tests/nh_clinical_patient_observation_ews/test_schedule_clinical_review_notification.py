@@ -14,8 +14,14 @@ class TestScheduleClinicalReviewNotification(SingleTransactionCase):
         self.ews_model = self.registry('nh.clinical.patient.observation.ews')
         self.clinical_review_model = \
             self.registry('nh.clinical.notification.clinical_review')
-        self.spell_model = self.env['nh.clinical.spell']
         cr, uid = self.cr, self.uid
+
+        def patch_is_refusal_in_effect(*args, **kwargs):
+            context = args[0]._context
+            test = context.get('test')
+            if test == 'full_ews':
+                return False
+            return True
 
         def patch_activity_browse(*args, **kwargs):
             if args[1] == 'fake_id':
@@ -29,36 +35,36 @@ class TestScheduleClinicalReviewNotification(SingleTransactionCase):
             create_activity_called = True
             return True
 
-        def patch_patient_refusal_in_effect(*args, **kwargs):
-            context = kwargs.get('context', {})
-            if context.get('refusal_in_effect'):
-                return True
-            return patch_patient_refusal_in_effect.origin(*args, **kwargs)
-
+        self.ews_model._patch_method(
+            'is_refusal_in_effect', patch_is_refusal_in_effect)
         self.activity_model._patch_method('browse', patch_activity_browse)
         self.clinical_review_model._patch_method(
             'create_activity', patch_create_activity)
-        self.spell_model._patch_method(
-            'patient_monitoring_exception_in_effect',
-            patch_patient_refusal_in_effect
-        )
         global create_activity_called
         create_activity_called = False
 
     def tearDown(self):
+        self.ews_model._revert_method('is_refusal_in_effect')
         self.activity_model._revert_method('browse')
         self.clinical_review_model._revert_method('create_activity')
-        self.spell_model._revert_method(
-            'patient_monitoring_exception_in_effect')
         super(TestScheduleClinicalReviewNotification, self).tearDown()
 
-    def test_create_when_patient_refusal_in_effect(self):
+    def test_creates_notification_when_no_full_ews(self):
         """
-        Test that if a patient monitoring exception has been started since the
-        partial that triggered the schedule_clinical_review_notification call
-        then the Clinical Review notification is not created.
+        Test that if no full EWS have been done since the partial that
+        triggered the schedule_clinical_review_notification call then the
+        Clinical Review notification is created
         """
         self.ews_model.schedule_clinical_review_notification(
-            self.cr, self.uid, 'fake_id', context={'refusal_in_effect': True}
-        )
+            self.cr, self.uid, *('fake_id',), context={'test': 'partial_ews'})
+        self.assertTrue(create_activity_called)
+
+    def test_dont_create_notification_when_full_ews(self):
+        """
+        Test that is a full EWS has been done since the partial that
+        triggered the schedule_clinical_review_notification call then the
+        Clinical Review notification is not created
+        """
+        self.ews_model.schedule_clinical_review_notification(
+            self.cr, self.uid, *('fake_id',), context={'test': 'full_ews'})
         self.assertFalse(create_activity_called)

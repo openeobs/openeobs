@@ -32,7 +32,7 @@ class TestPatientRefusalAfterTransfer(TransactionCase):
 
     def test_obs_frequency_after_refusal_with_no_risk(self):
         self.initial_no_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.NO_RISK_DATA
             )
@@ -49,7 +49,7 @@ class TestPatientRefusalAfterTransfer(TransactionCase):
 
     def test_obs_frequency_after_refusal_with_medium_risk(self):
         self.initial_medium_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )

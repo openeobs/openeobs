@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Encapsulates commonly used test methods."""
 from datetime import datetime
 
 from openerp.models import AbstractModel
@@ -10,6 +11,14 @@ class NhClinicalTestUtils(AbstractModel):
     _inherit = 'nh.clinical.test_utils'
 
     def get_open_obs(self, patient_id=None, data_model=None, user_id=None):
+        """
+        Search for the currently open observation for the data model and
+        assign the user to the activity so they can complete it
+
+        :param patient_id: ID of the patient
+        :param data_model: Observation model associated with the activity
+        :param user_id: ID of user who will do observation
+        """
         api_model = self.pool['nh.eobs.api']
         activity_model = self.env['nh.activity']
 
@@ -54,22 +63,52 @@ class NhClinicalTestUtils(AbstractModel):
         )
 
     # Utility methods
-    def create_ews_obs_activity(self, patient_id, spell_id, obs_data):
+    def create_and_complete_ews_obs_activity(self, patient_id, spell_id,
+                                             obs_data):
+        """
+        Creates an EWS observation with the given clinical risk, then completes
+        it.
+
+        :param patient_id:
+        :type patient_id: int
+        :param spell_id:
+        :type spell_id: int
+        :param obs_data:
+        :type obs_data: dict
+        :return:
+        """
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_pool = self.pool['nh.activity']
         activity_model = self.env['nh.activity']
 
         obs_activity_id = ews_model.create_activity(
-            {'date_scheduled': datetime.now(),
-             'parent_id': spell_id},
-            {'patient_id': patient_id}
+            {
+                'date_scheduled': datetime.now(),
+                'parent_id': spell_id
+            },
+            {
+                'patient_id': patient_id
+            }
         )
         activity_pool.submit(self.env.cr, self.env.uid,
                              obs_activity_id, obs_data)
         activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
         return activity_model.browse(obs_activity_id)
 
-    def refuse_open_obs(self, patient_id, spell_activity_id):
+    def complete_open_obs_as_partial(self, patient_id, spell_activity_id,
+                                     reason):
+        """
+        Get the currently open observation and partially complete it giving the
+        passed partial reason.
+
+        :param patient_id:
+        :type patient_id: int
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :param reason:
+        :type reason: str
+        :return:
+        """
         activity_model = self.env['nh.activity']
         activity_pool = self.pool['nh.activity']
         ews_model = self.env['nh.clinical.patient.observation.ews']
@@ -94,10 +133,25 @@ class NhClinicalTestUtils(AbstractModel):
             obs_activity_current.id,
             {
                 'is_partial': True,
-                'partial_reason': 'refused'
+                'partial_reason': reason
             }
         )
         activity_pool.complete(
             self.env.cr, self.env.uid, obs_activity_current.id
         )
         return ews_model.get_open_obs_activity(spell_activity_id)
+
+    def refuse_open_obs(self, patient_id, spell_activity_id):
+        """
+        Get the currently open observation and partially complete it giving a
+        'refused' partial reason.
+
+        :param patient_id:
+        :type patient_id: int
+        :param spell_activity_id:
+        :type spell_activity_id: int
+        :return:
+        """
+        return self.complete_open_obs_as_partial(
+            patient_id, spell_activity_id, 'refused'
+        )
