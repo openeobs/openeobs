@@ -6,10 +6,10 @@ from openerp.tests.common import TransactionCase
 from . import patient_refusal_event_mocks
 
 
-class TestClinicalReviewFrequencySetColumnData(TransactionCase):
+class TestGetClinicalReviewFrequencySetColumnData(TransactionCase):
 
     def setUp(self):
-        super(TestClinicalReviewFrequencySetColumnData, self).setUp()
+        super(TestGetClinicalReviewFrequencySetColumnData, self).setUp()
         self.report_model = self.env['report.nh.clinical.observation_report']
 
         self.mock_refusal_episode = \

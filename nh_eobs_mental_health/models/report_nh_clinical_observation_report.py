@@ -59,6 +59,13 @@ class MentalHealthObservationReport(models.AbstractModel):
         ))
 
     def get_refusal_events_data(self):
+        """
+        Get a dictionary containing all the information necessary to populate
+        the 'Patient Refusal Events Data' section of the observation report.
+
+        :return:
+        :rtype: dict
+        """
         refusal_episodes = self.get_refusal_episodes(self.spell_activity_id)
 
         patient_refusal_events_data = []
@@ -79,6 +86,15 @@ class MentalHealthObservationReport(models.AbstractModel):
         return patient_refusal_events_data
 
     def get_first_refusal_column_data(self, refusal_episode):
+        """
+        Get the data necessary to populate the 'First Refusal' column of the
+        'Patient Refusal Events Data' section of the observation report.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :return:
+        :rtype: dict
+        """
         key = 'first_refusal_date_terminated'
         self.validate_refusal_episode_dict_key(refusal_episode, key)
 
@@ -90,20 +106,62 @@ class MentalHealthObservationReport(models.AbstractModel):
         return first_refusal_column_data
 
     def get_refusals_until_news_obs_taken_column_data(self, refusal_episode):
+        """
+        Get the data necessary to populate the 'Refusals Until News Obs Taken'
+        column of the 'Patient Refusal Events Data' section of the observation
+        report.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :return:
+        :rtype: dict
+        """
         key = 'count'
         self.validate_refusal_episode_dict_key(refusal_episode, key)
         return refusal_episode[key]
 
     def get_clinical_review_column_data(self, refusal_episode):
+        """
+        Get the data necessary to populate the 'Clinical Review' column of the
+        'Patient Refusal Events Data' section of the observation report.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :return:
+        :rtype: dict
+        """
         return self.get_task_column_data(refusal_episode,
                                          clinical_review_frequency=False)
 
     def get_clinical_review_frequency_set_column_data(self, refusal_episode):
+        """
+        Get the data necessary to populate the 'Clinical Review Frequency Set'
+        column of the 'Patient Refusal Events Data' section of the observation
+        report.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :return:
+        :rtype: dict
+        """
         return self.get_task_column_data(refusal_episode,
                                          clinical_review_frequency=True)
 
     def get_task_column_data(self, refusal_episode,
                              clinical_review_frequency=False):
+        """
+        Generic method that can get the necessary data for multiple different
+        columns that display information about different types of task.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :param clinical_review_frequency: Indicates whether to create a
+        clinical_review_frequency task or something else. This only works
+        because there is currently only 2 different types of task created by
+        this method.
+        :type clinical_review_frequency: bool
+        :return:
+        """
         self.validate_dict(refusal_episode)
 
         # Setup differently depending on task type.
@@ -161,12 +219,28 @@ class MentalHealthObservationReport(models.AbstractModel):
 
     @classmethod
     def validate_dict(cls, dictionary):
+        """
+        Validate that a passed argument is a dictionary that is not empty.
+
+        :param dictionary:
+        :return: No return, raises if invalid.
+        """
         if not isinstance(dictionary, dict):
             raise TypeError("Argument is not a dictionary.")
         if not dictionary:
             raise ValueError("Argument cannot be falsey.")
 
     def validate_refusal_episode_dict_key(self, refusal_episode, key):
+        """
+        Validate that a 'refusal episode' dictionary has the desired key and
+        that the key does not have a value of None.
+
+        :param refusal_episode: Raw data from the database.
+        :type refusal_episode: dict
+        :param key: Key to be validated.
+        :type key: str
+        :return:
+        """
         self.validate_dict(refusal_episode)
         try:
             if refusal_episode[key] is None:
