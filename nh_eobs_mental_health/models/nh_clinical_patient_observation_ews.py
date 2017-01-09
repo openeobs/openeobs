@@ -63,7 +63,15 @@ class NHClinicalPatientObservationEWS(orm.Model):
         activity_model = self.pool['nh.activity']
         activity = activity_model.browse(cr, uid, activity_id, context=context)
         ews = activity.data_ref
-        if ews.is_partial and ews.partial_reason == 'refused':
+        ews_parent = activity.creator_id
+        ews_model_name = 'nh.clinical.patient.observation.ews'
+        if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
+            patient_refusing = self.is_refusal_in_effect(
+                cr, uid, ews_parent.id, context=context)
+        else:
+            patient_refusing = False
+        if ews.is_partial and not patient_refusing \
+                and ews.partial_reason == 'refused':
             api_model = self.pool['nh.eobs.api']
             cron_model = self.pool['ir.cron']
             patient = api_model.get_patients(
@@ -89,7 +97,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         return res
 
     @api.model
-    def schedule_clinical_review_notification(self, refused_ews_activity_id):
+    def schedule_clinical_review_notification(self, activity_id):
         """
         Determines if a Clinical Review notification needs to be created based
         on if a full NEWS observation has been completed since the partial
@@ -97,15 +105,12 @@ class NHClinicalPatientObservationEWS(orm.Model):
 
         :return: Nothing, only side effects
         """
+        # Find all ews that have been done since the activity
         activity_model = self.env['nh.activity']
-        refused_ews_activity = activity_model.browse(refused_ews_activity_id)
-        patient = refused_ews_activity.patient_id
-        ews_model = self.env['nh.clinical.patient.observation.ews']
-
-        if ews_model.patient_refusal_in_effect(patient.id) \
-                and ews_model.current_patient_refusal_was_triggered_by(
-                    refused_ews_activity):
-            self.create_clinical_review_task(refused_ews_activity)
+        activity = activity_model.browse(activity_id)
+        still_valid = self.is_refusal_in_effect(activity_id, mode='child')
+        if still_valid:
+            self.create_clinical_review_task(activity)
 
     @api.model
     def create_clinical_review_task(self, activity):
@@ -131,3 +136,49 @@ class NHClinicalPatientObservationEWS(orm.Model):
                 'patient_id': activity.data_ref.patient_id.id
             }
         )
+
+    def is_refusal_in_effect(self, cr, uid, activity_id,
+                             mode='parent', context=None):
+        """
+        Use the last_refused_ews SQL view to see if activity_id is part of a
+        patient refusal
+
+        :param cr: Odoo cursor
+        :param uid: User doing operation
+        :param activity_id: <nh.activity> Activity ID
+        :param mode: Mode to operate on, parent goes up chain, child goes down
+        :param context: Odoo Context
+        :return: If the patient is currently in refusal
+        """
+        column = 'last_activity_id'
+        first_act_order = 'DESC'
+        if mode == 'child':
+            column = 'first_activity_id'
+            first_act_order = 'ASC'
+        cr.execute(
+            'SELECT refused.refused, '
+            'acts.date_terminated '
+            'FROM refused_ews_activities AS refused '
+            'RIGHT OUTER JOIN wb_activity_ranked AS acts '
+            'ON acts.id = refused.id '
+            'RIGHT OUTER JOIN nh_clinical_spell AS spell '
+            'ON spell.activity_id = refused.spell_activity_id '
+            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'WHERE {column} = {id} '
+            'AND coalesce(acts.date_terminated >= spell.move_date, TRUE) '
+            'AND coalesce(acts.date_terminated >= '
+            'pme.activity_date_terminated, TRUE) '
+            'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
+            'ORDER BY refused.spell_activity_id ASC, '
+            'refused.first_activity_id {first_act_order}, '
+            'refused.last_activity_id DESC '
+            'LIMIT 1;'.format(
+                column=column,
+                id=activity_id,
+                first_act_order=first_act_order
+            )
+        )
+        result = cr.dictfetchall()
+        if result:
+            return result[0].get('refused', False)
+        return False

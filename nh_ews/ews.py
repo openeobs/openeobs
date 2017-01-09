@@ -762,7 +762,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
             next_obs_activity = \
                 activity_pool.browse(self.env.cr, self.env.uid,
                                      next_obs_activity_id)
-            self.create_next_obs_after_partial(
+            self.update_next_obs_after_partial(
                 previous_obs_activity, next_obs_activity
             )
         else:
@@ -773,46 +773,66 @@ class nh_clinical_patient_observation_ews(orm.Model):
             )
 
     @api.model
-    def create_next_obs_after_partial(self, partial_obs_activity,
+    def update_next_obs_after_partial(self, partial_obs_activity,
                                       next_obs_activity):
+        """
+        Updates the frequency and date scheduled of the newly created
+        `next_obs_activity` from their default values to their correct values
+        based on previous observations and the refusal status.
+
+        :param partial_obs_activity: Observation activity expected to be a
+        partial and the most recently completed observation for the spell.
+        :type partial_obs_activity: 'nh.activity' record
+        :param next_obs_activity: Observation activity expected to be the most
+        recently created one triggered by the passed partial.
+        :type next_obs_activity: 'nh.activity' record
+        :return:
+        """
         activity_pool = self.pool['nh.activity']
         patient_id = partial_obs_activity.data_ref.patient_id.id
 
-        patient_refusal_in_effect = self.is_last_obs_refused(patient_id)
-        if patient_refusal_in_effect:
+        last_obs_refused = self.is_last_obs_refused(patient_id)
+        if last_obs_refused:
+            frequency = self.get_frequency_for_refusal(partial_obs_activity)
             date_scheduled = self.get_date_scheduled_for_refusal(
-                partial_obs_activity, next_obs_activity
+                partial_obs_activity.date_terminated, frequency
             )
-
         else:
+            frequency = partial_obs_activity.data_ref.frequency
             date_scheduled = partial_obs_activity.date_scheduled
 
+        next_obs_activity.data_ref.frequency = frequency
         activity_pool.schedule(
             self.env.cr, self.env.uid, next_obs_activity.id,
             date_scheduled=date_scheduled, context=self.env.context
         )
 
     @api.model
-    def get_date_scheduled_for_refusal(self, previous_obs_activity,
-                                       next_obs_activity):
+    def get_frequency_for_refusal(self, previous_obs_activity):
+        """
+        Get the expected frequency for a new observation triggered by
+        completion of the passed one if it is also refused.
+
+        :param previous_obs_activity:
+        :type previous_obs_activity: 'nh.activity' record
+        :return:
+        """
         placement_model = self.env['nh.clinical.patient.placement']
 
         frequency = previous_obs_activity.data_ref.frequency
-        date_completed = previous_obs_activity.date_terminated
-        spell_activity_id = next_obs_activity.spell_activity_id.id
+        spell_activity_id = previous_obs_activity.spell_activity_id.id
 
         if self.patient_monitoring_exception_before_refusals(
                 spell_activity_id):
             case = 'Obs Restart'
         elif frequency == 15 \
                 and len(placement_model.get_placement_activities_for_spell(
-                    spell_activity_id
-                )) > 1 \
+                    spell_activity_id)) > 1 \
                 and self.placement_before_refusals(spell_activity_id):
             case = 'Transfer'
         else:
             last_full_obs_activity = self.get_last_full_obs_activity(
-                next_obs_activity.parent_id.id
+                spell_activity_id
             )
             if last_full_obs_activity:
                 case = self.get_case(last_full_obs_activity.data_ref)
@@ -820,17 +840,68 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 case = 'Unknown'
 
         refusal_adjusted_frequency = \
-            next_obs_activity.data_ref.adjust_frequency_for_patient_refusal(
-                case, frequency
-            )
+            self.lookup_adjusted_frequency_for_patient_refusal(case, frequency)
+        return refusal_adjusted_frequency
 
-        date_scheduled = dt.strptime(date_completed, dtf) \
-            + timedelta(minutes=refusal_adjusted_frequency)
+    @api.model
+    def get_date_scheduled_for_refusal(
+            self, previous_activity_completed_datetime, frequency):
+        """
+        Get the expected schedule date for a new observation triggered based on
+        the passed completion date of the previous observation and it's
+        frequency.
+
+        :param previous_activity_completed_datetime: Value for the date
+        terminated field of the previous completed observation.
+        :type previous_activity_completed_datetime: str
+        :param frequency: Frequency in minutes.
+        :type frequency: int
+        :return:
+        """
+        previous_activity_completed_datetime = \
+            dt.strptime(previous_activity_completed_datetime, dtf)
+        date_scheduled = \
+            previous_activity_completed_datetime + timedelta(minutes=frequency)
         return date_scheduled
+
+    def lookup_adjusted_frequency_for_patient_refusal(self, case,
+                                                      frequency=None):
+        """
+        Lookup the frequency adjusted to take into account the fact that the
+        patient is refusing observations. There are some cases where this needs
+        to be different to the usual frequency dictated by the policy which
+        necessitates this lookup.
+
+        :param case: Either an int representing the clinical risk or a str
+        representing a special state such as 'Transfer'.
+        See `field`:nh_ews._POLICY: and :module:`frequencies.py`.
+        :type case: int or str
+        :param frequency: Frequency in minutes.
+        :type frequency: int
+        :return:
+        """
+        if type(case) is str:
+            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[case][0]
+        else:
+            risk = self.convert_case_to_risk(case)
+            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[risk][frequency][0]
 
     def can_decrease_obs_frequency(self, cr, uid, patient_id,
                                    threshold_value,
                                    context=None):
+        """
+        Determines whether or not the frequency of the patients observations
+        can be reduced to a lower value.
+        There are certain situations where this is allowed depending on the
+        ward's policy.
+
+        :param cr:
+        :param uid:
+        :param patient_id:
+        :param threshold_value:
+        :param context:
+        :return:
+        """
         spell_pool = self.pool['nh.clinical.spell']
         spell_start_date = spell_pool.get_spell_start_date(cr, uid, patient_id,
                                                            context=context)
@@ -916,21 +987,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
             if obs_activity.data_ref.is_partial is False:
                 return obs_activity
         return None
-
-    @api.multi
-    def adjust_frequency_for_patient_refusal(self, case, frequency=None):
-        refusal_adjusted_frequency = \
-            self.get_adjusted_frequency_for_patient_refusal(case, frequency)
-        if refusal_adjusted_frequency != self.frequency:
-            self.frequency = refusal_adjusted_frequency
-        return refusal_adjusted_frequency
-
-    def get_adjusted_frequency_for_patient_refusal(self, case, frequency=None):
-        if type(case) is str:
-            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[case][0]
-        else:
-            risk = self.convert_case_to_risk(case)
-            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[risk][frequency][0]
 
     def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):

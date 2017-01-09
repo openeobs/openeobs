@@ -8,8 +8,6 @@ from . import test_sql_statements
 from . import test_workload
 from .nh_clinical_observation_report import *
 from .nh_clinical_observation_report_wizard import *
-from .nh_clinical_patient_observation import *
-from .nh_clinical_patient_observation_ews import *
 from .nh_eobs_api import *
 from .nh_eobs_ward_dashboard import *
 from .wardboard import *

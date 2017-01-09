@@ -69,7 +69,7 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_no_clinical_risk(self):
         self.initial_no_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.NO_RISK_DATA
             )
@@ -97,7 +97,7 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_low_clinical_risk(self):
         self.initial_low_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.LOW_RISK_DATA
             )
@@ -124,7 +124,7 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_medium_clinical_risk(self):
         self.initial_medium_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )
@@ -151,7 +151,7 @@ class TestPatientRefusal(TransactionCase):
 
     def test_refusal_with_high_clinical_risk(self):
         self.initial_high_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.HIGH_RISK_DATA
             )

@@ -1,7 +1,8 @@
+import time
+
 from openerp.addons.nh_eobs_mental_health \
     .tests.common.transaction_observation import TransactionObservationCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
-import time
 
 
 class TestAcuityIndex(TransactionObservationCase):
@@ -22,6 +23,18 @@ class TestAcuityIndex(TransactionObservationCase):
         super(TestAcuityIndex, self).setUp()
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.spell_model = self.env['nh.clinical.spell']
+
+    def start_patient_monitoring_exception(self, spell):
+        spell.write({'obs_stop': True})
+        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        activity_id = pme_model.create_activity(
+            {},
+            {'reason': 1, 'spell': spell.id}
+        )
+        activity_model = self.env['nh.activity']
+        pme_activity = activity_model.browse(activity_id)
+        pme_activity.spell_activity_id = spell.activity_id
+        pme_model.start(activity_id)
 
     def test_no_risk(self):
         """
@@ -83,16 +96,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient on PME/Obs Stop has an acuity index of 'ObsStop'
         """
         spell = self.spell_model.browse(self.spell_id)
-        spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        activity_id = pme_model.create_activity(
-            {},
-            {'reason': 1, 'spell': spell.id}
-        )
-        activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell.activity_id
-        pme_model.start(activity_id)
+        self.start_patient_monitoring_exception(spell)
         wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'ObsStop')
 
@@ -104,16 +108,7 @@ class TestAcuityIndex(TransactionObservationCase):
         self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
         time.sleep(2)
         spell = self.spell_model.browse(self.spell_id)
-        spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        activity_id = pme_model.create_activity(
-            {},
-            {'reason': 1, 'spell': spell.id}
-        )
-        activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell.activity_id
-        pme_model.start(activity_id)
+        self.start_patient_monitoring_exception(spell)
         wardboard = self.wardboard_model.browse(self.spell_id)
         wardboard.end_patient_monitoring_exception()
         # Have to invalidate the cache as the browse was still returning the
@@ -156,4 +151,17 @@ class TestAcuityIndex(TransactionObservationCase):
         )
         self.activity_pool.complete(cr, uid, placement_id[0])
         wardboard = self.wardboard_model.browse(self.spell_2_id)
-        self.assertEqual(wardboard.acuity_index, 'High')
+        self.assertEqual(wardboard.acuity_index, 'NoScore')
+
+    def test_refused_obs_stop(self):
+        self.get_obs(self.patient_2_id)
+        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
+        self.get_obs(self.patient_2_id)
+        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
+        time.sleep(2)
+
+        spell = self.spell_model.browse(self.spell_id)
+        self.start_patient_monitoring_exception(spell)
+
+        wardboard = self.wardboard_model.browse(self.spell_id)
+        self.assertEqual(wardboard.acuity_index, 'ObsStop')
