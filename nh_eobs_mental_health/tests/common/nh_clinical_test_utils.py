@@ -62,3 +62,19 @@ class NhClinicalTestUtils(AbstractModel):
         self.activity_model.sudo(self.nurse).complete(
             self.clinical_review_notification_activity_id
         )
+
+    def start_pme(self, spell=None, reason=None):
+        if not spell:
+            spell = self.spell
+        if not reason:
+            reason_model = \
+                self.env['nh.clinical.patient_monitoring_exception.reason']
+            reason = reason_model.create({'display_text': 'reason one'})
+        wardboard_model = self.env['nh.clinical.wardboard']
+        self.wardboard = wardboard_model.browse(spell.id)
+        self.wardboard.start_patient_monitoring_exception(
+            reason, spell.id, spell.activity_id.id
+        )
+
+    def end_pme(self):
+        self.wardboard.end_patient_monitoring_exception()

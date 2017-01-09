@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """A single place for different frequency values to be read from."""
+import copy
+
+# TODO EOBS-840: Make frequencies.py a model and split it across modules as
+# appropriate.
 # Frequencies in minutes.
 FIFTEEN_MINUTES = 15
 THIRTY_MINUTES = 30
@@ -44,18 +48,13 @@ ALL_FREQUENCIES = {
     ONE_WEEK: EVERY_WEEK
 }
 
-# To summarise the mappings below, frequencies after refusals are capped at
-# 24 hours.
-#
-# Could have just made a simple function but decided to write them out long
-# hand as they may change in the future. Return the tuple with the label rather
-# than just the time so it can be useful in more scenarios.
-PATIENT_REFUSAL_ADJUSTMENTS = {
+# Frequency tuples organised by risk and frequency in minutes.
+FREQUENCIES_BY_RISK = {
     'None': {
         EVERY_12_HOURS[0]: EVERY_12_HOURS,
         EVERY_DAY[0]: EVERY_DAY,
-        EVERY_3_DAYS[0]: EVERY_DAY,
-        EVERY_WEEK[0]: EVERY_DAY
+        EVERY_3_DAYS[0]: EVERY_3_DAYS,
+        EVERY_WEEK[0]: EVERY_WEEK
     },
     'Low': {
         EVERY_15_MINUTES[0]: EVERY_15_MINUTES,
@@ -67,22 +66,31 @@ PATIENT_REFUSAL_ADJUSTMENTS = {
         EVERY_8_HOURS[0]: EVERY_8_HOURS,
         EVERY_12_HOURS[0]: EVERY_12_HOURS,
         EVERY_DAY[0]: EVERY_DAY,
-        EVERY_3_DAYS[0]: EVERY_DAY,
-        EVERY_WEEK[0]: EVERY_DAY
+        EVERY_3_DAYS[0]: EVERY_3_DAYS,
+        EVERY_WEEK[0]: EVERY_WEEK
     },
     'Medium': {
-        # EVERY_15_MINUTES[0]: EVERY_15_MINUTES,
-        # EVERY_30_MINUTES[0]: EVERY_30_MINUTES,
         EVERY_HOUR[0]: EVERY_HOUR
     },
     'High': {
-        # EVERY_15_MINUTES[0]: EVERY_15_MINUTES,
         EVERY_30_MINUTES[0]: EVERY_30_MINUTES
     },
     'Unknown': EVERY_4_HOURS,
     'Transfer': EVERY_15_MINUTES,
     'Obs Restart': EVERY_HOUR
 }
+
+# To summarise the mappings below, frequencies after refusals are capped at
+# 24 hours.
+#
+# Could have just made a simple function but decided to write them out long
+# hand as they may change in the future. Return the tuple with the label rather
+# than just the time so it can be useful in more scenarios.
+PATIENT_REFUSAL_ADJUSTMENTS = copy.deepcopy(FREQUENCIES_BY_RISK)
+PATIENT_REFUSAL_ADJUSTMENTS['None'][EVERY_3_DAYS[0]] = EVERY_DAY
+PATIENT_REFUSAL_ADJUSTMENTS['None'][EVERY_WEEK[0]] = EVERY_DAY
+PATIENT_REFUSAL_ADJUSTMENTS['Low'][EVERY_3_DAYS[0]] = EVERY_DAY
+PATIENT_REFUSAL_ADJUSTMENTS['Low'][EVERY_WEEK[0]] = EVERY_DAY
 
 
 def as_list(max=None):

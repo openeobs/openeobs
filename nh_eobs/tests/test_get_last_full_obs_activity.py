@@ -20,7 +20,7 @@ class TestGetLastFullObs(TransactionCase):
 
     def test_returns_full_obs(self):
         self.initial_medium_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )
@@ -38,7 +38,7 @@ class TestGetLastFullObs(TransactionCase):
     def test_returns_obs_from_before_transfer_after_placement(
             self):
         self.initial_medium_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )
@@ -54,7 +54,7 @@ class TestGetLastFullObs(TransactionCase):
     def test_returns_obs_from_before_transfer_after_placement_and_refusal(
             self):
         self.initial_medium_risk_obs_activity = \
-            self.test_utils_model.create_ews_obs_activity(
+            self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
                 clinical_risk_sample_data.MEDIUM_RISK_DATA
             )
