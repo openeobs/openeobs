@@ -18,17 +18,17 @@ class TestObsReportNoDOB(observation_report_helpers.ObservationReportHelpers):
                 'patient_identifier': 'HOS1234123'
             }]
 
+        # Revert is done here to override the patch in the super class.
         self.patient_pool._revert_method('read')
+        # Replaced with this classes patch.
         self.patient_pool._patch_method('read', new_patient_pool_mock_patient)
-    #
-    # def tearDown(self):
-    #     super(TestObsReportNoDOB, self).setUp()
+        # No need to revert, this is taken care of in the super classes
+        # tearDown method.
 
     def test_observation_report_without_dob(self):
         """
         Test that when patient doesn't have DOB that it doesn't break report
         """
-
         report_model, cr, uid = self.report_model, self.cr, self.uid
         report_test = test_reports.try_report(
             cr, uid, report_model, [],
