@@ -85,7 +85,7 @@ class MentalHealthObservationReport(models.AbstractModel):
         datetime_utils = self.env['datetime_utils']
         first_refusal_column_data = \
             datetime_utils.reformat_server_datetime_for_frontend(
-                refusal_episode[key]
+                refusal_episode[key], date_first=True
             )
         return first_refusal_column_data
 
@@ -136,9 +136,12 @@ class MentalHealthObservationReport(models.AbstractModel):
                     exception_message.format(task_name.title(),
                                              'terminate uid')
                 )
-
+            datetime_utils = self.env['datetime_utils']
             return {
-                'date_terminated': refusal_episode[date_terminated_key],
+                'summary': task_name.title(),
+                'date_terminated': datetime_utils
+                    .reformat_server_datetime_for_frontend(
+                    refusal_episode[date_terminated_key], date_first=True),
                 'user_id': refusal_episode[terminate_uid_key]
             }
         raise ValueError(

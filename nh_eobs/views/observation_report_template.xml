@@ -844,14 +844,14 @@
                 <td class="col-xs-5 pre-pre-compact-data">
                     <table class="pre-compact-data col-xs-12 row">
                         <t t-foreach="observation.get('triggered_actions', [])" t-as="task">
-                            <t t-call="nh_eobs.triggered_actions_tasks"/>
+                            <t t-call="nh_eobs.task_box"/>
                         </t>
                     </table>
                 </td>
             </tr>
         </template>
 
-        <template id="triggered_actions_tasks">
+        <template id="task_box">
             <tr class="triggered_action_task">
                 <td class="col-xs-12">
                     <table class="compact-data col-xs-12">
@@ -869,24 +869,23 @@
                                 <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
                             </tr>
                         </t>
-                        <t t-call="nh_eobs.task_box"/>
+                        <tr>
+                            <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
+                            <t t-if="'user_id' in task and task['user_id']">
+                                <t t-set="user_id" t-value="task['user_id'][1] if isinstance(task['user_id'], list) else task['user_id']"/>
+                                <td class="col-xs-6"><strong>By:</strong> <t t-esc="user_id"/></td>
+                            </t>
+                            <td class="col-xs-6 triggered_action_task_body">
+                                <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
+                                <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
+                                    <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
+                                </t><br/>
+                                <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">
+                                    Task still in progress
+                                </t>
+                            </td>
+                        </tr>
                     </table>
-                </td>
-            </tr>
-        </template>
-
-        <template id="task_box">
-            <tr>
-                <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
-                <td class="col-xs-6"><t t-if="'user_id' in task and task['user_id']"><strong>By:</strong> <t t-esc="task['user_id'][1]"/></t></td>
-                <td class="col-xs-6 triggered_action_task_body">
-                    <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
-                    <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
-                        <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
-                    </t><br/>
-                    <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">
-                        Task still in progress
-                    </t>
                 </td>
             </tr>
         </template>

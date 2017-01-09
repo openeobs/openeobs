@@ -44,7 +44,7 @@
                                 <tr>
                                     <th class="col-xs-3">First Refusal</th>
                                     <th class="col-xs-2">Refusals until NEWS Obs taken</th>
-                                    <th class="col-xs-2">Clinical Review</th>
+                                    <th class="col-xs-5">Clinical Review</th>
                                     <th class="col-xs-5">Clinical Review Frequency Set</th>
                                 </tr>
                             </thead>
@@ -61,25 +61,35 @@
 
         <template id="patient_refusal_event">
             <tr class="main-entry">
-                <td>
+                <td class="col-xs-1">
                     <t t-esc="patient_refusal_event['first_refusal']"/>
                 </td>
-                <td>
+                <td class="col-xs-1">
                     <t t-esc="patient_refusal_event['refusals_until_news_obs_taken']"/>
                 </td>
-                <td>
-                    <t t-if="isinstance(clinical_review, dict)">
-                        <t t-set="task" t-value="patient_refusal_event['clinical_review']"/>
-                        <t t-call="nh_eobs.task_box"/>
-                    </t>
-                    <t t-esc="patient_refusal_event['clinical_review']"/>
+                <td class="col-xs-5 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <t t-set="clinical_review" t-value="patient_refusal_event['clinical_review']"/>
+                        <t t-if="isinstance(clinical_review, dict)">
+                            <t t-set="task" t-value="clinical_review"/>
+                            <t t-call="nh_eobs.task_box"/>
+                        </t>
+                        <t t-if="not isinstance(clinical_review, dict)">
+                            <t t-esc="clinical_review"/>
+                        </t>
+                    </table>
                 </td>
-                <td>
-                    <t t-if="isinstance(clinical_review, dict)">
-                        <t t-set="task" t-value="patient_refusal_event['clinical_review_frequency_set']"/>
-                        <t t-call="nh_eobs.task_box"/>
-                    </t>
-                    <t t-esc="patient_refusal_event['clinical_review_frequency_set']"/>
+                <td class="col-xs-5 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <t t-set="clinical_review_frequency_set" t-value="patient_refusal_event['clinical_review_frequency_set']"/>
+                        <t t-if="isinstance(clinical_review_frequency_set, dict)">
+                            <t t-set="task" t-value="clinical_review_frequency_set"/>
+                            <t t-call="nh_eobs.task_box"/>
+                        </t>
+                        <t t-if="not isinstance(clinical_review_frequency_set, dict)">
+                            <t t-esc="clinical_review_frequency_set"/>
+                        </t>
+                    </table>
                 </td>
             </tr>
         </template>
