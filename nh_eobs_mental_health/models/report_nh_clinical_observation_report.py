@@ -137,12 +137,15 @@ class MentalHealthObservationReport(models.AbstractModel):
                                              'terminate uid')
                 )
             datetime_utils = self.env['datetime_utils']
+            user_model = self.env['res.users']
+            user_id = refusal_episode[terminate_uid_key]
+            user = user_model.browse(user_id)
             return {
                 'summary': task_name.title(),
                 'date_terminated': datetime_utils
                     .reformat_server_datetime_for_frontend(
                     refusal_episode[date_terminated_key], date_first=True),
-                'user_id': refusal_episode[terminate_uid_key]
+                'user_id': user.name
             }
         raise ValueError(
             "Unexpected state '{}' for {} task.".format(

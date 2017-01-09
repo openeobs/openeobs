@@ -872,7 +872,8 @@
                         <tr>
                             <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
                             <t t-if="'user_id' in task and task['user_id']">
-                                <t t-set="user_id" t-value="task['user_id'][1] if isinstance(task['user_id'], list) else task['user_id']"/>
+                                <!-- task['user_id'] can either be a a tuple like (id ,name) or just a string like 'name'. -->
+                                <t t-set="user_id" t-value="task['user_id'][1] if isinstance(task['user_id'], tuple) else task['user_id']"/>
                                 <td class="col-xs-6"><strong>By:</strong> <t t-esc="user_id"/></td>
                             </t>
                             <td class="col-xs-6 triggered_action_task_body">
