@@ -43,27 +43,7 @@ class TestComplete(SingleTransactionCase):
             'patient_identifier': '666'
         })
 
-        refused_ews = self.activity_model.new({
-            'data_ref': self.ews_model.new({
-                'respiration_rate': 11,
-                'partial_reason': 'refused',
-                'patient_id': patient,
-                'is_partial': True
-            }),
-            'data_model': ews_model_name
-        })
-
-        partial_ews = self.activity_model.new({
-            'data_model': ews_model_name,
-            'data_ref': self.ews_model.new({
-                'respiration_rate': 11,
-                'partial_reason': 'asleep',
-                'patient_id': patient,
-                'is_partial': True
-            })
-        })
-
-        full_ews = self.activity_model.new({
+        initial_full_ews = self.activity_model.new({
             'data_model': ews_model_name,
             'data_ref': self.ews_model.new({
                 'respiration_rate': 18,
@@ -79,13 +59,75 @@ class TestComplete(SingleTransactionCase):
             })
         })
 
+        refused_ews_data = self.ews_model.new({
+            'respiration_rate': 11,
+            'partial_reason': 'refused',
+            'patient_id': patient,
+            'is_partial': True
+        })
+
+        refused_ews = self.activity_model.new({
+            'data_ref': refused_ews_data,
+            'data_model': ews_model_name,
+            'creator_id': initial_full_ews
+        })
+
+        partial_ews = self.activity_model.new({
+            'data_model': ews_model_name,
+            'data_ref': self.ews_model.new({
+                'respiration_rate': 11,
+                'partial_reason': 'asleep',
+                'patient_id': patient,
+                'is_partial': True
+            }),
+            'creator_id': initial_full_ews
+        })
+
+        full_ews = self.activity_model.new({
+            'data_model': ews_model_name,
+            'data_ref': self.ews_model.new({
+                'respiration_rate': 18,
+                'indirect_oxymetry_spo2': 99,
+                'oxygen_administration_flag': 0,
+                'body_temperature': 37.5,
+                'blood_pressure_systolic': 120,
+                'blood_pressure_diastolic': 80,
+                'pulse_rate': 65,
+                'avpu_text': 'A',
+                'patient_id': patient,
+                'is_partial': False
+            }),
+            'creator_id': initial_full_ews
+        })
+
+        created_by_full = self.activity_model.new({
+            'data_model': ews_model_name,
+            'data_ref': refused_ews_data,
+            'creator_id': full_ews
+        })
+
+        created_by_partial = self.activity_model.new({
+            'data_model': ews_model_name,
+            'data_ref': refused_ews_data,
+            'creator_id': partial_ews
+        })
+
+        created_by_refused = self.activity_model.new({
+            'data_model': ews_model_name,
+            'data_ref': refused_ews_data,
+            'creator_id': refused_ews
+        })
+
         def patched_activity_browse(*args, **kwargs):
             context = kwargs.get('context', {})
             test = context.get('test')
             ews = {
                 'refused': refused_ews,
                 'partial': partial_ews,
-                'full': full_ews
+                'full': full_ews,
+                'created_by_full': created_by_full,
+                'created_by_partial': created_by_partial,
+                'created_by_refused': created_by_refused,
             }.get(test)
             if ews:
                 return ews
@@ -109,6 +151,13 @@ class TestComplete(SingleTransactionCase):
                 'clinical_risk': risk
             }]
 
+        def patch_is_refusal_in_effect(*args, **kwargs):
+            context = kwargs.get('context', {})
+            test = context.get('test')
+            if test == 'created_by_refused':
+                return True
+            return False
+
         def mock_ews_super(*args, **kwargs):
             if len(args) > 1 and hasattr(args[0], '_name'):
                 if args[0]._name == 'nh.clinical.patient.observation.ews':
@@ -118,6 +167,8 @@ class TestComplete(SingleTransactionCase):
         self.cron_model._patch_method('create', patched_cron_create)
         self.activity_model._patch_method('browse', patched_activity_browse)
         self.api_model._patch_method('get_patients', patched_get_patients)
+        self.ews_model._patch_method(
+            'is_refusal_in_effect', patch_is_refusal_in_effect)
 
         self.original_super = super
         __builtin__.super = mock_ews_super
@@ -127,6 +178,7 @@ class TestComplete(SingleTransactionCase):
         self.cron_model._revert_method('create')
         self.activity_model._revert_method('browse')
         self.api_model._revert_method('get_patients')
+        self.ews_model._revert_method('is_refusal_in_effect')
         super(TestComplete, self).tearDown()
 
     def call_test(self, context):
@@ -196,6 +248,33 @@ class TestComplete(SingleTransactionCase):
         """
         self.call_test(context={'test': 'partial'})
         self.assertIsNone(cron_call)
+
+    def test_dont_schedule_clinical_review_cron_is_parent_partial(self):
+        """
+        Test completing a refused observation for a patient who's already
+        considered refusing that no ir.cron being set up to call
+        schedule_clinical_review_notification
+        """
+        self.call_test(context={'test': 'created_by_partial'})
+        self.assertIsNotNone(cron_call)
+
+    def test_dont_schedule_clinical_review_cron_is_parent_refused(self):
+        """
+        Test completing a refused observation for a patient who's already
+        considered refusing that no ir.cron being set up to call
+        schedule_clinical_review_notification
+        """
+        self.call_test(context={'test': 'created_by_refused'})
+        self.assertIsNone(cron_call)
+
+    def test_dont_schedule_clinical_review_cron_is_parent_full(self):
+        """
+        Test completing a refused observation for a patient who's not already
+        considered refusing that a ir.cron is set up to call
+        schedule_clinical_review_notification
+        """
+        self.call_test(context={'test': 'created_by_full'})
+        self.assertIsNotNone(cron_call)
 
     def test_cron_args(self):
         """

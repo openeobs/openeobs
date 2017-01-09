@@ -138,6 +138,10 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'AND coalesce(refused_last_ews.date_terminated '
             '>= spell.move_date, TRUE) '
             'THEN \'Refused\' '
+            'WHEN refused_last_ews.refused = true '
+            'AND coalesce(refused_last_ews.date_terminated '
+            '<= spell.move_date, TRUE) '
+            'THEN \'NoScore\' '
         )
         return wardboard.replace(
             'LEFT JOIN param ON param.spell_id = spell.id',
