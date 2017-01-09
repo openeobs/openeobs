@@ -32,5 +32,56 @@
                 </td>
             </xpath>
         </template>
+
+        <!-- Add 'Patient Refusal Events' section. -->
+        <template id="observation_report_mental_health" inherit_id="nh_eobs.observation_report">
+            <xpath expr="//div[@id = 'patient_monitoring_exceptions']" position="after">
+                <t t-if="patient_refusal_events">
+                    <div class="row col-xs-12">
+                        <h3>Patient Refusal Events</h3>
+                        <table class="striped col-xs-12 row">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-3">First Refusal</th>
+                                    <th class="col-xs-2">Refusals until NEWS Obs taken</th>
+                                    <th class="col-xs-2">Clinical Review</th>
+                                    <th class="col-xs-5">Clinical Review Frequency Set</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="patient_refusal_events" t-as="patient_refusal_event">
+                                    <t t-call="nh_eobs_mental_health.patient_refusal_event"/>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+
+        <template id="patient_refusal_event">
+            <tr class="main-entry">
+                <td>
+                    <t t-esc="patient_refusal_event['first_refusal']"/>
+                </td>
+                <td>
+                    <t t-esc="patient_refusal_event['refusals_until_news_obs_taken']"/>
+                </td>
+                <td>
+                    <t t-if="isinstance(clinical_review, dict)">
+                        <t t-set="task" t-value="patient_refusal_event['clinical_review']"/>
+                        <t t-call="nh_eobs.task_box"/>
+                    </t>
+                    <t t-esc="patient_refusal_event['clinical_review']"/>
+                </td>
+                <td>
+                    <t t-if="isinstance(clinical_review, dict)">
+                        <t t-set="task" t-value="patient_refusal_event['clinical_review_frequency_set']"/>
+                        <t t-call="nh_eobs.task_box"/>
+                    </t>
+                    <t t-esc="patient_refusal_event['clinical_review_frequency_set']"/>
+                </td>
+            </tr>
+        </template>
     </data>
 </openerp>

@@ -118,7 +118,7 @@ class MentalHealthObservationReport(models.AbstractModel):
         review_state = refusal_episode[state_key]
         if review_state is None:
             return 'N/A'
-        elif review_state == 'started':
+        elif review_state == 'new':
             return 'Task in progress'
         elif review_state == 'completed':
             exception_message = \
@@ -138,8 +138,8 @@ class MentalHealthObservationReport(models.AbstractModel):
                 )
 
             return {
-                'date': refusal_episode[date_terminated_key],
-                'by': refusal_episode[terminate_uid_key]
+                'date_terminated': refusal_episode[date_terminated_key],
+                'user_id': refusal_episode[terminate_uid_key]
             }
         raise ValueError(
             "Unexpected state '{}' for {} task.".format(

@@ -43,8 +43,8 @@ class TestClinicalReviewColumnData(TransactionCase):
     def test_review_state_completed_returns_date_terminated_and_uid_dict(self):
         self.call_test('completed')
         expected = {
-            'date': self.mock_refusal_episode['review_date_terminated'],
-            'by': self.mock_refusal_episode['review_terminate_uid']
+            'date_terminated': self.mock_refusal_episode['review_date_terminated'],
+            'user_id': self.mock_refusal_episode['review_terminate_uid']
         }
         self.assertEqual(self.clinical_review_column_data,
                          expected)
