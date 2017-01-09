@@ -106,6 +106,7 @@ class MentalHealthObservationReport(models.AbstractModel):
                              clinical_review_frequency=False):
         self.validate_dict(refusal_episode)
 
+        # Setup differently depending on task type.
         state_key = 'freq_state' if clinical_review_frequency else \
             'review_state'
         date_terminated_key = 'freq_date_terminated' if \
@@ -115,12 +116,14 @@ class MentalHealthObservationReport(models.AbstractModel):
         task_name = 'clinical review frequency' if \
             clinical_review_frequency else 'clinical review'
 
+        # Determine what to return.
         review_state = refusal_episode[state_key]
         if review_state is None:
             return 'N/A'
         elif review_state == 'new':
             return 'Task in progress'
         elif review_state == 'completed':
+            # Check values to be used on the report are valid.
             exception_message = \
                 "{} task's {} is falsey according to the " \
                 "passed refusal episode, this should not be the case " \
@@ -136,15 +139,19 @@ class MentalHealthObservationReport(models.AbstractModel):
                     exception_message.format(task_name.title(),
                                              'terminate uid')
                 )
+            # Get formatted date of task completion.
             datetime_utils = self.env['datetime_utils']
+            date_terminated = datetime_utils\
+                .reformat_server_datetime_for_frontend(
+                    refusal_episode[date_terminated_key], date_first=True
+                )
+            # Get name of user who completed task.
             user_model = self.env['res.users']
             user_id = refusal_episode[terminate_uid_key]
             user = user_model.browse(user_id)
             return {
                 'summary': task_name.title(),
-                'date_terminated': datetime_utils
-                    .reformat_server_datetime_for_frontend(
-                    refusal_episode[date_terminated_key], date_first=True),
+                'date_terminated': date_terminated,
                 'user_id': user.name
             }
         raise ValueError(
