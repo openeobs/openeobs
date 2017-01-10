@@ -75,3 +75,26 @@ class NhClinicalTestUtils(AbstractModel):
         api_model.transfer(hospital_number, {
             'location': location_code
         })
+
+    def nursing_shift_change(self):
+        ward = self.ward
+        other_hca = self.create_hca(ward.id)
+        other_nurse = self.create_nurse(ward.id)
+        self.allocating_pool = self.env['nh.clinical.allocating']
+        self.allocation_pool = self.env['nh.clinical.staff.allocation']
+        wizard = self.allocation_pool.create({'ward_id': ward.id})
+        wizard.submit_ward()
+        wizard.deallocate()
+        wizard.write({'user_ids': [[6, 0, [other_hca.id, other_nurse.id]]]})
+        wizard.submit_users()
+        allocating_ids = wizard.allocating_ids
+        allocating_ids.write({
+            'nurse_id': other_nurse.id,
+            'hca_ids': [[6, 0, [other_hca.id]]],
+            'location_id': self.bed.id
+        })
+        wizard.complete()
+        return {
+            'nurse': other_nurse,
+            'hca': other_hca
+        }
