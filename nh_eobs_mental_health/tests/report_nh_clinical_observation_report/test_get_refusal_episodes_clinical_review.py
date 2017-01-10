@@ -256,7 +256,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         """
         self.test_utils_model.complete_obs(self.refused_obs)
         self.test_utils_model.transfer_patient('WB')
-        time.sleep(2)
+        time.sleep(4)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(
@@ -272,7 +272,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         """
         self.test_utils_model.complete_obs(self.refused_obs)
         self.test_utils_model.discharge_patient()
-        time.sleep(2)
+        time.sleep(4)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(

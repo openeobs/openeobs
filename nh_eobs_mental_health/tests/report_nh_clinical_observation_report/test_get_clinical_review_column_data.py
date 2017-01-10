@@ -23,7 +23,7 @@ class TestClinicalReviewColumnData(TransactionCase):
         elif review_state is 'completed':
             self.refusal_episode_fixture['review_state'] = review_state
             self.refusal_episode_fixture['review_date_terminated'] = \
-                '2017-02-03 13:45:16.35541'
+                '2017-02-03 13:45:16'
             self.refusal_episode_fixture['review_terminate_uid'] = 1
 
         self.clinical_review_column_data = \

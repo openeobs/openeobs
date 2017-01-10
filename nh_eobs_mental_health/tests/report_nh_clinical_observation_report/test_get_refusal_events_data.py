@@ -39,14 +39,14 @@ class TestGetRefusalEventsData(TransactionCase):
         actual = len(self.refusal_events_data)
         self.assertEqual(expected, actual)
 
-    def test_ordered_chronologically_descending(self):
+    def test_ordered_chronologically_ascending(self):
         self.call_test()
         datetime_objects = \
             [datetime.strptime(episode['first_refusal'],
                                self.datetime_format)
              for episode in self.refusal_events_data]
         datetime_objects_sorted = deepcopy(datetime_objects)
-        datetime_objects_sorted = sorted(datetime_objects_sorted, reverse=True)
+        datetime_objects_sorted = sorted(datetime_objects_sorted)
 
         self.assertEqual(datetime_objects,
                          datetime_objects_sorted)

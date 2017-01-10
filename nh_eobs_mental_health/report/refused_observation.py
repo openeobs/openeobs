@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
 
 from openerp import models
 
@@ -41,7 +40,8 @@ class MentalHealthObservationReport(models.AbstractModel):
         :rtype: list
         """
         self._cr.execute("""
-        SELECT * FROM refused_review_chain WHERE spell_activity_id = {0};
+        SELECT * FROM refused_review_chain WHERE spell_activity_id = {0}
+        ORDER BY refused_review_chain.first_refusal_date_terminated ASC;
         """.format(spell_activity_id))
         return self._cr.dictfetchall()
 
@@ -85,24 +85,7 @@ class MentalHealthObservationReport(models.AbstractModel):
                     self.get_clinical_review_frequency_set_column_data(episode)
             }
             patient_refusal_events_data.append(patient_refusal_event_data)
-        return self.sort_patient_refusal_events_data(
-            patient_refusal_events_data
-        )
-
-    def sort_patient_refusal_events_data(self, patient_refusal_events_data):
-        datetime_utils = self.env['datetime_utils']
-        datetime_format = datetime_utils.format_string.format(
-            datetime_utils.date_format, datetime_utils.time_format
-        )
-
-        def get_sort_key(patient_refusal_event):
-            return datetime.strptime(patient_refusal_event['first_refusal'],
-                                     datetime_format)
-
-        patient_refusal_events_data = sorted(patient_refusal_events_data,
-                                             key=get_sort_key, reverse=True)
         return patient_refusal_events_data
-
 
     def get_first_refusal_column_data(self, refusal_episode):
         """
