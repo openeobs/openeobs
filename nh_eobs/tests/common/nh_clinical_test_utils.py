@@ -19,7 +19,8 @@ class NhClinicalTestUtils(AbstractModel):
 
         self.search_for_hospital_and_pos()
         self.create_locations()
-        self.create_nurse()
+        self.nurse = self.create_nurse()
+        self.hca = self.create_hca()
         self.create_and_register_patient()
 
         self.api_model.admit(
@@ -46,7 +47,9 @@ class NhClinicalTestUtils(AbstractModel):
         )
         self.patient = self.patient_model.browse(self.patient_id)
 
-    def place_patient(self):
+    def place_patient(self, location_id=None):
+        if not location_id:
+            location_id = self.bed.id
         self.activity_model = self.env['nh.activity']
         self.activity_pool = self.pool['nh.activity']
 
@@ -59,7 +62,7 @@ class NhClinicalTestUtils(AbstractModel):
         )[0]
         self.activity_pool.submit(
             self.env.cr, self.env.uid,
-            self.placement.id, {'location_id': self.bed.id}
+            self.placement.id, {'location_id': location_id}
         )
         self.activity_pool.complete(
             self.env.cr, self.env.uid, self.placement.id
