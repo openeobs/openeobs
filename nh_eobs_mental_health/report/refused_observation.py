@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from datetime import datetime
+
 from openerp import models
 
 
@@ -82,8 +85,24 @@ class MentalHealthObservationReport(models.AbstractModel):
                     self.get_clinical_review_frequency_set_column_data(episode)
             }
             patient_refusal_events_data.append(patient_refusal_event_data)
+        return self.sort_patient_refusal_events_data(
+            patient_refusal_events_data
+        )
 
+    def sort_patient_refusal_events_data(self, patient_refusal_events_data):
+        datetime_utils = self.env['datetime_utils']
+        datetime_format = datetime_utils.format_string.format(
+            datetime_utils.date_format, datetime_utils.time_format
+        )
+
+        def get_sort_key(patient_refusal_event):
+            return datetime.strptime(patient_refusal_event['first_refusal'],
+                                     datetime_format)
+
+        patient_refusal_events_data = sorted(patient_refusal_events_data,
+                                             key=get_sort_key, reverse=True)
         return patient_refusal_events_data
+
 
     def get_first_refusal_column_data(self, refusal_episode):
         """
@@ -208,7 +227,6 @@ class MentalHealthObservationReport(models.AbstractModel):
             user_id = refusal_episode[terminate_uid_key]
             user = user_model.browse(user_id)
             return {
-                'summary': task_name.title(),
                 'date_terminated': date_terminated,
                 'user_id': user.name
             }

@@ -23,7 +23,7 @@ class TestGetClinicalReviewFrequencySetColumnData(TransactionCase):
         elif review_state is 'completed':
             self.refusal_episode_fixture['freq_state'] = review_state
             self.refusal_episode_fixture['freq_date_terminated'] = \
-                '2017-02-03 13:45:16:35541'
+                '2017-02-03 13:45:16.35541'
             self.refusal_episode_fixture['freq_terminate_uid'] = 1
 
         self.clinical_review_frequency_set_column_data = \

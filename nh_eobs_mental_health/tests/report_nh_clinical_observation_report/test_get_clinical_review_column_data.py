@@ -18,12 +18,12 @@ class TestClinicalReviewColumnData(TransactionCase):
         self.task_in_progress = 'Task in progress'
 
     def call_test(self, review_state=None):
-        if review_state is 'started':
+        if review_state is 'new':
             self.refusal_episode_fixture['review_state'] = review_state
         elif review_state is 'completed':
             self.refusal_episode_fixture['review_state'] = review_state
             self.refusal_episode_fixture['review_date_terminated'] = \
-                '2017-02-03 13:45:16:35541'
+                '2017-02-03 13:45:16.35541'
             self.refusal_episode_fixture['review_terminate_uid'] = 1
 
         self.clinical_review_column_data = \
@@ -35,17 +35,21 @@ class TestClinicalReviewColumnData(TransactionCase):
         self.assertEqual(self.clinical_review_column_data,
                          self.not_applicable)
 
-    def test_review_state_started_returns_task_in_progress(self):
-        self.call_test('started')
+    def test_review_state_new_returns_task_in_progress(self):
+        self.call_test('new')
         self.assertEqual(self.clinical_review_column_data,
                          self.task_in_progress)
 
     def test_review_state_completed_returns_date_terminated_and_uid_dict(self):
         self.call_test('completed')
-        expected = {
-            'date_terminated':
+        datetime_utils = self.env['datetime_utils']
+        date_terminated = \
+            datetime_utils.reformat_server_datetime_for_frontend(
                 self.refusal_episode_fixture['review_date_terminated'],
-            'user_id': self.refusal_episode_fixture['review_terminate_uid']
+                date_first=True
+            )
+        expected = {
+            'date_terminated': date_terminated,
+            'user_id': 'Administrator'
         }
-        self.assertEqual(self.clinical_review_column_data,
-                         expected)
+        self.assertEqual(self.clinical_review_column_data, expected)

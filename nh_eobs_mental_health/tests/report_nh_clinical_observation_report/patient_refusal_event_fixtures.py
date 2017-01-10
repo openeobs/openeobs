@@ -14,7 +14,7 @@ refusal_episode_first = {
 }
 refusal_episode_second = {
     'count': 1,
-    'first_refusal_date_terminated': '2017-01-03 17:49:13.36621',
+    'first_refusal_date_terminated': '2017-01-03 17:50:13.36621',
     'freq_date_terminated': None,
     'freq_state': None,
     'freq_terminate_uid': None,
@@ -25,7 +25,7 @@ refusal_episode_second = {
 }
 refusal_episode_third = {
     'count': 1,
-    'first_refusal_date_terminated': '2017-01-03 17:49:14.36621',
+    'first_refusal_date_terminated': '2017-01-03 17:51:14.36621',
     'freq_date_terminated': None,
     'freq_state': None,
     'freq_terminate_uid': None,

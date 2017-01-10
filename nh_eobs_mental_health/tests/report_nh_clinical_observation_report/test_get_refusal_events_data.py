@@ -35,18 +35,18 @@ class TestGetRefusalEventsData(TransactionCase):
     def test_number_of_report_entries(self):
         self.call_test()
         expected = \
-            len(patient_refusal_event_fixtures.mock_get_refusal_episodes)
+            len(patient_refusal_event_fixtures.refusal_episodes)
         actual = len(self.refusal_events_data)
         self.assertEqual(expected, actual)
 
-    def test_ordered_chronologically_ascending(self):
+    def test_ordered_chronologically_descending(self):
         self.call_test()
         datetime_objects = \
             [datetime.strptime(episode['first_refusal'],
                                self.datetime_format)
              for episode in self.refusal_events_data]
         datetime_objects_sorted = deepcopy(datetime_objects)
-        sorted(datetime_objects_sorted)
+        datetime_objects_sorted = sorted(datetime_objects_sorted, reverse=True)
 
         self.assertEqual(datetime_objects,
                          datetime_objects_sorted)
