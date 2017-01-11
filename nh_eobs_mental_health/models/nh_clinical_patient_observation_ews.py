@@ -69,13 +69,6 @@ class NHClinicalPatientObservationEWS(orm.Model):
         ews_parent = activity.creator_id
         ews_model_name = 'nh.clinical.patient.observation.ews'
 
-        _logger.info("Previous model name is {}".format(
-            ews_parent.data_ref._name))
-        _logger.info("EWS parent data_ref is {}".format(ews_parent.data_ref))
-        _logger.info("Calling refusal in effect {}".format(
-            bool(ews_parent.data_ref and ews_parent.data_ref._name ==
-                 ews_model_name)))
-
         if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
             patient_refusing = self.is_refusal_in_effect(
                 cr, uid, ews_parent.id, context=context)
@@ -176,7 +169,6 @@ class NHClinicalPatientObservationEWS(orm.Model):
         cr.execute(
             'SELECT refused.refused, '
             'acts.date_terminated, '
-            'spell.move_date '
             'FROM refused_ews_activities AS refused '
             'RIGHT OUTER JOIN wb_activity_ranked AS acts '
             'ON acts.id = refused.id '
@@ -198,7 +190,6 @@ class NHClinicalPatientObservationEWS(orm.Model):
             )
         )
         result = cr.dictfetchall()
-        _logger.info("Return from is refusal in effect is {}".format(result))
         if result:
             return result[0].get('refused', False)
         return False

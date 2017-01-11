@@ -16,7 +16,7 @@ class TestGetReportData(TransactionCase):
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.create_patient_and_spell()
         report_data = {
-            'spell_id': self.spell_activity.id,
+            'spell_id': self.test_utils_model.spell.id,
             'start_date': None,
             'end_date': None,
             'ews_only': True

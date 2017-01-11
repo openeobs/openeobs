@@ -1,12 +1,9 @@
-import logging
 import time
 from datetime import datetime
 
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-
-_logger = logging.getLogger(__name__)
 
 
 class TestGetRefusalEpisodesClinicalReview(TransactionCase):
@@ -25,8 +22,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
 
         self.refused_ews_activity = self.test_utils_model.ews_activity
-        _logger.info("Refused EWS ID is {}.".format(
-            self.refused_ews_activity.id))
 
         self.spell_activity_id = self.test_utils_model.spell_activity_id
         self.refused_obs = clinical_risk_sample_data.REFUSED_DATA
@@ -158,8 +153,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.partial_obs)
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         self.test_utils_model.find_and_complete_clinical_review(ews_id)
         values = self.report_model.get_refusal_episodes(
@@ -178,12 +171,8 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 2)
@@ -199,14 +188,10 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         self.test_utils_model.find_and_complete_clinical_review(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 2)
@@ -221,12 +206,8 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
@@ -247,13 +228,9 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.complete_obs(self.refused_obs)
         ews_id = self.test_utils_model.ews_activity.id
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 2)
         self.assertEqual(values[0].get('count'), 1)
@@ -278,13 +255,9 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.test_utils_model.find_and_complete_clinical_review(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 2)
         self.assertEqual(values[0].get('count'), 1)
@@ -301,13 +274,9 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.transfer_patient('WB')
         ews_id = self.test_utils_model.ews_activity.id
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.report_model.get_refusal_episodes(self.spell_activity_id)
         self.assertEqual(len(values), 1)
@@ -323,13 +292,9 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.discharge_patient()
         ews_id = self.test_utils_model.ews_activity.id
 
-        _logger.info("Refused EWS ID is {}.".format(ews_id))
-
         self.ews_model.schedule_clinical_review_notification(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
-
-        _logger.info("Values are {}.".format(values))
 
         self.assertEqual(len(values), 1)
         self.assertEqual(values[0].get('count'), 1)
