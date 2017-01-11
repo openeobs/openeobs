@@ -73,8 +73,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
             ews_parent.data_ref._name))
         _logger.info("EWS parent data_ref is {}".format(ews_parent.data_ref))
         _logger.info("Calling refusal in effect {}".format(
-            bool(ews_parent.data_ref
-                 and ews_parent.data_ref._name == ews_model_name)))
+            bool(ews_parent.data_ref and ews_parent.data_ref._name ==
+                 ews_model_name)))
 
         if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
             patient_refusing = self.is_refusal_in_effect(

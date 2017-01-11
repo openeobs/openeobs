@@ -13,8 +13,10 @@ class TestGetReportData(TransactionCase):
     def setUp(self):
         super(TestGetReportData, self).setUp()
         self.report_model = self.env['report.nh.clinical.observation_report']
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model.create_patient_and_spell()
         report_data = {
-            'spell_id': 1,
+            'spell_id': self.spell_activity.id,
             'start_date': None,
             'end_date': None,
             'ews_only': True
