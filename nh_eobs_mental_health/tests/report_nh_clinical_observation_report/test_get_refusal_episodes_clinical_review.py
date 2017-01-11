@@ -25,7 +25,8 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         self.test_utils_model.get_open_obs()
 
         self.refused_ews_activity = self.test_utils_model.ews_activity
-        _logger.info("Refused EWS ID is {}.".format(self.refused_ews_activity.id))
+        _logger.info("Refused EWS ID is {}.".format(
+            self.refused_ews_activity.id))
 
         self.spell_activity_id = self.test_utils_model.spell_activity_id
         self.refused_obs = clinical_risk_sample_data.REFUSED_DATA
@@ -318,8 +319,8 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         Test that having a refusal then a discharge returns a count of 1
         """
         self.test_utils_model.complete_obs(self.refused_obs)
-        self.test_utils_model.discharge_patient()
         time.sleep(2)
+        self.test_utils_model.discharge_patient()
         ews_id = self.test_utils_model.ews_activity.id
 
         _logger.info("Refused EWS ID is {}.".format(ews_id))
