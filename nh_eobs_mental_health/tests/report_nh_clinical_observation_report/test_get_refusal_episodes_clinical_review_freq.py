@@ -184,13 +184,13 @@ class TestGetRefusalEpisodesClinicalReviewFreq(TransactionCase):
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
-        time.sleep(4)
+        time.sleep(2)
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
-        time.sleep(4)
+        time.sleep(2)
         self.test_utils_model.find_and_complete_clinical_review(ews_id)
         values = self.report_model.get_refusal_episodes(
             self.spell_activity_id)
@@ -208,13 +208,13 @@ class TestGetRefusalEpisodesClinicalReviewFreq(TransactionCase):
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
-        time.sleep(4)
+        time.sleep(2)
         self.test_utils_model.get_open_obs()
         self.test_utils_model.complete_obs(self.refused_obs)
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
-        time.sleep(4)
+        time.sleep(2)
         review_id = \
             self.test_utils_model.find_and_complete_clinical_review(ews_id)
         self.test_utils_model.find_and_complete_clinical_review_freq(

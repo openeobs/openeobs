@@ -1,9 +1,12 @@
+import logging
 from datetime import datetime, timedelta
 
 from openerp import SUPERUSER_ID
 from openerp import api
 from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
+_logger = logging.getLogger(__name__)
 
 
 class NHClinicalPatientObservationEWS(orm.Model):
@@ -65,6 +68,9 @@ class NHClinicalPatientObservationEWS(orm.Model):
         ews = activity.data_ref
         ews_parent = activity.creator_id
         ews_model_name = 'nh.clinical.patient.observation.ews'
+        _logger.info("Previous model name is {}".format(ews_parent.data_ref._name))
+        _logger.info("EWS parent data_ref is {}".format(ews_parent.data_ref))
+        _logger.info("Calling refusal in effect {}".format(bool(ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name)))
         if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
             patient_refusing = self.is_refusal_in_effect(
                 cr, uid, ews_parent.id, context=context)
@@ -109,6 +115,12 @@ class NHClinicalPatientObservationEWS(orm.Model):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
         still_valid = self.is_refusal_in_effect(activity_id, mode='child')
+
+        message = "Refusal still in effect, creating clinical review task." \
+            if still_valid else "Refusal no longer in effect, no clinical " \
+                                "review task will be created."
+        _logger.info(message)
+
         if still_valid:
             self.create_clinical_review_task(activity)
 
@@ -155,9 +167,11 @@ class NHClinicalPatientObservationEWS(orm.Model):
         if mode == 'child':
             column = 'first_activity_id'
             first_act_order = 'ASC'
+
         cr.execute(
             'SELECT refused.refused, '
-            'acts.date_terminated '
+            'acts.date_terminated, '
+            'spell.move_date '
             'FROM refused_ews_activities AS refused '
             'RIGHT OUTER JOIN wb_activity_ranked AS acts '
             'ON acts.id = refused.id '
@@ -179,6 +193,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
             )
         )
         result = cr.dictfetchall()
+        _logger.info("Return from is refusal in effect is {}".format(result))
         if result:
             return result[0].get('refused', False)
         return False

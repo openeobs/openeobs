@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
 
 from openerp import models
+
+_logger = logging.getLogger(__name__)
 
 
 class MentalHealthObservationReport(models.AbstractModel):
@@ -35,7 +38,7 @@ class MentalHealthObservationReport(models.AbstractModel):
         """
         Collect the refusal episodes for the spell provided
 
-        :param spell_id: Spell Id for the patient
+        :param spell_activity_id: Spell activity id for the patient
         :return: list of dicts
         :rtype: list
         """
