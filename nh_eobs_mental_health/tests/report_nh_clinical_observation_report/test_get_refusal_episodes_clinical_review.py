@@ -237,6 +237,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         then a refusal triggers the review for the latest refusal only
         """
         self.test_utils_model.complete_obs(self.refused_obs)
+        time.sleep(2)
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
@@ -249,7 +250,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
 
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
-        time.sleep(2)
         values = self.report_model.get_refusal_episodes(self.spell_activity_id)
 
         _logger.info("Values are {}.".format(values))
@@ -266,6 +266,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         returns a count of 1
         """
         self.test_utils_model.complete_obs(self.refused_obs)
+        time.sleep(2)
         first_ews_id = self.test_utils_model.ews_activity.id
         self.test_utils_model.start_pme()
         self.test_utils_model.end_pme()
@@ -275,7 +276,6 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         ews_id = self.test_utils_model.ews_activity.id
         self.ews_model.schedule_clinical_review_notification(first_ews_id)
         self.ews_model.schedule_clinical_review_notification(ews_id)
-        time.sleep(2)
 
         _logger.info("Refused EWS ID is {}.".format(ews_id))
 
@@ -296,6 +296,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         Test that having a refusal then a transfer returns a count of 1
         """
         self.test_utils_model.complete_obs(self.refused_obs)
+        time.sleep(2)
         self.test_utils_model.transfer_patient('WB')
         ews_id = self.test_utils_model.ews_activity.id
 
@@ -318,6 +319,7 @@ class TestGetRefusalEpisodesClinicalReview(TransactionCase):
         """
         self.test_utils_model.complete_obs(self.refused_obs)
         self.test_utils_model.discharge_patient()
+        time.sleep(2)
         ews_id = self.test_utils_model.ews_activity.id
 
         _logger.info("Refused EWS ID is {}.".format(ews_id))
