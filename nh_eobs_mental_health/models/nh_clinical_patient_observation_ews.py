@@ -168,7 +168,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
 
         cr.execute(
             'SELECT refused.refused, '
-            'acts.date_terminated, '
+            'acts.date_terminated '
             'FROM refused_ews_activities AS refused '
             'RIGHT OUTER JOIN wb_activity_ranked AS acts '
             'ON acts.id = refused.id '
