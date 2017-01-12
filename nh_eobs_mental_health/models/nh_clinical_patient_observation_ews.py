@@ -1,12 +1,9 @@
-import logging
 from datetime import datetime, timedelta
 
 from openerp import SUPERUSER_ID
 from openerp import api
 from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-
-_logger = logging.getLogger(__name__)
 
 
 class NHClinicalPatientObservationEWS(orm.Model):
@@ -113,11 +110,6 @@ class NHClinicalPatientObservationEWS(orm.Model):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
         still_valid = self.is_refusal_in_effect(activity_id, mode='child')
-
-        message = "Refusal still in effect, creating clinical review task." \
-            if still_valid else "Refusal no longer in effect, no clinical " \
-                                "review task will be created."
-        _logger.info(message)
 
         if still_valid:
             self.create_clinical_review_task(activity)
