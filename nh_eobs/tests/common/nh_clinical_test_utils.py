@@ -167,5 +167,3 @@ class NhClinicalTestUtils(AbstractModel):
                 "[text()[contains(.,'{}')]]"
                 "/parent::td/parent::tr/parent::table/tr[last()]/td[last()]"
                 .format(activity_summary))[0].itertext()).strip()
-
-
