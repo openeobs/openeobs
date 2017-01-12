@@ -645,11 +645,12 @@ class nh_eobs_api(orm.AbstractModel):
 
     def collect_patients(self, cr, uid, domain, context=None):
         """
-        Collect patients for a given domain and return SQL output
-        :param cr: odoo cursor
+        Collect patients for a given domain and return SQL output.
+
+        :param cr: Odoo cursor
         :param uid: user ID for user doing operation
         :param domain: search domain to use
-        :param context: ODoo context
+        :param context: Odoo context
         :return: list of dicts
         """
         activity_pool = self.pool['nh.activity']
