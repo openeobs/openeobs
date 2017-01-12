@@ -11,8 +11,8 @@
             </xpath>
         </template>
         <template id="nh_eobs_mental_health.base" inherit_id="nh_eobs_mobile.base">
-            <xpath expr="//html/head/script[@src='/nh_eobs_mobile/static/src/js/nhlib.js?version=2']" position="replace">
-                <script src="/nh_eobs_mental_health/static/src/js/nhlib.js?version=2" type="text/javascript"></script>
+            <xpath expr="//html/head/script[@src='/nh_eobs_mobile/static/src/js/nhlib.js?version=3']" position="replace">
+                <script src="/nh_eobs_mental_health/static/src/js/nhlib.js?version=3" type="text/javascript"></script>
             </xpath>
         </template>
     </data>

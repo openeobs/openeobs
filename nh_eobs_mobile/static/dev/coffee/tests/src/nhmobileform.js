@@ -410,7 +410,7 @@ NHMobileForm = (function(superClass) {
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
     return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, len, len1, os, pos, ref, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, k, len, len1, len2, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
       server_data = raw_data[0];
       data = server_data.data;
       body = document.getElementsByTagName('body')[0];
@@ -445,23 +445,40 @@ NHMobileForm = (function(superClass) {
         task_list = triggered_tasks ? triggered_tasks : pos;
         return new window.NH.NHModal('submit_success', server_data.title, task_list, buttons, 0, body);
       } else if (server_data.status === 'success' && data.status === 4) {
-        btn = '<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>';
-        return new window.NH.NHModal('cancel_success', server_data.title, '<p>' + server_data.desc + '</p>', [btn], 0, self.form);
+        triggered_tasks = '';
+        buttons = ['<a href="' + self.urls['task_list']().url + '" data-action="confirm" data-target="cancel_success">' + 'Go to My Tasks</a>'];
+        if (data.related_tasks.length === 1) {
+          triggered_tasks = '<p>' + data.related_tasks[0].summary + '</p>';
+          rt_url = self.urls['single_task'](data.related_tasks[0].id).url;
+          buttons.push('<a href="' + rt_url + '">Confirm</a>');
+        } else if (data.related_tasks.length > 1) {
+          tasks = '';
+          ref1 = data.related_tasks;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            task = ref1[j];
+            st_url = self.urls['single_task'](task.id).url;
+            tasks += '<li><a href="' + st_url + '">' + task.summary + '</a></li>';
+          }
+          triggered_tasks = '<ul class="menu">' + tasks + '</ul>';
+        }
+        pos = '<p>' + server_data.desc + '</p>';
+        task_list = triggered_tasks ? triggered_tasks : pos;
+        return new window.NH.NHModal('cancel_success', server_data.title, task_list, buttons, 0, self.form);
       } else {
         action_buttons = (function() {
-          var j, len1, ref1, ref2, results;
-          ref1 = self.form.elements;
+          var k, len2, ref2, ref3, results;
+          ref2 = self.form.elements;
           results = [];
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            element = ref1[j];
-            if ((ref2 = element.getAttribute('type')) === 'submit' || ref2 === 'reset') {
+          for (k = 0, len2 = ref2.length; k < len2; k++) {
+            element = ref2[k];
+            if ((ref3 = element.getAttribute('type')) === 'submit' || ref3 === 'reset') {
               results.push(element);
             }
           }
           return results;
         })();
-        for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-          button = action_buttons[j];
+        for (k = 0, len2 = action_buttons.length; k < len2; k++) {
+          button = action_buttons[k];
           button.removeAttribute('disabled');
         }
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
