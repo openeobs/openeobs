@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from openerp.models import AbstractModel
+from lxml import etree
+from openerp.addons.nh_eobs.report.helpers import DataObj
 
 
 class NhClinicalTestUtils(AbstractModel):
@@ -98,3 +100,72 @@ class NhClinicalTestUtils(AbstractModel):
             'nurse': other_nurse,
             'hca': other_hca
         }
+
+    def complete_open_activity(self, data_model, user_id=None):
+        """
+        Find and complete open activity in specified model
+
+        :param data_model: Model to complete
+        :param user_id: user to complete as
+        """
+        if not user_id:
+            user_id = self.nurse.id
+        api_pool = self.pool['nh.eobs.api']
+        activity_model = self.env['nh.activity']
+        task = activity_model.search([
+            ['state', 'not in', ['completed', 'cancelled']],
+            ['user_ids', 'in', [user_id]],
+            ['data_model', '=', data_model]
+        ])
+        api_pool.complete(
+            self.env.cr,
+            user_id,
+            task.id,
+            {}
+        )
+
+    def cancel_open_activity(self, data_model, user_id=None):
+        """
+        Find and cancel open activity in specified model
+
+        :param data_model: Model to cancel
+        :param user_id: user to cancel as
+        """
+        if not user_id:
+            user_id = self.nurse.id
+        api_pool = self.pool['nh.eobs.api']
+        activity_model = self.env['nh.activity']
+        task = activity_model.search([
+            ['state', 'not in', ['completed', 'cancelled']],
+            ['user_ids', 'in', [user_id]],
+            ['data_model', '=', data_model]
+        ])
+        api_pool.cancel(
+            self.env.cr,
+            user_id,
+            task.id,
+            {}
+        )
+
+    def get_report_triggered_action_status(self, activity_summary):
+        """
+        Generate report and find triggered action with summary
+
+        :param activity_summary: String of triggered action summary
+        :return: text content of status node in report
+        """
+        report_model = self.env['report.nh.clinical.observation_report']
+        report = report_model.browse(self.spell.id)
+        data = DataObj(spell_id=self.spell.id)
+        report_data = report.get_report_data(data)
+        report_html = self.env['report'].render(
+            'nh_eobs.observation_report', report_data)
+        root = etree.fromstring(report_html)
+        return ''.join(
+            root.xpath(
+                "//h4[@class='triggered_action_task_header']"
+                "[text()[contains(.,'{}')]]"
+                "/parent::td/parent::tr/parent::table/tr[last()]/td[last()]"
+                .format(activity_summary))[0].itertext()).strip()
+
+
