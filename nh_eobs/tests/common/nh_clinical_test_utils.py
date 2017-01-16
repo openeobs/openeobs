@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from openerp.models import AbstractModel
 from lxml import etree
 from openerp.addons.nh_eobs.report.helpers import DataObj
+from openerp.models import AbstractModel
 
 
 class NhClinicalTestUtils(AbstractModel):
@@ -33,6 +33,7 @@ class NhClinicalTestUtils(AbstractModel):
             [('patient_id', '=', self.patient_id)]
         )[0]
         self.spell_activity_id = self.spell.activity_id.id
+        # TODO: Rename variable as it is a spell not an activity.
         self.spell_activity = self.spell_model.browse(self.spell_activity_id)
 
     def create_and_register_patient(self):
