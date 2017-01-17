@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-
 from lxml import etree
 from openerp.addons.nh_eobs.report.helpers import DataObj
 from openerp.models import AbstractModel
-from lxml import etree
-from openerp.addons.nh_eobs.report.helpers import DataObj
 
 
 class NhClinicalTestUtils(AbstractModel):
