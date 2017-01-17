@@ -1,0 +1,28 @@
+.openerp .oe_kanban_view .oe_kanban_group_folded span.oe_kanban_group_title_vertical {
+    display: -webkit-box;
+}
+
+@media screen and (min-color-index:0) and(-webkit-min-device-pixel-ratio:0)
+{ @media {
+    .openerp .oe_kanban_view .oe_kanban_group_folded .oe_kanban_group_title_vertical {
+
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
+
+    }
+}}
+
+@supports (-ms-accelerator:true) {
+  .openerp .oe_kanban_view .oe_kanban_group_folded .oe_kanban_group_title_vertical {
+        transform: rotate(0deg);
+
+    }
+}
+
+@-moz-document url-prefix() {
+    .openerp .oe_kanban_view .oe_kanban_group_folded .oe_kanban_group_title_vertical {
+        transform: rotate(0deg);
+        position: absolute;
+        top: 40px;
+    }
+}
