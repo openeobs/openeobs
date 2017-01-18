@@ -32,8 +32,6 @@ class nh_clinical_notification(orm.AbstractModel):
             'nh.clinical.patient', 'Patient', required=True),
         'reason': fields.text('Reason'),
     }
-    # TODO EOBS-729: Get form description returns a list with 1 dictionary
-    # - list appears to be redundant
     _form_description = []
 
     def get_form_description(self, cr, uid, patient_id, context=None):
