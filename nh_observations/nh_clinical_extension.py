@@ -184,6 +184,7 @@ class nh_clinical_api_extension(orm.AbstractModel):
                 # TODO EOBS-731: Refactor creation of activities from
                 # triggered notifications
                 if n['model'] in ['frequency',
+                                  'frequency_agreed',
                                   'select_frequency',
                                   'weekly_frequency',
                                   'clinical_review_frequency']:
