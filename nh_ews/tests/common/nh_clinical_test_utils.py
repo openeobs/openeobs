@@ -10,6 +10,7 @@ class NhClinicalTestUtils(AbstractModel):
     _name = 'nh.clinical.test_utils'
     _inherit = 'nh.clinical.test_utils'
 
+    # TODO Rename to get_open_obs_activity
     def get_open_obs(self, patient_id=None, data_model=None, user_id=None):
         """
         Search for the currently open observation for the data model and
