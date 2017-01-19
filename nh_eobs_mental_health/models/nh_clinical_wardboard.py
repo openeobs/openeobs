@@ -381,7 +381,7 @@ class NHClinicalWardboard(orm.Model):
         :returns: Tuple of groups and folded states
         """
         group_list = copy.deepcopy(self.acuity_selection)
-        fold_dict = {group[0]: False for group in group_list}
+        fold_dict = {group[0]: group[0] not in ids for group in group_list}
         return group_list, fold_dict
 
     _group_by_full = {

@@ -41,5 +41,52 @@ openerp.nh_eobs_mental_health = function (instance) {
             this._super(field_manager, node);
             this.refused = true;
         }
-    })
+    });
+
+    instance.web_kanban.KanbanGroup.include({
+        init: function (parent, records, group, dataset) {
+        var self = this;
+        this._super(parent);
+        this.$has_been_started = $.Deferred();
+        this.view = parent;
+        this.group = group;
+        this.dataset = dataset;
+        this.dataset_offset = 0;
+        this.aggregates = {};
+        this.value = this.title = null;
+        if (this.group) {
+            this.value = group.get('value');
+            this.title = group.get('value');
+            if (this.value instanceof Array) {
+                this.title = this.value[1];
+                this.value = this.value[0];
+            }
+            var field = this.view.group_by_field;
+            if (!_.isEmpty(field)) {
+                try {
+                    this.title = instance.web.format_value(group.get('value'), field, false);
+                } catch(e) {}
+            }
+            _.each(this.view.aggregates, function(value, key) {
+                self.aggregates[value] = instance.web.format_value(group.get('aggregates')[key], {type: 'float'});
+            });
+        }
+
+        if (this.title === false) {
+            this.title = _t('Undefined');
+            this.undefined_title = true;
+        }
+        var key = this.view.group_by + '-' + this.value;
+        this.view.state.groups[key] = {
+            folded: group ? group.get('folded') : false
+        };
+        this.state = this.view.state.groups[key];
+        this.$records = null;
+
+        this.records = [];
+        this.$has_been_started.done(function() {
+            self.do_add_records(records);
+        });
+    },
+    });
 }
