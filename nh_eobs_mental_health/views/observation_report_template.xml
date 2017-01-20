@@ -32,5 +32,64 @@
                 </td>
             </xpath>
         </template>
+
+        <!-- Add 'Patient Refusal Events' section. -->
+        <template id="observation_report_mental_health" inherit_id="nh_eobs.observation_report">
+            <xpath expr="//div[@id = 'patient_monitoring_exceptions']" position="after">
+                <t t-if="patient_refusal_events">
+                    <div class="row col-xs-12">
+                        <h3>Patient Refusal Events</h3>
+                        <table class="striped col-xs-12 row">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-3">First Refusal</th>
+                                    <th class="col-xs-3">Refusals until NEWS Obs taken</th>
+                                    <th class="col-xs-3">Clinical Review</th>
+                                    <th class="col-xs-3">Clinical Review Frequency Set</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="patient_refusal_events" t-as="patient_refusal_event">
+                                    <t t-call="nh_eobs_mental_health.patient_refusal_event"/>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+
+        <template id="patient_refusal_event">
+            <tr class="main-entry">
+                <td class="col-xs-3">
+                    <t t-esc="patient_refusal_event['first_refusal']"/>
+                </td>
+                <td class="col-xs-3">
+                    <t t-esc="patient_refusal_event['refusals_until_news_obs_taken']"/>
+                </td>
+                <td class="col-xs-3 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <t t-set="clinical_review" t-value="patient_refusal_event['clinical_review']"/>
+                        <t t-if="isinstance(clinical_review, dict)">
+                            <t t-esc="clinical_review['date_terminated']"/><br/><t t-esc="clinical_review['user_id']"/>
+                        </t>
+                        <t t-if="not isinstance(clinical_review, dict)">
+                            <t t-esc="clinical_review"/>
+                        </t>
+                    </table>
+                </td>
+                <td class="col-xs-3 pre-pre-compact-data">
+                    <table class="pre-compact-data col-xs-12 row">
+                        <t t-set="clinical_review_frequency_set" t-value="patient_refusal_event['clinical_review_frequency_set']"/>
+                        <t t-if="isinstance(clinical_review_frequency_set, dict)">
+                            <t t-esc="clinical_review_frequency_set['date_terminated']"/><br/><t t-esc="clinical_review_frequency_set['user_id']"/>
+                        </t>
+                        <t t-if="not isinstance(clinical_review_frequency_set, dict)">
+                            <t t-esc="clinical_review_frequency_set"/>
+                        </t>
+                    </table>
+                </td>
+            </tr>
+        </template>
     </data>
 </openerp>

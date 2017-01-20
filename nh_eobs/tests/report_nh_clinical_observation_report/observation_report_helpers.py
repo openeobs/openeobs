@@ -42,7 +42,6 @@ class ObservationReportHelpers(TransactionCase):
         'score': '1',
         'clinical_risk': 'Medium',
         'is_partial': False,
-        'partial_reason': 'refused',
         'device_id': [1, 'Test Device'],
         'flow_rate': 5,
         'concentration': 0,
@@ -590,9 +589,9 @@ class ObservationReportHelpers(TransactionCase):
             return copy.deepcopy(self.company_name_values)
 
         def mock_triggered_actions(*args, **kwargs):
-            return [17]
+            return []
 
-        self.report_pool._patch_method('get_triggered_action_ids',
+        self.report_pool._patch_method('get_triggered_actions',
                                        mock_triggered_actions)
         self.spell_pool._patch_method('read', spell_pool_mock_spell)
         self.patient_pool._patch_method('read', patient_pool_mock_patient)
@@ -659,5 +658,5 @@ class ObservationReportHelpers(TransactionCase):
         self.partner_pool._revert_method('read')
         self.company_pool._revert_method('read')
         self.o2level_pool._revert_method('browse')
-        self.report_pool._revert_method('get_triggered_action_ids')
+        self.report_pool._revert_method('get_triggered_actions')
         super(ObservationReportHelpers, self).tearDown()

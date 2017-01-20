@@ -8,6 +8,9 @@ Terminology
 ===========
 report entry: A single line on the report. One activity may result in multiple
 'entries' on the report.
+
+report data: A giant dictionary containing all data that will be used to
+generate the report.
 """
 import copy
 import json
@@ -21,11 +24,13 @@ from . import helpers
 
 
 class ObservationReport(models.AbstractModel):
+
     _name = 'report.nh.clinical.observation_report'
 
     pretty_date_format = '%H:%M %d/%m/%y'
     wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
+    spell_activity_id = None
 
     monitoring_dict = {
         'targeto2': 'nh.clinical.patient.o2target',
@@ -83,6 +88,7 @@ class ObservationReport(models.AbstractModel):
         spell = spell_pool.read(cr, uid, [spell_id])[0]
         dates = self.process_report_dates(data, spell, base_report)
         spell_activity_id = spell['activity_id'][0]
+        self.spell_activity_id = spell_activity_id
 
         spell_docs = spell['con_doctor_ids']
         spell['consultants'] = False
@@ -526,6 +532,9 @@ class ObservationReport(models.AbstractModel):
     def convert_partial_reasons_to_labels(self, ews_obs):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         for ews in ews_obs:
+            partial_reason = ews.get('values', {}).get('partial_reason', None)
+            if not partial_reason:
+                continue
             if ews['values']['partial_reason'] == 'refused':
                 ews['values']['partial_reason'] = 'Refusal'
             else:

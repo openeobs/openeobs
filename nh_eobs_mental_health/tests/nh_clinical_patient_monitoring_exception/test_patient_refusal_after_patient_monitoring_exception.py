@@ -2,8 +2,6 @@
 from datetime import datetime, timedelta
 
 from openerp.addons.nh_observations import frequencies
-from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
-    import DatetimeTestUtils
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
@@ -37,7 +35,7 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
             'patient_id': self.patient
         })
         self.test_utils_model = self.env['nh.clinical.test_utils']
-        self.datetime_test_utils = DatetimeTestUtils()
+        self.datetime_test_utils = self.env['datetime_test_utils']
 
     def test_obs_after_refusal_due_in_one_hour(self):
         reason_one = self.reason_model.create({'display_text': 'reason one'})

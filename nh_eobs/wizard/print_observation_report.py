@@ -58,7 +58,6 @@ class print_observation_report_wizard(osv.TransientModel):
             cr, uid, ids, 'nh.clinical.observation_report',
             data=data, context=context)
         attachment_id = None
-        #
         # save it as an attachment in the Database
         # Use the spell ID to find the patient's NHS number
         spell = spell_pool.read(cr, uid, [data.spell_id])[0]

@@ -83,8 +83,13 @@ class NhClinicalTestUtils(AbstractModel):
         activity_model = self.env['nh.activity']
 
         obs_activity_id = ews_model.create_activity(
-            {'date_scheduled': datetime.now(), 'parent_id': spell_id},
-            {'patient_id': patient_id}
+            {
+                'date_scheduled': datetime.now(),
+                'parent_id': spell_id
+            },
+            {
+                'patient_id': patient_id
+            }
         )
         activity_pool.submit(self.env.cr, self.env.uid,
                              obs_activity_id, obs_data)
