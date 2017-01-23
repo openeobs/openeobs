@@ -65,6 +65,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         ews = activity.data_ref
         ews_parent = activity.creator_id
         ews_model_name = 'nh.clinical.patient.observation.ews'
+
         if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
             patient_refusing = self.is_refusal_in_effect(
                 cr, uid, ews_parent.id, context=context)
@@ -109,6 +110,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
         still_valid = self.is_refusal_in_effect(activity_id, mode='child')
+
         if still_valid:
             self.create_clinical_review_task(activity)
 
@@ -155,6 +157,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         if mode == 'child':
             column = 'first_activity_id'
             first_act_order = 'ASC'
+
         cr.execute(
             'SELECT refused.refused, '
             'acts.date_terminated '

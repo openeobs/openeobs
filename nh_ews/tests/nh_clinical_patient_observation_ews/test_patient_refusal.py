@@ -3,8 +3,6 @@ from datetime import datetime, timedelta
 
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
 from openerp.addons.nh_observations import frequencies
-from openerp.addons.nh_odoo_fixes.tests.utils.datetime_test_utils \
-    import DatetimeTestUtils
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
@@ -20,7 +18,7 @@ class TestPatientRefusal(TransactionCase):
         self.ews_model = self.env['nh.clinical.patient.observation.ews']
         # nh.eobs.api not available to this module
         self.api_model = self.env['nh.clinical.api']
-        self.datetime_test_utils = DatetimeTestUtils()
+        self.datetime_test_utils = self.env['datetime_test_utils']
 
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
