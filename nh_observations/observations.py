@@ -108,7 +108,8 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         'null_values': fields.text('Non-updated numeric fields'),
         'frequency': fields.selection(frequencies.as_list(), 'Frequency'),
         'partial_reason': fields.selection(_partial_reasons,
-                                           'Reason if partial observation')
+                                           'Reason if partial observation',
+                                           select=True)
     }
     _defaults = {
 
