@@ -40,6 +40,7 @@ openerp.nh_eobs_mental_health = function (instance) {
         init: function (field_manager, node) {
             this._super(field_manager, node);
             this.refused = true;
+            this.partial_type = 'character';
         }
     });
 

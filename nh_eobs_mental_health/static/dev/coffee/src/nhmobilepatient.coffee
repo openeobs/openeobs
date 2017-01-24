@@ -5,7 +5,7 @@
 class NHMobilePatientMentalHealth extends NHMobilePatient
 
   constructor: () ->
-    super(refused=true)
+    super(refused=true, partial_type='character')
 
 ### istanbul ignore if ###
 if !window.NH

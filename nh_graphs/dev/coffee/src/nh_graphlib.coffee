@@ -55,6 +55,7 @@ class NHGraphLib
       },
       ranged: null,
       refused: false,
+      partial_type: 'dot',
       controls: {
         date: {
           start: null,
