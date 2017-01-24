@@ -1,7 +1,9 @@
 obs_data = obs_data.map(function(obs){
     // Observation report changes refused -> Refusal so we need to change it back
+    if(obs.is_partial){
+        obs.score = false;
+    }
    if(obs.partial_reason === 'Refusal'){
-       obs.score = false;
        obs.partial_reason = 'refused';
    }
    return obs
@@ -104,6 +106,7 @@ context.title = 'NEWS Score';
 context.style.margin.bottom = 0;
 //context.style.margin.top = 35;
 svg.options.refused = true;
+svg.options.partial_type = 'character';
 svg.focus = focus;
 svg.context = context;
 svg.data.raw = obs_data;
