@@ -154,8 +154,10 @@ class TestFoodFluidFormDescription(TransactionCase):
         reference = entry.get('reference')
         self.assertIsNotNone(reference)
         self.assertEqual(reference.get('type'), 'image')
-        self.assertEqual(reference.get('url'),
-            '/nh_stools/static/src/img/bristol_stools.png')
+        self.assertEqual(
+            reference.get('url'),
+            '/nh_stools/static/src/img/bristol_stools.png'
+        )
         self.assertEqual(reference.get('title'),
                          'Bristol Stools Reference Chart')
         self.assertEqual(reference.get('label'),
