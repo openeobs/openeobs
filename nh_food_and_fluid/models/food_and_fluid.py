@@ -97,7 +97,13 @@ class FoodAndFluid(orm.Model):
             'min': 0,
             'max': 5000,
             'label': 'Fluid Taken (ml) - Include IV / NG',
-            'initially_hidden': False
+            'initially_hidden': False,
+            'reference': {
+                'type': 'iframe',
+                'url': '/nh_food_and_fluid/static/src/html/fluid_taken.html',
+                'title': 'Fluid Taken Guidelines',
+                'label': 'Fluid Taken Guidelines'
+            }
         },
         {
             'name': 'fluid_description',
@@ -122,13 +128,21 @@ class FoodAndFluid(orm.Model):
             'type': 'selection',
             'label': 'Passed Urine',
             'selection': _passed_urine_options,
-            'initially_hidden': False
+            'initially_hidden': False,
+            'mandatory': True
         },
         {
             'name': 'bowels_open',
             'type': 'selection',
             'label': 'Bowels Open',
             'selection': _bowels_open_options,
-            'initially_hidden': False
+            'initially_hidden': False,
+            'reference': {
+                'type': 'image',
+                'url': '/nh_stools/static/src/img/bristol_stools.png',
+                'title': 'Bristol Stools Reference Chart',
+                'label': 'Bristol Stools Reference Chart'
+            },
+            'mandatory': True
         }
     ]

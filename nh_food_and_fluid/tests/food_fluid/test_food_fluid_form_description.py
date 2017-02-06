@@ -60,6 +60,15 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('max'), 5000)
         self.assertEqual(
             entry.get('label'), 'Fluid Taken (ml) - Include IV / NG')
+        reference = entry.get('reference')
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.get('type'), 'iframe')
+        self.assertEqual(reference.get('url'),
+                         '/nh_food_and_fluid/static/src/html/fluid_taken.html')
+        self.assertEqual(reference.get('title'),
+                         'Fluid Taken Guidelines')
+        self.assertEqual(reference.get('label'),
+                         'Fluid Taken Guidelines')
 
     def test_fluid_description_dict(self):
         """
@@ -108,6 +117,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('name'), 'passed_urine')
         self.assertEqual(entry.get('type'), 'selection')
         self.assertEqual(entry.get('label'), 'Passed Urine')
+        self.assertTrue(entry.get('mandatory'))
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
 
     def test_bowels_open_dict(self):
@@ -139,4 +149,14 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('name'), 'bowels_open')
         self.assertEqual(entry.get('type'), 'selection')
         self.assertEqual(entry.get('label'), 'Bowels Open')
+        self.assertTrue(entry.get('mandatory'))
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
+        reference = entry.get('reference')
+        self.assertIsNotNone(reference)
+        self.assertEqual(reference.get('type'), 'image')
+        self.assertEqual(reference.get('url'),
+            '/nh_stools/static/src/img/bristol_stools.png')
+        self.assertEqual(reference.get('title'),
+                         'Bristol Stools Reference Chart')
+        self.assertEqual(reference.get('label'),
+                         'Bristol Stools Reference Chart')
