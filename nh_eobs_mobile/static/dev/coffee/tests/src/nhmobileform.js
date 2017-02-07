@@ -270,7 +270,7 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, btn, button, el, element, empty_elements, empty_mandatory, form_elements, i, invalid_elements, j, len, len1, msg;
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
     form_elements = (function() {
@@ -307,6 +307,17 @@ NHMobileForm = (function(superClass) {
       }
       return results;
     })();
+    empty_mandatory = (function() {
+      var i, len, results;
+      results = [];
+      for (i = 0, len = form_elements.length; i < len; i++) {
+        el = form_elements[i];
+        if (!el.value && el.required === true || el.value === '' && el.required === true) {
+          results.push(el);
+        }
+      }
+      return results;
+    })();
     if (invalid_elements.length < 1 && empty_elements.length < 1) {
       action_buttons = (function() {
         var i, len, ref, ref1, results;
@@ -325,7 +336,7 @@ NHMobileForm = (function(superClass) {
         button.setAttribute('disabled', 'disabled');
       }
       return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
-    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+    } else if (empty_mandatory.length > 0 || empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
       msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
