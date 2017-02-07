@@ -135,6 +135,38 @@ Markup:
       </div>
     </div>
   </div>
+  <div class="block obsSelectField" id="parent_recorded_concerns">
+      <div class="input-header">
+          <label for="recorded_concerns">
+              Recorded Concerns
+          </label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="recorded_concerns" value="1" class="checklist_box">
+                  <label>Dehydrated</label>
+              </li><li>
+                  <input type="checkbox" name="recorded_concerns" value="2" class="checklist_box">
+                  <label>Underweight / Malnourished</label>
+              </li><li>
+                  <input type="checkbox" name="recorded_concerns" value="3" class="checklist_box">
+                  <label>Refeeding Syndrome Risk</label>
+              </li><li>
+                  <input type="checkbox" name="recorded_concerns" value="4" class="checklist_box">
+                  <label>Medical Reason</label>
+              </li><li>
+                  <input type="checkbox" name="recorded_concerns" value="5" class="checklist_box">
+                  <label>Swallowing Risk - Modified Texture</label>
+              </li><li>
+                  <input type="checkbox" name="recorded_concerns" value="6" class="checklist_box">
+                  <label>Eating and Drinking Poorly</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help"></span>
+      </div>
+  </div>
   <div class="block obsSubmit">
     <input type="submit" value="Submit">
   </div>
@@ -310,6 +342,19 @@ Styleguide 2.3.1
         width: 100%;
         display: inline-block;
         text-align: center;
+      }
+      .checklist{
+          padding-left: 0;
+          li {
+            > label{
+              flex: 4 0 0;
+              margin: 0.8em 0;
+            }
+          }
+          input{
+            height: 2.4em;
+            margin: 0.5em 0;
+          }
       }
     }
   .obsSubmit, .obsConfirm{

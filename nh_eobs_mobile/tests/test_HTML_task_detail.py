@@ -294,13 +294,6 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
                 'initially_hidden': True
             },
             {
-                'name': 'text_pattern',
-                'type': 'text',
-                'label': 'Text Pattern',
-                'initially_hidden': False,
-                'regex': '^[0-9]{4,6}$'
-            },
-            {
                 'name': 'text_reference',
                 'type': 'text',
                 'label': 'Text Reference',

@@ -342,9 +342,13 @@
                 </div>
                 <div class="input-body">
                     <t t-set="options" t-value="item.get('selection')"/>
-                    <div t-foreach="options" t-as="option">
-                        <label><input type="checkbox" t-att-name="item.get('name')" t-att-value="option[0]"/><t t-esc="option[1]"/></label>
-                    </div>
+                    <ul class="checklist">
+                        <li t-foreach="options" t-as="option">
+                            <input type="checkbox" t-att-name="item.get('name')" t-att-value="option[0]" class="checklist_box"/>
+                            <label><t t-esc="option[1]"/></label>
+                        </li>
+                    </ul>
+
                     <t t-set="reference" t-value="item.get('reference')"/>
                     <t t-if="reference">
                         <p><button t-att-data-type="reference.get('type')" t-att-data-url="reference.get('url')" t-att-data-title="reference.get('title')" class="button reference exclude"><t t-esc="reference.get('label')"/></button></p>
