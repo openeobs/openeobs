@@ -1,0 +1,102 @@
+<openerp>
+    <data>
+        <template id="observation_data_select" name="ENHT Select Box" inherit_id="nh_eobs_mobile.observation_data_select">
+            <xpath expr="//span[@class='errors']" position="before">
+                <t t-if="item['name'] in ['pupil_right_size', 'pupil_left_size']">
+                    <p><button class="button exclude" data-type="iframe" data-url="/mobile/src/html/pupil_size_chart.html" data-title="Pupil Size Reference">Pupil Size Reference</button></p>
+                </t>
+            </xpath>
+        </template>
+
+        <template name="Pupil Size Reference" t-name="pupil_size_reference">
+            <html>
+                <head>
+                    <title>Pupil Size Chart test</title>
+                </head>
+                <body>
+                    <div>
+                        <table>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 8mm; height: 8mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>8mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 7mm; height: 7mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>7mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 6mm; height: 6mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>6mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 5mm; height: 5mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>5mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 4mm; height: 4mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>4mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 3mm; height: 3mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>3mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 2mm; height: 2mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>2mm</td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: center;">
+                                    <svg style="width: 1mm; height: 1mm; fill: white; background-color: white;" viewbox="0 0 20 20" class="pupil_size">
+                                        <circle cx="10" cy="10" r="10" style="fill: black; stroke-width: 0;"/>
+                                    </svg>
+                                </td>
+                                <td>1mm</td>
+                            </tr>
+                        </table>
+                        <div id="console"></div>
+                    </div>
+                    <script type="text/javascript">
+                        if(navigator.userAgent.indexOf('Rugged Mini Tablet') > -1 || navigator.userAgent.indexOf('MioCARE A105') > -1 || navigator.userAgent.indexOf('N450 Build') > -1){
+                            var pupil_sizes = document.getElementsByClassName('pupil_size');
+                            for(var i = 0; i &lt; pupil_sizes.length; i++){
+                              var pupil_size = pupil_sizes[i];
+                              var pupil_width = parseInt(pupil_size.style.width.replace('mm', ''));
+                              var new_pupil_width = Math.ceil(pupil_width * 1.7);
+                              pupil_size.style.width = new_pupil_width+'mm';
+                              pupil_size.style.height = new_pupil_width+'mm';
+                            }
+                        }
+                    </script>
+                </body>
+            </html>
+        </template>
+    </data>
+</openerp>

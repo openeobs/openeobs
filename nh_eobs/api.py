@@ -25,6 +25,12 @@ class nh_eobs_api(orm.AbstractModel):
 
     # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
+
+    # 'type' is the suffix of an observation model name.
+    # e.g. 'nh.clinical.patient.observation.ews'
+    #
+    # 'name' is the label that will appear in the UI when selecting the type of
+    # observation to perform.
     _active_observations = [
         {
             'type': 'ews',
