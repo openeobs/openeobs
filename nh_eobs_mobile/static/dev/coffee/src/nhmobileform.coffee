@@ -226,8 +226,9 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements when not element.value or \
       element.value is '')
     empty_mandatory =
-      (el for el in form_elements when not el.value and el.required is true \
-        or el.value is '' and el.required is true)
+      (el for el in form_elements when not el.value and \
+        el.getAttribute('data-required') is 'True' \
+        or el.value is '' and el.getAttribute('data-required') is 'True')
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
