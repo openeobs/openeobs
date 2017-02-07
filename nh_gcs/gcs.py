@@ -4,10 +4,11 @@
 `gcs.py` defines the Glasgow Coma Scale observation class and its
 standard behaviour and policy triggers based on this worldwide standard.
 """
-from openerp.osv import orm, fields, osv
-import logging
 import bisect
+import logging
+
 from openerp import SUPERUSER_ID
+from openerp.osv import orm, fields, osv
 
 _logger = logging.getLogger(__name__)
 
@@ -30,25 +31,30 @@ class nh_clinical_patient_observation_gcs(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
-    _eyes = [('4', '4: Opens eyes spontaneously'),
-             ('3', '3: Opens eyes in response to voice'),
-             ('2', '2: Opens eyes in response to painful stimuli'),
-             ('1', '1: Does not open eyes'),
-             ('C', 'C: Closed by swelling')]
-    _verbal = [('5', '5: Oriented, converses normally'),
-               ('4', '4: Confused, disoriented'),
-               ('3', '3: Utters inappropiate words'),
-               ('2', '2: Incomprehensible sounds'),
-               ('1', '1: Makes no sounds'),
-               ('T', 'T: Intubated')]
-    _motor = [('6', '6: Obeys commands'),
-              ('5', '5: Localizes painful stimuli'),
-              ('4', '4: Flexion / Withdrawal to painful stimuli'),
-              ('3', '3: Abnormal flexion to painful stimuli '
-                    '(decorticate response)'),
-              ('2', '2: Extension to painful stimuli (decerebrate response)'),
-              ('1', '1: Makes no movements')
-              ]
+    _eyes = [
+        ('4', 'Spontaneously'),
+        ('3', 'To Speech'),
+        ('2', 'To Pain'),
+        ('1', 'None'),
+        ('not testable', 'Not Testable')
+    ]
+    _verbal = [
+        ('5', 'Orientated'),
+        ('4', 'Confused'),
+        ('3', 'Inappropriate Words'),
+        ('2', 'Incomprehensible Sounds'),
+        ('1', 'None'),
+        ('not testable', 'Not Testable')
+    ]
+    _motor = [
+        ('6', 'Obey Commands'),
+        ('5', 'Localise Pain'),
+        ('4', 'Flexion To Pain'),
+        ('3', 'Abnormal Flexion'),
+        ('2', 'Extension To Pain'),
+        ('1', 'None'),
+        ('not testable', 'Not Testable')
+    ]
 
     """
     Default GCS policy has 5 different scenarios:
@@ -107,28 +113,31 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         {
             'name': 'meta',
             'type': 'meta',
-            'score': True
+            'score': True,
         },
         {
             'name': 'eyes',
             'type': 'selection',
-            'label': 'Eyes',
+            'label': 'Eyes Open',
             'selection': _eyes,
-            'initially_hidden': False
+            'initially_hidden': False,
+            'mandatory': True
         },
         {
             'name': 'verbal',
             'type': 'selection',
-            'label': 'Verbal',
+            'label': 'Best Verbal Response',
             'selection': _verbal,
-            'initially_hidden': False
+            'initially_hidden': False,
+            'mandatory': True
         },
         {
             'name': 'motor',
             'type': 'selection',
-            'label': 'Motor',
+            'label': 'Best Motor Response',
             'selection': _motor,
-            'initially_hidden': False
+            'initially_hidden': False,
+            'mandatory': True
         }
     ]
 
