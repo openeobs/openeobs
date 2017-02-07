@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp import models, fields
 
-class NhClinicalPatientObservationEws(models.Model):
+class NhClinicalPatientObservationNeurological(models.Model):
 
     _name = 'nh.clinical.patient.observation.neurological'
     _inherit = 'nh.clinical.patient.observation.gcs'
@@ -17,12 +17,12 @@ class NhClinicalPatientObservationEws(models.Model):
         ['1', '1mm'],
     ]
 
-    pupil_right_size = fields.Selection(_pupil_sizes, 'Right Pupil Size'),
-    pupil_left_size = fields.Selection(_pupil_sizes, 'Left Pupil Size'),
+    pupil_right_size = fields.Selection(_pupil_sizes, 'Right Pupil Size')
+    pupil_left_size = fields.Selection(_pupil_sizes, 'Left Pupil Size')
     pupil_right_reaction = fields.Selection(
         [['yes', 'Yes'], ['no', 'No'], ['sluggish', 'Sluggish']],
         'Right Pupil Reaction'
-    ),
+    )
     pupil_left_reaction = fields.Selection(
         [['yes', 'Yes'], ['no', 'No'], ['sluggish', 'Sluggish']],
         'Left Pupil Reaction'

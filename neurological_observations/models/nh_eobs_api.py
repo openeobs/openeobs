@@ -34,10 +34,6 @@ class NhEobsApi(Model):
             'name': 'Bowel Open'
         },
         {
-            'type': 'gcs',
-            'name': 'Glasgow Coma Scale (GCS)'
-        },
-        {
             'type': 'pbp',
             'name': 'Postural Blood Pressure'
         },
