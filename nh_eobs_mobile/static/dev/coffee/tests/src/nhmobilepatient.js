@@ -7,10 +7,13 @@ var NHMobilePatient,
 NHMobilePatient = (function(superClass) {
   extend(NHMobilePatient, superClass);
 
-  function NHMobilePatient(refused) {
+  function NHMobilePatient(refused, partial_type) {
     var data_id, i, len, obs, obs_menu, self, tab, table_view, tabs, tabs_el;
     if (refused == null) {
       refused = false;
+    }
+    if (partial_type == null) {
+      partial_type = 'dot';
     }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
@@ -38,6 +41,7 @@ NHMobilePatient = (function(superClass) {
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
     self.refused = refused;
+    self.partial_type = partial_type;
     Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
       var data, server_data;
       server_data = raw_data[0];
@@ -299,6 +303,7 @@ NHMobilePatient = (function(superClass) {
       svg.options.controls.time.end = document.getElementById('end_time');
       svg.options.controls.rangify = document.getElementById('rangify');
       svg.options.refused = self.refused;
+      svg.options.partial_type = self.partial_type;
       svg.table.element = '#table';
       svg.table.keys = [
         {
@@ -358,7 +363,7 @@ NHMobilePatient = (function(superClass) {
       ];
       for (i = 0, len = obs.length; i < len; i++) {
         ob = obs[i];
-        if (ob.partial_reason === 'refused' && self.refused) {
+        if (ob.is_partial) {
           ob.score = false;
         }
         ob.oxygen_administration_device = 'No';

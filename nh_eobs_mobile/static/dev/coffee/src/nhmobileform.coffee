@@ -225,6 +225,9 @@ class NHMobileForm extends NHMobile
     empty_elements =
       (element for element in form_elements when not element.value or \
       element.value is '')
+    empty_mandatory =
+      (el for el in form_elements when not el.value and el.required is true \
+        or el.value is '' and el.required is true)
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
@@ -233,13 +236,14 @@ class NHMobileForm extends NHMobile
         button.setAttribute('disabled', 'disabled')
       @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
         @form.getAttribute('ajax-args'))
-    else if empty_elements.length>0 and ajax_act.indexOf('notification') > 0
-      msg = '<p>The form contains empty fields, please enter '+
-        'data into these fields and resubmit</p>'
-      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
-        'Cancel</a>'
-      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
-        msg, [btn], 0, @.form)
+    else if empty_mandatory.length > 0 or empty_elements.length>0 and \
+      ajax_act.indexOf('notification') > 0
+        msg = '<p>The form contains empty fields, please enter '+
+          'data into these fields and resubmit</p>'
+        btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+          'Cancel</a>'
+        new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+          msg, [btn], 0, @.form)
     else if invalid_elements.length>0
       msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
@@ -273,7 +277,6 @@ class NHMobileForm extends NHMobile
       btn = '<a href="#" data-action="close" data-target="popup_iframe">'+
         'Cancel</a>'
       new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, @.form)
-
 
   display_partial_reasons: (self) =>
     form_type = self.form.getAttribute('data-source')

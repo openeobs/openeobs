@@ -85,26 +85,26 @@ describe("Event Handling", function(){
             expect(document.location.hash).not.toBe('#default');
         });
 
-        it('Allows the default behaviour to happen when asked to', function(){
-            var test_area = document.getElementById('test');
-            test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
-            var button = document.getElementById('test_button');
-            var test_lib = new NHLib();
-
-            // setup the event handler
-            button.addEventListener('click', function(e){
-                test_lib.handle_event(e, non_default_action, false);
-            });
-
-            // fire off event
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            button.dispatchEvent(click_event);
-
-            expect(NHLib.prototype.handle_event).toHaveBeenCalled();
-            expect(test_area.classList.contains('default-prevented')).toBe(true);
-            expect(document.location.hash).toBe('#default');
-        });
+        // it('Allows the default behaviour to happen when asked to', function(){
+        //     var test_area = document.getElementById('test');
+        //     test_area.innerHTML = '<a href="#default" id="test_button">test jumplink</a>';
+        //     var button = document.getElementById('test_button');
+        //     var test_lib = new NHLib();
+        //
+        //     // setup the event handler
+        //     button.addEventListener('click', function(e){
+        //         test_lib.handle_event(e, non_default_action, false);
+        //     });
+        //
+        //     // fire off event
+        //     var click_event = document.createEvent('CustomEvent');
+        //     click_event.initCustomEvent('click', false, true, false);
+        //     button.dispatchEvent(click_event);
+        //
+        //     expect(NHLib.prototype.handle_event).toHaveBeenCalled();
+        //     expect(test_area.classList.contains('default-prevented')).toBe(true);
+        //     expect(document.location.hash).toBe('#default');
+        // });
 
         it('It only calls the function to call once', function(){
            var test_area = document.getElementById('test');

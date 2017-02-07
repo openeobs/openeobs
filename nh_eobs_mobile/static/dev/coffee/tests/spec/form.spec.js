@@ -1497,6 +1497,76 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('Server returned an error');
             });
         });
+
+        describe('Submitting a form with empty required fields', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callThrough();
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_complete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_mandatory_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_mandatory_input">Test Incomplete Mandatory Input</label>' +
+                        '<input type="number" name="incomplete_mandatory_input" id="incomplete_mandatory_input" required>' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Shows message explaining mandatory fields need to be completed before submission', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+
+                // check modal was called
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('invalid_form');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains empty fields');
+                // failing due to data from server not being correct
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The form contains empty fields, please enter data into these fields and resubmit</p>');
+            });
+        });
+
     });
 
     describe('Form Interaction', function(){
