@@ -1530,7 +1530,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_incomplete_mandatory_input">' +
                         '<div class="input-header">' +
                         '<label for="incomplete_mandatory_input">Test Incomplete Mandatory Input</label>' +
-                        '<input type="number" name="incomplete_mandatory_input" id="incomplete_mandatory_input" required>' +
+                        '<input type="number" name="incomplete_mandatory_input" id="incomplete_mandatory_input" data-required="True">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +

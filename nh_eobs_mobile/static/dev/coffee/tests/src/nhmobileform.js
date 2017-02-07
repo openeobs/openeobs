@@ -312,7 +312,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         el = form_elements[i];
-        if (!el.value && el.required === true || el.value === '' && el.required === true) {
+        if (!el.value && el.getAttribute('data-required') === 'True' || el.value === '' && el.getAttribute('data-required') === 'True') {
           results.push(el);
         }
       }
