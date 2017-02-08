@@ -29,8 +29,9 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     """
     _name = 'nh.clinical.patient.observation'
     _inherit = ['nh.activity.data']
-    _required = []  # fields required for complete observation
-    # numeric fields we want to be able to read as NULL instead of 0
+    # Fields required for complete observation.
+    _required = []
+    # Numeric fields we want to be able to read as NULL instead of 0.
     _num_fields = []
     _partial_reasons = [
         ['patient_away_from_bed', 'Patient away from  bed'],  # TODO 2 spaces?
