@@ -48,12 +48,29 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return self._partial_reasons[reason_index][1]
 
     def _is_partial(self, cr, uid, ids, field, args, context=None):
+        """
+        Determine if the observations with the passed IDs are partial or not.
+
+        :param cr:
+        :param uid:
+        :param ids:
+        :param field:
+        :param args:
+        :param context:
+        :return:
+        """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
+        # If this type of observation has no 'required' fields (not to be
+        # confused with Odoo's definition of required) then partial
+        # observations are not possible. Return false for all IDs.
         if not self._required:
             return {id: False for id in ids}
         res = {}
         for obs in self.read(cr, uid, ids, ['none_values'], context):
             res.update(
+                # See if any of the none values are for 'required' fields,
+                # If so then return True, because any none values for required
+                # fields mean a partial observation.
                 {obs['id']: bool(set(self._required) &
                                  set(eval(obs['none_values'])))})
         return res

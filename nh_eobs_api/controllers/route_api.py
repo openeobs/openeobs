@@ -1,18 +1,18 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-# -*- coding: utf-8 -*-s
-import openerp
 from datetime import datetime
+
+import openerp
 from openerp import http
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import RouteManager
 from openerp.http import request
+from openerp.modules.module import get_module_path
 from openerp.osv import fields
 from openerp.osv import osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from werkzeug import exceptions
-from openerp.modules.module import get_module_path
-from openerp.addons.nh_eobs_api.routing import Route
-from openerp.addons.nh_eobs_api.routing import RouteManager
-from openerp.addons.nh_eobs_api.routing import ResponseJSON
-
 
 # Create the RouteManager and the Route objects for the tests
 route_manager = RouteManager(url_prefix='/api/v1')

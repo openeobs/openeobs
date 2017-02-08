@@ -508,7 +508,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: a list of dictionaries
         :rtype: list
         """
-
         model_pool = self.pool[data_model]
         return model_pool.get_form_description(
             cr, uid, patient_id, context=context)
