@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class NhClinicalPatientObservationNeurological(models.Model):
-
-    def init(self, cr):
-        self.set_form_description()
 
     _name = 'nh.clinical.patient.observation.neurological'
     _inherit = 'nh.clinical.patient.observation.gcs'
@@ -54,8 +51,12 @@ class NhClinicalPatientObservationNeurological(models.Model):
         _limb_movement_selection, 'Limb Movement - Right leg'
     )
 
-    def set_form_description(self):
-        # env not available when called from init but pool is.
+    # TODO Set once on model load rather than process every time.
+    # Tried setting on init() but seems to only be called when module is
+    # updated.
+    @api.model
+    def get_form_description(self):
+        form_description = list(self._form_description) # Make a copy.
         converter = self.pool['field_to_form_description_converter']
         form_description_neuro_fields = converter.convert([
             self._fields['pupil_right_size'],
@@ -67,4 +68,5 @@ class NhClinicalPatientObservationNeurological(models.Model):
             self._fields['limb_movement_left_leg'],
             self._fields['limb_movement_right_leg']
         ])
-        self._form_description.extend(form_description_neuro_fields)
+        form_description.extend(form_description_neuro_fields)
+        return form_description
