@@ -7,7 +7,7 @@ class NhEobsApi(Model):
     _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
-    # TODO Change this to be a field so that it can be overridden.
+    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
     _active_observations = [
         {
             'type': 'ews',
