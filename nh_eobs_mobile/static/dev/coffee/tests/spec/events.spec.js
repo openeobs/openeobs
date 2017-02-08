@@ -444,7 +444,11 @@ describe("Event Handling", function(){
                 });
                 var test = document.getElementById('test');
                 test.innerHTML = '<a href="#" class="obs">Obs</a>' +
-                    '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<select id="chart_select" name="chart_select">' +
+                '<option value="ews" selected="selected">NEWS</option>' +
+                '<option value="neuro">Neurological Observation</option>' +
+                '</select>' +
                 '<ul class="two-col tabs">' +
                 '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +
                 '<li><a href="#table-content" class="tab">Table</a></li>' +
@@ -489,6 +493,10 @@ describe("Event Handling", function(){
                expect(typeof(NHMobilePatient.prototype.handle_tabs)).toBe('function');
             });
 
+            it('Has a function for handling the changing of the chart select input', function(){
+               expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
+            });
+
             it('Captures and handles Take Observation menu button click', function(){
                 var test_button = document.getElementsByClassName('obs')[0];
                 var click_event = document.createEvent('CustomEvent');
@@ -508,6 +516,17 @@ describe("Event Handling", function(){
                 click_event.initCustomEvent('click', false, true, false);
                 test_buttons[1].dispatchEvent(click_event);
                 expect(NHMobilePatient.prototype.handle_tabs.calls.count()).toBe(2);
+            });
+
+            it('Captures and handles chart select change event', function(){
+               spyOn(NHMobilePatient.prototype, 'draw_graph');
+               var test_select = document.getElementById('chart_select');
+               test_select.value = 'neuro';
+               var change_event = document.createEvent('CustomEvent');
+               change_event.initCustomEvent('change', false, true, false);
+               test_select.dispatchEvent(change_event);
+               expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+               expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('neuro')
             });
         });
 

@@ -60,9 +60,9 @@ describe('Patient Information Functionality', function(){
        expect(typeof(NHMobileBarcode.prototype.barcode_scanned)).toBe('function');
     });
 
-    it('Has a function for drawing a patient observation chart', function(){
-       expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
-    });
+    // it('Has a function for drawing a patient observation chart', function(){
+    //    expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
+    // });
 
     describe('Getting patient information by sending patient ID to server', function(){
         it('Calls the server for patient information and displays in modal', function(){
@@ -384,13 +384,18 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Displaying the patient\'s observation in a chart', function(){
-        var nhpatient, NHGraphLib, NHGraph, NHTable, NHFocus, NHContext;
+        var nhpatient;
         beforeEach(function(){
+            window.draw_ews_chart = null;
             var test = document.getElementById('test');
             test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
                 '<h3 class="name"><strong>Test Patient</strong></h3>' +
                 '<h3 class="obs">Obs</h3></a>' +
-                    '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<select name="chart_select" id="chart_select">' +
+                '<option value="ews" selected="selected">NEWS</option>' +
+                '<option value="neuro">Neurological observation</option>' +
+                '</select>' +
                 '<ul class="two-col tabs">' +
                 '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +
                 '<li><a href="#table-content" class="tab">Table</a></li>' +
@@ -424,113 +429,28 @@ describe('Patient Information Functionality', function(){
                 '<div id="chart"></div>' +
                 '</div>' +
                 '<div id="table-content"></div>';
-
-            NHGraphLib = (function(){
-                function NHGraphLib(element){
-                    this.context = null;
-                    this.focus = null;
-                    this.table = {
-                        keys: [],
-                        element: ''
-                    };
-                    this.data = {
-                        raw: []
-                    };
-                    this.options = {
-                        controls: {
-                            rangify: null,
-                            date: {
-                                start: null,
-                                end: null
-                            },
-                            time: {
-                                start: null,
-                                end: null
-                            }
-                        }
-                    };
-                }
-                NHGraphLib.prototype.draw = function(){};
-                NHGraphLib.prototype.init = function(){
-                    // Do some foo in here to return the created object?
-                };
-                return NHGraphLib;
-            })();
-            if(!window.NH){
-                window.NH = {};
-            }
-            window.NH.NHGraphLib = NHGraphLib;
-            NHGraph = (function(){
-                function NHGraph(){
-                    this.options = {
-                        keys: [],
-                        label: '',
-                        measurement: '',
-                        normal: {
-                            min: 0,
-                            max: 0
-                        }
-                    };
-                    this.axes = {
-                        y: {
-                            min: 0,
-                            max: 40
-                        }
-                    };
-                    this.style = {
-                        dimensions: {
-                            height: 0
-                        },
-                        data_style: '',
-                        label_width: 0,
-                        axis:{
-                            x: {
-                                hide: false
-                            }
-                        }
-                    };
-                    this.drawables = {
-                        background: {
-                            data: []
-                        }
-                    }
-                }
-                return NHGraph;
-            })();
-            window.NH.NHGraph = NHGraph;
-            NHFocus = (function(){
-                function NHFocus(){
-                    this.graphs = [];
-                    this.tables = [];
-                    this.title = '';
-                    this.style = {
-                        padding: {
-                            right: 0
-                        }
-                    }
-                }
-                return NHFocus;
-            })();
-            window.NH.NHFocus = NHFocus;
-            NHContext = (function(){
-                function NHContext(){
-                    this.graph = null;
-                    this.title = '';
-                }
-                return NHContext;
-            })();
-            window.NH.NHContext = NHContext;
-            NHTable = (function(){
-                function NHTable(){
-                    this.title = '';
-                    this.keys = [];
-                }
-                return NHTable;
-            })();
-            window.NH.NHTable = NHTable;
         });
 
-        it('On receiving no data from the server removes the tabs, controls and shows a message to say so', function(){
+        it('Loads NEWS by default', function() {
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: []
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('ews');
+        });
+
+        it('Hides tabs and shows message when no observation data found', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
                 var empty_graph = new NHMobileData({
@@ -555,12 +475,31 @@ describe('Patient Information Functionality', function(){
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
         });
 
-        it('On receiving data from the server creates NHGraph and NHTable objects to draw into the chart element', function(){
+        it('Fetches data for the selected observation when the \'See observation data for:\' dropdown is changed', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: []
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+        });
+
+        it('On receiving data from the server calls the relevant function to draw the charts', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
                 var graph_data = new NHMobileData({
-                    status: 'success', 
-                    title: 'Test Patient', 
+                    status: 'success',
+                    title: 'Test Patient',
                     description: 'Observations for Test Patient',
                     data: {
                        obs: [{
@@ -622,33 +561,9 @@ describe('Patient Information Functionality', function(){
                 promise.complete(graph_data);
                 return promise;
             });
-            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
-            var graphlib_constructor = spyOn(window.NH, 'NHGraphLib').and.callFake(function(args){
-                return new NHGraphLib(args);
-            });
-            var graph_constructor = spyOn(window.NH, 'NHGraph').and.callFake(function(){
-                return new NHGraph();
-            });
-            var table_constructor = spyOn(window.NH, 'NHTable').and.callFake(function(){
-                return new NHTable();
-            });
-            var focus_constructor = spyOn(window.NH, 'NHFocus').and.callFake(function(){
-                return new NHFocus();
-            });
-            var context_constructor = spyOn(window.NH, 'NHContext').and.callFake(function(){
-                return new NHContext();
-            });
-            spyOn(NHGraphLib.prototype, 'init');
-            spyOn(NHGraphLib.prototype, 'draw');
+            spyOn(window, 'draw_ews_chart');
             nhpatient = new NHMobilePatient();
-            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
-            expect(graphlib_constructor).toHaveBeenCalledWith('#chart');
-            expect(graph_constructor.calls.count()).toBe(6);
-            expect(table_constructor.calls.count()).toBe(1);
-            expect(focus_constructor.calls.count()).toBe(1);
-            expect(context_constructor.calls.count()).toBe(1);
-            expect(NHGraphLib.prototype.init).toHaveBeenCalled();
-            expect(NHGraphLib.prototype.draw).toHaveBeenCalled();
+            expect(window.draw_ews_chart).toHaveBeenCalled()
         });
 
         it('Changes the displayed content when I press a tab', function(){
@@ -690,6 +605,7 @@ describe('Patient Information Functionality', function(){
         it('Show the obs list in a modal when I press the obs menu button', function(){
             spyOn(NHMobilePatient.prototype, 'show_obs_menu').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'draw_graph');
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
                 var empty_graph = new NHMobileData({
