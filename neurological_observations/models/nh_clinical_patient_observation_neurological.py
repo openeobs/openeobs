@@ -7,7 +7,7 @@ class NhClinicalPatientObservationNeurological(models.Model):
     _name = 'nh.clinical.patient.observation.neurological'
     _inherit = 'nh.clinical.patient.observation.gcs'
 
-    _pupil_sizes = [
+    _pupil_size_selection = [
         ['8', '8mm'],
         ['7', '7mm'],
         ['6', '6mm'],
@@ -16,13 +16,15 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ['3', '3mm'],
         ['2', '2mm'],
         ['1', '1mm'],
+        ['not observable', 'Not Observable']
     ]
     _limb_movement_selection = [
         ('normal power', 'Normal Power'),
         ('mild weakness', 'Mild Weakness'),
         ('severe weakness', 'Severe Weakness'),
         ('spastic flexion', 'Spastic Flexion'),
-        ('extension', 'Extension'), ('no response', 'No Response'),
+        ('extension', 'Extension'),
+        ('no response', 'No Response'),
         ('not observable', 'Not Observable')
     ]
     _pupil_reaction_selection = [
@@ -30,13 +32,15 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ('sluggish', 'Sluggish')
     ]
 
-    pupil_right_size = fields.Selection(_pupil_sizes, 'Right Pupil Size')
-    pupil_left_size = fields.Selection(_pupil_sizes, 'Left Pupil Size')
+    pupil_right_size = fields.Selection(_pupil_size_selection,
+                                        'Pupil Right - Size')
+    pupil_left_size = fields.Selection(_pupil_size_selection,
+                                       'Pupil Left - Size')
     pupil_right_reaction = fields.Selection(
-        _pupil_reaction_selection, 'Right Pupil Reaction'
+        _pupil_reaction_selection, 'Pupil Left - Reaction'
     )
     pupil_left_reaction = fields.Selection(
-        _pupil_reaction_selection, 'Left Pupil Reaction'
+        _pupil_reaction_selection, 'Pupil Right - Reaction'
     )
     limb_movement_left_arm = fields.Selection(
         _limb_movement_selection, 'Limb Movement - Left Arm'
@@ -55,7 +59,7 @@ class NhClinicalPatientObservationNeurological(models.Model):
     # Tried setting on init() but seems to only be called when module is
     # updated.
     @api.model
-    def get_form_description(self):
+    def get_form_description(self, patient_id):
         form_description = list(self._form_description) # Make a copy.
         converter = self.pool['field_to_form_description_converter']
         form_description_neuro_fields = converter.convert([

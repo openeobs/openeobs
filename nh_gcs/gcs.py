@@ -31,29 +31,29 @@ class nh_clinical_patient_observation_gcs(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
-    _eyes = [
-        ('4', 'Spontaneously'),
-        ('3', 'To Speech'),
-        ('2', 'To Pain'),
+    _eyes_selection = [
+        ('4', 'Spontaneous'),
+        ('3', 'To Sound'),
+        ('2', 'To Pressure'),
         ('1', 'None'),
-        ('not testable', 'Not Testable')
+        ('0', 'Not Testable')
     ]
-    _verbal = [
+    _verbal_selection = [
         ('5', 'Orientated'),
         ('4', 'Confused'),
-        ('3', 'Inappropriate Words'),
-        ('2', 'Incomprehensible Sounds'),
+        ('3', 'Words'),
+        ('2', 'Sounds'),
         ('1', 'None'),
-        ('not testable', 'Not Testable')
+        ('0', 'Not Testable')
     ]
-    _motor = [
+    _motor_selection = [
         ('6', 'Obey Commands'),
-        ('5', 'Localise Pain'),
-        ('4', 'Flexion To Pain'),
+        ('5', 'Localising'),
+        ('4', 'Normal Flexion'),
         ('3', 'Abnormal Flexion'),
-        ('2', 'Extension To Pain'),
+        ('2', 'Extension'),
         ('1', 'None'),
-        ('not testable', 'Not Testable')
+        ('0', 'Not Testable')
     ]
 
     """
@@ -100,9 +100,9 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             _get_score, type='integer', multi='score', string='Score', store={
                 'nh.clinical.patient.observation.gcs':
                     (lambda self, cr, uid, ids, ctx: ids, [], 10)}),
-        'eyes': fields.selection(_eyes, 'Eyes'),
-        'verbal': fields.selection(_verbal, 'Verbal'),
-        'motor': fields.selection(_motor, 'Motor')
+        'eyes': fields.selection(_eyes_selection, 'Eyes Open'),
+        'verbal': fields.selection(_verbal_selection, 'Best Verbal Response'),
+        'motor': fields.selection(_motor_selection, 'Best Motor Response')
     }
 
     _defaults = {
@@ -119,7 +119,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'name': 'eyes',
             'type': 'selection',
             'label': 'Eyes Open',
-            'selection': _eyes,
+            'selection': _eyes_selection,
             'initially_hidden': False,
             'mandatory': True
         },
@@ -127,7 +127,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'name': 'verbal',
             'type': 'selection',
             'label': 'Best Verbal Response',
-            'selection': _verbal,
+            'selection': _verbal_selection,
             'initially_hidden': False,
             'mandatory': True
         },
@@ -135,7 +135,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'name': 'motor',
             'type': 'selection',
             'label': 'Best Motor Response',
-            'selection': _motor,
+            'selection': _motor_selection,
             'initially_hidden': False,
             'mandatory': True
         }
