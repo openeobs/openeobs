@@ -1088,3 +1088,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
         return bool(spell_id)
+
+    @api.model
+    def get_data_visualisation_resource(self):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return '/nh_ews/static/src/js/chart.js'

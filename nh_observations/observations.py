@@ -500,6 +500,17 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         last_obs = self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
 
+    @api.model
+    def get_data_visualisation_resource(self):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return None
+
 
 class nh_clinical_patient_observation_height(orm.Model):
     """
