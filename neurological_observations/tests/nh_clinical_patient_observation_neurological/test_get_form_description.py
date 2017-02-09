@@ -80,7 +80,18 @@ class TestGetFormDescription(SingleTransactionCase):
         self.assertEqual(expected, actual)
 
     def test_pupil_reaction_selection(self):
-        pass
+        pupil_reaction_fields = self.neuro_test_model.get_pupil_reaction_fields()
+        pupil_reaction_fields_names = \
+            self.neuro_test_model.get_field_names(pupil_reaction_fields)
+
+        expected = self.neuro_model._pupil_reaction_selection
+        actual = [field['selection'] for field in self.form_description
+                  if field['name'] in pupil_reaction_fields_names]
+
+        self.assertEqual(len(actual), 2)
+        actual = actual[0]
+
+        self.assertEqual(expected, actual)
 
     def test_limb_movement_selection(self):
         limb_movement_fields = self.neuro_test_model.get_limb_movement_fields()

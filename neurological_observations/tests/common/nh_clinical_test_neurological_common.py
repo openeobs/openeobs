@@ -27,8 +27,8 @@ class NeurologicalFields(models.AbstractModel):
         self.neuro_model = \
             self.env['nh.clinical.patient.observation.neurological']
         return [
-            self.neuro_model._fields['pupil_left_reaction'],
-            self.neuro_model._fields['pupil_right_reaction']
+            self.neuro_model._fields['pupil_right_reaction'],
+            self.neuro_model._fields['pupil_left_reaction']
         ]
 
     def get_limb_movement_fields(self):

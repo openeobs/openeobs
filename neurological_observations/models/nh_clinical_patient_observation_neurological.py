@@ -20,8 +20,9 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ['not observable', 'Not Observable']
     ]
     _pupil_reaction_selection = [
-        ('yes', 'Yes'), ('no', 'No'),
-        ('sluggish', 'Sluggish')
+        ('+', '+'),
+        ('-', '-'),
+        ('not testable', 'Not Testable')
     ]
     _limb_movement_selection = [
         ('normal power', 'Normal Power'),
