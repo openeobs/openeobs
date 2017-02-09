@@ -22,7 +22,7 @@ class FormDescription(models.TransientModel):
                 'selection': field.selection,
                 'selection_type': 'text',
                 'initially_hidden': False,
-                'mandatory': field.required,
+                'required': field.required,
                 'necessary': field.necessary
             }
             form_description.append(field_description)

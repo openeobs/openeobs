@@ -121,7 +121,8 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'label': 'Eyes Open',
             'selection': _eyes_selection,
             'initially_hidden': False,
-            'mandatory': True,
+            'required': True,
+            'necessary': True
         },
         {
             'name': 'verbal',
@@ -129,7 +130,8 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'label': 'Best Verbal Response',
             'selection': _verbal_selection,
             'initially_hidden': False,
-            'mandatory': True
+            'required': True,
+            'necessary': True
         },
         {
             'name': 'motor',
@@ -137,7 +139,8 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'label': 'Best Motor Response',
             'selection': _motor_selection,
             'initially_hidden': False,
-            'mandatory': True
+            'required': True,
+            'necessary': True
         }
     ]
 
