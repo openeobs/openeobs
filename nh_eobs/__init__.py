@@ -16,6 +16,5 @@ from . import ward_dashboard
 from . import wardboard
 from . import wizard
 from . import workload
-from .models import field_to_form_description_converter
 from .models import nh_clinical_patient_monitoring_exception
 from .tests.common import nh_clinical_test_utils

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from openerp import models, api
+from openerp.addons.nh_observations import fields
 
 
 class NhClinicalPatientObservationNeurological(models.Model):
@@ -18,6 +19,10 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ['1', '1mm'],
         ['not observable', 'Not Observable']
     ]
+    _pupil_reaction_selection = [
+        ('yes', 'Yes'), ('no', 'No'),
+        ('sluggish', 'Sluggish')
+    ]
     _limb_movement_selection = [
         ('normal power', 'Normal Power'),
         ('mild weakness', 'Mild Weakness'),
@@ -26,10 +31,6 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ('extension', 'Extension'),
         ('no response', 'No Response'),
         ('not observable', 'Not Observable')
-    ]
-    _pupil_reaction_selection = [
-        ('yes', 'Yes'), ('no', 'No'),
-        ('sluggish', 'Sluggish')
     ]
 
     pupil_right_size = fields.Selection(_pupil_size_selection,
@@ -61,16 +62,14 @@ class NhClinicalPatientObservationNeurological(models.Model):
     @api.model
     def get_form_description(self, patient_id):
         form_description = list(self._form_description) # Make a copy.
-        converter = self.pool['field_to_form_description_converter']
-        form_description_neuro_fields = converter.convert([
-            self._fields['pupil_right_size'],
-            self._fields['pupil_left_size'],
-            self._fields['pupil_right_reaction'],
-            self._fields['pupil_left_reaction'],
-            self._fields['limb_movement_left_arm'],
-            self._fields['limb_movement_right_arm'],
-            self._fields['limb_movement_left_leg'],
-            self._fields['limb_movement_right_leg']
-        ])
+        form_description_model = self.env['nh.clinical.form_description']
+        form_description_neuro_fields = form_description_model.to_dict(self)
+
+        # Remove duplicates
+        form_description_field_names = [field['name'] for field in form_description]
+        form_description_neuro_fields = \
+            [field for field in form_description_neuro_fields
+             if field['name'] not in form_description_field_names]
+
         form_description.extend(form_description_neuro_fields)
         return form_description

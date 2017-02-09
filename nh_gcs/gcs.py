@@ -8,12 +8,13 @@ import bisect
 import logging
 
 from openerp import SUPERUSER_ID
-from openerp.osv import orm, fields, osv
+from openerp import models, fields, osv
+from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_patient_observation_gcs(orm.Model):
+class nh_clinical_patient_observation_gcs(models.Model):
     """
     Represents an Glasgow Coma Scale
     :class:`observation<observations.nh_clinical_patient_observation>`
@@ -29,6 +30,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
     """
     _name = 'nh.clinical.patient.observation.gcs'
     _inherit = ['nh.clinical.patient.observation']
+
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
     _eyes_selection = [
@@ -95,19 +97,17 @@ class nh_clinical_patient_observation_gcs(orm.Model):
                 % (gcs.activity_id.id, gcs.id, res[gcs.id]))
         return res
 
-    _columns = {
-        'score': fields.function(
-            _get_score, type='integer', multi='score', string='Score', store={
-                'nh.clinical.patient.observation.gcs':
-                    (lambda self, cr, uid, ids, ctx: ids, [], 10)}),
-        'eyes': fields.selection(_eyes_selection, 'Eyes Open'),
-        'verbal': fields.selection(_verbal_selection, 'Best Verbal Response'),
-        'motor': fields.selection(_motor_selection, 'Best Motor Response')
-    }
+    score = fields.Integer(
+        compute=_get_score, multi='score', string='Score', store={
+            'nh.clinical.patient.observation.gcs':
+                (lambda self, cr, uid, ids, ctx: ids, [], 10)
+        }
+    ),
+    eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open')
+    verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response')
+    motor = obs_fields.Selection(_motor_selection, 'Best Motor Response')
 
-    _defaults = {
-        'frequency': 60
-    }
+    frequency = fields.Selection(default=60)
 
     _form_description = [
         {
@@ -121,7 +121,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
             'label': 'Eyes Open',
             'selection': _eyes_selection,
             'initially_hidden': False,
-            'mandatory': True
+            'mandatory': True,
         },
         {
             'name': 'verbal',

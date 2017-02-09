@@ -10,7 +10,7 @@ class TestGetFormDescription(SingleTransactionCase):
             self.env['nh.clinical.patient.observation.neurological']
         self.neuro_test_model = \
             self.env['nh.clinical.test.neurological.common']
-        self.form_description = self.neuro_model.get_form_description()
+        self.form_description = self.neuro_model.get_form_description(None)
 
     def test_has_fields(self):
         form_description_field_names = \
