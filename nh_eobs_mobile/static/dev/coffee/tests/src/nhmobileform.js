@@ -300,9 +300,9 @@ NHMobileForm = (function(superClass) {
       var i, len, results;
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
-        element = form_elements[i];
-        if (!element.value || element.value === '') {
-          results.push(element);
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-necessary') === 'true') || el.value === '' && (el.getAttribute('data-necessary') === 'true')) {
+          results.push(el);
         }
       }
       return results;
@@ -312,7 +312,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         el = form_elements[i];
-        if (!el.value && el.getAttribute('data-required') === 'True' || el.value === '' && el.getAttribute('data-required') === 'True') {
+        if (!el.value && (el.getAttribute('data-required') === 'true') || el.value === '' && (el.getAttribute('data-required') === 'true')) {
           results.push(el);
         }
       }
@@ -415,7 +415,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = elements.length; i < len; i++) {
         el = elements[i];
-        results.push(el.name + '=' + el.value);
+        results.push(el.name + '=' + encodeURIComponent(el.value));
       }
       return results;
     })()).join("&");

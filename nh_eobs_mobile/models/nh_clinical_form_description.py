@@ -22,8 +22,8 @@ class FormDescription(models.TransientModel):
                 'selection': field.selection,
                 'selection_type': 'text',
                 'initially_hidden': False,
-                'required': field.required,
-                'necessary': field.necessary
+                'required': str(field.required).lower(),
+                'necessary': str(field.necessary).lower()
             }
             form_description.append(field_description)
         return form_description

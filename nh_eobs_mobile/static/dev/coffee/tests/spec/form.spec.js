@@ -68,7 +68,7 @@ describe('Data Entry Functionality', function(){
                      '<div class="block obsField" id="parent_test_int">' +
                      '<div class="input-header">' +
                      '<label for="test_int">Test Integer</label>' +
-                     '<input type="number" name="test_int" id="test_int" min="10" max="20" step="1">' +
+                     '<input type="number" name="test_int" id="test_int" min="10" max="20" step="1" data-required="false" data-necessary="true">' +
                      '</div>' +
                      '<div class="input-body">' +
                      '<span class="errors"></span>' +
@@ -78,7 +78,7 @@ describe('Data Entry Functionality', function(){
                      '<div class="block obsField" id="parent_test_float">' +
                      '<div class="input-header">' +
                      '<label for="test_float">Test Float</label>' +
-                     '<input type="number" name="test_float" id="test_float" min="10" max="20" step="0.1">' +
+                     '<input type="number" name="test_float" id="test_float" min="10" max="20" step="0.1" data-required="false" data-necessary="true">' +
                      '</div>' +
                      '<div class="input-body">' +
                      '<span class="errors"></span>' +
@@ -88,7 +88,7 @@ describe('Data Entry Functionality', function(){
                      '<div class="block obsField" id="parent_test_attr">' +
                      '<div class="input-header">' +
                      '<label for="test_attr">Test Attribute</label>' +
-                     '<input type="number" name="test_attr" id="test_attr" min="10" max="20" step="1" data-validation="[{\'message\': {\'target\': \'target error\', \'value\': \'value error\'}, \'condition\': {\'operator\': \'<\', \'target\': \'test_attr\', \'value\': \'test_int\'}}]">' +
+                     '<input type="number" name="test_attr" id="test_attr" min="10" max="20" step="1" data-validation="[{\'message\': {\'target\': \'target error\', \'value\': \'value error\'}, \'condition\': {\'operator\': \'<\', \'target\': \'test_attr\', \'value\': \'test_int\'}}]" data-required="false" data-necessary="true">' +
                      '</div>' +
                      '<div class="input-body">' +
                      '<span class="errors"></span>' +
@@ -412,7 +412,7 @@ describe('Data Entry Functionality', function(){
                      '<div class="block obsField" id="parent_test_text">' +
                      '<div class="input-header">' +
                      '<label for="test_text">Test Text</label>' +
-                     '<input type="text" name="test_text" id="test_text" pattern="^[0-9]{4,6}$">' +
+                     '<input type="text" name="test_text" id="test_text" pattern="^[0-9]{4,6}$" data-required="false" data-necessary="true">' +
                      '</div>' +
                      '<div class="input-body">' +
                      '<span class="errors"></span>' +
@@ -686,7 +686,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_valid_input">' +
                         '<div class="input-header">' +
                         '<label for="test_int">Valid input</label>' +
-                        '<input type="number" value="1" name="valid_input" id="valid_input" step="1" min="0" max="10">' +
+                        '<input type="number" value="1" name="valid_input" id="valid_input" step="1" min="0" max="10" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -696,7 +696,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_invalid_input">' +
                         '<div class="input-header">' +
                         '<label for="test_int">Invalid input</label>' +
-                        '<input type="number" name="invalid_input" id="invalid_input" step="1" min="10" max="100" value="1">' +
+                        '<input type="number" name="invalid_input" id="invalid_input" step="1" min="10" max="100" value="1" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -822,7 +822,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_complete_input">' +
                         '<div class="input-header">' +
                         '<label for="complete_input">Test Complete Input</label>' +
-                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -832,7 +832,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_incomplete_input">' +
                         '<div class="input-header">' +
                         '<label for="incomplete_input">Test Incomplete Input</label>' +
-                        '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -922,7 +922,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parentcomplete_input">' +
                         '<div class="input-header">' +
                         '<label for="complete_input">Test Complete Input</label>' +
-                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -932,7 +932,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_incomplete_input">' +
                         '<div class="input-header">' +
                         '<label for="incomplete_input">Test incomplete_input</label>' +
-                        '<input type="number" name="incomplete_input" id="incomplete_input">' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -1162,7 +1162,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_test_int">' +
                         '<div class="input-header">' +
                         '<label for="test_int">Test Integer</label>' +
-                        '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
+                        '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1" data-required="false" data-necessary="true">' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</div>' +
                         '<div class="input-body">' +
@@ -1381,7 +1381,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_test_int">' +
                         '<div class="input-header">' +
                         '<label for="test_int">Test Integer</label>' +
-                        '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1">' +
+                        '<input type="number" value="1" name="test_int" id="test_int" min="0" max="10" step="1" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -1520,7 +1520,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_complete_input">' +
                         '<div class="input-header">' +
                         '<label for="complete_input">Test Complete Input</label>' +
-                        '<input type="number" value="1" name="complete_input" id="complete_input">' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input" data-required="false" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -1530,7 +1530,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_incomplete_mandatory_input">' +
                         '<div class="input-header">' +
                         '<label for="incomplete_mandatory_input">Test Incomplete Mandatory Input</label>' +
-                        '<input type="number" name="incomplete_mandatory_input" id="incomplete_mandatory_input" data-required="True">' +
+                        '<input type="number" name="incomplete_mandatory_input" id="incomplete_mandatory_input" data-required="true" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -1564,6 +1564,101 @@ describe('Data Entry Functionality', function(){
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Form contains empty fields');
                 // failing due to data from server not being correct
                 expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>The form contains empty fields, please enter data into these fields and resubmit</p>');
+            });
+        });
+
+        describe('Submitting a partial form with empty optional fields', function(){
+            var mobile;
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+                spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
+                    var url = NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
+                    var promise = new Promise();
+                    if(url == 'http://localhost:8069/mobile/test/test/0'){
+                        var obs_submit = new NHMobileData({
+                            status: 'success',
+                            title: 'Successfully submitted observation',
+                            description: 'Here are related tasks based on the observation',
+                            data: {
+                                status: 1,
+                                related_tasks: []
+                            }
+                        })
+                        promise.complete(obs_submit)
+                    }else{
+                         var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
+                    }
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                        '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
+                        '<div class="block obsField" id="parent_complete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="complete_input">Test Complete Input</label>' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input" data-necessary="true" data-required="false">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="block obsField" id="parent_incomplete_input">' +
+                        '<div class="input-header">' +
+                        '<label for="incomplete_input">Test Incomplete Optional Input</label>' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input" data-necessary="false" data-required="false">' +
+                        '</div>' +
+                        '<div class="input-body">' +
+                        '<span class="errors"></span>' +
+                        '<span class="help"></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                        '</form>'
+                mobile = new NHMobileForm();
+            });
+
+            it('Considers the form complete as all non-optional fields have values', function() {
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function () {
+                    event.preventDefault();
+                    return false;
+                });
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
+
             });
         });
 
@@ -1625,8 +1720,8 @@ describe('Data Entry Functionality', function(){
                     '<option value="1">Hide</option>' +
                     '<option value="2">Show</option>' +
                     '</select>' +
-                    '<div id="parent_affected_element"><input type="number" id="affected_element"></div>' +
-                    '<div id="parent_hidden_affected_element" style="display: none;"><input type="number" id="hidden_affected_element" class="exclude"></div>' +
+                    '<div id="parent_affected_element"><input type="number" id="affected_element" data-required="false" data-necessary="true"></div>' +
+                    '<div id="parent_hidden_affected_element" style="display: none;"><input type="number" id="hidden_affected_element" class="exclude" data-required="false" data-necessary="true"></div>' +
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
                 mobile = new NHMobileForm();
@@ -1726,9 +1821,9 @@ describe('Data Entry Functionality', function(){
                     '<option value="False">Disable</option>' +
                     '<option value="True">Enable</option>' +
                     '</select>' +
-                    '<input type="number" id="affected_element">' +
-                    '<input type="number" id="disabled_affected_element" class="exclude" disabled="disabled">' +
-                    '<input type="number" id="value_change" data-onchange="[{\'action\': \'disable\', \'fields\': [\'origin_element\'], \'condition\': [[\'value_change\', \'!=\', \'affected_element\']]}]">'+
+                    '<input type="number" id="affected_element" data-required="false" data-necessary="true">' +
+                    '<input type="number" id="disabled_affected_element" class="exclude" disabled="disabled" data-required="false" data-necessary="true">' +
+                    '<input type="number" id="value_change" data-onchange="[{\'action\': \'disable\', \'fields\': [\'origin_element\'], \'condition\': [[\'value_change\', \'!=\', \'affected_element\']]}]" data-required="false" data-necessary="true">'+
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
                 mobile = new NHMobileForm();

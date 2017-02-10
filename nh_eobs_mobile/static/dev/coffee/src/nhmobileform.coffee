@@ -223,12 +223,15 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value or \
-      element.value is '')
+      (el for el in form_elements when not el.value and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
+        el.value is '' and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true'))
     empty_mandatory =
       (el for el in form_elements when not el.value and \
-        el.getAttribute('data-required') is 'True' \
-        or el.value is '' and el.getAttribute('data-required') is 'True')
+        (el.getAttribute('data-required').toLowerCase() is 'true') \
+        or el.value is '' \
+        and (el.getAttribute('data-required').toLowerCase() is 'true'))
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
@@ -306,7 +309,8 @@ class NHMobileForm extends NHMobile
 
   submit_observation: (self, elements, endpoint, args) =>
     # turn form data in to serialised string and ping off to server
-    serialised_string = (el.name+'='+el.value for el in elements).join("&")
+    serialised_string = (el.name+'='+encodeURIComponent(el.value) \
+      for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
