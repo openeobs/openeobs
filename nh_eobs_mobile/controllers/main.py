@@ -855,6 +855,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             cr, uid,
             activity_type='nh.clinical.patient.follow',
             context=context)
+        obs_data_vis_list = api_pool.get_data_visualisation_resources(
+            cr, uid, context=context)
         return request.render(
             'nh_eobs_mobile.patient',
             qcontext={
@@ -863,7 +865,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 'section': 'patient',
                 'obs_list': obs,
                 'notification_count': len(follow_activities),
-                'username': request.session['login']
+                'username': request.session['login'],
+                'data_vis_list': obs_data_vis_list
             }
         )
 

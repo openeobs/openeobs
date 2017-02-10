@@ -6,7 +6,7 @@ Defines the core methods for `Open eObs` in the taking of
 import logging
 from datetime import datetime as dt, timedelta as td
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
@@ -568,6 +568,33 @@ class nh_eobs_api(orm.AbstractModel):
         if spell_id:
             return self._active_observations
         return []
+
+    @api.model
+    def get_data_visualisation_resources(self):
+        """
+        Get data visualisation resources for all installed observations that
+        have data visualisation JS files defined
+
+        :return: list of JS file URLs used for drawing graphs
+        """
+        obs_prefix = 'nh.clinical.patient.observation.'
+        mod_list = [
+            mod for mod in self.env.registry.models if obs_prefix in mod]
+        resource_list = []
+        for mod in mod_list:
+            model = self.env[mod]
+            mod_data_vis = model.get_data_visualisation_resource()
+
+            if mod_data_vis:
+                resource_list.append(
+                    {
+                        'data_model': mod.replace(obs_prefix, ''),
+                        'resource': mod_data_vis,
+                        'model_name': model._description
+                    }
+                )
+        return resource_list
+
 
     # # # # # # #
     #  PATIENTS #

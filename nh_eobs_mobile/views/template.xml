@@ -385,6 +385,13 @@
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
                             </t>
                         </ul>
+                        <t t-if="len(data_vis_list) > 0">
+                            <select id="chart_select" name="chart_select">
+                                <t t-foreach="data_vis_list" t-as="data_vis">
+                                    <option t-att-value="data_vis.get('data_model')"><t t-esc="data_vis.get('model_name')"/></option>
+                                </t>
+                            </select>
+                        </t>
                         <ul class="two-col tabs">
                             <li><a href="#graph-content" class="selected">Graph</a></li>
                             <li><a href="#table-content">Table</a></li>
@@ -427,6 +434,11 @@
                     <script type="text/javascript">
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
                     </script>
+                    <t t-if="len(data_vis_list) > 0">
+                        <t t-foreach="data_vis_list" t-as="data_vis">
+                            <script t-att-src="data_vis.get('resource')" type="text/javascript"></script>
+                        </t>
+                    </t>
                 </div>
             </t>
         </template>
