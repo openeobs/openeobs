@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import models, api
-from openerp.addons.nh_observations import fields
+from openerp import models
+from openerp.addons.nh_observations import fields as obs_fields
 
 
 class NhClinicalPatientObservationNeurological(models.Model):
@@ -41,43 +41,25 @@ class NhClinicalPatientObservationNeurological(models.Model):
         'limb_movement_left_leg', 'limb_movement_right_leg'
     ]
 
-    pupil_right_size = fields.Selection(_pupil_size_selection,
+    pupil_right_size = obs_fields.Selection(_pupil_size_selection,
                                         'Pupil Right - Size')
-    pupil_left_size = fields.Selection(_pupil_size_selection,
+    pupil_left_size = obs_fields.Selection(_pupil_size_selection,
                                        'Pupil Left - Size')
-    pupil_right_reaction = fields.Selection(
+    pupil_right_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Left - Reaction'
     )
-    pupil_left_reaction = fields.Selection(
+    pupil_left_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Right - Reaction'
     )
-    limb_movement_left_arm = fields.Selection(
+    limb_movement_left_arm = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Left Arm'
     )
-    limb_movement_right_arm = fields.Selection(
+    limb_movement_right_arm = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Right Arm'
     )
-    limb_movement_left_leg = fields.Selection(
+    limb_movement_left_leg = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Left Leg'
     )
-    limb_movement_right_leg = fields.Selection(
+    limb_movement_right_leg = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Right leg'
     )
-
-    # TODO Set once on model load rather than process every time.
-    # Tried setting on init() but seems to only be called when module is
-    # updated.
-    @api.model
-    def get_form_description(self, patient_id):
-        form_description = list(self._form_description) # Make a copy.
-        form_description_model = self.env['nh.clinical.form_description']
-        form_description_neuro_fields = form_description_model.to_dict(self)
-
-        # Remove duplicates
-        form_description_field_names = [field['name'] for field in form_description]
-        form_description_neuro_fields = \
-            [field for field in form_description_neuro_fields
-             if field['name'] not in form_description_field_names]
-
-        form_description.extend(form_description_neuro_fields)
-        return form_description

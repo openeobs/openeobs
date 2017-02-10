@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from openerp.addons.nh_observations import fields
 from openerp.tests.common import SingleTransactionCase
 
 
@@ -114,3 +115,13 @@ class TestGetFormDescription(SingleTransactionCase):
                   if 'label' in field]
 
         self.assertTrue(all([field in actual for field in expected]))
+
+    def test_contains_only_obs_fields_and_meta(self):
+        all_fields = self.neuro_test_model.get_all_fields()
+        obs_fields = [field for field in all_fields if isinstance(field, fields.Selection)]
+        expected = self.neuro_test_model.get_field_names(obs_fields)
+        expected.append('meta')
+        actual = \
+            [field['name'] for field in self.form_description]
+
+        self.assertEqual(sorted(expected), sorted(actual))

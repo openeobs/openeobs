@@ -107,42 +107,24 @@ class nh_clinical_patient_observation_gcs(models.Model):
     verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response')
     motor = obs_fields.Selection(_motor_selection, 'Best Motor Response')
 
+    # TODO For some reason if you do not re-declare these as Odoo's field type,
+    # type() will return nh_observation's Selection field type instead...
+    # This strange behaviour breaks nh_clinical_form_description.to_dict()
     frequency = fields.Selection(default=60)
+    partial_reason = fields.Selection()
 
-    _form_description = [
-        {
+    # TODO Set once on model load rather than process every time.
+    # Tried setting on init() but seems to only be called when module is
+    # updated.
+    def get_form_description(self, patient_id):
+        form_description_model = self.env['nh.clinical.form_description']
+        form_description = form_description_model.to_dict(self)
+        form_description.append({
             'name': 'meta',
             'type': 'meta',
             'score': True,
-        },
-        {
-            'name': 'eyes',
-            'type': 'selection',
-            'label': 'Eyes Open',
-            'selection': _eyes_selection,
-            'initially_hidden': False,
-            'required': True,
-            'necessary': True
-        },
-        {
-            'name': 'verbal',
-            'type': 'selection',
-            'label': 'Best Verbal Response',
-            'selection': _verbal_selection,
-            'initially_hidden': False,
-            'required': True,
-            'necessary': True
-        },
-        {
-            'name': 'motor',
-            'type': 'selection',
-            'label': 'Best Motor Response',
-            'selection': _motor_selection,
-            'initially_hidden': False,
-            'required': True,
-            'necessary': True
-        }
-    ]
+        })
+        return form_description
 
     def complete(self, cr, uid, activity_id, context=None):
         """
