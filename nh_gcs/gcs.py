@@ -7,8 +7,7 @@ standard behaviour and policy triggers based on this worldwide standard.
 import bisect
 import logging
 
-from openerp import SUPERUSER_ID
-from openerp import models, fields, osv
+from openerp import models, fields, api, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
@@ -103,9 +102,11 @@ class nh_clinical_patient_observation_gcs(models.Model):
                 (lambda self, cr, uid, ids, ctx: ids, [], 10)
         }
     )
-    eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open')
-    verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response')
-    motor = obs_fields.Selection(_motor_selection, 'Best Motor Response')
+    eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open', required=True)
+    verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response',
+                                  required=True)
+    motor = obs_fields.Selection(_motor_selection, 'Best Motor Response',
+                                 required=True)
 
     # TODO For some reason if you do not re-declare these as Odoo's field type,
     # type() will return nh_observation's Selection field type instead...
@@ -116,6 +117,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     # TODO Set once on model load rather than process every time.
     # Tried setting on init() but seems to only be called when module is
     # updated.
+    @api.model
     def get_form_description(self, patient_id):
         form_description_model = self.env['nh.clinical.form_description']
         form_description = form_description_model.to_dict(self)

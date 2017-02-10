@@ -418,9 +418,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         if section == 'task':
             next_action = 'json_task_form_action'
         modal_vals['next_action'] = next_action
+        score_type = observation.upper() if observation != 'neurological' \
+            else 'Coma Scale'
         # TODO: Need to add patient name in somehow
         modal_vals['title'] = 'Submit {score_type} score of {score}'.format(
-            score_type=observation.upper(),
+            score_type=score_type,
             score=score_dict.get('score', '')
         )
         if 'clinical_risk' in score_dict:

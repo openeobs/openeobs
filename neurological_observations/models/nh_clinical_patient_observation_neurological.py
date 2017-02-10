@@ -33,6 +33,8 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ('no response', 'No Response'),
         ('not observable', 'Not Observable')
     ]
+
+    _description = "Neurological Observation"
     # TODO Remove when EOBS-982 complete.
     _required = [
         'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_left_size',

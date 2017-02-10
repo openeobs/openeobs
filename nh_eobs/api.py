@@ -1086,6 +1086,7 @@ class nh_eobs_api(orm.AbstractModel):
         return model_pool.read(cr, uid, ids, [], context=context)
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
+                                    vals_activity={}, vals_data={},
                                     context=None):
         """
         Creates an :class:`activity<activity.nh_activity>` of specified
@@ -1139,6 +1140,8 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', model_name)], context=context)
         if activity_ids:
             return activity_ids[0]
+        if not 'patient_id' in vals_data:
+            vals_data['patient_id'] = patient_id
         return self._create_activity(
-            cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id},
+            cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)
