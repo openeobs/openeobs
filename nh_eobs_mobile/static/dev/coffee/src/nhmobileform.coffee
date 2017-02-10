@@ -31,6 +31,12 @@ class NHMobileForm extends NHMobile
                 )
 #                input.addEventListener('change', self.trigger_actions)
               when 'submit' then input.addEventListener('click', (e) ->
+                form_elements = (element for element in @form.elements \
+                  when not element.classList.contains('exclude'))
+                for el in form_elements
+                  change_event = document.createEvent('CustomEvent')
+                  change_event.initCustomEvent('change', false, true, false)
+                  el.dispatchEvent(change_event)
                 self.handle_event(e, self.submit, true)
               )
               when 'reset' then input.addEventListener('click', (e) ->
@@ -46,6 +52,8 @@ class NHMobileForm extends NHMobile
                   self.handle_event(e, self.trigger_actions, true)
                 )
           when 'select' then input.addEventListener('change', (e) ->
+            self.handle_event(e, self.validate, true)
+            e.handled = false
             self.handle_event(e, self.trigger_actions, true)
           )
           when 'button' then input.addEventListener('click', (e) ->
@@ -140,6 +148,11 @@ class NHMobileForm extends NHMobile
           if regex_res
             @.add_input_errors(input, 'Invalid value')
             return
+    else
+      if input.getAttribute('data-required').toLowerCase() is 'true'
+        @.add_input_errors(input, 'Missing value')
+        return
+
 
   # Validate number input to make sure it fits within the defined range and is
   # float or int

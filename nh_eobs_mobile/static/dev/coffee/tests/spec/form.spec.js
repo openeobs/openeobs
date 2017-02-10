@@ -561,6 +561,96 @@ describe('Data Entry Functionality', function(){
                 expect(text_errors.innerHTML).toBe('');
             });
         });
+
+        describe('Validation for mandatory fields', function(){
+             var mobile;
+             beforeEach(function(){
+                 spyOn(NHMobileForm.prototype, 'submit');
+                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                 spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'reset_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'add_input_errors').and.callThrough();
+                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                     var promise = new Promise();
+                     var empty = new NHMobileData({
+                         status: 'success',
+                         title: '',
+                         description: '',
+                         data: {}
+                     })
+                     promise.complete(empty);
+                     return promise;
+                 });
+
+                 var test = document.getElementById('test');
+                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                     '<div class="block obsField" id="parent_test_text">' +
+                     '<div class="input-header">' +
+                     '<label for="test_text">Test Text</label>' +
+                     '</div>' +
+                     '<div class="input-body">' +
+                     '<select name="test_select" id="test_select" data-required="true" data-necessary="true">' +
+                     '<option value="">Please Select</option>' +
+                     '<option value="correct">Correct Value</option>'+
+                     '</select>'+
+                     '<span class="errors"></span>' +
+                     '<span class="help"></span>' +
+                     '</div>' +
+                     '</div>' +
+                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                     '</form>';
+                 mobile = new NHMobileForm();
+             });
+
+            afterEach(function(){
+                cleanUp();
+                mobile = null;
+            });
+
+            it('Informs the user when try to submit a form with empty mandatory values', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                var test_text = document.getElementById('test_select');
+                var parent_text = test_text.parentNode.parentNode;
+                var text_errors = parent_text.getElementsByClassName('errors')[0];
+
+                // set incorrect value
+                test_text.value = '';
+
+                // change event - incorrect
+                var three_event = document.createEvent('CustomEvent');
+                three_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(three_event);
+
+                // verify calls - incorrect
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
+
+                // verify DOM - incorrect
+                expect(parent_text.classList.contains('error')).toBe(true);
+                expect(text_errors.innerHTML).toBe('<label for="test_select" class="error">Missing value</label>');
+
+                // set correct value
+                test_text.value = 'correct';
+
+                // change event - correct
+                var four_event = document.createEvent('CustomEvent');
+                four_event.initCustomEvent('change', false, true, false);
+                test_text.dispatchEvent(four_event);
+
+                // verify calls - correct
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
+
+                // verify DOM - correct
+                expect(parent_text.classList.contains('error')).toBe(false);
+                expect(text_errors.innerHTML).toBe('');
+            });
+        });
     });
 
     describe('Form Timeout', function() {
@@ -1698,6 +1788,7 @@ describe('Data Entry Functionality', function(){
              beforeEach(function(){
                 spyOn(NHMobileForm.prototype, 'submit');
                 spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'hide_triggered_elements').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'show_triggered_elements').and.callThrough();
@@ -1715,7 +1806,7 @@ describe('Data Entry Functionality', function(){
 
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
-                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'show\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', 2]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', 1]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\', \'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'\']]}]">' +
+                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'show\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', 2]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', 1]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\', \'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'\']]}]" data-required="false" data-necessary="true">' +
                     '<option value="">Default</option>' +
                     '<option value="1">Hide</option>' +
                     '<option value="2">Show</option>' +

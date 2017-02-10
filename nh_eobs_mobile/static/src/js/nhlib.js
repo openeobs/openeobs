@@ -432,6 +432,25 @@ NHMobileForm = (function(superClass) {
               });
             case 'submit':
               return input.addEventListener('click', function(e) {
+                var change_event, el, element, form_elements, j, len1;
+                form_elements = (function() {
+                  var j, len1, ref1, results;
+                  ref1 = this.form.elements;
+                  results = [];
+                  for (j = 0, len1 = ref1.length; j < len1; j++) {
+                    element = ref1[j];
+                    if (!element.classList.contains('exclude')) {
+                      results.push(element);
+                    }
+                  }
+                  return results;
+                }).call(this);
+                for (j = 0, len1 = form_elements.length; j < len1; j++) {
+                  el = form_elements[j];
+                  change_event = document.createEvent('CustomEvent');
+                  change_event.initCustomEvent('change', false, true, false);
+                  el.dispatchEvent(change_event);
+                }
                 return self.handle_event(e, self.submit, true);
               });
             case 'reset':
@@ -452,6 +471,8 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', function(e) {
+            self.handle_event(e, self.validate, true);
+            e.handled = false;
             return self.handle_event(e, self.trigger_actions, true);
           });
         case 'button':
@@ -546,6 +567,10 @@ NHMobileForm = (function(superClass) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        this.add_input_errors(input, 'Missing value');
       }
     }
   };
