@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from openerp import models
 
-from openerp.addons.nh_observations import fields
+from openerp.addons.nh_observations.fields import is_obs_field
 
 
 class FormDescription(models.TransientModel):
@@ -13,7 +13,7 @@ class FormDescription(models.TransientModel):
         form_description = []
         model_fields = model._fields.values()
         obs_fields = [field for field in model_fields
-                      if isinstance(field, fields.Selection)]
+                      if is_obs_field(field)]
         for field in obs_fields:
             field_description = {
                 'name': field.name,
