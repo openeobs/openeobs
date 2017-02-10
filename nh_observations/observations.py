@@ -59,6 +59,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :param args:
         :param context:
         :return:
+        :rtype: bool
         """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
         # If this type of observation has no 'required' fields (not to be

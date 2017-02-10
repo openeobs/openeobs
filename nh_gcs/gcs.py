@@ -102,7 +102,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'nh.clinical.patient.observation.gcs':
                 (lambda self, cr, uid, ids, ctx: ids, [], 10)
         }
-    ),
+    )
     eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open')
     verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response')
     motor = obs_fields.Selection(_motor_selection, 'Best Motor Response')

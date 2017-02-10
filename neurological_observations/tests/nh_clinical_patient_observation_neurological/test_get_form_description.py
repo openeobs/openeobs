@@ -113,4 +113,4 @@ class TestGetFormDescription(SingleTransactionCase):
         actual = [field['label'] for field in self.form_description
                   if 'label' in field]
 
-        self.assertTrue(all([field in expected for field in actual]))
+        self.assertTrue(all([field in actual for field in expected]))

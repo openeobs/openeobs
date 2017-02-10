@@ -33,6 +33,13 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ('no response', 'No Response'),
         ('not observable', 'Not Observable')
     ]
+    # TODO Remove when EOBS-982 complete.
+    _required = [
+        'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_left_size',
+        'pupil_left_reaction', 'pupil_right_reaction',
+        'limb_movement_left_arm', 'limb_movement_right_arm',
+        'limb_movement_left_leg', 'limb_movement_right_leg'
+    ]
 
     pupil_right_size = fields.Selection(_pupil_size_selection,
                                         'Pupil Right - Size')
