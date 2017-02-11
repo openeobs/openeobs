@@ -83,6 +83,16 @@ class nh_clinical_patient_observation_gcs(models.Model):
     frequency = fields.Selection(default=60)
     partial_reason = fields.Selection()
 
+    def calculate_score(self, record, return_dictionary=True):
+        is_dict = type(record) is dict
+        obs_data_dict = {
+            'eyes': record['eyes'] if is_dict else record.eyes,
+            'verbal': record['verbal'] if is_dict else record.verbal,
+            'motor': record['motor'] if is_dict else record.motor
+        }
+        return super(nh_clinical_patient_observation_gcs, self)\
+            .calculate_score(obs_data_dict)
+
     def complete(self, cr, uid, activity_id, context=None):
         """
         It determines which acuity case the current observation is in

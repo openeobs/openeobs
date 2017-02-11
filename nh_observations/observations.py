@@ -56,7 +56,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         obs_fields = self.get_obs_fields()
         return [field for field in obs_fields if field.necessary is True]
 
-    def get_necessary_field_values(self):
+    def get_necessary_fields_dict(self):
         necessary_fields = self.get_necessary_fields()
         necessary_field_values = {}
         for field in necessary_fields:
