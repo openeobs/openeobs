@@ -86,21 +86,18 @@ class nh_clinical_patient_observation_gcs(models.Model):
 
         return {'score': eyes+verbal+motor}
 
-    def _get_score(self, cr, uid, ids, field_names, arg, context=None):
+    @api.depends('state')
+    def _get_score(self):
         res = {}
-        for gcs in self.browse(cr, uid, ids, context):
-            res[gcs.id] = self.calculate_score(
-                {'eyes': gcs.eyes, 'verbal': gcs.verbal, 'motor': gcs.motor})
-            _logger.debug(
-                "Observation GCS activity_id=%s gcs_id=%s score: %s"
-                % (gcs.activity_id.id, gcs.id, res[gcs.id]))
+        res[self.id] = self.calculate_score(
+            {'eyes': self.eyes, 'verbal': self.verbal, 'motor': self.motor})
+        _logger.debug(
+            "Observation GCS activity_id=%s gcs_id=%s score: %s"
+            % (self.activity_id.id, self.id, res[self.id]))
         return res
 
     score = fields.Integer(
-        compute=_get_score, multi='score', string='Score', store={
-            'nh.clinical.patient.observation.gcs':
-                (lambda self, cr, uid, ids, ctx: ids, [], 10)
-        }
+        compute='_get_score', string='Score', store=True
     )
     eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open', required=True)
     verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response',
