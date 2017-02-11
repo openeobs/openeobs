@@ -7,9 +7,8 @@ standard behaviour and policy triggers based on this worldwide standard.
 import bisect
 import logging
 
-from openerp import models, fields, api, osv, SUPERUSER_ID
+from openerp import models, fields, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
-from openerp.addons.nh_observations.observations import NhClinicalPatientObservation
 
 _logger = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     flexion, extension, none.
     """
     _name = 'nh.clinical.patient.observation.gcs'
-    _inherit = ['nh.clinical.patient.observation']
+    _inherit = ['nh.clinical.patient.observation_scored']
 
     # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
@@ -72,19 +71,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
                'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
-    @api.depends(NhClinicalPatientObservation.get_obs_field_names)
-    def _get_score(self):
-        for record in self:
-            score = record.calculate_score(record, return_dictionary=False)
-            record.score = score
-            _logger.debug(
-                "%s activity_id=%s gcs_id=%s score: %s"
-                % (self._description, self.activity_id.id, self.id, score)
-            )
-
-    score = fields.Integer(
-        compute='_get_score', string='Score', store=True
-    )
     eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open', required=True)
     verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response',
                                   required=True)

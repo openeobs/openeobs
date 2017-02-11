@@ -123,47 +123,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
                 return False
         return True
 
-    def calculate_score(self, record, return_dictionary=True):
-        """
-        Sums all necessary observation fields that can be cast to an int.
-        Fields that cannot be cast to an int are disregarded from the
-        calculation.
-
-        :param data: Observation field values.
-        :type data: dict
-        :param return_dictionary: Would you like the score returned in a dictionary?
-        :type return_dictionary: bool
-        :returns: ``score``
-        :rtype: dict or int
-        """
-        fields_for_score_calculation = []
-        fields_dict = record if type(record) is dict \
-            else record.get_necessary_field_values()
-
-        for field in fields_dict.items():
-            field_name = field[0]
-            field_value = field[1]
-            if type(field_value) is not int \
-                    and not isinstance(field_value, basestring):
-                _logger.debug(
-                    "Disregarding field '{}' with value '{}' from the score "
-                    "calculation as it is neither an int nor a str"
-                        .format(field_name, field_value)
-                )
-                continue
-            try:
-                field_value = int(field_value)
-                fields_for_score_calculation.append(field_value)
-            except ValueError:
-                _logger.debug(
-                    "Disregarding field '{}' with value '{}' from the score "
-                    "calculation as it cannot be cast to an int"
-                        .format(field_name, field_value)
-                )
-
-        score = sum(fields_for_score_calculation)
-        return {'score': score} if return_dictionary else score
-
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id)
