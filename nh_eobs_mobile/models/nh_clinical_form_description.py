@@ -9,7 +9,7 @@ class FormDescription(models.TransientModel):
     @classmethod
     def to_dict(cls, model):
         form_description = []
-        field_utils = cls.env['nh.clinical.patient.observation.field_utils']
+        field_utils = cls.pool['nh.clinical.field_utils']
         obs_fields = field_utils.get_obs_fields(model)
         for field in obs_fields:
             field_description = {
@@ -23,4 +23,6 @@ class FormDescription(models.TransientModel):
                 'necessary': field.necessary
             }
             form_description.append(field_description)
+        desired_order = model.get_obs_field_order()
+        form_description.sort(key=lambda e: desired_order.index(e['name']))
         return form_description

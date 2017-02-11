@@ -30,6 +30,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     _name = 'nh.clinical.patient.observation.gcs'
     _inherit = ['nh.clinical.patient.observation']
 
+    # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
     _eyes_selection = [
@@ -133,6 +134,9 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'score': True,
         })
         return form_description
+
+    def get_obs_field_order(self):
+        return self._required
 
     def complete(self, cr, uid, activity_id, context=None):
         """

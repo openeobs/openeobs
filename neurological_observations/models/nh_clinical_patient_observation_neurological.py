@@ -36,22 +36,23 @@ class NhClinicalPatientObservationNeurological(models.Model):
 
     _description = "Neurological Observation"
     # TODO Remove when EOBS-982 complete.
+    # Also decides the order fields are displayed in the mobile view.
     _required = [
-        'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_left_size',
-        'pupil_left_reaction', 'pupil_right_reaction',
+        'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_right_reaction',
+        'pupil_left_size', 'pupil_left_reaction',
         'limb_movement_left_arm', 'limb_movement_right_arm',
         'limb_movement_left_leg', 'limb_movement_right_leg'
     ]
 
     pupil_right_size = obs_fields.Selection(_pupil_size_selection,
                                         'Pupil Right - Size')
+    pupil_right_reaction = obs_fields.Selection(
+        _pupil_reaction_selection, 'Pupil Right - Reaction'
+    )
     pupil_left_size = obs_fields.Selection(_pupil_size_selection,
                                        'Pupil Left - Size')
-    pupil_right_reaction = obs_fields.Selection(
-        _pupil_reaction_selection, 'Pupil Left - Reaction'
-    )
     pupil_left_reaction = obs_fields.Selection(
-        _pupil_reaction_selection, 'Pupil Right - Reaction'
+        _pupil_reaction_selection, 'Pupil Left - Reaction'
     )
     limb_movement_left_arm = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Left Arm'

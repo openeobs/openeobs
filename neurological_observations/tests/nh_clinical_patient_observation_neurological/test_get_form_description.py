@@ -116,7 +116,7 @@ class TestGetFormDescription(SingleTransactionCase):
         self.assertTrue(all([field in actual for field in expected]))
 
     def test_contains_only_obs_fields_and_meta(self):
-        field_utils = self.env['nh.clinical.patient.observation.field_utils']
+        field_utils = self.env['nh.clinical.field_utils']
         all_fields = self.neuro_test_model.get_all_fields()
         obs_fields = [field for field in all_fields
                       if field_utils.is_obs_field(field)]
@@ -126,3 +126,8 @@ class TestGetFormDescription(SingleTransactionCase):
             [field['name'] for field in self.form_description]
 
         self.assertEqual(sorted(expected), sorted(actual))
+
+    def test_field_order(self):
+        expected = self.neuro_model.get_obs_field_order()
+        actual = [field['name'] for field in self.form_description]
+        self.assertTrue(expected, actual)

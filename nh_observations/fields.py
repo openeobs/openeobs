@@ -14,7 +14,7 @@ from openerp import models
 
 class FieldUtils(models.AbstractModel):
 
-    _name = 'nh.clinical.patient.observation.field_utils'
+    _name = 'nh.clinical.field_utils'
 
     @classmethod
     def is_obs_field(self, field):
