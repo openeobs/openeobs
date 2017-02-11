@@ -812,6 +812,18 @@ describe("Event Handling", function(){
                 expect(NHMobileForm.prototype.validate.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
             });
+
+            it('Captures and handles the change event when a select dropdown it changed', function(){
+                var test_input = document.getElementById('select');
+                test_input.value = 'test';
+                var change_event = document.createEvent('CustomEvent');
+                change_event.initCustomEvent('change', false, true, false);
+                test_input.dispatchEvent(change_event);
+                expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.validate.calls.count()).toBe(1);
+                expect(NHMobileForm.prototype.trigger_actions.calls.count()).toBe(1);
+            });
         });
     });
 

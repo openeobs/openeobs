@@ -45,6 +45,25 @@ NHMobileForm = (function(superClass) {
               });
             case 'submit':
               return input.addEventListener('click', function(e) {
+                var change_event, el, element, form_elements, j, len1;
+                form_elements = (function() {
+                  var j, len1, ref1, results;
+                  ref1 = this.form.elements;
+                  results = [];
+                  for (j = 0, len1 = ref1.length; j < len1; j++) {
+                    element = ref1[j];
+                    if (!element.classList.contains('exclude')) {
+                      results.push(element);
+                    }
+                  }
+                  return results;
+                }).call(this);
+                for (j = 0, len1 = form_elements.length; j < len1; j++) {
+                  el = form_elements[j];
+                  change_event = document.createEvent('CustomEvent');
+                  change_event.initCustomEvent('change', false, true, false);
+                  el.dispatchEvent(change_event);
+                }
                 return self.handle_event(e, self.submit, true);
               });
             case 'reset':
@@ -65,6 +84,8 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', function(e) {
+            self.handle_event(e, self.validate, true);
+            e.handled = false;
             return self.handle_event(e, self.trigger_actions, true);
           });
         case 'button':
@@ -161,6 +182,10 @@ NHMobileForm = (function(superClass) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        this.add_input_errors(input, 'Missing value');
       }
     }
   };
@@ -300,9 +325,9 @@ NHMobileForm = (function(superClass) {
       var i, len, results;
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
-        element = form_elements[i];
-        if (!element.value || element.value === '') {
-          results.push(element);
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-necessary').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-necessary').toLowerCase() === 'true')) {
+          results.push(el);
         }
       }
       return results;
@@ -312,7 +337,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
         el = form_elements[i];
-        if (!el.value && el.getAttribute('data-required') === 'True' || el.value === '' && el.getAttribute('data-required') === 'True') {
+        if (!el.value && (el.getAttribute('data-required').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-required').toLowerCase() === 'true')) {
           results.push(el);
         }
       }
@@ -415,7 +440,7 @@ NHMobileForm = (function(superClass) {
       results = [];
       for (i = 0, len = elements.length; i < len; i++) {
         el = elements[i];
-        results.push(el.name + '=' + el.value);
+        results.push(el.name + '=' + encodeURIComponent(el.value));
       }
       return results;
     })()).join("&");
