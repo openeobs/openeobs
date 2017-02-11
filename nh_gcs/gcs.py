@@ -9,6 +9,7 @@ import logging
 
 from openerp import models, fields, api, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
+from openerp.addons.nh_observations.observations import nh_clinical_patient_observation
 
 _logger = logging.getLogger(__name__)
 
@@ -71,32 +72,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
                'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
-    def calculate_score(self, data, dictionary=True):
-        """
-        Computes the score based on the GCS parameters provided.
-
-        :param data: The GCS parameters: ``eyes``, ``verbal`` and
-                         ``motor``.
-        :type data: dict
-        :param dictionary: Would you like the score returned in a dictionary?
-        :type dictionary: bool
-        :returns: ``score``
-        :rtype: dict or int
-        """
-        eyes = int(data['eyes'])
-        verbal = int(data['verbal'])
-        motor = int(data['motor'])
-        score = sum([eyes, verbal, motor])
-        return {'score': score} if dictionary else score
-
-    def get_obs_fields(self):
-        return self.env['nh.clinical.field_utils'].get_obs_fields(self)
-
-    def get_obs_field_names(self):
-        obs_fields = self.get_obs_fields()
-        return [field.name for field in obs_fields]
-
-    @api.depends(get_obs_field_names)
+    @api.depends(nh_clinical_patient_observation.get_obs_field_names)
     def _get_score(self):
         for record in self:
             score = record.calculate_score(
@@ -141,9 +117,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'score': True,
         })
         return form_description
-
-    def get_obs_field_order(self):
-        return self._required
 
     def complete(self, cr, uid, activity_id, context=None):
         """
