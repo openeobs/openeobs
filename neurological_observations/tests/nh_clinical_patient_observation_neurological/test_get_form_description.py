@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from openerp.addons.nh_observations.fields import is_obs_field
 from openerp.tests.common import SingleTransactionCase
 
 
@@ -117,8 +116,10 @@ class TestGetFormDescription(SingleTransactionCase):
         self.assertTrue(all([field in actual for field in expected]))
 
     def test_contains_only_obs_fields_and_meta(self):
+        field_utils = self.env['nh.clinical.patient.observation.field_utils']
         all_fields = self.neuro_test_model.get_all_fields()
-        obs_fields = [field for field in all_fields if is_obs_field(field)]
+        obs_fields = [field for field in all_fields
+                      if field_utils.is_obs_field(field)]
         expected = self.neuro_test_model.get_field_names(obs_fields)
         expected.append('meta')
         actual = \

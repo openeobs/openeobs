@@ -1,19 +1,16 @@
 # -*- coding: utf-8 -*-
 from openerp import models
 
-from openerp.addons.nh_observations.fields import is_obs_field
-
 
 class FormDescription(models.TransientModel):
 
     _name = 'nh.clinical.form_description'
 
     @classmethod
-    def to_dict(cls, model=None):
+    def to_dict(cls, model):
         form_description = []
-        model_fields = model._fields.values()
-        obs_fields = [field for field in model_fields
-                      if is_obs_field(field)]
+        field_utils = cls.env['nh.clinical.patient.observation.field_utils']
+        obs_fields = field_utils.get_obs_fields(model)
         for field in obs_fields:
             field_description = {
                 'name': field.name,
