@@ -9,7 +9,7 @@ import logging
 
 from openerp import models, fields, api, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
-from openerp.addons.nh_observations.observations import nh_clinical_patient_observation
+from openerp.addons.nh_observations.observations import NhClinicalPatientObservation
 
 _logger = logging.getLogger(__name__)
 
@@ -72,21 +72,14 @@ class nh_clinical_patient_observation_gcs(models.Model):
                'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
-    @api.depends(nh_clinical_patient_observation.get_obs_field_names)
+    @api.depends(NhClinicalPatientObservation.get_obs_field_names)
     def _get_score(self):
         for record in self:
-            score = record.calculate_score(
-                {
-                    'eyes': record.eyes,
-                    'verbal': record.verbal,
-                    'motor': record.motor
-                },
-                dictionary=False
-            )
+            score = record.calculate_score(record, return_dictionary=False)
             record.score = score
             _logger.debug(
-                "Observation GCS activity_id=%s gcs_id=%s score: %s"
-                % (self.activity_id.id, self.id, score)
+                "%s activity_id=%s gcs_id=%s score: %s"
+                % (self._description, self.activity_id.id, self.id, score)
             )
 
     score = fields.Integer(
@@ -103,20 +96,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
     # This strange behaviour breaks nh_clinical_form_description.to_dict()
     frequency = fields.Selection(default=60)
     partial_reason = fields.Selection()
-
-    # TODO Set once on model load rather than process every time.
-    # Tried setting on init() but seems to only be called when module is
-    # updated.
-    @api.model
-    def get_form_description(self, patient_id):
-        form_description_model = self.env['nh.clinical.form_description']
-        form_description = form_description_model.to_dict(self)
-        form_description.append({
-            'name': 'meta',
-            'type': 'meta',
-            'score': True,
-        })
-        return form_description
 
     def complete(self, cr, uid, activity_id, context=None):
         """

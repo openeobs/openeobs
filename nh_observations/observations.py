@@ -20,7 +20,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_patient_observation(orm.AbstractModel):
+class NhClinicalPatientObservation(orm.AbstractModel):
     """
     Abstract representation of what a medical observation is. Contains
     common information that all observations will have but does not
@@ -123,7 +123,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 return False
         return True
 
-    def calculate_score(self, data, dictionary=True):
+    def calculate_score(self, record, return_dictionary=True):
         """
         Sums all necessary observation fields that can be cast to an int.
         Fields that cannot be cast to an int are disregarded from the
@@ -131,15 +131,16 @@ class nh_clinical_patient_observation(orm.AbstractModel):
 
         :param data: Observation field values.
         :type data: dict
-        :param dictionary: Would you like the score returned in a dictionary?
-        :type dictionary: bool
+        :param return_dictionary: Would you like the score returned in a dictionary?
+        :type return_dictionary: bool
         :returns: ``score``
         :rtype: dict or int
         """
-        necessary_fields = self.get_necessary_field_values()
         fields_for_score_calculation = []
+        fields_dict = record if type(record) is dict \
+            else record.get_necessary_field_values()
 
-        for field in necessary_fields.items():
+        for field in fields_dict.items():
             field_name = field[0]
             field_value = field[1]
             if type(field_value) is not int \
@@ -159,13 +160,14 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                     "calculation as it cannot be cast to an int"
                         .format(field_name, field_value)
                 )
+
         score = sum(fields_for_score_calculation)
-        return {'score': score} if dictionary else score
+        return {'score': score} if return_dictionary else score
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id)
-        res = super(nh_clinical_patient_observation, self).complete(
+        res = super(NhClinicalPatientObservation, self).complete(
             cr, uid, activity_id, context)
         if activity.data_ref.is_partial and not \
                 activity.data_ref.partial_reason:
@@ -192,13 +194,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     _defaults = {
 
     }
-    _form_description = [
-        {
-            'name': 'meta',
-            'type': 'meta',
-            'score': False
-        }
-    ]
 
     def create(self, cr, uid, vals, context=None):
         """
@@ -213,7 +208,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         none_values = list(set(self._required) - set(vals.keys()))
         null_values = list(set(self._num_fields) - set(vals.keys()))
         vals.update({'none_values': none_values, 'null_values': null_values})
-        return super(nh_clinical_patient_observation, self).create(
+        return super(NhClinicalPatientObservation, self).create(
             cr, uid, vals, context)
 
     def create_activity(self, cr, uid, activity_vals=None,
@@ -233,7 +228,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 "Current spell is not found for patient_id: %s"
                 % data_vals['patient_id'])
         activity_vals.update({'parent_id': spell.activity_id.id})
-        return super(nh_clinical_patient_observation, self).create_activity(
+        return super(NhClinicalPatientObservation, self).create_activity(
             cr, uid, activity_vals, data_vals, context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
@@ -251,7 +246,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required and not self._num_fields:
-            return super(nh_clinical_patient_observation, self).write(
+            return super(NhClinicalPatientObservation, self).write(
                 cr, uid, ids, vals, context)
         for obs in self.read(
                 cr, uid, ids, ['none_values', 'null_values'], context=context):
@@ -261,7 +256,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 set(eval(obs['null_values'])) - set(vals.keys()))
             vals.update(
                 {'none_values': none_values, 'null_values': null_values})
-            super(nh_clinical_patient_observation, self).write(
+            super(NhClinicalPatientObservation, self).write(
                 cr, uid, obs['id'], vals, context)
         if 'frequency' in vals:
             activity_pool = self.pool['nh.activity']
@@ -295,7 +290,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             nolist = True
         if fields and 'null_values' not in fields:
             fields.append('null_values')
-        res = super(nh_clinical_patient_observation, self).read(
+        res = super(NhClinicalPatientObservation, self).read(
             cr, uid, ids, fields=fields, context=context, load=load)
         if res:
             for d in res:
@@ -339,7 +334,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         else:
             return False
 
-    def get_form_description(self, cr, uid, patient_id, context=None):
+    # TODO Set once on model load rather than process every time.
+    # Tried setting on init() but seems to only be called when module is
+    # updated.
+    @api.model
+    def get_form_description(self, patient_id):
         """
         Returns a description in dictionary format of the input fields
         that would be required in the user gui to submit the
@@ -350,7 +349,14 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :returns: a list of dictionaries
         :rtype: list
         """
-        return self._form_description
+        form_description_model = self.env['nh.clinical.form_description']
+        form_description = form_description_model.to_dict(self)
+        form_description.append({
+            'name': 'meta',
+            'type': 'meta',
+            'score': True,
+        })
+        return form_description
 
     @classmethod
     def get_open_obs_search_domain(cls, spell_activity_id):
@@ -543,7 +549,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :type patient_id: int
         :param context:
         :return: ``False`` or :class:`observation<openeobs.nh_observations.
-        observations.nh_clinical_patient_observation>`
+        observations.NhClinicalPatientObservation>`
         """
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:
@@ -573,7 +579,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return None
 
 
-class nh_clinical_patient_observation_height(orm.Model):
+class NhClinicalPatientObservation_height(orm.Model):
     """
     Represents the action of measuring a
     :class:`patient<base.nh_clinical_patient>` height.
