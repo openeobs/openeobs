@@ -70,31 +70,40 @@ class nh_clinical_patient_observation_gcs(models.Model):
                'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
-    def calculate_score(self, gcs_data):
+    def calculate_score(self, data, dictionary=True):
         """
         Computes the score based on the GCS parameters provided.
 
-        :param gcs_data: The GCS parameters: ``eyes``, ``verbal`` and
+        :param data: The GCS parameters: ``eyes``, ``verbal`` and
                          ``motor``.
-        :type gcs_data: dict
+        :type data: dict
+        :param dictionary: Would you like the score returned in a dictionary?
+        :type dictionary: bool
         :returns: ``score``
-        :rtype: dict
+        :rtype: dict or int
         """
-        eyes = 1 if gcs_data['eyes'] == 'C' else int(gcs_data['eyes'])
-        verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['verbal'])
-        motor = int(gcs_data['motor'])
+        eyes = int(data['eyes'])
+        verbal = int(data['verbal'])
+        motor = int(data['motor'])
+        score = sum([eyes, verbal, motor])
+        return {'score': score} if dictionary else score
 
-        return {'score': eyes+verbal+motor}
-
-    @api.depends('state')
+    @api.depends('eyes', 'verbal', 'motor')
     def _get_score(self):
-        res = {}
-        res[self.id] = self.calculate_score(
-            {'eyes': self.eyes, 'verbal': self.verbal, 'motor': self.motor})
-        _logger.debug(
-            "Observation GCS activity_id=%s gcs_id=%s score: %s"
-            % (self.activity_id.id, self.id, res[self.id]))
-        return res
+        for record in self:
+            score = record.calculate_score(
+                {
+                    'eyes': record.eyes,
+                    'verbal': record.verbal,
+                    'motor': record.motor
+                },
+                dictionary=False
+            )
+            record.score = score
+            _logger.debug(
+                "Observation GCS activity_id=%s gcs_id=%s score: %s"
+                % (self.activity_id.id, self.id, score)
+            )
 
     score = fields.Integer(
         compute='_get_score', string='Score', store=True
