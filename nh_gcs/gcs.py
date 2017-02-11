@@ -91,7 +91,8 @@ class nh_clinical_patient_observation_gcs(models.Model):
             'motor': record['motor'] if is_dict else record.motor
         }
         return super(nh_clinical_patient_observation_gcs, self)\
-            .calculate_score(obs_data_dict)
+            .calculate_score(obs_data_dict,
+                             return_dictionary=return_dictionary)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
