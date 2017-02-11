@@ -89,7 +89,14 @@ class nh_clinical_patient_observation_gcs(models.Model):
         score = sum([eyes, verbal, motor])
         return {'score': score} if dictionary else score
 
-    @api.depends('eyes', 'verbal', 'motor')
+    def get_obs_fields(self):
+        return self.env['nh.clinical.field_utils'].get_obs_fields(self)
+
+    def get_obs_field_names(self):
+        obs_fields = self.get_obs_fields()
+        return [field.name for field in obs_fields]
+
+    @api.depends(get_obs_field_names)
     def _get_score(self):
         for record in self:
             score = record.calculate_score(
