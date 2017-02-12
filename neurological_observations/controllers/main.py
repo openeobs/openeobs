@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-__author__ = 'colinwren'
 import openerp
 from openerp import http
 from openerp.http import request
+from openerp.addons.nh_eobs_mobile.controllers.main import MobileFrontend
 
 URL_PREFIX = '/mobile/'
 
-class MobileFrontend(openerp.addons.nh_eobs_mobile.controllers.main.MobileFrontend):
+class NeuroMobileFrontend(MobileFrontend):
 
     @http.route(URL_PREFIX + 'src/html/pupil_size_chart.html', type="http", auth="none")
     def pupil_size_chart(self, *args, **kw):

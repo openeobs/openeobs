@@ -40,7 +40,8 @@ class NHMobilePatient extends NHMobile
     self.partial_type = partial_type
     self.chart_element = 'chart'
 
-    Promise.when(@call_resource(@.urls['ajax_get_patient_obs'](data_id)))
+    Promise.when(
+      @call_resource(@.urls['ajax_get_patient_obs']('ews', data_id)))
       .then (raw_data) ->
         server_data = raw_data[0]
         data = server_data.data
@@ -70,7 +71,7 @@ class NHMobilePatient extends NHMobile
     data_id = document.getElementById('graph-content').getAttribute('data-id')
     Promise.when(
       self.call_resource(
-        self.urls['ajax_get_patient_obs'](data_id)
+        self.urls['ajax_get_patient_obs'](new_data_model, data_id)
       )
     ).then (raw_data) ->
       server_data = raw_data[0]

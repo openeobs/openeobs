@@ -1437,7 +1437,7 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         """
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = '{0}{1}/patient/ajax_obs/2'.format(
+        url_under_test = '{0}{1}/patient/ajax_obs/ews/2'.format(
             route_manager.BASE_URL,
             route_manager.URL_PREFIX
         )
