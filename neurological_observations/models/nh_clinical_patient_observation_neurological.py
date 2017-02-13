@@ -44,13 +44,13 @@ class NhClinicalPatientObservationNeurological(models.Model):
         'limb_movement_left_leg', 'limb_movement_right_leg'
     ]
 
-    pupil_right_size = obs_fields.Selection(_pupil_size_selection,
-                                        'Pupil Right - Size')
+    pupil_right_size = obs_fields.Selection(
+        _pupil_size_selection, 'Pupil Right - Size')
     pupil_right_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Right - Reaction'
     )
-    pupil_left_size = obs_fields.Selection(_pupil_size_selection,
-                                       'Pupil Left - Size')
+    pupil_left_size = obs_fields.Selection(
+        _pupil_size_selection, 'Pupil Left - Size')
     pupil_left_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Left - Reaction'
     )

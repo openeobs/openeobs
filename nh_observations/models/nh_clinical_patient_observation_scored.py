@@ -37,7 +37,8 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
 
         :param record: Observation field values.
         :type record: record or dict
-        :param return_dictionary: Would you like the score returned in a dictionary?
+        :param return_dictionary: Would you like the score returned in a
+        dictionary?
         :type return_dictionary: bool
         :returns: ``score``
         :rtype: dict or int
@@ -54,7 +55,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
                 _logger.debug(
                     "Disregarding field '{}' with value '{}' from the score "
                     "calculation as it is neither an int nor a str"
-                        .format(field_name, field_value)
+                    .format(field_name, field_value)
                 )
                 continue
             try:
@@ -64,7 +65,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
                 _logger.debug(
                     "Disregarding field '{}' with value '{}' from the score "
                     "calculation as it cannot be cast to an int"
-                        .format(field_name, field_value)
+                    .format(field_name, field_value)
                 )
 
         score = sum(fields_for_score_calculation)

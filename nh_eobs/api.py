@@ -595,7 +595,6 @@ class nh_eobs_api(orm.AbstractModel):
                 )
         return resource_list
 
-
     # # # # # # #
     #  PATIENTS #
     # # # # # # #
@@ -1094,7 +1093,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of activity dictionaries for patient
         :rtype: list
         """
-
         start_date = dt.now()-td(days=30) if not start_date else start_date
         end_date = dt.now() if not end_date else end_date
         model_pool = self.pool[self._get_activity_type(
@@ -1113,7 +1111,7 @@ class nh_eobs_api(orm.AbstractModel):
         return model_pool.read(cr, uid, ids, [], context=context)
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
-                                    vals_activity={}, vals_data={},
+                                    vals_activity=None, vals_data=None,
                                     context=None):
         """
         Creates an :class:`activity<activity.nh_activity>` of specified
@@ -1131,7 +1129,10 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: id of activity
         :rtype: int
         """
-
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         if not activity_type:
             raise osv.except_osv(_('Error!'), 'Activity type not valid')
         model_name = self._get_activity_type(
@@ -1167,7 +1168,7 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', model_name)], context=context)
         if activity_ids:
             return activity_ids[0]
-        if not 'patient_id' in vals_data:
+        if 'patient_id' not in vals_data:
             vals_data['patient_id'] = patient_id
         return self._create_activity(
             cr, SUPERUSER_ID, model_name, vals_activity, vals_data,

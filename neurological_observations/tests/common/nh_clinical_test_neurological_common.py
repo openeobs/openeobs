@@ -42,9 +42,10 @@ class NeurologicalFields(models.AbstractModel):
         ]
 
     def get_all_fields(self):
-        return self.get_gcs_fields() + self.get_pupil_size_fields() \
-               + self.get_pupil_reaction_fields() \
-               + self.get_limb_movement_fields()
+        return self.get_gcs_fields() + \
+               self.get_pupil_size_fields() + \
+               self.get_pupil_reaction_fields() + \
+               self.get_limb_movement_fields()
 
     def get_mandatory_fields(self):
         return self.get_gcs_fields()

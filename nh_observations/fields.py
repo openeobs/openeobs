@@ -24,6 +24,7 @@ class FieldUtils(models.AbstractModel):
         fields = model._fields.values()
         return [field for field in fields if self.is_obs_field(field)]
 
+
 class Selection(odoo_fields.Selection):
 
     def __init__(self, selection=None, string=None, necessary=True, **kwargs):

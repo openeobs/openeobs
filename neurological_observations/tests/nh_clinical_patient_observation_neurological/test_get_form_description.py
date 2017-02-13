@@ -80,7 +80,8 @@ class TestGetFormDescription(SingleTransactionCase):
         self.assertEqual(expected, actual)
 
     def test_pupil_reaction_selection(self):
-        pupil_reaction_fields = self.neuro_test_model.get_pupil_reaction_fields()
+        pupil_reaction_fields = \
+            self.neuro_test_model.get_pupil_reaction_fields()
         pupil_reaction_fields_names = \
             self.neuro_test_model.get_field_names(pupil_reaction_fields)
 
