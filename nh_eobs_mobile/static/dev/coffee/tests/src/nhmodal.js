@@ -195,6 +195,16 @@ NHModal = (function(superClass) {
         };
         submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
         return document.dispatchEvent(submit_event);
+      case 'display_partial_reasons':
+        event.preventDefault();
+        this.close_modal(data_target);
+        submit_event = document.createEvent('CustomEvent');
+        submit_detail = {
+          'action': data_action,
+          'target': data_target
+        };
+        submit_event.initCustomEvent('display_partial_reasons', false, true, submit_detail);
+        return document.dispatchEvent(submit_event);
       case 'assign':
         event.preventDefault();
         dialog = document.getElementById(data_target);

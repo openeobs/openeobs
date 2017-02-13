@@ -9,4 +9,3 @@ class TestPupilReferenceChart(SingleTransactionCase):
 
     def test_returns_html(self):
         pass
-

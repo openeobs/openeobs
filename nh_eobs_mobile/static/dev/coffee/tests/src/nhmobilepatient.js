@@ -49,7 +49,7 @@ NHMobilePatient = (function(superClass) {
     self.refused = refused;
     self.partial_type = partial_type;
     self.chart_element = 'chart';
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
       var data, obs_data, server_data;
       server_data = raw_data[0];
       data = server_data.data;

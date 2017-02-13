@@ -226,7 +226,7 @@
                     <h2 id="patientName" class="block">
                         <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
                     </h2>
-                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])">
+                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])"  t-att-ajax-partial-action="form.get('partial_flow')">
                         <div t-foreach="inputs" t-as="item">
                             <t t-if="item['name']=='systolic_sitting'">
                                 <h3 class="block">Lying/Sitting Blood Pressure</h3>
@@ -269,7 +269,7 @@
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                </div>
                <div class="input-body">
-                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''" t-att-data-required="item.get('required', False)" t-att-data-necessary="item.get('necessary', False)">
+                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')">
                         <option value="">Please Select</option>
                         <t t-foreach="item['selection_options']" t-as="option">
                             <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
@@ -294,7 +294,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', False)" t-att-data-necessary="item.get('necessary', False)"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
@@ -320,7 +320,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''" t-att-data-required="item.get('required', False)" t-att-data-necessary="item.get('necessary', False)"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>

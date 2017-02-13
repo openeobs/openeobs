@@ -23,7 +23,6 @@ class TestToDict(TransactionCase):
     def setUp(self):
         super(TestToDict, self).setUp()
         self.form_description_model = self.env['nh.clinical.form_description']
-        # self.Model.__init__(self.env.registry, self.env.cr) # Add test model to registry
 
     def test_returns_list_of_dicts(self):
         model = self.Model

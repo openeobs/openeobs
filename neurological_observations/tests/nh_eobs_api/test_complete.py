@@ -9,5 +9,3 @@ class TestComplete(SingleTransactionCase):
 
     def test_score_returned_before_submitting_full(self):
         pass
-
-    # Test all the other popups...

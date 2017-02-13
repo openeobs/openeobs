@@ -44,13 +44,13 @@ class NhClinicalPatientObservationNeurological(models.Model):
         'limb_movement_left_leg', 'limb_movement_right_leg'
     ]
 
-    pupil_right_size = obs_fields.Selection(_pupil_size_selection,
-                                        'Pupil Right - Size')
+    pupil_right_size = obs_fields.Selection(
+        _pupil_size_selection, 'Pupil Right - Size')
     pupil_right_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Right - Reaction'
     )
-    pupil_left_size = obs_fields.Selection(_pupil_size_selection,
-                                       'Pupil Left - Size')
+    pupil_left_size = obs_fields.Selection(
+        _pupil_size_selection, 'Pupil Left - Size')
     pupil_left_reaction = obs_fields.Selection(
         _pupil_reaction_selection, 'Pupil Left - Reaction'
     )
@@ -66,6 +66,22 @@ class NhClinicalPatientObservationNeurological(models.Model):
     limb_movement_right_leg = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Right leg'
     )
+
+    @api.model
+    def get_form_description(self, patient_id):
+        """
+        Returns a list of dicts that represent the form description used by
+        the mobile
+
+        :param patient_id: ID for the patient
+        :return: list of dicts
+        """
+        res = super(NhClinicalPatientObservationNeurological, self)\
+            .get_form_description(patient_id)
+        for input in res:
+            if input.get('type') == 'meta':
+                input['partial_flow'] = 'score'
+        return res
 
     @api.model
     def get_data_visualisation_resource(self):

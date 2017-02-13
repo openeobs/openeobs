@@ -933,9 +933,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
             elif form_input['type'] == 'meta':
-                obs_score = form_input['score']
-                score_present = 'score' in form_input
-                form['obs_needs_score'] = obs_score if score_present else False
+                obs_score = form_input.get('score')
+                form['obs_needs_score'] = obs_score
+                partial_flow = form_input.get('partial_flow')
+                if partial_flow:
+                    form['partial_flow'] = partial_flow
         observation_name_list = []
         for ob in api_pool._active_observations:
             if ob['type'] == observation:
