@@ -1105,7 +1105,7 @@ NHMobilePatient = (function(superClass) {
     self.refused = refused;
     self.partial_type = partial_type;
     self.chart_element = 'chart';
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
       var data, obs_data, server_data;
       server_data = raw_data[0];
       data = server_data.data;
@@ -1135,7 +1135,7 @@ NHMobilePatient = (function(superClass) {
     chart.innerHTML = '';
     new_data_model = event.src_el.value;
     data_id = document.getElementById('graph-content').getAttribute('data-id');
-    return Promise.when(self.call_resource(self.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
+    return Promise.when(self.call_resource(self.urls['ajax_get_patient_obs'](new_data_model, data_id))).then(function(raw_data) {
       var data, obs_data, server_data;
       server_data = raw_data[0];
       data = server_data.data;

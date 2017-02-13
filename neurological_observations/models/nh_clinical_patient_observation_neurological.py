@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models
+from openerp import models, api
 from openerp.addons.nh_observations import fields as obs_fields
 
 
@@ -66,3 +66,14 @@ class NhClinicalPatientObservationNeurological(models.Model):
     limb_movement_right_leg = obs_fields.Selection(
         _limb_movement_selection, 'Limb Movement - Right leg'
     )
+
+    @api.model
+    def get_data_visualisation_resource(self):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return '/neurological_observations/static/src/js/chart.js'

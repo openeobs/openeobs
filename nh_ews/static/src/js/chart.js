@@ -1,5 +1,5 @@
 function draw_ews_chart(settings, server_data) {
-    var obs = server_data.obs.reverse();
+    var obs = server_data.reverse();
     var svg = new window.NH.NHGraphLib('#' + settings.chart_element);
     var resp_rate_graph = new window.NH.NHGraph();
     resp_rate_graph.options.keys = ['respiration_rate'];
