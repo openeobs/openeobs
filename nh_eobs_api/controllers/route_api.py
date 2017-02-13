@@ -388,7 +388,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                              str, context=context)
         data = kw.copy() if kw else {}
         test = {}
-        section = 'task' if 'taskId' in data else 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
         if 'taskId' in data:
@@ -408,16 +407,12 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                     del data[key]
         converted_data = converter(data, test)
 
-        score_dict = api_pool.get_activity_score(cr, uid, model,
-                                                 converted_data,
-                                                 context=context)
+        score_dict = api_pool.get_activity_score(
+            cr, uid, model, converted_data, context=context
+        )
         if not score_dict:
             exceptions.abort(400)
         modal_vals = {}
-        next_action = 'json_patient_form_action'
-        if section == 'task':
-            next_action = 'json_task_form_action'
-        modal_vals['next_action'] = next_action
         score_type = observation.upper() if observation != 'neurological' \
             else 'Coma Scale'
         # TODO: Need to add patient name in somehow
@@ -440,7 +435,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'score': score_dict,
             'modal_vals': modal_vals,
             'status': 3,
-            'next_action': modal_vals['next_action']
+            'next_action': self.get_next_action(data)
         }
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
@@ -452,6 +447,12 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             response_json,
             headers=ResponseJSON.HEADER_CONTENT_TYPE
         )
+
+    def get_next_action(self, data):
+        section = 'task' if 'taskId' in data else 'patient'
+        next_action = 'json_patient_form_action' if section == 'task' \
+            else 'json_task_form_action'
+        return next_action
 
     @http.route(**route_manager.expose_route('json_partial_reasons'))
     def get_partial_reasons(self, *args, **kw):
