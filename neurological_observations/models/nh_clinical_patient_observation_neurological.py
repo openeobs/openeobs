@@ -68,6 +68,22 @@ class NhClinicalPatientObservationNeurological(models.Model):
     )
 
     @api.model
+    def get_form_description(self, patient_id):
+        """
+        Returns a list of dicts that represent the form description used by
+        the mobile
+
+        :param patient_id: ID for the patient
+        :return: list of dicts
+        """
+        res = super(NhClinicalPatientObservationNeurological, self)\
+            .get_form_description(patient_id)
+        for input in res:
+            if input.get('type') == 'meta':
+                input['partial_flow'] = 'score'
+        return res
+
+    @api.model
     def get_data_visualisation_resource(self):
         """
         Returns URL of JS file to plot data visualisation so can be loaded on

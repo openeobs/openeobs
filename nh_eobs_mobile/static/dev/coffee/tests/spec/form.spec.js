@@ -1188,6 +1188,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'cancel_notification').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
@@ -1209,6 +1210,28 @@ describe('Data Entry Functionality', function(){
                             }
                         });
                         promise.complete(calculate_score);
+                    }else if(url == 'http://localhost:8069/mobile/test/test/partial') {
+                        var calculate_score = new NHMobileData({
+                            status: 'success',
+                            title: 'Submit TEST score of 0',
+                            description: 'TEST observation scored 0 which means something',
+                            data: {
+                                status: 3,
+                                next_action: 'json_task_form_action',
+                                score: {
+                                    score: 0
+                                }
+                            }
+                        });
+                        promise.complete(calculate_score);
+                    }else if (url == 'http://localhost:8069/mobile/test/partial_reasons/') {
+                        var partial_reasons = new NHMobileData({
+                            status: 'success',
+                            title: 'Reason for partial observation',
+                            description: 'Please state reason for submitting partial observation',
+                            data: [[1,'Option 1'], [2, 'Option 2']]
+                        });
+                        promise.complete(partial_reasons);
                     }else if(url == 'http://localhost:8069/mobile/task/submit_ajax/test/0'){
                         var obs_submit = new NHMobileData({
                             status: 'success',
@@ -1247,7 +1270,7 @@ describe('Data Entry Functionality', function(){
                     return promise;
                 });
                 var test = document.getElementById('test');
-                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0" ajax-partial-action="score">' +
                         '<input type="submit" value="Test Submit" id="submit" class="exclude">' +
                         '<div class="block obsField" id="parent_test_int">' +
                         '<div class="input-header">' +
@@ -1388,6 +1411,69 @@ describe('Data Entry Functionality', function(){
                 // verify submit called again
                 expect(submit_button.getAttribute('disabled')).toBe(null);
                 expect(document.getElementById('submit_observation')).toBe(null);
+            });
+
+            it('Executes a pre partial reasons function if partial and defined on form', function(){
+                var form = document.getElementById('obsForm');
+                form.addEventListener('submit', function(){
+                    event.preventDefault();
+                    return false;
+                });
+                form.setAttribute('ajax-args', 'test,partial');
+                var input = document.getElementById('test_int');
+                input.value = null;
+
+                var submit_button = document.getElementById('submit');
+
+                // click event
+                var click_event = document.createEvent('CustomEvent');
+                click_event.initCustomEvent('click', false, true, false);
+                submit_button.dispatchEvent(click_event);
+
+                //verify submit called
+                expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
+                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.submit_observation.calls.count()).toBe(1);
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
+                expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,partial');
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Submit TEST score of 0 for Test Patient?')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('TEST observation scored 0 which means something');
+                var option_buttons = NHModal.prototype.create_dialog.calls.mostRecent().args[4]
+                expect(option_buttons[1]).toBe('<a href="#" data-target="submit_observation" data-action="display_partial_reasons" data-ajax-action="json_task_form_action">Submit</a>');
+
+                // click the submit button
+                var dialog = document.getElementById('submit_observation');
+                var options = dialog.getElementsByTagName('a');
+                var option = options[1];
+                var submit_event = document.createEvent('CustomEvent');
+                submit_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(submit_event);
+
+                // Ensure that partial reason dialog pops up after
+                expect(document.getElementById('submit_observation')).toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('partial_reasons');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Reason for partial observation');
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Please state reason for submitting partial observation</p><select name="partial_reason"><option value="1">Option 1</option><option value="2">Option 2</option></select>');
+
+                // Choose a reason and press submit
+                var dialog = document.getElementById('partial_reasons');
+                var select = dialog.getElementsByTagName('select')[0];
+                select.value = 1;
+                var options = dialog.getElementsByTagName('a');
+                var option = options[1];
+                var submit_event = document.createEvent('CustomEvent');
+                submit_event.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(submit_event);
+
+                expect(document.getElementById('partial_reasons')).toBe(null);
+                expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('submit_success')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Successfully submitted observation')
+                expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<p>Here are related tasks based on the observation</p>');
             });
         });
 

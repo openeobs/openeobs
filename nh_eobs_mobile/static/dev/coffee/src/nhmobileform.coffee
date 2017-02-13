@@ -76,15 +76,14 @@ class NHMobileForm extends NHMobile
 
     document.addEventListener 'post_score_submit', (event) ->
       self.handle_event(event, self.process_post_score_submit, true, self)
-#      if not event.handled
-#        self.process_post_score_submit(self, event)
-#        event.handled = true
 
     document.addEventListener 'partial_submit', (event) ->
       self.handle_event(event, self.process_partial_submit, true, self)
-#      if not event.handled
-#        self.process_partial_submit(self,event)
-#        event.handled = true
+
+    document.addEventListener(
+      'display_partial_reasons',
+      self.handle_display_partial_reasons.bind(self)
+    )
 
     @patient_name_el.addEventListener 'click', (event) ->
       event.preventDefault()
@@ -229,6 +228,8 @@ class NHMobileForm extends NHMobile
 #    event.preventDefault()
     @.reset_form_timeout(@)
     ajax_act = @form.getAttribute('ajax-action')
+    ajax_partial_act = @form.getAttribute('ajax-partial-action')
+    ajax_args = @form.getAttribute('ajax-args')
     form_elements =
       (element for element in @form.elements \
         when not element.classList.contains('exclude'))
@@ -251,8 +252,7 @@ class NHMobileForm extends NHMobile
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
-        @form.getAttribute('ajax-args'))
+      @submit_observation(@, form_elements, ajax_act, ajax_args)
     else if empty_mandatory.length > 0 or empty_elements.length>0 and \
       ajax_act.indexOf('notification') > 0
         msg = '<p>The form contains empty fields, please enter '+
@@ -274,7 +274,10 @@ class NHMobileForm extends NHMobile
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @display_partial_reasons(@)
+      if ajax_partial_act is 'score'
+        @submit_observation(@, form_elements, ajax_act, ajax_args, true)
+      else
+        @display_partial_reasons(@)
 
   show_reference: (event) =>
 #    event.preventDefault()
@@ -320,7 +323,7 @@ class NHMobileForm extends NHMobile
       new window.NH.NHModal('partial_reasons', server_data.title,
         msg+select, [can_btn, con_btn], 0, self.form)
 
-  submit_observation: (self, elements, endpoint, args) =>
+  submit_observation: (self, elements, endpoint, args, partial = false) =>
     # turn form data in to serialised string and ping off to server
     serialised_string = (el.name+'='+encodeURIComponent(el.value) \
       for el in elements).join("&")
@@ -331,10 +334,12 @@ class NHMobileForm extends NHMobile
       data = server_data.data
       body = document.getElementsByTagName('body')[0]
       if server_data.status is 'success' and data.status is 3
+        data_action = if not partial then \
+          'submit' else 'display_partial_reasons'
         can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
-          'data-action="submit" data-ajax-action="'+
+          'data-action="' + data_action + '" data-ajax-action="'+
           data.next_action+'">Submit</a>'
         new window.NH.NHModal('submit_observation',
           server_data.title + ' for ' + self.patient_name() + '?',
@@ -491,6 +496,9 @@ class NHMobileForm extends NHMobile
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
+
+  handle_display_partial_reasons: (event) ->
+    this.display_partial_reasons(this)
 
 ### istanbul ignore if ###
 if !window.NH
