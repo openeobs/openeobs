@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+
+        <template id="observation_report" inherit_id="nh_eobs.observation_report" name="Observation Report">
+            <xpath expr="//*[@id = 'news_values']" position="after">
+                <div class="col-xs-12 row" id="neurological_values">
+                    <h3>Neurological Values</h3>
+                    <!--t t-if="len(neurological_observations) &gt; 0"-->
+                        <t t-call="neurological_observations.charts"/>
+                        <t t-call="neurological_observations.table"/>
+                    <!--/t-->
+                </div>
+            </xpath>
+        </template>
+
+        <template id="charts">
+            <p>Charts go here.</p>
+        </template>
+
+        <template id="table">
+            <table class="striped col-xs-12 row">
+                <thead class="small-header">
+                    <tr>
+                        <th class="col-xs-3">Coma Scale</th>
+                        <th class="col-xs-3">Pupils</th>
+                        <th class="col-xs-3">Limbs</th>
+                    </tr>
+                    <tr>
+                        <th class="col-xs-3">Date</th>
+                        <th class="col-xs-1">Coma Scale Total score</th>
+                        <th class="col-xs-1">Eyes</th>
+                        <th class="col-xs-1">Verbal</th>
+                        <th class="col-xs-1">Motor</th>
+                        <th class="col-xs-1">Right - Size</th>
+                        <th class="col-xs-1">Right - Reaction</th>
+                        <th class="col-xs-1">Left - Size</th>
+                        <th class="col-xs-1">Left - Reaction</th>
+                        <th class="col-xs-1">Left Arm</th>
+                        <th class="col-xs-1">Right Arm</th>
+                        <th class="col-xs-1">Left Leg</th>
+                        <th class="col-xs-1">Right Leg</th>
+                        <th class="col-xs-1">User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!--t t-foreach="neurological" t-as="observation"-->
+                        <tr>
+                            <!--td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td-->
+                        </tr>
+                    <!--/t-->
+                </tbody>
+            </table>
+        </template>
+
+    </data>
+</openerp>

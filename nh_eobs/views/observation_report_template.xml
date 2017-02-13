@@ -301,7 +301,7 @@
                         <script type="text/javascript" t-att-src="draw_graph_js"></script>
                     </div>
                     <t t-if="table_ews">
-                        <div class="col-xs-12 row">
+                        <div class="col-xs-12 row" id="news_values">
                             <h3>NEWS Values</h3>
                             <table class="striped col-xs-12 row">
                                 <thead class="small-header">

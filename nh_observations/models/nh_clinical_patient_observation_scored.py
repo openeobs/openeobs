@@ -37,7 +37,8 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
 
         :param record: Observation field values.
         :type record: record or dict
-        :param return_dictionary: Would you like the score returned in a dictionary?
+        :param return_dictionary: Would you like the score returned in a
+        dictionary?
         :type return_dictionary: bool
         :returns: ``score``
         :rtype: dict or int

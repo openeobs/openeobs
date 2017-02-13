@@ -49,6 +49,7 @@ class NhClinicalTestUtils(AbstractModel):
             {'user_id': user_id}
         )
 
+    # TODO: Rename to complete_ews to distinguish from other observations.
     def complete_obs(self, obs_data, obs_id=None, user_id=None):
         api_pool = self.pool['nh.eobs.api']
         if not obs_id:
