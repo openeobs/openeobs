@@ -3,7 +3,6 @@ from openerp import models
 
 
 class NeurologicalFields(models.AbstractModel):
-
     _name = 'nh.clinical.test.neurological.common'
 
     def get_gcs_fields(self):
@@ -43,9 +42,9 @@ class NeurologicalFields(models.AbstractModel):
 
     def get_all_fields(self):
         return self.get_gcs_fields() + \
-               self.get_pupil_size_fields() + \
-               self.get_pupil_reaction_fields() + \
-               self.get_limb_movement_fields()
+            self.get_pupil_size_fields() + \
+            self.get_pupil_reaction_fields() + \
+            self.get_limb_movement_fields()
 
     def get_mandatory_fields(self):
         return self.get_gcs_fields()
