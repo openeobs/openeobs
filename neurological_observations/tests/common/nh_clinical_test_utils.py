@@ -11,5 +11,5 @@ class NhClinicalTestUtils(AbstractModel):
     def create_and_complete_neuro(self, data):
         neuro_model = self.env['nh.clinical.patient.observation.neurological']
         data = neurological_fixtures.SAMPLE_DATA
-        record = neuro_model.create(data)
-        record.complete()
+        neuro_obs = neuro_model.create(data)
+        neuro_obs.complete()

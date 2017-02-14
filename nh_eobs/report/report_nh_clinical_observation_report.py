@@ -83,23 +83,21 @@ class ObservationReport(models.AbstractModel):
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
         partner_pool = self.pool['res.partner']
+
         base_report = self.create_report_data(data)
+
         spell_id = int(data.spell_id)
         spell = spell_pool.read(cr, uid, [spell_id])[0]
         dates = self.process_report_dates(data, spell, base_report)
         spell_activity_id = spell['activity_id'][0]
         self.spell_activity_id = spell_activity_id
-
         spell_docs = spell['con_doctor_ids']
         spell['consultants'] = False
         if len(spell_docs) > 0:
             spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
-        #
-        # # - get patient id
         self.patient_id = spell['patient_id'][0]
         patient_id = self.patient_id
-        #
-        # get patient information
+        # Get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient_location = patient.get('current_location_id')
         patient['dob'] = helpers.convert_db_date_to_context_date(
