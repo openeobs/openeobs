@@ -2,5 +2,3 @@
 from .controllers import *
 from .nh_clinical_observation_report import *
 from .nh_clinical_patient_observation_neurological import *
-from .nh_eobs_api import *
-

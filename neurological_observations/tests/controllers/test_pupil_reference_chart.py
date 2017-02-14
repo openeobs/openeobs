@@ -15,4 +15,4 @@ class TestPupilReferenceChart(HttpCase):
 
     def test_returns_html(self):
         response = self.url_open(self.url)
-        self.assertEqual('text/html', response.header.type)
+        self.assertEqual('text/html', response.headers.type)

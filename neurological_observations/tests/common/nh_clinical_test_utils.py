@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp.addons.neurological_observations.tests.common import neurological_fixtures
+from openerp.addons.neurological_observations.tests.common \
+    import neurological_fixtures
 from openerp.models import AbstractModel
 
 

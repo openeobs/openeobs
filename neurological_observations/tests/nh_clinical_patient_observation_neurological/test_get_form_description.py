@@ -132,3 +132,20 @@ class TestGetFormDescription(SingleTransactionCase):
         expected = self.neuro_model.get_obs_field_order()
         actual = [field['name'] for field in self.form_description]
         self.assertTrue(expected, actual)
+
+    def test_form_description_meta_has_parital_flow_key(self):
+        meta_dict = [item for item in self.form_description
+                     if item.get('type') == 'meta']
+        self.assertTrue(len(meta_dict) is 1)
+
+        meta_dict = meta_dict[0]
+        self.assertTrue('partial_flow' in meta_dict)
+
+    def test_partial_flow_key_has_value_score(self):
+        meta_dict = [item for item in self.form_description
+                     if item.get('type') == 'meta']
+        self.assertTrue(len(meta_dict) is 1)
+        meta_dict = meta_dict[0]
+
+        partial_flow = meta_dict.get('partial_flow')
+        self.assertEqual('score', partial_flow)
