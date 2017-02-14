@@ -13,7 +13,8 @@ class TestGetReportData(TransactionCase):
         self.test_utils.admit_and_place_patient()
         self.test_utils.copy_instance_variables(self)
 
-        self.report_wizard_model = self.env['nh.clinical.observation_report_wizard']
+        self.report_wizard_model = \
+            self.env['nh.clinical.observation_report_wizard']
         self.report_model = self.env['report.nh.clinical.observation_report']
 
         self.datetime_start = datetime.now() - timedelta(days=2)
