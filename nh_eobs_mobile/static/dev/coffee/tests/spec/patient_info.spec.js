@@ -386,7 +386,14 @@ describe('Patient Information Functionality', function(){
     describe('Displaying the patient\'s observation in a chart', function(){
         var nhpatient;
         beforeEach(function(){
-            window.draw_ews_chart = null;
+            window.get_ews_chart = null;
+            window.get_neuro_chart = function(){
+                    return {
+                        init: function(){ return 'a'; },
+                        draw: function(){ return 'b'; }
+                    };
+                };
+            window.get_neuro_table = function(){ return null; };
             var test = document.getElementById('test');
             test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
                 '<h3 class="name"><strong>Test Patient</strong></h3>' +
@@ -475,6 +482,133 @@ describe('Patient Information Functionality', function(){
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
         });
 
+        it('Hides tabs when only needs to draw chart or table and not both', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var graph_data = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: [ {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }]
+                    }
+                });
+                promise.complete(graph_data);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+        });
+
+        it('Shows tabs, form controls and chart when observation data is found', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'change_chart').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+
+            // Initial load with no obs
+            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'neuro';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            // After change to obs with data
+            expect(NHMobilePatient.prototype.change_chart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('neuro');
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('block');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).not.toBe('<h2>No observation data available for patient</h2>');
+
+            chart_select.value = 'ews';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            // After change to obs with no data
+            expect(NHMobilePatient.prototype.change_chart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('ews');
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+
+        });
+
         it('Fetches data for the selected observation when the \'See observation data for:\' dropdown is changed', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
@@ -489,9 +623,20 @@ describe('Patient Information Functionality', function(){
                 promise.complete(empty_graph);
                 return promise;
             });
+            spyOn(NHMobilePatient.prototype, 'change_chart').and.callThrough();
             spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
             nhpatient = new NHMobilePatient();
             expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'neuro';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            expect(NHMobilePatient.prototype.change_chart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('neuro')
         });
 
         it('On receiving data from the server calls the relevant function to draw the charts', function(){
@@ -561,9 +706,9 @@ describe('Patient Information Functionality', function(){
                 promise.complete(graph_data);
                 return promise;
             });
-            spyOn(window, 'draw_ews_chart');
+            spyOn(window, 'get_ews_chart');
             nhpatient = new NHMobilePatient();
-            expect(window.draw_ews_chart).toHaveBeenCalled()
+            expect(window.get_ews_chart).toHaveBeenCalled()
         });
 
         it('Changes the displayed content when I press a tab', function(){

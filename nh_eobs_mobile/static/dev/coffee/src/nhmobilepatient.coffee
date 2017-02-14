@@ -39,6 +39,7 @@ class NHMobilePatient extends NHMobile
     self.refused = refused
     self.partial_type = partial_type
     self.chart_element = 'chart'
+    self.table_element = 'table-content'
 
     Promise.when(
       @call_resource(@.urls['ajax_get_patient_obs']('ews', data_id)))
@@ -66,7 +67,9 @@ class NHMobilePatient extends NHMobile
 
   change_chart: (event, self) ->
     chart = document.getElementById(self.chart_element)
+    table = document.getElementById(self.table_element)
     chart.innerHTML = ''
+    table.innerHTML = ''
     new_data_model = event.src_el.value
     data_id = document.getElementById('graph-content').getAttribute('data-id')
     Promise.when(
@@ -94,21 +97,35 @@ class NHMobilePatient extends NHMobile
       0, body)
 
   draw_graph: (self, server_data, data_model) ->
-    draw_func_name = 'draw_' + data_model + '_chart'
+    graph_content = document.getElementById('graph-content')
+    controls = document.getElementById('controls')
+    chart_el = document.getElementById(self.chart_element)
+    graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0]
+    chart_func_name = 'get_' + data_model + '_chart'
+    table_func_name = 'get_' + data_model + '_table'
     if server_data.length > 0
-      chart_func = window[draw_func_name]
-      if typeof chart_func is 'function'
-        chart_func(self, server_data)
+      controls.style.display = 'block'
+      graph_tabs.style.display = 'block'
+      chart_func = window[chart_func_name]
+      table_func = window[table_func_name]
+      valid_chart = (typeof chart_func is 'function')
+      valid_table = (typeof table_func is 'function')
+      if not valid_chart or not valid_table
+        graph_tabs.style.display = 'none'
       else
-        console.log('issue drawing chart')
+        graph_tabs.style.display = 'block'
+      if valid_chart
+        chart = chart_func(self, server_data)
+      if valid_table
+        if chart
+          chart.table = table_func()
+      if chart
+        chart.init()
+        chart.draw()
     else
-      graph_content = document.getElementById('graph-content')
-      controls = document.getElementById('controls')
-      chart = document.getElementById(self.chart_element)
-      graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')
       controls.style.display = 'none'
-      chart.innerHTML = '<h2>No observation data available for patient</h2>'
-      graph_tabs[0].style.display = 'none'
+      chart_el.innerHTML = '<h2>No observation data available for patient</h2>'
+      graph_tabs.style.display = 'none'
 
 ### istanbul ignore if ###
 if !window.NH
