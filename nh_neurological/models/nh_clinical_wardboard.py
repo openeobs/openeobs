@@ -48,4 +48,3 @@ class NhClinicalWardboardNeuro(orm.Model):
             'context': context,
             'view_id': int(view_id)
         }
-
