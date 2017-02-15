@@ -1,4 +1,4 @@
-function get_ews_chart(settings, server_data) {
+function draw_ews_chart(settings, server_data) {
     var obs = server_data.reverse();
     var svg = new window.NH.NHGraphLib('#' + settings.chart_element);
     var resp_rate_graph = new window.NH.NHGraph();
@@ -144,11 +144,14 @@ function get_ews_chart(settings, server_data) {
     svg.options.refused = settings.refused;
     svg.options.partial_type = settings.partial_type;
     svg.data.raw = process_ews_data(obs);
-    return svg;
+    svg.init();
+    svg.draw();
 }
 
-function get_ews_table(){
-    return {
+function draw_ews_table(settings, server_data){
+    var obs = server_data.reverse();
+    var table_el = new window.NH.NHGraphLib('#table');
+    table_el.table = {
         element: '#table',
         keys: [
             {
@@ -222,6 +225,8 @@ function get_ews_table(){
             }
         ]
     };
+    table_el.data.raw = process_ews_data(obs);
+    table_el.draw();
 }
 
 function process_ews_data(obs){

@@ -386,14 +386,14 @@ describe('Patient Information Functionality', function(){
     describe('Displaying the patient\'s observation in a chart', function(){
         var nhpatient;
         beforeEach(function(){
-            window.get_ews_chart = null;
-            window.get_neuro_chart = function(){
+            window.draw_ews_chart = null;
+            window.draw_neuro_chart = function(){
                     return {
                         init: function(){ return 'a'; },
                         draw: function(){ return 'b'; }
                     };
                 };
-            window.get_neuro_table = function(){ return null; };
+            window.draw_neuro_table = function(){ return null; };
             var test = document.getElementById('test');
             test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
                 '<h3 class="name"><strong>Test Patient</strong></h3>' +
@@ -706,9 +706,9 @@ describe('Patient Information Functionality', function(){
                 promise.complete(graph_data);
                 return promise;
             });
-            spyOn(window, 'get_ews_chart');
+            spyOn(window, 'draw_ews_chart');
             nhpatient = new NHMobilePatient();
-            expect(window.get_ews_chart).toHaveBeenCalled()
+            expect(window.draw_ews_chart).toHaveBeenCalled()
         });
 
         it('Changes the displayed content when I press a tab', function(){

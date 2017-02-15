@@ -1,6 +1,16 @@
-function get_neurological_chart(settings, server_data){
+function draw_neurological_chart(settings, server_data){
     var obs = server_data.reverse();
-    var svg = new window.NH.NHGraphLib('#' + settings.chart_element);
+
+    var chart_el = document.getElementById(settings.chart_element);
+    chart_el.innerHTML = '<div id="eyes"></div><div id="verbal"></div><div id="motor"></div>';
+
+    // hide controls
+    var controls = document.getElementById('controls');
+    controls.style.display = 'none';
+
+    var eyes_el = new window.NH.NHGraphLib('#eyes');
+    var verbal_el = new window.NH.NHGraphLib('#verbal');
+    var motor_el = new window.NH.NHGraphLib('#motor');
     var eyes_graph = new window.NH.NHGraph();
     var verbal_graph = new window.NH.NHGraph();
     var motor_graph = new window.NH.NHGraph();
@@ -8,7 +18,8 @@ function get_neurological_chart(settings, server_data){
     eyes_graph.options.keys = ['eyes'];
     eyes_graph.options.label = '';
     eyes_graph.options.measurement = '';
-    eyes_graph.axes.y.min = 1;
+    eyes_graph.options.title = 'Coma Scale - Eyes Open';
+    eyes_graph.axes.y.min = 0;
     eyes_graph.axes.y.max = 4;
     eyes_graph.options.normal.min = 0;
     eyes_graph.options.normal.max = 0;
@@ -20,49 +31,74 @@ function get_neurological_chart(settings, server_data){
     verbal_graph.options.keys = ['verbal'];
     verbal_graph.options.label = '';
     verbal_graph.options.measurement = '';
-    verbal_graph.axes.y.min = 1;
+    verbal_graph.options.title = 'Coma Scale - Best Verbal Response';
+    verbal_graph.axes.y.min = 0;
     verbal_graph.axes.y.max = 5;
     verbal_graph.options.normal.min = 0;
     verbal_graph.options.normal.max = 0;
     verbal_graph.style.dimensions.height = 250;
     verbal_graph.style.data_style = 'stepped';
     verbal_graph.style.label_width = 60;
+    verbal_graph.style.padding.top = 10;
     verbal_graph.drawables.background.data = [];
 
     motor_graph.options.keys = ['motor'];
     motor_graph.options.label = '';
     motor_graph.options.measurement = '';
-    motor_graph.axes.y.min = 1;
+    motor_graph.options.title = 'Coma Scale - Best Motor Response';
+    motor_graph.axes.y.min = 0;
     motor_graph.axes.y.max = 6;
     motor_graph.options.normal.min = 0;
     motor_graph.options.normal.max = 0;
     motor_graph.style.dimensions.height = 250;
     motor_graph.style.data_style = 'stepped';
     motor_graph.style.label_width = 60;
+    motor_graph.style.padding.top = 10;
     motor_graph.drawables.background.data = [];
 
-    focus = new window.NH.NHFocus();
+    var eyes_focus = new window.NH.NHFocus();
+    var verbal_focus = new window.NH.NHFocus();
+    var motor_focus = new window.NH.NHFocus();
     // context = new window.NHContext();
-    focus.graphs.push(eyes_graph);
-    focus.graphs.push(verbal_graph);
-    focus.graphs.push(motor_graph);
-    focus.title = 'Coma Scale values';
+    eyes_focus.graphs.push(eyes_graph);
+    verbal_focus.graphs.push(verbal_graph);
+    motor_focus.graphs.push(motor_graph);
+    eyes_focus.title = 'Coma Scale - Eyes Open'
+    verbal_focus.title = 'Coma Scale - Best Verbal Response'
+    motor_focus.title = 'Coma Scale - Best Motor Response'
+    eyes_focus.style.margin.top = 70;
+    verbal_focus.style.margin.top = 70;
+    motor_focus.style.margin.top = 70;
     // context.title = 'Coma scale values';
-    svg.focus = focus;
-    // svg.context = context;
-    svg.options.controls.date.start = document.getElementById('start_date');
-    svg.options.controls.date.end = document.getElementById('end_date');
-    svg.options.controls.time.start = document.getElementById('start_time');
-    svg.options.controls.time.end = document.getElementById('end_time');
-    svg.options.controls.rangify = document.getElementById('rangify');
-    svg.options.refused = settings.refused;
-    svg.options.partial_type = settings.partial_type;
-    svg.data.raw = process_neurological_data(obs);
-    return svg;
+    eyes_el.focus = eyes_focus;
+    verbal_el.focus = verbal_focus;
+    motor_el.focus = motor_focus;
+    // // svg.context = context;
+    // svg.options.controls.date.start = document.getElementById('start_date');
+    // svg.options.controls.date.end = document.getElementById('end_date');
+    // svg.options.controls.time.start = document.getElementById('start_time');
+    // svg.options.controls.time.end = document.getElementById('end_time');
+    // svg.options.controls.rangify = document.getElementById('rangify');
+    // svg.options.refused = settings.refused;
+    // svg.options.partial_type = settings.partial_type;
+    var data = process_neurological_data(obs)
+    eyes_el.data.raw = data;
+    verbal_el.data.raw = data;
+    motor_el.data.raw = data;
+
+    eyes_el.init();
+    verbal_el.init();
+    motor_el.init();
+
+    eyes_el.draw();
+    verbal_el.draw();
+    motor_el.draw();
 }
 
-function get_neurological_table(){
-    return {
+function draw_neurological_table(settings, server_data){
+    var obs = server_data.reverse();
+    var table_el = new window.NH.NHGraphLib('#table');
+    table_el.table = {
         element: '#table',
         keys: [
             {
@@ -135,6 +171,8 @@ function get_neurological_table(){
             }
         ]
     };
+    table_el.data.raw = process_neurological_data(obs);
+    table_el.draw();
 }
 
 function process_neurological_data(obs){

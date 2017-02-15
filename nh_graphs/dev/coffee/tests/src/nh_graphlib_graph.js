@@ -77,7 +77,8 @@ NHGraph = (function(superClass) {
         },
         width: 2
       },
-      range_padding: 1
+      range_padding: 1,
+      title_height: 70
     };
     this.options = {
       keys: new Array(),
@@ -159,6 +160,11 @@ NHGraph = (function(superClass) {
     this.obj.attr('width', this.style.dimensions.width);
     left_offset = parent_obj.style.padding.left + this.style.margin.left;
     top_offset = parent_obj.style.dimensions.height + this.style.margin.top;
+    if (this.options.title != null) {
+      this.title_obj = this.obj.append('text').text(this.options.title).attr('class', 'title');
+      this.style.dimensions.height += this.style.title_height;
+      top_offset += this.style.title_height;
+    }
     this.drawables.background.obj = this.obj.append('g').attr('class', 'background');
     this.axes.obj = this.obj.append('g').attr('class', 'axes');
     this.drawables.data = this.obj.append('g').attr('class', 'data');

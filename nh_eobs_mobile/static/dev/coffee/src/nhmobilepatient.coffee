@@ -101,8 +101,8 @@ class NHMobilePatient extends NHMobile
     controls = document.getElementById('controls')
     chart_el = document.getElementById(self.chart_element)
     graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0]
-    chart_func_name = 'get_' + data_model + '_chart'
-    table_func_name = 'get_' + data_model + '_table'
+    chart_func_name = 'draw_' + data_model + '_chart'
+    table_func_name = 'draw_' + data_model + '_table'
     if server_data.length > 0
       controls.style.display = 'block'
       graph_tabs.style.display = 'block'
@@ -115,13 +115,9 @@ class NHMobilePatient extends NHMobile
       else
         graph_tabs.style.display = 'block'
       if valid_chart
-        chart = chart_func(self, server_data)
+        chart_func(self, server_data)
       if valid_table
-        if chart
-          chart.table = table_func()
-      if chart
-        chart.init()
-        chart.draw()
+        table_func(self, server_data)
     else
       controls.style.display = 'none'
       chart_el.innerHTML = '<h2>No observation data available for patient</h2>'
