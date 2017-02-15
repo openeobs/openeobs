@@ -11,10 +11,12 @@
     'depends': ['nh_gcs',
                 'nh_eobs',
                 'nh_eobs_mobile'],
-    'data': ['security/ir.model.access.csv',
-             'views/template.xml',
-             'views/observation_report_template.xml',
-             'views/wardboard_view.xml'],
+    'data': [
+        'security/ir.model.access.csv',
+        'views/template.xml',
+        'views/observation_report_template.xml',
+        'views/acuity_board_buttons.xml'
+    ],
     'qweb': [],
     'application': True,
     'installable': True,

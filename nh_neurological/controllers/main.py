@@ -13,4 +13,4 @@ class NeuroMobileFrontend(MobileFrontend):
         type="http", auth="none")
     def pupil_size_chart(self, *args, **kw):
         return request.render(
-            'neurological_observations.pupil_size_reference', qcontext={})
+            'nh_neurological.pupil_size_reference', qcontext={})
