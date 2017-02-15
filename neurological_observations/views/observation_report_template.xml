@@ -26,27 +26,32 @@
         </template>
 
         <template id="table">
-            <table class="col-xs-12 row">
+            <style>
+                .border_right { border-right: thin }
+            </style>
+            <table class="striped col-xs-12 row">
                 <thead>
                     <tr>
-                        <th colspan="4" class="col-xs-3">Coma Scale</th>
-                        <th colspan="4" class="col-xs-4">Pupils</th>
-                        <th colspan="4" class="col-xs-4">Limbs</th>
+                        <!-- Blank space above Date column. -->
+                        <th colspan="1" class="col-xs-3"></th>
+                        <th colspan="3" class="col-xs-3 border_right">Coma Scale</th>
+                        <th colspan="4" class="col-xs-4 border_right">Pupils</th>
+                        <th colspan="4" class="col-xs-4 border_right">Limbs</th>
                     </tr>
                     <tr>
                         <th class="col-xs-3">Date</th>
                         <th class="col-xs-1">Coma Scale Total score</th>
                         <th class="col-xs-1">Eyes</th>
                         <th class="col-xs-1">Verbal</th>
-                        <th class="col-xs-1">Motor</th>
+                        <th class="col-xs-1 border_right">Motor</th>
                         <th class="col-xs-1">Right - Size</th>
                         <th class="col-xs-1">Right - Reaction</th>
                         <th class="col-xs-1">Left - Size</th>
-                        <th class="col-xs-1">Left - Reaction</th>
+                        <th class="col-xs-1 border_right">Left - Reaction</th>
                         <th class="col-xs-1">Left Arm</th>
                         <th class="col-xs-1">Right Arm</th>
                         <th class="col-xs-1">Left Leg</th>
-                        <th class="col-xs-1">Right Leg</th>
+                        <th class="col-xs-1 border_right">Right Leg</th>
                         <th class="col-xs-1">User</th>
                     </tr>
                 </thead>

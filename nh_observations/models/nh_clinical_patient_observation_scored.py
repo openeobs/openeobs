@@ -75,10 +75,9 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         obs = super(NhClinicalPatientObservationScored, self).read(
             *args, **kwargs
         )
-        if not hasattr(obs, '__iter__'):
-            obs = [obs]
+        obs_list = [obs] if not isinstance(obs, list) else obs
         if self._name == 'nh.clinical.patient.observation.neurological':
-            for ob in obs:
+            for ob in obs_list:
                 for field_name in ['eyes', 'verbal', 'motor']:
                     field_value = ob.get(field_name)
                     if field_value:

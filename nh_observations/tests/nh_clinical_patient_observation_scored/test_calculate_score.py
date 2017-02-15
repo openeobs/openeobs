@@ -11,7 +11,7 @@ class TestCalculateScore(TransactionCase):
 
         def mock_get_score_for_value(*args, **kwargs):
             field_value = args[2]
-            return field_value[1] # Number after the 'V'
+            return field_value[1]  # Number after the 'V'
 
         self.obs_scored_model._patch_method('get_score_for_value',
                                             mock_get_score_for_value)
