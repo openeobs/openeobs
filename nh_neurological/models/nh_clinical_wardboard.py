@@ -48,3 +48,26 @@ class NhClinicalWardboardNeuro(orm.Model):
             'context': context,
             'view_id': int(view_id)
         }
+
+    def wardboard_neuro_list(self, cr, uid, ids, context=None):
+        """
+        Returns an Odoo tree window action for `completed` neuro obs
+
+        :param ids: records ids
+        :type ids: list
+        :returns: Odoo form window action
+        :rtype: dict
+        """
+
+        wardboard = self.browse(cr, uid, ids[0], context=context)
+        return {
+            'name': wardboard.full_name,
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.patient.observation.neurological',
+            'view_mode': 'tree',
+            'view_type': 'tree',
+            'domain': [('patient_id', '=', wardboard.patient_id.id),
+                       ('state', '=', 'completed')],
+            'target': 'new',
+            'context': context
+        }

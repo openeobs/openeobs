@@ -15,9 +15,10 @@
         'security/ir.model.access.csv',
         'views/template.xml',
         'views/observation_report_template.xml',
-        'views/acuity_board_buttons.xml'
+        'views/acuity_board_buttons.xml',
+        'views/static_file_include.xml'
     ],
-    'qweb': [],
+    'qweb': ['static/src/xml/chart.xml'],
     'application': True,
     'installable': True,
     'active': False,

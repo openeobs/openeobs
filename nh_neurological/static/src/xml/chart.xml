@@ -1,0 +1,5 @@
+<templates>
+    <div t-name="neuro_chart" class="nh_ewschart">
+        <div id="neuro_chart"></div>
+    </div>
+</templates>

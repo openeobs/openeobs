@@ -56,5 +56,29 @@
             </field>
         </record>
 
+
+        <record model="ir.ui.view" id="view_tree_observation_neurological">
+            <field name="name">Tree View Observation Neurological</field>
+            <field name="model">nh.clinical.patient.observation.neurological</field>
+            <field name="arch" type="xml">
+                <tree string="Neurological Observations" class="nhc_obs_list">
+                    <field name="date_terminated" widget="nhc_datetime" string="Terminated Time"/>
+                    <field name="score" string="Total Score"/>
+                    <field name="eyes" string="Eyes"/>
+                    <field name="verbal" string="Verbal"/>
+                    <field name="motor" string="Motor"/>
+                    <field name="pupil_right_size" class="nhc_obs_group_separation"/>
+                    <field name="pupil_right_reaction"/>
+                    <field name="pupil_left_size"/>
+                    <field name="pupil_left_reaction"/>
+                    <field name="limb_movement_left_arm" class="nhc_obs_group_separation"/>
+                    <field name="limb_movement_right_arm"/>
+                    <field name="limb_movement_left_leg"/>
+                    <field name="limb_movement_right_leg"/>
+                    <field name="terminate_uid"  class="nhc_obs_group_separation" string="Completed By"/>
+                </tree>
+            </field>
+        </record>
+
     </data>
 </openerp>
