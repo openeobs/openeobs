@@ -5,7 +5,7 @@ from openerp.tests.common import TransactionCase
 
 
 class TestNeuroIds(TransactionCase):
-    
+
     def setUp(self):
         super(TestNeuroIds, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']

@@ -214,7 +214,8 @@ class ObservationReport(models.AbstractModel):
         return rep_data
 
     @api.multi
-    def get_activity_data(self, spell_activity_id, model, start_time, end_time):
+    def get_activity_data(
+            self, spell_activity_id, model, start_time, end_time):
         """
         Returns a list of dictionaries, each one representing the values of one
         :class:<nh_activity.activity.nh_activity> record.
@@ -304,7 +305,8 @@ class ObservationReport(models.AbstractModel):
         range.
         :rtype: dict
         """
-        activity_data = self.get_activity_data(spell_activity_id, model, start, end)
+        activity_data = \
+            self.get_activity_data(spell_activity_id, model, start, end)
         if activity_data:
             self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)
