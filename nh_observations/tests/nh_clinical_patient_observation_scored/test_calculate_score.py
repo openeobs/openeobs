@@ -10,8 +10,8 @@ class TestCalculateScore(TransactionCase):
             self.env['nh.clinical.patient.observation_scored']
 
         def mock_get_score_for_value(*args, **kwargs):
-            field_value = args[2]
-            return field_value[1]  # Number after the 'V'
+            field_value = args[3]
+            return int(field_value[1])  # Number after the 'V'
 
         self.obs_scored_model._patch_method('get_score_for_value',
                                             mock_get_score_for_value)

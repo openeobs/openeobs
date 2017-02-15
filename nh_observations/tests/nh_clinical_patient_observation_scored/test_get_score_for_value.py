@@ -4,9 +4,9 @@ from openerp.tests.common import TransactionCase
 
 class Field(object):
     selection = [
-        'V2',
-        'V1',
-        'V0'
+        ('V2', 'V2'),
+        ('V1', 'V1'),
+        ('V0', 'V0')
     ]
 
 

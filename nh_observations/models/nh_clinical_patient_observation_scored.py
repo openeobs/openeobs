@@ -57,8 +57,8 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         score = sum(values_for_score_calculation)
         return {'score': score} if return_dictionary else score
 
-    @staticmethod
-    def get_score_for_value(model, field_name, field_value):
+    @classmethod
+    def get_score_for_value(cls, model, field_name, field_value):
         selection = model._fields[field_name].selection
         selection = reversed(selection)
         selection_values = \
