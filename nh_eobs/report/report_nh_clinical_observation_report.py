@@ -246,10 +246,14 @@ class ObservationReport(models.AbstractModel):
     def add_user_key(self, activity_data_list):
         for activity_data in activity_data_list:
             terminate_user_tuple = activity_data.get('terminate_uid')
-            if terminate_user_tuple and terminate_user_tuple[0]:
+            is_tuple = isinstance(terminate_user_tuple, tuple)
+            user_name = terminate_user_tuple[1] \
+                if is_tuple and len(terminate_user_tuple) > 1 else False
+            if not user_name and is_tuple:
                 user_id = terminate_user_tuple[0]
                 user_model = self.env['res.users']
-                activity_data['user'] = user_model.get_name(user_id)
+                user_name = user_model.get_name(user_id)
+            activity_data['user'] = user_name
 
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']

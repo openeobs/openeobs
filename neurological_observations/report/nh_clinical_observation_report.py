@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from openerp import models
+import copy
 
 
 class NhClinicalPatientObservationReport(models.Model):
@@ -10,7 +11,13 @@ class NhClinicalPatientObservationReport(models.Model):
     def get_report_data(self, data, ews_only=False):
         report_data = super(NhClinicalPatientObservationReport, self)\
             .get_report_data(data)
-        report_data['neurological'] = self.get_neurological_observations(data)
+        neuro_data = self.get_neurological_observations(data)
+        json_neuro_data = []
+        for activity in neuro_data:
+            json_neuro_data.append(copy.deepcopy(activity['values']))
+        json_data = self.get_model_data_as_json(json_neuro_data)
+        report_data['neurological'] = neuro_data
+        report_data['neurological_data'] = json_data
         return report_data
 
     def get_neurological_observations(self, data):
