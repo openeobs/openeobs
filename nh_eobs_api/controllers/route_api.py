@@ -389,9 +389,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                              str, context=context)
         data = kw.copy() if kw else {}
         test = {}
+        section = 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
         if 'taskId' in data:
+            section = 'task'
             del data['taskId']
         if observation is not None:
             del data['observation']
@@ -436,7 +438,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'score': score_dict,
             'modal_vals': modal_vals,
             'status': 3,
-            'next_action': self.get_next_action(data)
+            'next_action': 'json_{}_form_action'.format(section)
         }
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
@@ -448,12 +450,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             response_json,
             headers=ResponseJSON.HEADER_CONTENT_TYPE
         )
-
-    def get_next_action(self, data):
-        section = 'task' if 'taskId' in data else 'patient'
-        next_action = 'json_patient_form_action' if section == 'task' \
-            else 'json_task_form_action'
-        return next_action
 
     @http.route(**route_manager.expose_route('json_partial_reasons'))
     def get_partial_reasons(self, *args, **kw):

@@ -386,9 +386,10 @@
                             </t>
                         </ul>
                         <t t-if="len(data_vis_list) > 0">
+                            <h4>See Observation Data For:</h4>
                             <select id="chart_select" name="chart_select">
                                 <t t-foreach="data_vis_list" t-as="data_vis">
-                                    <option t-att-value="data_vis.get('data_model')"><t t-esc="data_vis.get('model_name')"/></option>
+                                    <option t-att-value="data_vis.get('data_model')" t-att-selected="'selected' if data_vis.get('data_model') == 'ews' else False"><t t-esc="data_vis.get('model_name')"/></option>
                                 </t>
                             </select>
                         </t>

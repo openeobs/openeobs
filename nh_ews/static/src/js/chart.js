@@ -143,79 +143,93 @@ function draw_ews_chart(settings, server_data) {
     svg.options.controls.rangify = document.getElementById('rangify');
     svg.options.refused = settings.refused;
     svg.options.partial_type = settings.partial_type;
-    svg.table.element = '#table';
-    svg.table.keys = [
-        {
-            title: 'NEWS Score',
-            keys: ['score_display']
-        },
-        {
-            title: 'Respiration Rate',
-            keys: ['respiration_rate']
-        },
-        {
-            title: 'O2 Saturation',
-            keys: ['indirect_oxymetry_spo2']
-        },
-        {
-            title: 'Body Temperature',
-            keys: ['body_temperature']
-        },
-        {
-            title: 'Blood Pressure Systolic',
-            keys: ['blood_pressure_systolic']
-        },
-        {
-            title: 'Blood Pressure Diastolic',
-            keys: ['blood_pressure_diastolic']
-        },
-        {
-            title: 'Pulse Rate',
-            keys: ['pulse_rate']
-        },
-        {
-            title: 'AVPU',
-            keys: ['avpu_text']
-        },
-        {
-            title: 'Patient on Supplemental O2',
-            keys: ['oxygen_administration_flag']
-        },
-        {
-            title: 'Inspired Oxygen',
-            keys: [
-                {
-                    title: 'Flow Rate',
-                    keys: ['flow_rate']
-                },
-                {
-                    title: 'Concentration',
-                    keys: ['concentration']
-                },
-                {
-                    title: 'Device',
-                    keys: ['device_id']
-                },
-                {
-                    title: 'CPAP PEEP',
-                    keys: ['cpap_peep']
-                },
-                {
-                    title: 'NIV iPAP',
-                    keys: ['niv_ipap']
-                },
-                {
-                    title: 'NIV ePAP',
-                    keys: ['niv_epap']
-                },
-                {
-                    title: 'NIV Backup Rate',
-                    keys: ['niv_backup']
-                }
-            ]
-        }
-    ];
+    svg.data.raw = process_ews_data(obs);
+    svg.init();
+    svg.draw();
+}
 
+function draw_ews_table(settings, server_data){
+    var obs = server_data.reverse();
+    var table_el = new window.NH.NHGraphLib('#table');
+    table_el.table = {
+        element: '#table',
+        keys: [
+            {
+                title: 'NEWS Score',
+                keys: ['score_display']
+            },
+            {
+                title: 'Respiration Rate',
+                keys: ['respiration_rate']
+            },
+            {
+                title: 'O2 Saturation',
+                keys: ['indirect_oxymetry_spo2']
+            },
+            {
+                title: 'Body Temperature',
+                keys: ['body_temperature']
+            },
+            {
+                title: 'Blood Pressure Systolic',
+                keys: ['blood_pressure_systolic']
+            },
+            {
+                title: 'Blood Pressure Diastolic',
+                keys: ['blood_pressure_diastolic']
+            },
+            {
+                title: 'Pulse Rate',
+                keys: ['pulse_rate']
+            },
+            {
+                title: 'AVPU',
+                keys: ['avpu_text']
+            },
+            {
+                title: 'Patient on Supplemental O2',
+                keys: ['oxygen_administration_flag']
+            },
+            {
+                title: 'Inspired Oxygen',
+                keys: [
+                    {
+                        title: 'Flow Rate',
+                        keys: ['flow_rate']
+                    },
+                    {
+                        title: 'Concentration',
+                        keys: ['concentration']
+                    },
+                    {
+                        title: 'Device',
+                        keys: ['device_id']
+                    },
+                    {
+                        title: 'CPAP PEEP',
+                        keys: ['cpap_peep']
+                    },
+                    {
+                        title: 'NIV iPAP',
+                        keys: ['niv_ipap']
+                    },
+                    {
+                        title: 'NIV ePAP',
+                        keys: ['niv_epap']
+                    },
+                    {
+                        title: 'NIV Backup Rate',
+                        keys: ['niv_backup']
+                    }
+                ]
+            }
+        ]
+    };
+    table_el.data.raw = process_ews_data(obs);
+    table_el.draw();
+}
+
+function process_ews_data(obs){
     for (var i = 0; i < obs.length; i++) {
         var ob = obs[i];
         if (ob.is_partial) {
@@ -261,8 +275,5 @@ function draw_ews_chart(settings, server_data) {
             ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%";
         }
     }
-
-    svg.data.raw = obs;
-    svg.init();
-    svg.draw();
+    return obs;
 }
