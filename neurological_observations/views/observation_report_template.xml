@@ -19,13 +19,17 @@
         </template>
 
         <template id="table">
+            <table class="col-xs-12 row">
+                <thead>
+                    <tr>
+                        <th class="col-xs-4">Coma Scale</th>
+                        <th class="col-xs-4">Pupils</th>
+                        <th class="col-xs-4">Limbs</th>
+                    </tr>
+                </thead>
+            </table>
             <table class="striped col-xs-12 row">
                 <thead class="small-header">
-                    <tr>
-                        <th class="col-xs-3">Coma Scale</th>
-                        <th class="col-xs-3">Pupils</th>
-                        <th class="col-xs-3">Limbs</th>
-                    </tr>
                     <tr>
                         <th class="col-xs-3">Date</th>
                         <th class="col-xs-1">Coma Scale Total score</th>
@@ -44,11 +48,24 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!--t t-foreach="neurological" t-as="observation"-->
+                    <t t-foreach="neurological" t-as="observation">
                         <tr>
-                            <!--td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td-->
+                            <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['score']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['eyes']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['verbal']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['motor']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['pupil_right_size']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['pupil_right_reaction']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['pupil_left_size']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['pupil_left_reaction']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_left_arm']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_right_arm']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_left_leg']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_right_leg']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['user']"/></td>
                         </tr>
-                    <!--/t-->
+                    </t>
                 </tbody>
             </table>
         </template>

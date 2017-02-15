@@ -34,28 +34,28 @@ class nh_clinical_patient_observation_gcs(models.Model):
     _required = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
     _eyes_selection = [
-        ('4', 'Spontaneous'),
-        ('3', 'To Sound'),
-        ('2', 'To Pressure'),
-        ('1', 'None'),
-        ('0', 'Not Testable')
+        ('SP', 'Spontaneous'),
+        ('TS', 'To Sound'),
+        ('TP', 'To Pressure'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
     ]
     _verbal_selection = [
-        ('5', 'Orientated'),
-        ('4', 'Confused'),
-        ('3', 'Words'),
-        ('2', 'Sounds'),
-        ('1', 'None'),
-        ('0', 'Not Testable')
+        ('OR', 'Orientated'),
+        ('CO', 'Confused'),
+        ('WO', 'Words'),
+        ('SO', 'Sounds'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
     ]
     _motor_selection = [
-        ('6', 'Obey Commands'),
-        ('5', 'Localising'),
-        ('4', 'Normal Flexion'),
-        ('3', 'Abnormal Flexion'),
-        ('2', 'Extension'),
-        ('1', 'None'),
-        ('0', 'Not Testable')
+        ('OC', 'Obey Commands'),
+        ('LO', 'Localising'),
+        ('NF', 'Normal Flexion'),
+        ('AF', 'Abnormal Flexion'),
+        ('EX', 'Extension'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
     ]
 
     """
@@ -128,7 +128,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
         }, context=context)
 
         return super(nh_clinical_patient_observation_gcs, self).complete(
-            cr, SUPERUSER_ID, activity_id, context)
+            cr, uid, activity_id, context)
 
     def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):

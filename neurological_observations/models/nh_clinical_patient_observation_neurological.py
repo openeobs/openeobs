@@ -17,21 +17,21 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ['3', '3mm'],
         ['2', '2mm'],
         ['1', '1mm'],
-        ['not observable', 'Not Observable']
+        ['NO', 'Not Observable']
     ]
     _pupil_reaction_selection = [
         ('+', '+'),
         ('-', '-'),
-        ('not testable', 'Not Testable')
+        ('NT', 'Not Testable')
     ]
     _limb_movement_selection = [
-        ('normal power', 'Normal Power'),
-        ('mild weakness', 'Mild Weakness'),
-        ('severe weakness', 'Severe Weakness'),
-        ('spastic flexion', 'Spastic Flexion'),
-        ('extension', 'Extension'),
-        ('no response', 'No Response'),
-        ('not observable', 'Not Observable')
+        ('NP', 'Normal Power'),
+        ('MW', 'Mild Weakness'),
+        ('SW', 'Severe Weakness'),
+        ('SF', 'Spastic Flexion'),
+        ('EX', 'Extension'),
+        ('NR', 'No Response'),
+        ('NO', 'Not Observable')
     ]
 
     _description = "Neurological Observation"

@@ -14,8 +14,9 @@ class NhClinicalPatientObservationReport(models.Model):
         return report_data
 
     def get_neurological_observations(self, data):
-        domain = [
-            ('patient_id', '=', self.patient_id)
-        ]
-        # neurological_observations = self.browse()
-        return domain
+        neuro_model = self.env['nh.clinical.patient.observation.neurological']
+        neurological_observations = self.get_model_data(
+            self.spell_activity_id, neuro_model._name,
+            data.start_time, data.end_time
+        )
+        return neurological_observations

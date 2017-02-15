@@ -24,21 +24,10 @@ class TestGetNeurologicalObservations(TransactionCase):
             'start_time': self.datetime_start.strftime(DTF),
             'end_time': self.datetime_end.strftime(DTF)
         })
-        self.report_wizard.spell_id = self.spell.id
+        self.report_model.spell_activity_id = self.spell_activity.id
 
     def test_returns_list(self):
         neurological_observations = \
             self.report_model.get_neurological_observations(self.report_wizard)
         self.assertTrue(type(neurological_observations) is list)
 
-    def test_no_start_or_end_datetime(self):
-        pass
-
-    def test_start_datetime(self):
-        pass
-
-    def test_end_date_time(self):
-        pass
-
-    def test_start_and_end_datetime(self):
-        pass

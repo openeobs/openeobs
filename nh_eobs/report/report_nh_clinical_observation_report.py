@@ -97,6 +97,7 @@ class ObservationReport(models.AbstractModel):
             spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
         self.patient_id = spell['patient_id'][0]
         patient_id = self.patient_id
+
         # Get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient_location = patient.get('current_location_id')
@@ -213,12 +214,12 @@ class ObservationReport(models.AbstractModel):
         return rep_data
 
     @api.multi
-    def get_activity_data(self, spell_id, model, start_time, end_time):
+    def get_activity_data(self, spell_activity_id, model, start_time, end_time):
         """
         Returns a list of dictionaries, each one representing the values of one
         :class:<nh_activity.activity.nh_activity> record.
 
-        :param spell_id:
+        :param spell_activity_id:
         :param model: The name of the model matching the type of activity data
         to retrieve activities for.
         :type model: str
@@ -232,11 +233,23 @@ class ObservationReport(models.AbstractModel):
 
         states = self._get_allowed_activity_states_for_model(model)
         domain = helpers.create_search_filter(
-            spell_id, model, start_time, end_time, states=states
+            spell_activity_id, model, start_time, end_time, states=states
         )
         self.add_exclude_placement_cancel_reason_parameter_to_domain(domain)
+
         activity_ids = activity_model.search(cr, uid, domain)
-        return activity_model.read(cr, uid, activity_ids)
+        activity_data = activity_model.read(cr, uid, activity_ids)
+        self.add_user_key(activity_data)
+
+        return activity_data
+
+    def add_user_key(self, activity_data_list):
+        for activity_data in activity_data_list:
+            terminate_user_tuple = activity_data.get('terminate_uid')
+            user_id = terminate_user_tuple[0]
+            if user_id:
+                user_model = self.env['res.users']
+                activity_data['user'] = user_model.get_name(user_id)
 
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']
@@ -270,13 +283,13 @@ class ObservationReport(models.AbstractModel):
         else:
             return 'completed'
 
-    def get_model_data(self, spell_id, model, start, end):
+    def get_model_data(self, spell_activity_id, model, start, end):
         """
-        Get activities associated with the passed model and return them as
-        a dictionary.
+        Get activities associated with the passed model and spell id and
+        return them as a dictionary.
 
-        :param spell_id:
-        :type spell_id: int
+        :param spell_activity_id:
+        :type spell_activity_id: int
         :param model:
         :type model: str
         :param start:
@@ -287,7 +300,7 @@ class ObservationReport(models.AbstractModel):
         range.
         :rtype: dict
         """
-        activity_data = self.get_activity_data(spell_id, model, start, end)
+        activity_data = self.get_activity_data(spell_activity_id, model, start, end)
         if activity_data:
             self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)
@@ -508,6 +521,7 @@ class ObservationReport(models.AbstractModel):
                                   ews_model,
                                   data.start_time, data.end_time)
         ews = self.convert_partial_reasons_to_labels(ews)
+
         for observation in ews:
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
@@ -523,7 +537,9 @@ class ObservationReport(models.AbstractModel):
             observation['values']['o2_target'] = False
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
+
         self.add_triggered_action_keys_to_obs_dicts(ews)
+
         return ews
 
     @api.model

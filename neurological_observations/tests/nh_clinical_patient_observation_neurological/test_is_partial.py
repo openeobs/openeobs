@@ -40,8 +40,8 @@ class TestIsPartial(TransactionCase):
         self.neuro_obs.pupil_left_size = '1'
         self.neuro_obs.pupil_left_reaction = '+'
         self.neuro_obs.pupil_right_reaction = '+'
-        self.neuro_obs.limb_movement_left_arm = 'normal power'
-        self.neuro_obs.limb_movement_right_arm = 'normal power'
-        self.neuro_obs.limb_movement_left_leg = 'normal power'
-        self.neuro_obs.limb_movement_right_leg = 'normal power'
+        self.neuro_obs.limb_movement_left_arm = 'NP'
+        self.neuro_obs.limb_movement_right_arm = 'NP'
+        self.neuro_obs.limb_movement_left_leg = 'NP'
+        self.neuro_obs.limb_movement_right_leg = 'NP'
         self.assertFalse(self.neuro_obs.is_partial)

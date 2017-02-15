@@ -43,33 +43,28 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         :returns: ``score``
         :rtype: dict or int
         """
-        fields_for_score_calculation = []
+        values_for_score_calculation = []
         fields_dict = record if type(record) is dict \
             else record.get_necessary_fields_dict()
 
         for field in fields_dict.items():
             field_name = field[0]
             field_value = field[1]
-            if type(field_value) is not int \
-                    and not isinstance(field_value, basestring):
-                _logger.debug(
-                    "Disregarding field '{}' with value '{}' from the score "
-                    "calculation as it is neither an int nor a str"
-                    .format(field_name, field_value)
-                )
-                continue
-            try:
-                field_value = int(field_value)
-                fields_for_score_calculation.append(field_value)
-            except ValueError:
-                _logger.debug(
-                    "Disregarding field '{}' with value '{}' from the score "
-                    "calculation as it cannot be cast to an int"
-                    .format(field_name, field_value)
-                )
+            field_value = self.get_score_for_value(self, field_name,
+                                                   field_value)
+            values_for_score_calculation.append(field_value)
 
-        score = sum(fields_for_score_calculation)
+        score = sum(values_for_score_calculation)
         return {'score': score} if return_dictionary else score
+
+    @staticmethod
+    def get_score_for_value(model, field_name, field_value):
+        selection = model._fields[field_name].selection
+        reversed(selection)
+        selection_values = \
+            [value_and_label[0] for value_and_label in selection]
+        selection_index = selection_values.index(field_value)
+        return selection_index
 
     score = fields.Integer(
         compute='_get_score', string='Score', store=True
