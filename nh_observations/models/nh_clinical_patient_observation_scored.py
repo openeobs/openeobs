@@ -69,3 +69,20 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
     score = fields.Integer(
         compute='_get_score', string='Score', store=True
     )
+
+    # TODO: EOBS-993 Make scored obs read method override dynamic
+    def read(self, *args, **kwargs):
+        obs = super(NhClinicalPatientObservationScored, self).read(
+            *args, **kwargs
+        )
+        if not hasattr(obs, '__iter__'):
+            obs = [obs]
+        if self._name == 'nh.clinical.patient.observation.neurological':
+            for ob in obs:
+                for field_name in ['eyes', 'verbal', 'motor']:
+                    field_value = ob.get(field_name)
+                    if field_value:
+                        ob[field_name] = self.get_score_for_value(
+                            self, field_name, field_value
+                        )
+        return obs

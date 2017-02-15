@@ -1071,9 +1071,11 @@ class nh_eobs_api(orm.AbstractModel):
         activity_pool.complete(cr, uid, unfollow_activity_id, context=context)
         return True
 
-    def get_activities_for_patient(self, cr, uid, patient_id, activity_type,
-                                   start_date=None, end_date=None,
-                                   context=None):
+    def get_activities_for_patient(
+            self, cr, uid, patient_id, activity_type,
+            start_date=None, end_date=None, context=None,
+            convert_field_values_to_scores=True
+    ):
         """
         Returns a list of
         :class:`activities<activity.nh_activity>` for a
@@ -1095,9 +1097,14 @@ class nh_eobs_api(orm.AbstractModel):
         """
         start_date = dt.now()-td(days=30) if not start_date else start_date
         end_date = dt.now() if not end_date else end_date
-        model_pool = self.pool[self._get_activity_type(
-            cr, uid, activity_type, observation=True, context=context)] \
-            if activity_type else self.pool['nh.activity']
+
+        if activity_type:
+            model_name = self._get_activity_type(
+                cr, uid, activity_type, observation=True, context=context
+            )
+        else:
+            model_name = 'nh.activity'
+        model_pool = self.pool[model_name]
         domain = [
             ('patient_id', '=', patient_id),
             ('state', '=', 'completed'),
@@ -1107,8 +1114,10 @@ class nh_eobs_api(orm.AbstractModel):
             else [('patient_id', '=', patient_id),
                   ('state', 'not in', ['completed', 'cancelled']),
                   ('data_model', '!=', 'nh.clinical.spell')]
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+
+        obs_ids = model_pool.search(cr, uid, domain, context=context)
+        observations = model_pool.read(cr, uid, obs_ids, [], context=context)
+        return observations
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
                                     vals_activity=None, vals_data=None,
