@@ -7,8 +7,8 @@
                 <div class="col-xs-12 row" id="neurological_values">
                     <h3>Neurological Values</h3>
                     <t t-if="len(neurological) &gt; 0">
-                        <t t-call="neurological_observations.charts"/>
-                        <t t-call="neurological_observations.table"/>
+                        <t t-call="nh_neurological.charts"/>
+                        <t t-call="nh_neurological.table"/>
                     </t>
                 </div>
             </xpath>
@@ -27,32 +27,37 @@
 
         <template id="table">
             <style>
-                .border_right { border-right: thin }
+                .border-right {
+                    border-right: 2px solid black;
+                }
+                .neuro-table-header {
+                    background-color: #EFEFEF;
+                }
             </style>
             <table class="striped col-xs-12 row">
                 <thead>
                     <tr>
                         <!-- Blank space above Date column. -->
                         <th colspan="1" class="col-xs-3"></th>
-                        <th colspan="3" class="col-xs-3 border_right">Coma Scale</th>
-                        <th colspan="4" class="col-xs-4 border_right">Pupils</th>
-                        <th colspan="4" class="col-xs-4 border_right">Limbs</th>
+                        <th colspan="4" class="border-right col-xs-4"><h4>Coma Scale</h4></th>
+                        <th colspan="4" class="col-xs-4 border-right"><h4>Pupils</h4></th>
+                        <th colspan="4" class="col-xs-4 border-right"><h4>Limbs</h4></th>
                     </tr>
                     <tr>
-                        <th class="col-xs-3">Date</th>
-                        <th class="col-xs-1">Coma Scale Total score</th>
-                        <th class="col-xs-1">Eyes</th>
-                        <th class="col-xs-1">Verbal</th>
-                        <th class="col-xs-1 border_right">Motor</th>
-                        <th class="col-xs-1">Right - Size</th>
-                        <th class="col-xs-1">Right - Reaction</th>
-                        <th class="col-xs-1">Left - Size</th>
-                        <th class="col-xs-1 border_right">Left - Reaction</th>
-                        <th class="col-xs-1">Left Arm</th>
-                        <th class="col-xs-1">Right Arm</th>
-                        <th class="col-xs-1">Left Leg</th>
-                        <th class="col-xs-1 border_right">Right Leg</th>
-                        <th class="col-xs-1">User</th>
+                        <th class="col-xs-3 neuro-table-header">Date</th>
+                        <th class="col-xs-1 neuro-table-header">Coma Scale Total score</th>
+                        <th class="col-xs-1 neuro-table-header">Eyes</th>
+                        <th class="col-xs-1 neuro-table-header">Verbal</th>
+                        <th class="col-xs-1 neuro-table-header border-right">Motor</th>
+                        <th class="col-xs-1 neuro-table-header">Right - Size</th>
+                        <th class="col-xs-1 neuro-table-header">Right - Reaction</th>
+                        <th class="col-xs-1 neuro-table-header">Left - Size</th>
+                        <th class="col-xs-1 neuro-table-header border-right">Left - Reaction</th>
+                        <th class="col-xs-1 neuro-table-header">Left Arm</th>
+                        <th class="col-xs-1 neuro-table-header">Right Arm</th>
+                        <th class="col-xs-1 neuro-table-header">Left Leg</th>
+                        <th class="col-xs-1 neuro-table-header border-right">Right Leg</th>
+                        <th class="col-xs-1 neuro-table-header">User</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,15 +67,15 @@
                             <td class="col-xs-1"><t t-esc="observation['values']['score']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['eyes']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['verbal']"/></td>
-                            <td class="col-xs-1"><t t-esc="observation['values']['motor']"/></td>
+                            <td class="col-xs-1 border-right"><t t-esc="observation['values']['motor']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['pupil_right_size']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['pupil_right_reaction']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['pupil_left_size']"/></td>
-                            <td class="col-xs-1"><t t-esc="observation['values']['pupil_left_reaction']"/></td>
+                            <td class="col-xs-1 border-right"><t t-esc="observation['values']['pupil_left_reaction']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_left_arm']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_right_arm']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_left_leg']"/></td>
-                            <td class="col-xs-1"><t t-esc="observation['values']['limb_movement_right_leg']"/></td>
+                            <td class="col-xs-1 border-right"><t t-esc="observation['values']['limb_movement_right_leg']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['user']"/></td>
                         </tr>
                     </t>
