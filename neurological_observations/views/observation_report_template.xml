@@ -15,7 +15,14 @@
         </template>
 
         <template id="charts">
-            <p>Charts go here.</p>
+            <div id="neuro_chart"></div>
+            <script src="/neurological_observations/static/src/js/chart.js"></script>
+            <script>
+                var settings = {
+                    chart_element: 'neuro_chart'
+                };
+                draw_neurological_chart(settings, <t t-raw="neurological_data"/>);
+            </script>
         </template>
 
         <template id="table">

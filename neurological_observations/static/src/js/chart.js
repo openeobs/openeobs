@@ -6,7 +6,9 @@ function draw_neurological_chart(settings, server_data){
 
     // hide controls
     var controls = document.getElementById('controls');
-    controls.style.display = 'none';
+    if(controls){
+        controls.style.display = 'none';
+    }
 
     var eyes_el = new window.NH.NHGraphLib('#eyes');
     var verbal_el = new window.NH.NHGraphLib('#verbal');

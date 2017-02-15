@@ -1,0 +1,60 @@
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="view_wardboard_neuro_chart_form">
+            <field name="name">Wardboard Neurological Observation Chart View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Neurological Observation Chart View" version="7.0" edit="0" create="0">
+                    <sheet>
+                        <field name="neurological_ids" widget="neuro_chart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_neuro_list_form">
+            <field name="name">Wardboard Neurological Observation List View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Neurological Observation List View" version="7.0" edit="0" create="0" class="paged_table">
+                    <sheet>
+                        <field name="neurological_ids" no_open="1"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_wardboard_neuro_chart">
+            <field name="name">Neurological Observation Chart</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_neuro_chart_form"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_neuro_list">
+            <field name="name">Neurological Observation List</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_neuro_list_form"/>
+        </record>
+
+        <record model="ir.ui.view" id="view_neuro_wardboard_form">
+            <field name="name">Neuro Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="wardboard_neuro_chart" string="Neurological Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                    <button name="wardboard_neuro_list" string="Neurological List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

@@ -214,7 +214,8 @@ class ObservationReport(models.AbstractModel):
         return rep_data
 
     @api.multi
-    def get_activity_data(self, spell_activity_id, model, start_time, end_time):
+    def get_activity_data(
+            self, spell_activity_id, model, start_time, end_time):
         """
         Returns a list of dictionaries, each one representing the values of one
         :class:<nh_activity.activity.nh_activity> record.
@@ -246,10 +247,14 @@ class ObservationReport(models.AbstractModel):
     def add_user_key(self, activity_data_list):
         for activity_data in activity_data_list:
             terminate_user_tuple = activity_data.get('terminate_uid')
-            if terminate_user_tuple and terminate_user_tuple[0]:
+            is_tuple = isinstance(terminate_user_tuple, tuple)
+            user_name = terminate_user_tuple[1] \
+                if is_tuple and len(terminate_user_tuple) > 1 else False
+            if not user_name and is_tuple:
                 user_id = terminate_user_tuple[0]
                 user_model = self.env['res.users']
-                activity_data['user'] = user_model.get_name(user_id)
+                user_name = user_model.get_name(user_id)
+            activity_data['user'] = user_name
 
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']
@@ -300,7 +305,8 @@ class ObservationReport(models.AbstractModel):
         range.
         :rtype: dict
         """
-        activity_data = self.get_activity_data(spell_activity_id, model, start, end)
+        activity_data = \
+            self.get_activity_data(spell_activity_id, model, start, end)
         if activity_data:
             self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)

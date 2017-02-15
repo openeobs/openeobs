@@ -74,3 +74,12 @@ class TestGetReportData(SingleTransactionCase):
         field_values = self.get_user_values()
         for field_value in field_values:
             self.assertEqual(self.nurse_name, field_value)
+
+    def test_returns_dict_with_neurological_data(self):
+        """
+        Test that get_report_data returns a key with json representation of
+        activities
+        """
+        report_data = self.report_model.get_report_data(self.report_wizard)
+        self.assertTrue('neurological_data' in report_data)
+        self.assertTrue(type(report_data['neurological_data']) is list)
