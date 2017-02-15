@@ -67,7 +67,8 @@ function get_neurological_table(){
         keys: [
             {
                 title: 'Coma Scale',
-                keys: []
+                keys: [],
+                presentation: 'bold'
             },
             {
                 title: 'Eyes',
@@ -83,11 +84,13 @@ function get_neurological_table(){
             },
             {
                 title: 'Total Score',
-                keys: ['score']
+                keys: ['score'],
+                presentation: 'bold'
             },
             {
                 title: 'Pupils',
-                keys: []
+                keys: [],
+                presentation: 'bold'
             },
             {
                 title: 'Right - Size',
@@ -107,7 +110,8 @@ function get_neurological_table(){
             },
             {
                 title: 'Limbs',
-                keys: []
+                keys: [],
+                presentation: 'bold'
             },
             {
                 title: 'Left Arm',
@@ -137,9 +141,9 @@ function process_neurological_data(obs){
     for (var i = 0; i < obs.length; i++) {
         var ob = obs[i];
         ob['completed_by'] = ob['write_uid'][1];
-        ob['table_eyes'] = ob['eyes'] === 0 ? 'NT' : ob['eyes'];
-        ob['table_verbal'] = ob['verbal'] === 0 ? 'NT' : ob['verbal'];
-        ob['table_motor'] = ob['motor'] === 0 ? 'NT' : ob['motor'];
+        ob['table_eyes'] = ob['eyes'] === '0' ? 'NT' : ob['eyes'];
+        ob['table_verbal'] = ob['verbal'] === '0' ? 'NT' : ob['verbal'];
+        ob['table_motor'] = ob['motor'] === '0' ? 'NT' : ob['motor'];
         ob['table_pupil_right_size'] = ob['pupil_right_size'] === 'not observable' ? 'NO': ob['pupil_right_size'];
         ob['table_pupil_right_reaction'] = ob['pupil_right_reaction'] === 'not testable' ? 'NT' : ob['pupil_right_reaction'];
         ob['table_pupil_left_size'] = ob['pupil_left_size'] === 'not observable' ? 'NO' : ob['pupil_left_size'];
