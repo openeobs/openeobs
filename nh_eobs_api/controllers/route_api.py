@@ -451,8 +451,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
     def get_next_action(self, data):
         section = 'task' if 'taskId' in data else 'patient'
-        next_action = 'json_patient_form_action' if section == 'task' \
-            else 'json_task_form_action'
+        next_action = 'json_{}_form_action'.format(section)
         return next_action
 
     @http.route(**route_manager.expose_route('json_partial_reasons'))
