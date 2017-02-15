@@ -80,7 +80,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
             for ob in obs_list:
                 for field_name in ['eyes', 'verbal', 'motor']:
                     field_value = ob.get(field_name)
-                    if field_value:
+                    if field_value and field_value != 'NT':
                         ob[field_name] = self.get_score_for_value(
                             self, field_name, field_value
                         )
