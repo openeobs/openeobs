@@ -6,10 +6,10 @@
             <xpath expr="//*[@id = 'news_values']" position="after">
                 <div class="col-xs-12 row" id="neurological_values">
                     <h3>Neurological Values</h3>
-                    <!--t t-if="len(neurological_observations) &gt; 0"-->
+                    <t t-if="len(neurological) &gt; 0">
                         <t t-call="neurological_observations.charts"/>
                         <t t-call="neurological_observations.table"/>
-                    <!--/t-->
+                    </t>
                 </div>
             </xpath>
         </template>
@@ -22,14 +22,10 @@
             <table class="col-xs-12 row">
                 <thead>
                     <tr>
-                        <th class="col-xs-4">Coma Scale</th>
-                        <th class="col-xs-4">Pupils</th>
-                        <th class="col-xs-4">Limbs</th>
+                        <th colspan="4" class="col-xs-3">Coma Scale</th>
+                        <th colspan="4" class="col-xs-4">Pupils</th>
+                        <th colspan="4" class="col-xs-4">Limbs</th>
                     </tr>
-                </thead>
-            </table>
-            <table class="striped col-xs-12 row">
-                <thead class="small-header">
                     <tr>
                         <th class="col-xs-3">Date</th>
                         <th class="col-xs-1">Coma Scale Total score</th>

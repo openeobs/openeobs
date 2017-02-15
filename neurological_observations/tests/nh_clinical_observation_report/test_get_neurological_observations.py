@@ -30,4 +30,3 @@ class TestGetNeurologicalObservations(TransactionCase):
         neurological_observations = \
             self.report_model.get_neurological_observations(self.report_wizard)
         self.assertTrue(type(neurological_observations) is list)
-

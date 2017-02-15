@@ -246,8 +246,8 @@ class ObservationReport(models.AbstractModel):
     def add_user_key(self, activity_data_list):
         for activity_data in activity_data_list:
             terminate_user_tuple = activity_data.get('terminate_uid')
-            user_id = terminate_user_tuple[0]
-            if user_id:
+            if terminate_user_tuple and terminate_user_tuple[0]:
+                user_id = terminate_user_tuple[0]
                 user_model = self.env['res.users']
                 activity_data['user'] = user_model.get_name(user_id)
 

@@ -1,12 +1,12 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Defines models for the `Wardboard` view.
 """
-from openerp.osv import orm, fields, osv
-from openerp import SUPERUSER_ID
 import logging
 
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, fields, osv
 
 _logger = logging.getLogger(__name__)
 

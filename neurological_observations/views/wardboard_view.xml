@@ -1,0 +1,14 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_neuro_wardboard_form">
+            <field name="name">Neuro Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/field" position="after">
+                    <field name="neuro_ids" readonly="1" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

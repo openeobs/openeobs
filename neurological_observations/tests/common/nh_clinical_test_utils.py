@@ -20,3 +20,4 @@ class NhClinicalTestUtils(AbstractModel):
         )
         activity_pool.submit(self.env.cr, user_id, neuro_obs_activity_id, data)
         activity_pool.complete(self.env.cr, user_id, neuro_obs_activity_id)
+        return neuro_obs_activity_id
