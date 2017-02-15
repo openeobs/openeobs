@@ -9,34 +9,27 @@ class TestCalculateScore(TransactionCase):
         self.obs_scored_model = \
             self.env['nh.clinical.patient.observation_scored']
 
-    def call_test(self, record, expected_score):
+        def mock_get_score_for_value(*args, **kwargs):
+            field_value = args[2]
+            return field_value[1] # Number after the 'V'
+
+        self.obs_scored_model._patch_method('get_score_for_value',
+                                            mock_get_score_for_value)
+
+    def tearDown(self):
+        self.obs_scored_model._revert_method('get_score_for_value')
+        super(TestCalculateScore, self).tearDown()
+
+    def call_test(self, data, expected_score):
         actual_score = self.obs_scored_model.calculate_score(
-            record, return_dictionary=False
+            data, return_dictionary=False
         )
         self.assertEqual(expected_score, actual_score)
 
-    def test_score_is_sum_of_ints_in_dict(self):
+    def test_score_is_sum_of_field_values(self):
         obs_data_dict = {
-            'field1': 2,
-            'field2': 5,
-            'field3': 2,
+            'field1': 'V0',
+            'field2': 'V2',
+            'field3': 'V1',
         }
-        self.call_test(obs_data_dict, 9)
-
-    def test_score_is_sum_of_strings_in_dict(self):
-        obs_data_dict = {
-            'field1': '2',
-            'field2': '5',
-            'field3': '2',
-        }
-        self.call_test(obs_data_dict, 9)
-
-    def test_uncastable_types_disregarded_from_score(self):
-        obs_data_dict = {
-            'field1': '2',
-            'field2': "Hello.",
-            'field3': '5',
-            'field4': [],
-            'field5': '4'
-        }
-        self.call_test(obs_data_dict, 11)
+        self.call_test(obs_data_dict, 3)

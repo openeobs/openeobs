@@ -60,7 +60,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
     @staticmethod
     def get_score_for_value(model, field_name, field_value):
         selection = model._fields[field_name].selection
-        reversed(selection)
+        selection = reversed(selection)
         selection_values = \
             [value_and_label[0] for value_and_label in selection]
         selection_index = selection_values.index(field_value)
