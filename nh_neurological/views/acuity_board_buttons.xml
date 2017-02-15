@@ -7,7 +7,7 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Neurological Observation Chart View" version="7.0" edit="0" create="0">
                     <sheet>
-                        <field name="neurological_ids" widget="neuro_chart"/>
+                        <field name="neuro_ids" widget="neuro_chart"/>
                     </sheet>
                 </form>
             </field>
@@ -19,7 +19,7 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Neurological Observation List View" version="7.0" edit="0" create="0" class="paged_table">
                     <sheet>
-                        <field name="neurological_ids" no_open="1"/>
+                        <field name="neuro_ids" no_open="1"/>
                     </sheet>
                 </form>
             </field>

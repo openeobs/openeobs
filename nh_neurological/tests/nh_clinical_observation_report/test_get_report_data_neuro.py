@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.neurological_observations.tests.common \
+from openerp.addons.nh_neurological.tests.common \
     import neurological_fixtures
 from openerp.tests.common import SingleTransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -80,6 +80,6 @@ class TestGetReportData(SingleTransactionCase):
         Test that get_report_data returns a key with json representation of
         activities
         """
-        report_data = self.report_model.get_report_data(self.report_wizard)
+        report_data = self.report_data
         self.assertTrue('neurological_data' in report_data)
         self.assertTrue(type(report_data['neurological_data']) is list)
