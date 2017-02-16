@@ -543,8 +543,8 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: dict
         """
         model_pool = self.pool[data_model]
-        return model_pool.calculate_score(
-            data) if 'observation' in data_model else False
+        return model_pool.calculate_score(data) if 'observation' in \
+                                                   data_model else False
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """

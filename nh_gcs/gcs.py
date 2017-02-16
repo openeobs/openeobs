@@ -32,6 +32,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
 
     # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
+    _scored = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
     _eyes_selection = [
         ('SP', 'Spontaneous'),

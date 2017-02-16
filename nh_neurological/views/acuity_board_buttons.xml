@@ -63,7 +63,7 @@
             <field name="arch" type="xml">
                 <tree string="Neurological Observations" class="nhc_obs_list">
                     <field name="date_terminated" widget="nhc_datetime" string="Terminated Time"/>
-                    <field name="score" string="Total Score"/>
+                    <field name="score" string="Total Coma Score"/>
                     <field name="eyes" string="Eyes"/>
                     <field name="verbal" string="Verbal"/>
                     <field name="motor" string="Motor"/>
