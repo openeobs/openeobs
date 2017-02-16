@@ -1163,7 +1163,8 @@ class nh_clinical_wardboard(orm.Model):
 
     @api.model
     def get_by_spell_activity_id(self, spell_activity_id):
-        wardboard = self.search([('spell_activity_id', '=', spell_activity_id)])
+        wardboard = \
+            self.search([('spell_activity_id', '=', spell_activity_id)])
         wardboard.ensure_one()
         return wardboard
 
