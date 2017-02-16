@@ -330,6 +330,13 @@ class ObservationReport(models.AbstractModel):
             model_data = model_pool.read(
                 cr, uid, self._get_data_ref_id(activity), []
             )
+
+            if type(model_data) is list:
+                # V8 read always returns a list, V7 doesn't when single int is
+                # passed as id instead of a list.
+                assert len(model_data) == 1, "Expected singleton."
+                model_data = model_data[0]
+
             if model_data:
                 stat = 'No'
                 date_terminated = 'date_terminated'
