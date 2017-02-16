@@ -15,11 +15,16 @@
         </template>
 
         <template id="charts">
-            <div id="neuro_chart"></div>
-            <script src="/neurological_observations/static/src/js/chart.js"></script>
-            <script>
+            <div id="neuro_chart">
+                <div id="eyes" style="width: 825px; height: 320px;"></div>
+                <div id="verbal" style="width: 825px; height: 320px;"></div>
+                <div id="motor" style="width: 825px; height: 320px;"></div>
+            </div>
+            <script src="/nh_neurological/static/src/js/chart.js" type="text/javascript"></script>
+            <script type="text/javascript">
                 var settings = {
-                    chart_element: 'neuro_chart'
+                    chart_element: 'neuro_chart',
+                    containers_set: true
                 };
                 draw_neurological_chart(settings, <t t-raw="neurological_data"/>);
             </script>

@@ -92,4 +92,4 @@ class NhClinicalPatientObservationNeurological(models.Model):
         :return: URL of JS file to plot graph
         :rtype: str
         """
-        return '/neurological_observations/static/src/js/chart.js'
+        return '/nh_neurological/static/src/js/chart.js'

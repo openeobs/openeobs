@@ -1,8 +1,11 @@
 function draw_neurological_chart(settings, server_data){
     var obs = server_data.reverse();
+    var containers_in_dom = settings.hasOwnProperty('containers_set') ? settings.containers_set : false;
 
-    var chart_el = document.getElementById(settings.chart_element);
-    chart_el.innerHTML = '<div id="eyes"></div><div id="verbal"></div><div id="motor"></div>';
+    if(!containers_in_dom){
+        var chart_el = document.getElementById(settings.chart_element);
+        chart_el.innerHTML = '<div id="eyes"></div><div id="verbal"></div><div id="motor"></div>';
+    }
 
     // hide controls
     var controls = document.getElementById('controls');
@@ -17,7 +20,7 @@ function draw_neurological_chart(settings, server_data){
     var verbal_graph = new window.NH.NHGraph();
     var motor_graph = new window.NH.NHGraph();
 
-    eyes_graph.options.keys = ['eyes'];
+    eyes_graph.options.keys = ['chart_eyes'];
     eyes_graph.options.label = '';
     eyes_graph.options.measurement = '';
     eyes_graph.options.title = 'Coma Scale - Eyes Open';
@@ -30,7 +33,7 @@ function draw_neurological_chart(settings, server_data){
     eyes_graph.style.label_width = 60;
     eyes_graph.drawables.background.data = [];
 
-    verbal_graph.options.keys = ['verbal'];
+    verbal_graph.options.keys = ['chart_verbal'];
     verbal_graph.options.label = '';
     verbal_graph.options.measurement = '';
     verbal_graph.options.title = 'Coma Scale - Best Verbal Response';
@@ -44,7 +47,7 @@ function draw_neurological_chart(settings, server_data){
     verbal_graph.style.padding.top = 10;
     verbal_graph.drawables.background.data = [];
 
-    motor_graph.options.keys = ['motor'];
+    motor_graph.options.keys = ['chart_motor'];
     motor_graph.options.label = '';
     motor_graph.options.measurement = '';
     motor_graph.options.title = 'Coma Scale - Best Motor Response';
@@ -58,32 +61,27 @@ function draw_neurological_chart(settings, server_data){
     motor_graph.style.padding.top = 10;
     motor_graph.drawables.background.data = [];
 
+
     var eyes_focus = new window.NH.NHFocus();
     var verbal_focus = new window.NH.NHFocus();
     var motor_focus = new window.NH.NHFocus();
-    // context = new window.NHContext();
     eyes_focus.graphs.push(eyes_graph);
     verbal_focus.graphs.push(verbal_graph);
     motor_focus.graphs.push(motor_graph);
-    eyes_focus.title = 'Coma Scale - Eyes Open'
-    verbal_focus.title = 'Coma Scale - Best Verbal Response'
-    motor_focus.title = 'Coma Scale - Best Motor Response'
-    eyes_focus.style.margin.top = 70;
-    verbal_focus.style.margin.top = 70;
-    motor_focus.style.margin.top = 70;
-    // context.title = 'Coma scale values';
+    eyes_focus.title = 'Coma Scale - Eyes Open';
+    verbal_focus.title = 'Coma Scale - Best Verbal Response';
+    motor_focus.title = 'Coma Scale - Best Motor Response';
+    if(!containers_in_dom){
+        eyes_focus.style.margin.top = 70;
+        verbal_focus.style.margin.top = 70;
+        motor_focus.style.margin.top = 70;
+    }
     eyes_el.focus = eyes_focus;
     verbal_el.focus = verbal_focus;
     motor_el.focus = motor_focus;
-    // // svg.context = context;
-    // svg.options.controls.date.start = document.getElementById('start_date');
-    // svg.options.controls.date.end = document.getElementById('end_date');
-    // svg.options.controls.time.start = document.getElementById('start_time');
-    // svg.options.controls.time.end = document.getElementById('end_time');
-    // svg.options.controls.rangify = document.getElementById('rangify');
-    // svg.options.refused = settings.refused;
-    // svg.options.partial_type = settings.partial_type;
-    var data = process_neurological_data(obs)
+    var data = process_neurological_data(obs);
+
+
     eyes_el.data.raw = data;
     verbal_el.data.raw = data;
     motor_el.data.raw = data;
@@ -92,9 +90,11 @@ function draw_neurological_chart(settings, server_data){
     verbal_el.init();
     motor_el.init();
 
+
     eyes_el.draw();
     verbal_el.draw();
     motor_el.draw();
+
 }
 
 function draw_neurological_table(settings, server_data){
@@ -181,6 +181,9 @@ function process_neurological_data(obs){
     for (var i = 0; i < obs.length; i++) {
         var ob = obs[i];
         ob['completed_by'] = ob['write_uid'][1];
+        ob['chart_eyes'] = ob['eyes'] === 'NT' ? false: parseInt(ob['eyes']);
+        ob['chart_verbal'] = ob['verbal'] === 'NT' ? false: parseInt(ob['verbal']);
+        ob['chart_motor'] = ob['motor'] === 'NT' ? false: parseInt(ob['motor']);
         ob['table_eyes'] = ob['eyes'] === '0' ? 'NT' : ob['eyes'];
         ob['table_verbal'] = ob['verbal'] === '0' ? 'NT' : ob['verbal'];
         ob['table_motor'] = ob['motor'] === '0' ? 'NT' : ob['motor'];
