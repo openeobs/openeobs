@@ -13,7 +13,9 @@ class TestWardboardNeuroChart(TransactionCase):
         self.test_utils.copy_instance_variables(self)
 
     def test_wardboard_neuro_list(self):
-        wardboard = self.wardboard_model.browse(self.test_utils.patient_id)
+        wardboard = self.wardboard_model.get_by_spell_activity_id(
+            self.spell_activity.id
+        )
         wardboard_neuro_chart = wardboard.wardboard_neuro_list()
         self.assertEqual(
             wardboard_neuro_chart.get('domain'),

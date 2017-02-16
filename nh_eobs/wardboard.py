@@ -5,7 +5,7 @@ Defines models for the `Wardboard` view.
 """
 import logging
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, fields, osv
 
 _logger = logging.getLogger(__name__)
@@ -1160,6 +1160,12 @@ class nh_clinical_wardboard(orm.Model):
                 }, context=context)
                 activity_pool.complete(cr, uid, pc_id, context=context)
         return True
+
+    @api.model
+    def get_by_spell_activity_id(self, spell_activity_id):
+        wardboard = self.search([('spell_activity_id', '=', spell_activity_id)])
+        wardboard.ensure_one()
+        return wardboard
 
     def init(self, cr):
         settings_pool = self.pool['nh.clinical.settings']

@@ -24,7 +24,9 @@ class TestNeuroIds(TransactionCase):
         )
 
     def test_neuro_ids(self):
-        wardboard = self.wardboard_model.browse(self.patient.id)
+        wardboard = self.wardboard_model.get_by_spell_activity_id(
+            self.spell_activity.id
+        )
         neuro_ids = [neuro.activity_id.id for neuro in wardboard.neuro_ids]
         neuro_ids.reverse()
         self.assertEqual(
