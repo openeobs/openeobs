@@ -11,9 +11,9 @@ _logger = logging.getLogger(__name__)
 
 class NhClinicalPatientObservationScored(models.AbstractModel):
     """
-    Extends the 'nh.clinical.patient.observation' model to introduce the concept
-    of a score. Provides a computed 'score' field with a default implementation for
-    its calculation.
+    Extends the 'nh.clinical.patient.observation' model to introduce the
+    concept of a score. Provides a computed 'score' field with a default
+    implementation for its calculation.
     """
     _name = 'nh.clinical.patient.observation_scored'
     _inherit = 'nh.clinical.patient.observation'
