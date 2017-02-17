@@ -1080,45 +1080,23 @@ var NHMobilePatient,
 NHMobilePatient = (function(superClass) {
   extend(NHMobilePatient, superClass);
 
-  function NHMobilePatient(refused, partial_type) {
-    var chart_select, data_id, i, len, obs, obs_menu, self, tab, table_view, tabs, tabs_el;
+  function NHMobilePatient(refused, partialType) {
+    var data_id, self;
     if (refused == null) {
       refused = false;
     }
-    if (partial_type == null) {
-      partial_type = 'dot';
+    if (partialType == null) {
+      partialType = 'dot';
     }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
-    obs_menu = document.getElementById('obsMenu');
-    if (obs_menu) {
-      obs_menu.style.display = 'none';
-    }
-    table_view = document.getElementById('table-content');
-    table_view.style.display = 'none';
-    obs = document.getElementsByClassName('obs');
-    if (obs && obs.length > 0) {
-      obs[0].addEventListener('click', function(e) {
-        return self.handle_event(e, self.show_obs_menu, true);
-      });
-    }
-    chart_select = document.getElementById('chart_select');
-    if (chart_select) {
-      chart_select.addEventListener('change', function(event) {
-        return self.handle_event(event, self.change_chart, false, [self]);
-      });
-    }
-    tabs_el = document.getElementsByClassName('tabs');
-    tabs = tabs_el[0].getElementsByTagName('a');
-    for (i = 0, len = tabs.length; i < len; i++) {
-      tab = tabs[i];
-      tab.addEventListener('click', function(e) {
-        return self.handle_event(e, self.handle_tabs, true);
-      });
-    }
+    self.setUpObsMenu(self);
+    self.setUpTableView();
+    self.setUpChartSelect(self);
+    self.setUpTabs(self);
     data_id = document.getElementById('graph-content').getAttribute('data-id');
     self.refused = refused;
-    self.partial_type = partial_type;
+    self.partial_type = partialType;
     self.chart_element = 'chart';
     self.table_element = 'table-content';
     Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
@@ -1129,6 +1107,50 @@ NHMobilePatient = (function(superClass) {
       return self.draw_graph(self, obs_data, 'ews');
     });
   }
+
+  NHMobilePatient.prototype.setUpObsMenu = function(self) {
+    var obs, obs_menu;
+    obs_menu = document.getElementById('obsMenu');
+    if (obs_menu) {
+      obs_menu.style.display = 'none';
+    }
+    obs = document.getElementsByClassName('obs');
+    if (obs && obs.length > 0) {
+      return obs[0].addEventListener('click', function(e) {
+        return self.handle_event(e, self.show_obs_menu, true);
+      });
+    }
+  };
+
+  NHMobilePatient.prototype.setUpTableView = function() {
+    var table_view;
+    table_view = document.getElementById('table-content');
+    return table_view.style.display = 'none';
+  };
+
+  NHMobilePatient.prototype.setUpChartSelect = function(self) {
+    var chartSelect;
+    chartSelect = document.getElementById('chart_select');
+    if (chartSelect) {
+      return chartSelect.addEventListener('change', function(event) {
+        return self.handle_event(event, self.change_chart, false, [self]);
+      });
+    }
+  };
+
+  NHMobilePatient.prototype.setUpTabs = function(self) {
+    var i, len, results, tab, tabs, tabs_el;
+    tabs_el = document.getElementsByClassName('tabs');
+    tabs = tabs_el[0].getElementsByTagName('a');
+    results = [];
+    for (i = 0, len = tabs.length; i < len; i++) {
+      tab = tabs[i];
+      results.push(tab.addEventListener('click', function(e) {
+        return self.handle_event(e, self.handle_tabs, true);
+      }));
+    }
+    return results;
+  };
 
   NHMobilePatient.prototype.handle_tabs = function(event) {
     var i, len, tab, tab_target, tabs, target_el;

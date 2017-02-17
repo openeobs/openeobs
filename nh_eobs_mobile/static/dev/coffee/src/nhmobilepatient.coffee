@@ -4,40 +4,17 @@
 ### istanbul ignore next ###
 class NHMobilePatient extends NHMobile
 
-  constructor: (refused = false, partial_type = 'dot') ->
+  constructor: (refused = false, partialType = 'dot') ->
     self = @
     super()
     # find the obs menu on page
-    obs_menu = document.getElementById('obsMenu')
-    if obs_menu
-      obs_menu.style.display = 'none'
-    table_view = document.getElementById('table-content')
-    table_view.style.display = 'none'
-
-    obs = document.getElementsByClassName('obs')
-    ### istanbul ignore else ###
-    if obs and obs.length > 0
-      obs[0].addEventListener('click', (e) ->
-        self.handle_event(e, self.show_obs_menu, true)
-      )
-
-    chart_select = document.getElementById('chart_select')
-    if chart_select
-      chart_select.addEventListener('change', (event) ->
-        self.handle_event(event, self.change_chart, false, [self])
-      )
-
-    tabs_el = document.getElementsByClassName('tabs')
-    tabs = tabs_el[0].getElementsByTagName('a')
-    for tab in tabs
-      tab.addEventListener('click', (e) ->
-        self.handle_event(e, self.handle_tabs, true)
-      )
-
+    self.setUpObsMenu(self)
+    self.setUpTableView()
+    self.setUpChartSelect(self)
+    self.setUpTabs(self)
     data_id = document.getElementById('graph-content').getAttribute('data-id')
-
     self.refused = refused
-    self.partial_type = partial_type
+    self.partial_type = partialType
     self.chart_element = 'chart'
     self.table_element = 'table-content'
 
@@ -48,6 +25,36 @@ class NHMobilePatient extends NHMobile
         data = server_data.data
         obs_data = data.obs
         self.draw_graph(self, obs_data, 'ews')
+
+  setUpObsMenu: (self) ->
+    obs_menu = document.getElementById('obsMenu')
+    if obs_menu
+      obs_menu.style.display = 'none'
+    obs = document.getElementsByClassName('obs')
+    ### istanbul ignore else ###
+    if obs and obs.length > 0
+      obs[0].addEventListener('click', (e) ->
+        self.handle_event(e, self.show_obs_menu, true)
+      )
+
+  setUpTableView: () ->
+    table_view = document.getElementById('table-content')
+    table_view.style.display = 'none'
+
+  setUpChartSelect: (self) ->
+    chartSelect = document.getElementById('chart_select')
+    if chartSelect
+      chartSelect.addEventListener('change', (event) ->
+        self.handle_event(event, self.change_chart, false, [self])
+      )
+
+  setUpTabs: (self) ->
+    tabs_el = document.getElementsByClassName('tabs')
+    tabs = tabs_el[0].getElementsByTagName('a')
+    for tab in tabs
+      tab.addEventListener('click', (e) ->
+        self.handle_event(e, self.handle_tabs, true)
+      )
 
   handle_tabs: (event) ->
 #    event.preventDefault()

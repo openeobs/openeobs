@@ -7,13 +7,13 @@ var NHMobilePatient,
 NHMobilePatient = (function(superClass) {
   extend(NHMobilePatient, superClass);
 
-  function NHMobilePatient(refused, partial_type) {
-    var chart_select, data_id, i, len, obs, obs_menu, self, tab, table_view, tabs, tabs_el;
+  function NHMobilePatient(refused, partialType) {
+    var chartSelect, data_id, i, len, obs, obs_menu, self, tab, table_view, tabs, tabs_el;
     if (refused == null) {
       refused = false;
     }
-    if (partial_type == null) {
-      partial_type = 'dot';
+    if (partialType == null) {
+      partialType = 'dot';
     }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
@@ -31,9 +31,9 @@ NHMobilePatient = (function(superClass) {
         return self.handle_event(e, self.show_obs_menu, true);
       });
     }
-    chart_select = document.getElementById('chart_select');
-    if (chart_select) {
-      chart_select.addEventListener('change', function(event) {
+    chartSelect = document.getElementById('chart_select');
+    if (chartSelect) {
+      chartSelect.addEventListener('change', function(event) {
         return self.handle_event(event, self.change_chart, false, [self]);
       });
     }
@@ -47,7 +47,7 @@ NHMobilePatient = (function(superClass) {
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
     self.refused = refused;
-    self.partial_type = partial_type;
+    self.partial_type = partialType;
     self.chart_element = 'chart';
     self.table_element = 'table-content';
     Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
