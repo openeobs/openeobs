@@ -163,7 +163,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     @api.multi
     def read_labels(self, fields=None, load='_classic_read'):
         obs_list = self.read(fields=fields, load=load)
-        obs = obs_list[0]
+        obs = obs_list[0] if type(obs_list) is list else [obs_list]
         self.convert_field_values_to_labels(obs)
         return obs_list
 
