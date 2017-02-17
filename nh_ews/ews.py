@@ -1089,8 +1089,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
         return bool(spell_id)
 
-    @api.model
-    def get_data_visualisation_resource(self):
+    @classmethod
+    def get_data_visualisation_resource(cls):
         """
         Returns URL of JS file to plot data visualisation so can be loaded on
         mobile and desktop

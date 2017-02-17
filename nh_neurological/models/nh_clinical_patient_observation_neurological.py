@@ -76,15 +76,15 @@ class NhClinicalPatientObservationNeurological(models.Model):
         :param patient_id: ID for the patient
         :return: list of dicts
         """
-        res = super(NhClinicalPatientObservationNeurological, self)\
+        form_description = super(NhClinicalPatientObservationNeurological, self)\
             .get_form_description(patient_id)
-        for input in res:
-            if input.get('type') == 'meta':
-                input['partial_flow'] = 'score'
-        return res
+        for item in form_description:
+            if item.get('type') == 'meta':
+                item['partial_flow'] = 'score'
+        return form_description
 
-    @api.model
-    def get_data_visualisation_resource(self):
+    @classmethod
+    def get_data_visualisation_resource(cls):
         """
         Returns URL of JS file to plot data visualisation so can be loaded on
         mobile and desktop

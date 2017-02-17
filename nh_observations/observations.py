@@ -530,8 +530,8 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         last_obs = self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
 
-    @api.model
-    def get_data_visualisation_resource(self):
+    @classmethod
+    def get_data_visualisation_resource(cls):
         """
         Returns URL of JS file to plot data visualisation so can be loaded on
         mobile and desktop

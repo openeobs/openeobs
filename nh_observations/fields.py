@@ -18,7 +18,7 @@ class FieldUtils(models.AbstractModel):
 
     @classmethod
     def is_obs_field(self, field):
-        return type(field) is Selection
+        return isinstance(field, Selection)
 
     def get_obs_fields(self, model):
         fields = model._fields.values()

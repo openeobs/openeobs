@@ -327,15 +327,18 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         model_pool = self.pool[model]
         for activity in activity_data:
-            id = self._get_data_ref_id(activity)
+            obs_id = self._get_data_ref_id(activity)
             if 'nh.clinical.patient.observation' in model_pool._name:
-                model_data = model_pool.read_labels(cr, uid, id, [])
+                model_data = model_pool.read_labels(cr, uid, obs_id, [])
             else:
-                model_data = model_pool.read(cr, uid, id, [])
-            if type(model_data) is list:
+                model_data = model_pool.read(cr, uid, obs_id, [])
+            if isinstance(model_data, list):
                 # V8 read always returns a list, V7 doesn't when single int is
                 # passed as id instead of a list.
-                assert len(model_data) == 1, "Expected singleton."
+                if len(model_data) > 1:
+                    message = "Should have read data for only one record but " \
+                              "more than one was found."
+                    raise ValueError(message)
                 model_data = model_data[0]
 
             if model_data:

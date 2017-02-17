@@ -49,10 +49,12 @@ class NeurologicalFields(models.AbstractModel):
     def get_mandatory_fields(self):
         return self.get_gcs_fields()
 
-    def get_field_names(self, fields):
+    @classmethod
+    def get_field_names(cls, fields):
         return [field.name for field in fields]
 
-    def get_field_labels(self, fields):
+    @classmethod
+    def get_field_labels(cls, fields):
         return [field.string for field in fields]
 
     def get_mandatory_field_names(self):

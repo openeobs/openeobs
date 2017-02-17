@@ -84,12 +84,12 @@ class nh_clinical_patient_observation_gcs(models.Model):
     frequency = fields.Selection(default=60)
     partial_reason = fields.Selection()
 
-    def calculate_score(self, record, return_dictionary=True):
-        is_dict = type(record) is dict
+    def calculate_score(self, obs_data, return_dictionary=True):
+        is_dict = isinstance(obs_data, dict)
         obs_data_dict = {
-            'eyes': record['eyes'] if is_dict else record.eyes,
-            'verbal': record['verbal'] if is_dict else record.verbal,
-            'motor': record['motor'] if is_dict else record.motor
+            'eyes': obs_data['eyes'] if is_dict else obs_data.eyes,
+            'verbal': obs_data['verbal'] if is_dict else obs_data.verbal,
+            'motor': obs_data['motor'] if is_dict else obs_data.motor
         }
         return super(nh_clinical_patient_observation_gcs, self)\
             .calculate_score(obs_data_dict,
@@ -162,10 +162,10 @@ class nh_clinical_patient_observation_gcs(models.Model):
 
     @api.multi
     def read_labels(self, fields=None, load='_classic_read'):
-        obs_list = self.read(fields=fields, load=load)
-        obs = obs_list[0] if type(obs_list) is list else [obs_list]
+        obs_data = self.read(fields=fields, load=load)
+        obs = obs_data[0] if isinstance(obs_data, list) is list else [obs_data]
         self.convert_field_values_to_labels(obs)
-        return obs_list
+        return obs_data
 
     def convert_field_values_to_labels(self, obs):
         field_names = [field_name for field_name in self._required

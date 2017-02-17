@@ -57,7 +57,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         :rtype: dict or int
         """
         values_for_score_calculation = []
-        fields_dict = record if type(record) is dict \
+        fields_dict = record if isinstance(record, dict) \
             else record.get_necessary_fields_dict()
 
         for field in fields_dict.items():

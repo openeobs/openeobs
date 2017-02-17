@@ -55,7 +55,7 @@ class TestGetReportData(SingleTransactionCase):
 
     def test_returns_dict_with_neurological_key_with_list_value(self):
         self.assertTrue('neurological' in self.report_data)
-        self.assertTrue(type(self.report_data['neurological']) is list)
+        self.assertTrue(isinstance(self.report_data['neurological'], list))
 
     def test_valid_date_value(self):
         pass
@@ -82,4 +82,4 @@ class TestGetReportData(SingleTransactionCase):
         """
         report_data = self.report_data
         self.assertTrue('neurological' in report_data)
-        self.assertTrue(type(report_data['neurological']) is list)
+        self.assertTrue(isinstance(report_data['neurological'], list))

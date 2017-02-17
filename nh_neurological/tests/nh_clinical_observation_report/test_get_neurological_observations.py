@@ -29,4 +29,4 @@ class TestGetNeurologicalObservations(TransactionCase):
     def test_returns_list(self):
         neurological_observations = \
             self.report_model.get_neurological_observations(self.report_wizard)
-        self.assertTrue(type(neurological_observations) is list)
+        self.assertTrue(isinstance(neurological_observations, list))
