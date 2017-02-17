@@ -4,6 +4,9 @@
 ### istanbul ignore next ###
 class NHMobilePatient extends NHMobile
 
+  String.prototype.capitalize = () ->
+    @.charAt(0).toUpperCase() + @.slice(1)
+
   constructor: (refused = false, partialType = 'dot') ->
     self = @
     super()
@@ -108,8 +111,8 @@ class NHMobilePatient extends NHMobile
     controls = document.getElementById('controls')
     chart_el = document.getElementById(self.chart_element)
     graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0]
-    chart_func_name = 'draw_' + data_model + '_chart'
-    table_func_name = 'draw_' + data_model + '_table'
+    chart_func_name = 'draw' + data_model.capitalize() + 'Chart'
+    table_func_name = 'draw' + data_model.capitalize() + 'Table'
     if server_data.length > 0
       controls.style.display = 'block'
       graph_tabs.style.display = 'block'

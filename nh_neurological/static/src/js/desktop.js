@@ -26,7 +26,7 @@ openerp.nh_neurological = function (instance) {
                     var settings = {
                         chart_element: 'neuro_chart'
                     }
-                    draw_neurological_chart(settings, obs);
+                    drawNeurologicalChart(settings, obs);
                 } else {
                     $('#neuro_chart').html('<p>No data available for this patient</p>');
                 }
