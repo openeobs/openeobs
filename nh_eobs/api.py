@@ -26,6 +26,8 @@ class nh_eobs_api(orm.AbstractModel):
     # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
 
+    # TODO: EOBS-1004 Refactor nh_eobs
+    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
     # 'type' is the suffix of an observation model name.
     # e.g. 'nh.clinical.patient.observation.ews'
     #
