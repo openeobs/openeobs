@@ -1,5 +1,5 @@
 function draw_neurological_chart(settings, server_data){
-    var obs = server_data.reverse();
+    var obs = server_data;
     var containers_in_dom = settings.hasOwnProperty('containers_set') ? settings.containers_set : false;
 
     if(!containers_in_dom){
