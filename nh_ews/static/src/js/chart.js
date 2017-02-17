@@ -1,3 +1,65 @@
+function processOxygenAdministrationDevice(ob){
+    ob.oxygen_administration_device = "No";
+        if (ob.oxygen_administration_flag) {
+            ob.oxygen_administration_device = "Yes";
+        }
+    return ob
+}
+
+function processInspiredOxygen(ob){
+    var fr = ob.flow_rate && ob.flow_rate > -1;
+    var c = ob.concentration && ob.concentration > -1;
+    var f = ob.oxygen_administration_flag;
+
+    if (fr || c || f) {
+        ob.inspired_oxygen = "";
+    }
+    if (ob.device_id) {
+        ob.inspired_oxygen += "<strong>Device:</strong> " +
+            ob.device_id[1] + "<br>";
+    }
+    if (fr) {
+        ob.inspired_oxygen += "<strong>Flow:</strong> " +
+            ob.flow_rate + "l/hr<br>";
+    }
+    if (c) {
+        ob.inspired_oxygen += "<strong>Concentration:</strong> " +
+            ob.concentration + "%<br>";
+    }
+    if (ob.cpap_peep && ob.cpap_peep > -1) {
+        ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " +
+            ob.cpap_peep + "<br>";
+    } else if (ob.niv_backup && ob.niv_backup > -1) {
+        ob.inspired_oxygen += "<strong>NIV Backup Rate:</strong> " +
+            ob.niv_backup + "<br>";
+        ob.inspired_oxygen += "<strong>NIV EPAP:</strong> " +
+            ob.niv_epap + "<br>";
+        ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " +
+            ob.niv_ipap + "<br>";
+    }
+    return ob;
+}
+
+function processSpo2(ob){
+    if (ob.indirect_oxymetry_spo2) {
+        ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%";
+    }
+    return ob;
+}
+
+function processEwsData(obs){
+    for (var i = 0; i < obs.length; i++) {
+        var ob = obs[i];
+        if (ob.is_partial) {
+            ob.score = false;
+        }
+        ob = processOxygenAdministrationDevice(ob);
+        ob = processInspiredOxygen(ob);
+        ob = processSpo2(ob);
+    }
+    return obs;
+}
+
 function drawEwsChart(settings, serverData) {
     var obs = serverData.reverse();
     var svg = new window.NH.NHGraphLib("#" + settings.chart_element);
@@ -150,8 +212,8 @@ function drawEwsChart(settings, serverData) {
 
 function drawEwsTable(settings, serverData){
     var obs = serverData.reverse();
-    var table_el = new window.NH.NHGraphLib("#table");
-    table_el.table = {
+    var tableEl = new window.NH.NHGraphLib("#table");
+    tableEl.table = {
         element: "#table",
         keys: [
             {
@@ -225,55 +287,6 @@ function drawEwsTable(settings, serverData){
             }
         ]
     };
-    table_el.data.raw = processEwsData(obs);
-    table_el.draw();
-}
-
-function processEwsData(obs){
-    for (var i = 0; i < obs.length; i++) {
-        var ob = obs[i];
-        if (ob.is_partial) {
-            ob.score = false;
-        }
-
-        ob.oxygen_administration_device = "No";
-        if (ob.oxygen_administration_flag) {
-            ob.oxygen_administration_device = "Yes";
-        }
-
-        var fr = ob.flow_rate && ob.flow_rate > -1;
-        var c = ob.concentration && ob.concentration > -1;
-        var f = ob.oxygen_administration_flag;
-
-        if (fr || c || f) {
-            ob.inspired_oxygen = "";
-        }
-        if (ob.device_id) {
-            ob.inspired_oxygen += "<strong>Device:</strong> " +
-                ob.device_id[1] + "<br>";
-        }
-        if (fr) {
-            ob.inspired_oxygen += "<strong>Flow:</strong> " +
-                ob.flow_rate + "l/hr<br>";
-        }
-        if (c) {
-            ob.inspired_oxygen += "<strong>Concentration:</strong> " +
-                ob.concentration + "%<br>";
-        }
-        if (ob.cpap_peep && ob.cpap_peep > -1) {
-            ob.inspired_oxygen += "<strong>CPAP PEEP:</strong> " +
-                ob.cpap_peep + "<br>";
-        } else if (ob.niv_backup && ob.niv_backup > -1) {
-            ob.inspired_oxygen += "<strong>NIV Backup Rate:</strong> " +
-                ob.niv_backup + "<br>";
-            ob.inspired_oxygen += "<strong>NIV EPAP:</strong> " +
-                ob.niv_epap + "<br>";
-            ob.inspired_oxygen += "<strong>NIV IPAP</strong>: " +
-                ob.niv_ipap + "<br>";
-        }
-        if (ob.indirect_oxymetry_spo2) {
-            ob.indirect_oxymetry_spo2_label = ob.indirect_oxymetry_spo2 + "%";
-        }
-    }
-    return obs;
+    tableEl.data.raw = processEwsData(obs);
+    tableEl.draw();
 }

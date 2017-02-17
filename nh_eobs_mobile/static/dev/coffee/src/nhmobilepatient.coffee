@@ -7,7 +7,7 @@ class NHMobilePatient extends NHMobile
   String.prototype.capitalize = () ->
     @.charAt(0).toUpperCase() + @.slice(1)
 
-  constructor: (refused = false, partialType = 'dot') ->
+  constructor: (refused = false, partialType = "dot") ->
     self = @
     super()
     # find the obs menu on page
@@ -15,14 +15,14 @@ class NHMobilePatient extends NHMobile
     self.setUpTableView()
     self.setUpChartSelect(self)
     self.setUpTabs(self)
-    data_id = document.getElementById('graph-content').getAttribute('data-id')
+    dataId = document.getElementById('graph-content').getAttribute('data-id')
     self.refused = refused
     self.partial_type = partialType
-    self.chart_element = 'chart'
-    self.table_element = 'table-content'
+    self.chart_element = "chart"
+    self.table_element = "table-content"
 
     Promise.when(
-      @call_resource(@.urls['ajax_get_patient_obs']('ews', data_id)))
+      @call_resource(@.urls['ajax_get_patient_obs']('ews', dataId)))
       .then (raw_data) ->
         server_data = raw_data[0]
         data = server_data.data
@@ -81,10 +81,10 @@ class NHMobilePatient extends NHMobile
     chart.innerHTML = ''
     table.innerHTML = ''
     new_data_model = event.src_el.value
-    data_id = document.getElementById('graph-content').getAttribute('data-id')
+    dataId = document.getElementById('graph-content').getAttribute('data-id')
     Promise.when(
       self.call_resource(
-        self.urls['ajax_get_patient_obs'](new_data_model, data_id)
+        self.urls['ajax_get_patient_obs'](new_data_model, dataId)
       )
     ).then (raw_data) ->
       server_data = raw_data[0]

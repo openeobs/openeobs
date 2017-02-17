@@ -12,12 +12,12 @@ NHMobilePatient = (function(superClass) {
   };
 
   function NHMobilePatient(refused, partialType) {
-    var data_id, self;
+    var dataId, self;
     if (refused == null) {
       refused = false;
     }
     if (partialType == null) {
-      partialType = 'dot';
+      partialType = "dot";
     }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
@@ -25,12 +25,12 @@ NHMobilePatient = (function(superClass) {
     self.setUpTableView();
     self.setUpChartSelect(self);
     self.setUpTabs(self);
-    data_id = document.getElementById('graph-content').getAttribute('data-id');
+    dataId = document.getElementById('graph-content').getAttribute('data-id');
     self.refused = refused;
     self.partial_type = partialType;
-    self.chart_element = 'chart';
-    self.table_element = 'table-content';
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
+    self.chartElement = "chart";
+    self.tableElement = "table-content";
+    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', dataId))).then(function(raw_data) {
       var data, obs_data, server_data;
       server_data = raw_data[0];
       data = server_data.data;
@@ -101,14 +101,14 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.change_chart = function(event, self) {
-    var chart, data_id, new_data_model, table;
-    chart = document.getElementById(self.chart_element);
-    table = document.getElementById(self.table_element);
+    var chart, dataId, new_data_model, table;
+    chart = document.getElementById(self.chartElement);
+    table = document.getElementById(self.tableElement);
     chart.innerHTML = '';
     table.innerHTML = '';
     new_data_model = event.src_el.value;
-    data_id = document.getElementById('graph-content').getAttribute('data-id');
-    return Promise.when(self.call_resource(self.urls['ajax_get_patient_obs'](new_data_model, data_id))).then(function(raw_data) {
+    dataId = document.getElementById('graph-content').getAttribute('data-id');
+    return Promise.when(self.call_resource(self.urls['ajax_get_patient_obs'](new_data_model, dataId))).then(function(raw_data) {
       var data, obs_data, server_data;
       server_data = raw_data[0];
       data = server_data.data;
@@ -134,7 +134,7 @@ NHMobilePatient = (function(superClass) {
     var chart_el, chart_func, chart_func_name, controls, graph_content, graph_tabs, table_func, table_func_name, valid_chart, valid_table;
     graph_content = document.getElementById('graph-content');
     controls = document.getElementById('controls');
-    chart_el = document.getElementById(self.chart_element);
+    chart_el = document.getElementById(self.chartElement);
     graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0];
     chart_func_name = 'draw' + data_model.capitalize() + 'Chart';
     table_func_name = 'draw' + data_model.capitalize() + 'Table';
