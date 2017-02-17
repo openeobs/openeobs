@@ -76,9 +76,8 @@ class NhClinicalPatientObservationNeurological(models.Model):
         :param patient_id: ID for the patient
         :return: list of dicts
         """
-        form_description = \
-            super(NhClinicalPatientObservationNeurological, self)\
-                .get_form_description(patient_id)
+        form_description = super(NhClinicalPatientObservationNeurological,
+                                 self).get_form_description(patient_id)
         for item in form_description:
             if item.get('type') == 'meta':
                 item['partial_flow'] = 'score'
