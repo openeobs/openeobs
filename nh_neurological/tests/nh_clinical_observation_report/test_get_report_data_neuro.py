@@ -68,7 +68,7 @@ class TestGetReportData(SingleTransactionCase):
     def test_pupil_right_size_not_observable(self):
         field_values = self.get_field_values('pupil_right_size')
         for field_value in field_values:
-            self.assertEqual('NO', field_value)
+            self.assertEqual('Not Observable', field_value)
 
     def test_user_has_name_and_surname_of_user_who_submitted_the_obs(self):
         field_values = self.get_user_values()
