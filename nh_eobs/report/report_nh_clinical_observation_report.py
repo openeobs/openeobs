@@ -336,8 +336,8 @@ class ObservationReport(models.AbstractModel):
                 # V8 read always returns a list, V7 doesn't when single int is
                 # passed as id instead of a list.
                 if len(model_data) > 1:
-                    message = "Should have read data for only one record but " \
-                              "more than one was found."
+                    message = "Should have read data for only one record " \
+                              "but more than one was found."
                     raise ValueError(message)
                 model_data = model_data[0]
 
