@@ -26,7 +26,7 @@
                     chart_element: 'neuro_chart',
                     containers_set: true
                 };
-                draw_neurological_chart(settings, <t t-raw="neurological_data"/>);
+                drawNeurologicalChart(settings, <t t-raw="neurological_data"/>);
             </script>
         </template>
 

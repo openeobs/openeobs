@@ -1080,6 +1080,10 @@ var NHMobilePatient,
 NHMobilePatient = (function(superClass) {
   extend(NHMobilePatient, superClass);
 
+  String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  };
+
   function NHMobilePatient(refused, partialType) {
     var data_id, self;
     if (refused == null) {
@@ -1203,8 +1207,8 @@ NHMobilePatient = (function(superClass) {
     controls = document.getElementById('controls');
     chart_el = document.getElementById(self.chart_element);
     graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0];
-    chart_func_name = 'draw_' + data_model + '_chart';
-    table_func_name = 'draw_' + data_model + '_table';
+    chart_func_name = 'draw' + data_model.capitalize() + 'Chart';
+    table_func_name = 'draw' + data_model.capitalize() + 'Table';
     if (server_data.length > 0) {
       controls.style.display = 'block';
       graph_tabs.style.display = 'block';
