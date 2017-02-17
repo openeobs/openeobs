@@ -327,10 +327,11 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         model_pool = self.pool[model]
         for activity in activity_data:
-            model_data = model_pool.read(
-                cr, uid, self._get_data_ref_id(activity), []
-            )
-
+            id = self._get_data_ref_id(activity)
+            if 'nh.clinical.patient.observation' in model_pool._name:
+                model_data = model_pool.read_labels(cr, uid, id, [])
+            else:
+                model_data = model_pool.read(cr, uid, id, [])
             if type(model_data) is list:
                 # V8 read always returns a list, V7 doesn't when single int is
                 # passed as id instead of a list.

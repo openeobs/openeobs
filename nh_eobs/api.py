@@ -1116,7 +1116,8 @@ class nh_eobs_api(orm.AbstractModel):
                   ('data_model', '!=', 'nh.clinical.spell')]
 
         obs_ids = model_pool.search(cr, uid, domain, context=context)
-        observations = model_pool.read(cr, uid, obs_ids, [], context=context)
+        observations = model_pool.read_labels(cr, uid, obs_ids, [],
+                                              context=context)
         return observations
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,

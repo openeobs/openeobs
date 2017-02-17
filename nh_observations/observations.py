@@ -271,6 +271,10 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             res = res[0] if nolist and len(res) > 0 else res
         return res
 
+    @api.multi
+    def read_labels(self, *args, **kwargs):
+        return self.read(*args, **kwargs)
+
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         """
         Looks for the related :class:`spell<base.nh_clinical_spell>` and
