@@ -15,8 +15,8 @@ function setUpControls() {
     }
 }
 
-function convertValue(value, value_to_change, substitute_value){
-    return value === value_to_change ? substitute_value : value;
+function convertValue(value, valueToChange, substituteValue){
+    return value === valueToChange ? substituteValue : value;
 }
 
 function processNeurologicalData(obs){

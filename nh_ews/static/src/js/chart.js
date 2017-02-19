@@ -3,7 +3,7 @@ function processOxygenAdministrationDevice(ob){
         if (ob.oxygen_administration_flag) {
             ob.oxygen_administration_device = "Yes";
         }
-    return ob
+    return ob;
 }
 
 function processInspiredOxygen(ob){

@@ -427,8 +427,8 @@ describe("Event Handling", function(){
             });
 
             beforeEach(function(){
-                spyOn(NHMobilePatient.prototype, 'show_obs_menu');
-                spyOn(NHMobilePatient.prototype, 'handle_tabs');
+                spyOn(NHMobilePatient.prototype, 'showObsMenu');
+                spyOn(NHMobilePatient.prototype, 'handleTabs');
                 spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                    var promise = new Promise();
                     var empty_graph = new NHMobileData({
@@ -486,15 +486,15 @@ describe("Event Handling", function(){
             });
 
             it('Has a function for showing the observation menu when pressing the adhoc observation button', function(){
-               expect(typeof(NHMobilePatient.prototype.show_obs_menu)).toBe('function');
+               expect(typeof(NHMobilePatient.prototype.showObsMenu)).toBe('function');
             });
 
             it('Has a function for handling the tabbing behaviour when pressing the tabs', function(){
-               expect(typeof(NHMobilePatient.prototype.handle_tabs)).toBe('function');
+               expect(typeof(NHMobilePatient.prototype.handleTabs)).toBe('function');
             });
 
             it('Has a function for handling the changing of the chart select input', function(){
-               expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
+               expect(typeof(NHMobilePatient.prototype.drawGraph)).toBe('function');
             });
 
             it('Captures and handles Take Observation menu button click', function(){
@@ -502,8 +502,8 @@ describe("Event Handling", function(){
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
                 test_button.dispatchEvent(click_event);
-                expect(NHMobilePatient.prototype.show_obs_menu).toHaveBeenCalled();
-                expect(NHMobilePatient.prototype.show_obs_menu.calls.count()).toBe(1);
+                expect(NHMobilePatient.prototype.showObsMenu).toHaveBeenCalled();
+                expect(NHMobilePatient.prototype.showObsMenu.calls.count()).toBe(1);
             });
 
             it('Captures and handles tab click', function(){
@@ -511,22 +511,22 @@ describe("Event Handling", function(){
                 var click_event1 = document.createEvent('CustomEvent');
                 click_event1.initCustomEvent('click', false, true, false);
                 test_buttons[0].dispatchEvent(click_event1);
-                expect(NHMobilePatient.prototype.handle_tabs).toHaveBeenCalled();
+                expect(NHMobilePatient.prototype.handleTabs).toHaveBeenCalled();
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
                 test_buttons[1].dispatchEvent(click_event);
-                expect(NHMobilePatient.prototype.handle_tabs.calls.count()).toBe(2);
+                expect(NHMobilePatient.prototype.handleTabs.calls.count()).toBe(2);
             });
 
             it('Captures and handles chart select change event', function(){
-               spyOn(NHMobilePatient.prototype, 'draw_graph');
+               spyOn(NHMobilePatient.prototype, 'drawGraph');
                var test_select = document.getElementById('chart_select');
                test_select.value = 'neuro';
                var change_event = document.createEvent('CustomEvent');
                change_event.initCustomEvent('change', false, true, false);
                test_select.dispatchEvent(change_event);
-               expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
-               expect(NHMobilePatient.prototype.draw_graph.calls.mostRecent().args[2]).toBe('neuro')
+               expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+               expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro')
             });
         });
 
