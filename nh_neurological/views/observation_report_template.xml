@@ -4,13 +4,13 @@
 
         <template id="observation_report" inherit_id="nh_eobs.observation_report" name="Observation Report">
             <xpath expr="//*[@id = 'news_values']" position="after">
-                <div class="col-xs-12 row" id="neurological_values">
-                    <h3>Neurological Values</h3>
-                    <t t-if="len(neurological) &gt; 0">
+                <t t-if="len(neurological) &gt; 0">
+                    <div class="col-xs-12 row" id="neurological_values">
+                        <h3>Neurological Values</h3>
                         <t t-call="nh_neurological.charts"/>
                         <t t-call="nh_neurological.table"/>
-                    </t>
-                </div>
+                    </div>
+                </t>
             </xpath>
         </template>
 
