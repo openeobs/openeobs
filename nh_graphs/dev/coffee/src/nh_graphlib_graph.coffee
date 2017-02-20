@@ -104,7 +104,8 @@ class NHGraph extends NHGraphLib
         }
         width: 2
       },
-      range_padding: 1
+      range_padding: 1,
+      pointRadius: 3
     }
     # Options
     # - Keys: The keys from the dataset to plot. Normal a single item for
@@ -477,7 +478,7 @@ class NHGraph extends NHGraphLib
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
-        ).attr("r", 3).attr("class", "point")
+        ).attr("r", self.style.pointRadius).attr("class", "point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
           self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
@@ -505,7 +506,7 @@ class NHGraph extends NHGraphLib
         .attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
-        .attr("r", 3)
+        .attr("r", self.style.pointRadius)
         .attr("class", "empty_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
