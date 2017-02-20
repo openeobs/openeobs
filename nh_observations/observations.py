@@ -20,7 +20,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_patient_observation(orm.AbstractModel):
+class NhClinicalPatientObservation(orm.AbstractModel):
     """
     Abstract representation of what a medical observation is. Contains
     common information that all observations will have but does not
@@ -29,8 +29,10 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     """
     _name = 'nh.clinical.patient.observation'
     _inherit = ['nh.activity.data']
-    _required = []  # fields required for complete observation
-    # numeric fields we want to be able to read as NULL instead of 0
+    # Fields required for complete observation.
+    # Also decides the order fields are displayed in the mobile view.
+    _required = []
+    # Numeric fields we want to be able to read as NULL instead of 0.
     _num_fields = []
     _partial_reasons = [
         ['patient_away_from_bed', 'Patient away from  bed'],  # TODO 2 spaces?
@@ -38,6 +40,29 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         ['emergency_situation', 'Emergency situation'],
         ['doctors_request', 'Doctor\'s request']
     ]
+
+    def get_obs_field_order(self):
+        return self._required
+
+    @api.multi
+    def get_obs_fields(self):
+        return self.env['nh.clinical.field_utils'].get_obs_fields(self)
+
+    def get_obs_field_names(self):
+        obs_fields = self.get_obs_fields()
+        return [field.name for field in obs_fields]
+
+    def get_necessary_fields(self):
+        obs_fields = self.get_obs_fields()
+        return [field for field in obs_fields if field.necessary is True]
+
+    def get_necessary_fields_dict(self):
+        necessary_fields = self.get_necessary_fields()
+        necessary_field_values = {}
+        for field in necessary_fields:
+            field_value = getattr(self, field.name)
+            necessary_field_values[field.name] = field_value
+        return necessary_field_values
 
     def get_partial_reason_label(self, reason):
         if not reason:
@@ -48,12 +73,30 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         return self._partial_reasons[reason_index][1]
 
     def _is_partial(self, cr, uid, ids, field, args, context=None):
+        """
+        Determine if the observations with the passed IDs are partial or not.
+
+        :param cr:
+        :param uid:
+        :param ids:
+        :param field:
+        :param args:
+        :param context:
+        :return:
+        :rtype: bool
+        """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
+        # If this type of observation has no 'required' fields (not to be
+        # confused with Odoo's definition of required) then partial
+        # observations are not possible. Return false for all IDs.
         if not self._required:
             return {id: False for id in ids}
         res = {}
         for obs in self.read(cr, uid, ids, ['none_values'], context):
             res.update(
+                # See if any of the none values are for 'required' fields,
+                # If so then return True, because any none values for required
+                # fields mean a partial observation.
                 {obs['id']: bool(set(self._required) &
                                  set(eval(obs['none_values'])))})
         return res
@@ -80,13 +123,10 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 return False
         return True
 
-    def calculate_score(self, data):
-        return False
-
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         activity = activity_pool.browse(cr, uid, activity_id)
-        res = super(nh_clinical_patient_observation, self).complete(
+        res = super(NhClinicalPatientObservation, self).complete(
             cr, uid, activity_id, context)
         if activity.data_ref.is_partial and not \
                 activity.data_ref.partial_reason:
@@ -113,13 +153,6 @@ class nh_clinical_patient_observation(orm.AbstractModel):
     _defaults = {
 
     }
-    _form_description = [
-        {
-            'name': 'meta',
-            'type': 'meta',
-            'score': False
-        }
-    ]
 
     def create(self, cr, uid, vals, context=None):
         """
@@ -134,7 +167,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         none_values = list(set(self._required) - set(vals.keys()))
         null_values = list(set(self._num_fields) - set(vals.keys()))
         vals.update({'none_values': none_values, 'null_values': null_values})
-        return super(nh_clinical_patient_observation, self).create(
+        return super(NhClinicalPatientObservation, self).create(
             cr, uid, vals, context)
 
     def create_activity(self, cr, uid, activity_vals=None,
@@ -154,7 +187,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 "Current spell is not found for patient_id: %s"
                 % data_vals['patient_id'])
         activity_vals.update({'parent_id': spell.activity_id.id})
-        return super(nh_clinical_patient_observation, self).create_activity(
+        return super(NhClinicalPatientObservation, self).create_activity(
             cr, uid, activity_vals, data_vals, context=context)
 
     def write(self, cr, uid, ids, vals, context=None):
@@ -172,7 +205,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         """
         ids = ids if isinstance(ids, (tuple, list)) else [ids]
         if not self._required and not self._num_fields:
-            return super(nh_clinical_patient_observation, self).write(
+            return super(NhClinicalPatientObservation, self).write(
                 cr, uid, ids, vals, context)
         for obs in self.read(
                 cr, uid, ids, ['none_values', 'null_values'], context=context):
@@ -182,7 +215,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                 set(eval(obs['null_values'])) - set(vals.keys()))
             vals.update(
                 {'none_values': none_values, 'null_values': null_values})
-            super(nh_clinical_patient_observation, self).write(
+            super(NhClinicalPatientObservation, self).write(
                 cr, uid, obs['id'], vals, context)
         if 'frequency' in vals:
             activity_pool = self.pool['nh.activity']
@@ -216,7 +249,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
             nolist = True
         if fields and 'null_values' not in fields:
             fields.append('null_values')
-        res = super(nh_clinical_patient_observation, self).read(
+        res = super(NhClinicalPatientObservation, self).read(
             cr, uid, ids, fields=fields, context=context, load=load)
         if res:
             for d in res:
@@ -237,6 +270,69 @@ class nh_clinical_patient_observation(orm.AbstractModel):
                         obs[nv] = False
             res = res[0] if nolist and len(res) > 0 else res
         return res
+
+    @api.multi
+    def read_labels(self, *args, **kwargs):
+        """
+        Odoo views automatically convert values to their labels, but other UIs
+        like the mobile pages do not.
+
+        It is not currently necessary to convert labels at this base level but
+        the method is declared here to be overridden by subclasses.
+
+        :param args:
+        :param kwargs:
+        :return:
+        :rtype: dict
+        """
+        return self.read(*args, **kwargs)
+
+    def convert_field_values_to_labels(self, obs):
+        """
+        Convert the values in the passed dictionary to their corresponding
+        labels.
+
+        NOTE: Only converts fields whose names are in the `_scored` class
+        variable. This is a temporary implementation to get the functionality
+        working for GCS / Neurological.
+
+        :param obs:
+        :type obs: dict
+        """
+        if not hasattr(self, '_scored'):
+            return
+        field_names = [field_name for field_name in self._required
+                       if field_name not in self._scored]
+        for field_name in field_names:
+            if field_name in obs:
+                field_value = obs[field_name]
+                field_value_label = self.get_field_value_label(field_name,
+                                                               field_value)
+                obs[field_name] = field_value_label
+
+    def get_field_value_label(self, field_name, field_value):
+        """
+        Lookup the label for the passed field value and return it.
+
+        NOTE: Currently only converts selection fields. This is a temporary
+        implementation to get the functionality for GCS / Neurological working.
+
+        :param field_name:
+        :type field_name: str
+        :param field_value:
+        :type field_value: str
+        :return: Field label.
+        :rtype: str
+        """
+        if not hasattr(self._fields[field_name], 'selection') \
+                or not field_value:
+            return
+        selection = self._fields[field_name].selection
+        valid_value_tuple = \
+            [valid_value_tuple for valid_value_tuple in selection
+             if valid_value_tuple[0] == field_value][0]
+        valid_value_label = valid_value_tuple[1]
+        return valid_value_label
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         """
@@ -260,7 +356,11 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         else:
             return False
 
-    def get_form_description(self, cr, uid, patient_id, context=None):
+    # TODO Set once on model load rather than process every time.
+    # Tried setting on init() but seems to only be called when module is
+    # updated.
+    @api.model
+    def get_form_description(self, patient_id):
         """
         Returns a description in dictionary format of the input fields
         that would be required in the user gui to submit the
@@ -271,7 +371,14 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :returns: a list of dictionaries
         :rtype: list
         """
-        return self._form_description
+        form_description_model = self.env['nh.clinical.form_description']
+        form_description = form_description_model.to_dict(self)
+        form_description.append({
+            'name': 'meta',
+            'type': 'meta',
+            'score': True,
+        })
+        return form_description
 
     @classmethod
     def get_open_obs_search_domain(cls, spell_activity_id):
@@ -464,7 +571,7 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         :type patient_id: int
         :param context:
         :return: ``False`` or :class:`observation<openeobs.nh_observations.
-        observations.nh_clinical_patient_observation>`
+        observations.NhClinicalPatientObservation>`
         """
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:
@@ -482,8 +589,19 @@ class nh_clinical_patient_observation(orm.AbstractModel):
         last_obs = self.get_last_obs(patient_id)
         return True if last_obs.partial_reason == 'refused' else False
 
+    @classmethod
+    def get_data_visualisation_resource(cls):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
 
-class nh_clinical_patient_observation_height(orm.Model):
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return None
+
+
+class NhClinicalPatientObservation_height(orm.Model):
     """
     Represents the action of measuring a
     :class:`patient<base.nh_clinical_patient>` height.

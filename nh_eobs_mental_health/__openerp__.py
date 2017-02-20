@@ -14,14 +14,15 @@
         'nh_eobs_mobile',
         'nh_food_and_fluid'
     ],
-    'data': ['data/master_data.xml',
-             'views/wardboard_view.xml',
-             'views/ward_dashboard_view.xml',
-             'views/static_include.xml',
-             'views/mobile_override.xml',
-             'views/observation_report_template.xml',
-             'security/ir.model.access.csv'
-             ],
+    'data': [
+        'data/master_data.xml',
+        'views/wardboard_view.xml',
+        'views/ward_dashboard_view.xml',
+        'views/static_include.xml',
+        'views/mobile_override.xml',
+        'views/observation_report_template.xml',
+        'security/ir.model.access.csv'
+    ],
     'qweb': [],
     'application': True,
     'installable': True,

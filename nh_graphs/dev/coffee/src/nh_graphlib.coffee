@@ -369,7 +369,13 @@ class NHGraphLib
     .append('tr').attr('class', 'row')
 
     cells = rows.selectAll('td').data((d) ->
-      data = [{title: d['title'], value: d['title']}]
+      data = [
+        {
+          title: d['title'],
+          value: d['title'],
+          presentation: d['presentation']
+        }
+      ]
       for obj in raw_data
         if d['keys'].length is 1
           key = d['keys'][0]
@@ -378,14 +384,23 @@ class NHGraphLib
             fix_val = 'No' if fix_val is false
             fix_val = 'Yes' if fix_val is true
             if d['title']
-              data.push {title: d['title'], value: fix_val}
+              data.push {
+                title: d['title'],
+                value: fix_val,
+                presentation: d['presentation']
+              }
         else
           t = d['title']
           v = []
+          p = d['presentation']
           for o in d['keys']
-            v.push {title: o['title'], value: obj[o['keys'][0]]}
+            v.push {
+              title: o['title'],
+              value: obj[o['keys'][0]],
+              presentation: p
+            }
           if t
-            data.push {title: t, value: v}
+            data.push {title: t, value: v, presentation: p}
       return data
     ).enter().append('td').html((d) ->
       if typeof d.value is 'object'
@@ -397,7 +412,10 @@ class NHGraphLib
             text += '<strong>'+ o.title + ':</strong> ' + o.value + '<br>'
         return text
       else
-        return d.value
+        if d.presentation is 'bold'
+          return '<strong>' + d.value + '</strong>'
+        else
+          return d.value
      )
 
 ### istanbul ignore if ###

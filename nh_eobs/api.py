@@ -6,7 +6,7 @@ Defines the core methods for `Open eObs` in the taking of
 import logging
 from datetime import datetime as dt, timedelta as td
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
@@ -25,6 +25,14 @@ class nh_eobs_api(orm.AbstractModel):
 
     # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
+
+    # TODO: EOBS-1004 Refactor nh_eobs
+    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
+    # 'type' is the suffix of an observation model name.
+    # e.g. 'nh.clinical.patient.observation.ews'
+    #
+    # 'name' is the label that will appear in the UI when selecting the type of
+    # observation to perform.
     _active_observations = [
         {
             'type': 'ews',
@@ -502,7 +510,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: a list of dictionaries
         :rtype: list
         """
-
         model_pool = self.pool[data_model]
         return model_pool.get_form_description(
             cr, uid, patient_id, context=context)
@@ -538,8 +545,8 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: dict
         """
         model_pool = self.pool[data_model]
-        return model_pool.calculate_score(
-            data) if 'observation' in data_model else False
+        return model_pool.calculate_score(data) if 'observation' in \
+                                                   data_model else False
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """
@@ -563,6 +570,32 @@ class nh_eobs_api(orm.AbstractModel):
         if spell_id:
             return self._active_observations
         return []
+
+    @api.model
+    def get_data_visualisation_resources(self):
+        """
+        Get data visualisation resources for all installed observations that
+        have data visualisation JS files defined
+
+        :return: list of JS file URLs used for drawing graphs
+        """
+        obs_prefix = 'nh.clinical.patient.observation.'
+        mod_list = [
+            mod for mod in self.env.registry.models if obs_prefix in mod]
+        resource_list = []
+        for mod in mod_list:
+            model = self.env[mod]
+            mod_data_vis = model.get_data_visualisation_resource()
+
+            if mod_data_vis:
+                resource_list.append(
+                    {
+                        'data_model': mod.replace(obs_prefix, ''),
+                        'resource': mod_data_vis,
+                        'model_name': model._description
+                    }
+                )
+        return resource_list
 
     # # # # # # #
     #  PATIENTS #
@@ -1040,9 +1073,11 @@ class nh_eobs_api(orm.AbstractModel):
         activity_pool.complete(cr, uid, unfollow_activity_id, context=context)
         return True
 
-    def get_activities_for_patient(self, cr, uid, patient_id, activity_type,
-                                   start_date=None, end_date=None,
-                                   context=None):
+    def get_activities_for_patient(
+            self, cr, uid, patient_id, activity_type,
+            start_date=None, end_date=None, context=None,
+            convert_field_values_to_scores=True
+    ):
         """
         Returns a list of
         :class:`activities<activity.nh_activity>` for a
@@ -1062,12 +1097,16 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of activity dictionaries for patient
         :rtype: list
         """
-
         start_date = dt.now()-td(days=30) if not start_date else start_date
         end_date = dt.now() if not end_date else end_date
-        model_pool = self.pool[self._get_activity_type(
-            cr, uid, activity_type, observation=True, context=context)] \
-            if activity_type else self.pool['nh.activity']
+
+        if activity_type:
+            model_name = self._get_activity_type(
+                cr, uid, activity_type, observation=True, context=context
+            )
+        else:
+            model_name = 'nh.activity'
+        model_pool = self.pool[model_name]
         domain = [
             ('patient_id', '=', patient_id),
             ('state', '=', 'completed'),
@@ -1077,10 +1116,14 @@ class nh_eobs_api(orm.AbstractModel):
             else [('patient_id', '=', patient_id),
                   ('state', 'not in', ['completed', 'cancelled']),
                   ('data_model', '!=', 'nh.clinical.spell')]
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+
+        obs_ids = model_pool.search(cr, uid, domain, context=context)
+        observations = model_pool.read_labels(cr, uid, obs_ids, [],
+                                              context=context)
+        return observations
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
+                                    vals_activity=None, vals_data=None,
                                     context=None):
         """
         Creates an :class:`activity<activity.nh_activity>` of specified
@@ -1098,7 +1141,10 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: id of activity
         :rtype: int
         """
-
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         if not activity_type:
             raise osv.except_osv(_('Error!'), 'Activity type not valid')
         model_name = self._get_activity_type(
@@ -1134,6 +1180,8 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', model_name)], context=context)
         if activity_ids:
             return activity_ids[0]
+        if 'patient_id' not in vals_data:
+            vals_data['patient_id'] = patient_id
         return self._create_activity(
-            cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id},
+            cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)

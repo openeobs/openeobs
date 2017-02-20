@@ -684,12 +684,16 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             ]
             return active_obs_list
 
+        def mock_get_data_vis_resources(*args, **kwargs):
+            return []
+
         # Start Odoo's patchers
         eobs_api = self.registry['nh.eobs.api']
         methods_patching_list = [
             ('get_assigned_activities', mock_get_assigned_activities),
             ('get_patients', mock_get_patients),
-            ('get_active_observations', mock_get_active_observations)
+            ('get_active_observations', mock_get_active_observations),
+            ('get_data_visualisation_resources', mock_get_data_vis_resources)
         ]
         self._bulk_patch_odoo_model_method(eobs_api, methods_patching_list)
 
@@ -751,7 +755,8 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                     }
                 ],
                 'notification_count': 1,
-                'username': self.login_name
+                'username': self.login_name,
+                'data_vis_list': []
             }
         )
 

@@ -1,18 +1,18 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-# -*- coding: utf-8 -*-s
-import openerp
 from datetime import datetime
+
+import openerp
 from openerp import http
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import RouteManager
 from openerp.http import request
+from openerp.modules.module import get_module_path
 from openerp.osv import fields
 from openerp.osv import osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from werkzeug import exceptions
-from openerp.modules.module import get_module_path
-from openerp.addons.nh_eobs_api.routing import Route
-from openerp.addons.nh_eobs_api.routing import RouteManager
-from openerp.addons.nh_eobs_api.routing import ResponseJSON
-
 
 # Create the RouteManager and the Route objects for the tests
 route_manager = RouteManager(url_prefix='/api/v1')
@@ -43,7 +43,8 @@ route_list = [
 
     Route('json_patient_info', '/patient/info/<patient_id>/'),
     Route('json_patient_barcode', '/patient/barcode/<hospital_number>/'),
-    Route('ajax_get_patient_obs', '/patient/ajax_obs/<patient_id>/'),
+    Route(
+        'ajax_get_patient_obs', '/patient/ajax_obs/<obs_type>/<patient_id>/'),
     Route('json_patient_form_action',
           '/patient/submit_ajax/<observation>/<patient_id>/',
           methods=['POST']),
@@ -388,10 +389,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                                              str, context=context)
         data = kw.copy() if kw else {}
         test = {}
-        section = 'task' if 'taskId' in data else 'patient'
+        section = 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
         if 'taskId' in data:
+            section = 'task'
             del data['taskId']
         if observation is not None:
             del data['observation']
@@ -408,19 +410,17 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                     del data[key]
         converted_data = converter(data, test)
 
-        score_dict = api_pool.get_activity_score(cr, uid, model,
-                                                 converted_data,
-                                                 context=context)
+        score_dict = api_pool.get_activity_score(
+            cr, uid, model, converted_data, context=context
+        )
         if not score_dict:
             exceptions.abort(400)
         modal_vals = {}
-        next_action = 'json_patient_form_action'
-        if section == 'task':
-            next_action = 'json_task_form_action'
-        modal_vals['next_action'] = next_action
+        score_type = observation.upper() if observation != 'neurological' \
+            else 'Coma Scale'
         # TODO: Need to add patient name in somehow
         modal_vals['title'] = 'Submit {score_type} score of {score}'.format(
-            score_type=observation.upper(),
+            score_type=score_type,
             score=score_dict.get('score', '')
         )
         if 'clinical_risk' in score_dict:
@@ -438,7 +438,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             'score': score_dict,
             'modal_vals': modal_vals,
             'status': 3,
-            'next_action': modal_vals['next_action']
+            'next_action': 'json_{}_form_action'.format(section)
         }
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
@@ -653,30 +653,32 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     @http.route(**route_manager.expose_route('ajax_get_patient_obs'))
     def get_patient_obs(self, *args, **kw):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
+        obs_type = kw.get('obs_type')
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         patient_list = api_pool.get_patients(cr, uid, [int(patient_id)])
         if len(patient_list) > 0:
             patient = patient_list[0]
-            ews = api_pool.get_activities_for_patient(
+            observations = api_pool.get_activities_for_patient(
                 cr, uid,
                 patient_id=int(patient_id),
-                activity_type='ews'
+                activity_type=obs_type
             )
-            for ew in ews:
-                for e in ew:
-                    if e in ['date_terminated', 'create_date',
-                             'write_date', 'date_started']:
-                        if not ew[e]:
+            date_fields = [
+                'date_terminated', 'create_date', 'write_date', 'date_started']
+            for observation in observations:
+                for field in date_fields:
+                    if not observation.get(field):
                             continue
-                        ew[e] = fields.datetime.context_timestamp(
-                            cr, uid, datetime.strptime(ew[e], DTF),
-                            context=context
-                        ).strftime(DTF)
+                    observation[field] = \
+                        fields.datetime.context_timestamp(
+                            cr, uid,
+                            datetime.strptime(observation[field], DTF),
+                            context=context).strftime(DTF)
 
             response_data = {
-                'obs': ews,
-                'obsType': 'ews'
+                'obs': observations,
+                'obsType': obs_type
             }
             response_json = ResponseJSON.get_json_data(
                 status=ResponseJSON.STATUS_SUCCESS,
@@ -687,11 +689,11 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 data=response_data
             )
         else:
-            response_data = {'error': 'Patient not found.'}
+            response_data = {'error': 'Data not found.'}
             response_json = ResponseJSON.get_json_data(
                 status=ResponseJSON.STATUS_ERROR,
-                title='Patient not found',
-                description='Unable to find patient with ID provided',
+                title='Data not found',
+                description='Unable to find data with ID and ob name provided',
                 data=response_data
             )
 

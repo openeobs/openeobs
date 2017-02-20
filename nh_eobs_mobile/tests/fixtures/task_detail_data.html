@@ -32,7 +32,7 @@
                     <div class="block obsField" id="parent_int">
                         <div class="input-header">
                             <label for="int">Integer</label>
-                            <input type="number" name="int" id="int" min="1" max="59" step="1"/>
+                            <input type="number" name="int" id="int" min="1" max="59" step="1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -44,7 +44,7 @@
                     <div class="block obsField" id="parent_int_validation">
                         <div class="input-header">
                             <label for="int_validation">Integer Validation</label>
-                            <input type="number" name="int_validation" id="int_validation" min="1" max="59" step="1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'int_validation', 'value': 'int'}}]"/>
+                            <input type="number" name="int_validation" id="int_validation" min="1" max="59" step="1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'int_validation', 'value': 'int'}}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -56,7 +56,7 @@
                     <div class="block obsField" id="parent_int_onchange">
                         <div class="input-header">
                             <label for="int_onchange">Integer On Change</label>
-                            <input type="number" name="int_onchange" id="int_onchange" min="1" max="59" step="1" data-onchange="[{'action': 'disable', 'fields': ['int'], 'condition': [['int_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['int'], 'condition': [['int_onchange', '==', '']]}]"/>
+                            <input type="number" name="int_onchange" id="int_onchange" min="1" max="59" step="1" data-onchange="[{'action': 'disable', 'fields': ['int'], 'condition': [['int_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['int'], 'condition': [['int_onchange', '==', '']]}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -68,7 +68,7 @@
                     <div class="block obsField valHide" id="parent_int_exclude">
                         <div class="input-header">
                             <label for="int_exclude">Integer Hidden</label>
-                            <input type="number" name="int_exclude" id="int_exclude" min="1" max="59" step="1" class="exclude"/>
+                            <input type="number" name="int_exclude" id="int_exclude" min="1" max="59" step="1" class="exclude" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -80,7 +80,7 @@
                     <div class="block obsField" id="parent_int_reference">
                         <div class="input-header">
                             <label for="int_reference">Integer Reference</label>
-                            <input type="number" name="int_reference" id="int_reference" min="1" max="59" step="1"/>
+                            <input type="number" name="int_reference" id="int_reference" min="1" max="59" step="1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <p>
@@ -96,7 +96,7 @@
                         <div class="input-header">
                             <label for="int_target">Integer Target<br/>
                                 <span class="secondary-label">Target Text</span></label>
-                            <input type="number" name="int_target" id="int_target" min="1" max="59" step="1"/>
+                            <input type="number" name="int_target" id="int_target" min="1" max="59" step="1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -108,7 +108,7 @@
                     <div class="block obsField" id="parent_float">
                         <div class="input-header">
                             <label for="float">Float</label>
-                            <input type="number" name="float" id="float" min="1" max="35.9" step="0.1"/>
+                            <input type="number" name="float" id="float" min="1" max="35.9" step="0.1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -120,7 +120,7 @@
                     <div class="block obsField" id="parent_float_validation">
                         <div class="input-header">
                             <label for="float_validation">Float Validation</label>
-                            <input type="number" name="float_validation" id="float_validation" min="1" max="35.9" step="0.1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'float_validation', 'value': 'float'}}]"/>
+                            <input type="number" name="float_validation" id="float_validation" min="1" max="35.9" step="0.1" data-validation="[{'message': {'target': 'Validation field must be more than normal field', 'value': 'Normal field must be less than validation field'}, 'condition': {'operator': '&lt;', 'target': 'float_validation', 'value': 'float'}}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -132,7 +132,7 @@
                     <div class="block obsField" id="parent_float_onchange">
                         <div class="input-header">
                             <label for="float_onchange">Float On Change</label>
-                            <input type="number" name="float_onchange" id="float_onchange" min="1" max="35.9" step="0.1" data-onchange="[{'action': 'disable', 'fields': ['float'], 'condition': [['float_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['float'], 'condition': [['float_onchange', '==', '']]}]"/>
+                            <input type="number" name="float_onchange" id="float_onchange" min="1" max="35.9" step="0.1" data-onchange="[{'action': 'disable', 'fields': ['float'], 'condition': [['float_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['float'], 'condition': [['float_onchange', '==', '']]}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -144,7 +144,7 @@
                     <div class="block obsField valHide" id="parent_float_exclude">
                         <div class="input-header">
                             <label for="float_exclude">Float Hidden</label>
-                            <input type="number" name="float_exclude" id="float_exclude" min="1" max="35.9" step="0.1" class="exclude"/>
+                            <input type="number" name="float_exclude" id="float_exclude" min="1" max="35.9" step="0.1" class="exclude" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -156,7 +156,7 @@
                     <div class="block obsField" id="parent_float_reference">
                         <div class="input-header">
                             <label for="float_reference">Float Reference</label>
-                            <input type="number" name="float_reference" id="float_reference" min="1" max="35.9" step="0.1"/>
+                            <input type="number" name="float_reference" id="float_reference" min="1" max="35.9" step="0.1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <p>
@@ -172,7 +172,7 @@
                         <div class="input-header">
                             <label for="float_target">Float Target<br/>
                                 <span class="secondary-label">Target Text</span></label>
-                            <input type="number" name="float_target" id="float_target" min="1" max="35.9" step="0.1"/>
+                            <input type="number" name="float_target" id="float_target" min="1" max="35.9" step="0.1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -184,6 +184,7 @@
                     <div class="block obsField" id="parent_text">
                         <div class="input-header">
                             <label for="text">Text</label>
+                            <input type="text" name="text" id="text" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <textarea name="text" id="text"></textarea>
@@ -196,6 +197,7 @@
                     <div class="block obsField" id="parent_text_validation">
                         <div class="input-header">
                             <label for="text_validation">Text Validation</label>
+                            <input type="text" name="text_validation" id="text_validation" data-validation="[{'message': {'target': 'Validation field must contain a value', 'value': ''}, 'condition': {'operator': '!==', 'target': 'text_validation', 'value': ''}}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <textarea name="text_validation" id="text_validation" data-validation="[{'message': {'target': 'Validation field must contain a value', 'value': ''}, 'condition': {'operator': '!==', 'target': 'text_validation', 'value': ''}}]"></textarea>
@@ -208,6 +210,7 @@
                     <div class="block obsField" id="parent_text_onchange">
                         <div class="input-header">
                             <label for="text_onchange">Text On Change</label>
+                            <input type="text" name="text_onchange" id="text_onchange" data-onchange="[{'action': 'disable', 'fields': ['text'], 'condition': [['text_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['text'], 'condition': [['text_onchange', '==', '']]}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <textarea name="text_onchange" id="text_onchange" data-onchange="[{'action': 'disable', 'fields': ['text'], 'condition': [['text_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['text'], 'condition': [['text_onchange', '==', '']]}]"></textarea>
@@ -220,6 +223,19 @@
                     <div class="block obsField valHide" id="parent_text_exclude">
                         <div class="input-header">
                             <label for="text_exclude">Text Hidden</label>
+                            <input type="text" name="text_exclude" id="text_exclude" class="exclude" data-required="false" data-necessary="true"/>
+                        </div>
+                        <div class="input-body">
+                            <span class="errors"></span>
+                            <span class="help"></span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="block obsField" id="parent_text_pattern">
+                        <div class="input-header">
+                            <label for="text_pattern">Text Pattern</label>
+                            <input type="text" name="text_pattern" id="text_pattern" pattern="^[0-9]{4,6}$" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <textarea name="text_exclude" id="text_exclude" class="exclude"></textarea>
@@ -232,6 +248,7 @@
                     <div class="block obsField" id="parent_text_reference">
                         <div class="input-header">
                             <label for="text_reference">Text Reference</label>
+                            <input type="text" name="text_reference" id="text_reference" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
                             <textarea name="text_reference" id="text_reference"></textarea>
@@ -263,7 +280,7 @@
                             <label for="select">Select</label>
                         </div>
                         <div class="input-body">
-                            <select id="select" name="select">
+                            <select id="select" name="select" data-required="false" data-necessary="true">
                                 <option value="">Please Select</option>
                                 <option value="an">An</option>
                                 <option value="option">Option</option>
@@ -282,7 +299,7 @@
                             <label for="select_exclude">Select Hidden</label>
                         </div>
                         <div class="input-body">
-                            <select id="select_exclude" name="select_exclude" class="exclude">
+                            <select id="select_exclude" name="select_exclude" class="exclude" data-required="false" data-necessary="true">
                                 <option value="">Please Select</option>
                                 <option value="an">An</option>
                                 <option value="option">Option</option>
@@ -301,7 +318,7 @@
                             <label for="select_onchange">Select On Change</label>
                         </div>
                         <div class="input-body">
-                            <select id="select_onchange" name="select_onchange" data-onchange="[{'action': 'show', 'fields': ['select'], 'condition': [['select_onchange', '==', 'an']]}, {'action': 'hide', 'fields': ['select'], 'condition': [['select_onchange', '!=', 'an']]}]">
+                            <select id="select_onchange" name="select_onchange" data-onchange="[{'action': 'show', 'fields': ['select'], 'condition': [['select_onchange', '==', 'an']]}, {'action': 'hide', 'fields': ['select'], 'condition': [['select_onchange', '!=', 'an']]}]" data-required="false" data-necessary="true">
                                 <option value="">Please Select</option>
                                 <option value="an">An</option>
                                 <option value="option">Option</option>
@@ -320,7 +337,7 @@
                             <label for="select_reference">Select Reference</label>
                         </div>
                         <div class="input-body">
-                            <select id="select_reference" name="select_reference">
+                            <select id="select_reference" name="select_reference" data-required="false" data-necessary="true">
                                 <option value="">Please Select</option>
                                 <option value="an">An</option>
                                 <option value="option">Option</option>
