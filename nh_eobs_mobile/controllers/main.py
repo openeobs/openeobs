@@ -3,22 +3,23 @@
 """
 Defines helper methods and handlers for eObs Mobile.
 """
-from openerp import http
-from openerp.modules.module import get_module_path
+import logging
 from datetime import datetime
-from openerp.http import request
-from werkzeug import utils
-from werkzeug import exceptions
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp.osv import orm
+
+import jinja2
+import openerp
+import os
+import re
+from openerp import http
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
-import openerp
-import re
 from openerp.addons.nh_eobs_mobile.controllers import urls
-import jinja2
-import os
-import logging
+from openerp.http import request
+from openerp.modules.module import get_module_path
+from openerp.osv import orm
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from werkzeug import exceptions
+from werkzeug import utils
 
 _logger = logging.getLogger(__name__)
 
@@ -939,7 +940,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 if partial_flow:
                     form['partial_flow'] = partial_flow
         observation_name_list = []
-        for ob in api_pool._active_observations:
+        for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:
                 observation_name_list.append(ob['name'])
         if len(observation_name_list) == 0:
