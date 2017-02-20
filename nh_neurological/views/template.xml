@@ -1,6 +1,6 @@
 <openerp>
     <data>
-        <template id="observation_data_select" name="ENHT Select Box" inherit_id="nh_eobs_mobile.observation_data_select">
+        <template id="observation_data_select" name="Observation Data Select Box" inherit_id="nh_eobs_mobile.observation_data_select">
             <xpath expr="//span[@class='errors']" position="before">
                 <t t-if="item['name'] in ['pupil_right_size', 'pupil_left_size']">
                     <p><button class="button exclude" data-type="iframe" data-url="/mobile/src/html/pupil_size_chart.html" data-title="Pupil Size Reference">Pupil Size Reference</button></p>

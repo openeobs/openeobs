@@ -14,6 +14,19 @@
             </xpath>
         </template>
 
+        <template id="observation_neuro_report_header_override" inherit_id="report.layout" name="Neuro Observation Report Header Override">
+            <xpath expr="//head" position="inside">
+                <style>
+                    .border-right {
+                        border-right: 2px solid black;
+                    }
+                    .neuro-table-header {
+                        background-color: #EFEFEF;
+                    }
+                </style>
+            </xpath>
+        </template>
+
         <template id="charts">
             <div id="neuro_chart">
                 <div id="eyes" style="width: 825px; height: 320px;"></div>
@@ -31,14 +44,6 @@
         </template>
 
         <template id="table">
-            <style>
-                .border-right {
-                    border-right: 2px solid black;
-                }
-                .neuro-table-header {
-                    background-color: #EFEFEF;
-                }
-            </style>
             <table class="striped col-xs-12 row">
                 <thead>
                     <tr>
