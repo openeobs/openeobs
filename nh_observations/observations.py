@@ -273,7 +273,66 @@ class NhClinicalPatientObservation(orm.AbstractModel):
 
     @api.multi
     def read_labels(self, *args, **kwargs):
+        """
+        Odoo views automatically convert values to their labels, but other UIs
+        like the mobile pages do not.
+
+        It is not currently necessary to convert labels at this base level but
+        the method is declared here to be overridden by subclasses.
+
+        :param args:
+        :param kwargs:
+        :return:
+        :rtype: dict
+        """
         return self.read(*args, **kwargs)
+
+    def convert_field_values_to_labels(self, obs):
+        """
+        Convert the values in the passed dictionary to their corresponding
+        labels.
+
+        NOTE: Only converts fields whose names are in the `_scored` class
+        variable. This is a temporary implementation to get the functionality
+        working for GCS / Neurological.
+
+        :param obs:
+        :type obs: dict
+        """
+        if not hasattr(self, '_scored'):
+            return
+        field_names = [field_name for field_name in self._required
+                       if field_name not in self._scored]
+        for field_name in field_names:
+            if field_name in obs:
+                field_value = obs[field_name]
+                field_value_label = self.get_field_value_label(field_name,
+                                                               field_value)
+                obs[field_name] = field_value_label
+
+    def get_field_value_label(self, field_name, field_value):
+        """
+        Lookup the label for the passed field value and return it.
+
+        NOTE: Currently only converts selection fields. This is a temporary
+        implementation to get the functionality for GCS / Neurological working.
+
+        :param field_name:
+        :type field_name: str
+        :param field_value:
+        :type field_value: str
+        :return: Field label.
+        :rtype: str
+        """
+        if not hasattr(self._fields[field_name], 'selection') \
+                or not field_value:
+            return
+        selection = self._fields[field_name].selection
+        valid_value_tuple = \
+            [valid_value_tuple for valid_value_tuple in selection
+             if valid_value_tuple[0] == field_value][0]
+        valid_value_label = valid_value_tuple[1]
+        return valid_value_label
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         """

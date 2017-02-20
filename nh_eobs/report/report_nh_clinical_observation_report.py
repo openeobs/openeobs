@@ -328,6 +328,8 @@ class ObservationReport(models.AbstractModel):
         model_pool = self.pool[model]
         for activity in activity_data:
             obs_id = self._get_data_ref_id(activity)
+            # TODO EOBS-1011: Report shouldn't have to check whether to call
+            # read or read_labels
             if 'nh.clinical.patient.observation' in model_pool._name:
                 model_data = model_pool.read_labels(cr, uid, obs_id, [])
             else:
@@ -342,11 +344,10 @@ class ObservationReport(models.AbstractModel):
                 model_data = model_data[0]
 
             if model_data:
-                stat = 'No'
                 date_terminated = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
-                    stat = 'Yes'
-                    model_data['status'] = stat
+                    status = 'Yes'
+                    model_data['status'] = status
                 if 'date_started' in model_data and model_data['date_started']:
                     model_data['date_started'] = \
                         helpers.convert_db_date_to_context_date(
@@ -1061,6 +1062,7 @@ class ObservationReport(models.AbstractModel):
         for activity in activity_data:
             self.convert_activity_dates_to_context_dates(activity)
 
+    # TODO EOBS-1013: Merge report helpers for dates into datetime_utils model
     def convert_activity_dates_to_context_dates(self, activity):
         """
         Ensures dates on the passed activity are in the correct format and

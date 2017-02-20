@@ -166,24 +166,3 @@ class nh_clinical_patient_observation_gcs(models.Model):
         obs = obs_data[0] if isinstance(obs_data, list) else [obs_data]
         self.convert_field_values_to_labels(obs)
         return obs_data
-
-    def convert_field_values_to_labels(self, obs):
-        field_names = [field_name for field_name in self._required
-                       if field_name not in self._scored]
-        for field_name in field_names:
-            if field_name in obs:
-                field_value = obs[field_name]
-                field_value_label = self.get_field_value_label(field_name,
-                                                               field_value)
-                obs[field_name] = field_value_label
-
-    def get_field_value_label(self, field_name, field_value):
-        if not hasattr(self._fields[field_name], 'selection') \
-                or not field_value:
-            return
-        selection = self._fields[field_name].selection
-        valid_value_tuple = \
-            [valid_value_tuple for valid_value_tuple in selection
-             if valid_value_tuple[0] == field_value][0]
-        valid_value_label = valid_value_tuple[1]
-        return valid_value_label
