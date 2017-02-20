@@ -8,7 +8,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestGetReportData(SingleTransactionCase):
-
+    """Test Neurological override of `get_report_data()`."""
     @classmethod
     def setUpClass(cls):
         super(TestGetReportData, cls).setUpClass()
@@ -54,32 +54,36 @@ class TestGetReportData(SingleTransactionCase):
         return [data['user'] for data in self.neurological_obs_data]
 
     def test_returns_dict_with_neurological_key_with_list_value(self):
+        """
+        A dictionary is returned that has the key 'neurological' which has
+        a value that is a list type.
+        """
         self.assertTrue('neurological' in self.report_data)
         self.assertTrue(isinstance(self.report_data['neurological'], list))
 
-    def test_valid_date_value(self):
-        pass
-
     def test_eyes_not_testable(self):
+        """
+        'Not Testable' is represented as 'NT' in the report data
+        dictionary.
+        """
         field_values = self.get_field_values('eyes')
         for field_value in field_values:
             self.assertEqual('NT', field_value)
 
     def test_pupil_right_size_not_observable(self):
+        """
+        'Not Observable' is represented as 'Not Observable' in the report
+        data dictionary.
+        """
         field_values = self.get_field_values('pupil_right_size')
         for field_value in field_values:
             self.assertEqual('Not Observable', field_value)
 
     def test_user_has_name_and_surname_of_user_who_submitted_the_obs(self):
+        """
+        The user key in the report data dictionary has a value of the first
+        name and surname of the user who submitted the observation.
+        """
         field_values = self.get_user_values()
         for field_value in field_values:
             self.assertEqual(self.nurse_name, field_value)
-
-    def test_returns_dict_with_neurological_data(self):
-        """
-        Test that get_report_data returns a key with json representation of
-        activities
-        """
-        report_data = self.report_data
-        self.assertTrue('neurological' in report_data)
-        self.assertTrue(isinstance(report_data['neurological'], list))

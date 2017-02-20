@@ -40,7 +40,7 @@ class NeurologicalFields(models.AbstractModel):
             self.neuro_model._fields['limb_movement_right_leg']
         ]
 
-    def get_all_fields(self):
+    def get_all_obs_fields(self):
         return self.get_gcs_fields() + \
             self.get_pupil_size_fields() + \
             self.get_pupil_reaction_fields() + \

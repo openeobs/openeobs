@@ -6,7 +6,7 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestGetNeurologicalObservations(TransactionCase):
-
+    """Test getting of neurological data for the report."""
     def setUp(self):
         super(TestGetNeurologicalObservations, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
@@ -27,6 +27,9 @@ class TestGetNeurologicalObservations(TransactionCase):
         self.report_model.spell_activity_id = self.spell_activity.id
 
     def test_returns_list(self):
+        """
+        Returns a list.
+        """
         neurological_observations = \
             self.report_model.get_neurological_observations(self.report_wizard)
         self.assertTrue(isinstance(neurological_observations, list))

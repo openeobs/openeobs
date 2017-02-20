@@ -5,7 +5,7 @@ from openerp.tests.common import TransactionCase
 
 
 class TestNeuroIds(TransactionCase):
-
+    """Test `neuro_ids` field on `nh.clinical.wardboard`."""
     def setUp(self):
         super(TestNeuroIds, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
@@ -24,6 +24,9 @@ class TestNeuroIds(TransactionCase):
         )
 
     def test_neuro_ids(self):
+        """
+        Test `neuro_ids` field is correctly populated.
+        """
         wardboard = self.wardboard_model.get_by_spell_activity_id(
             self.spell_activity.id
         )

@@ -3,7 +3,10 @@ from openerp.tests.common import TransactionCase
 
 
 class TestIsPartial(TransactionCase):
-
+    """
+    Test logic for deciding whether a Neurological observation is partial
+    or full.
+    """
     def setUp(self):
         super(TestIsPartial, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
@@ -28,14 +31,26 @@ class TestIsPartial(TransactionCase):
         })
 
     def test_partial_with_only_mandatory_fields_populated(self):
+        """
+        Observation is considered partial when only the mandatory fields are
+        filled in (because there are other necessary fields).
+        """
         self.assertTrue(self.neuro_obs.is_partial)
 
     def test_partial_with_mandatory_and_some_necessary_fields_populated(self):
+        """
+        Observation is considered partial even when some necessary fields
+        have been populated in addition to the mandatory ones.
+        """
         self.neuro_obs.pupil_right_size = '1'
         self.neuro_obs.pupil_left_size = '1'
         self.assertTrue(self.neuro_obs.is_partial)
 
     def test_full_with_all_necessary_fields_populated(self):
+        """
+        Observation is considered full when all the fields have been populated
+        (because there are no optional fields for this observation).
+        """
         self.neuro_obs.pupil_right_size = '1'
         self.neuro_obs.pupil_left_size = '1'
         self.neuro_obs.pupil_left_reaction = '+'
