@@ -1,8 +1,8 @@
 function setUpContainers(settings){
     var containersInDom = settings.hasOwnProperty("containers_set") ? settings.containers_set : false;
     if(!containersInDom){
-        var chart_el = document.getElementById(settings.chart_element);
-        chart_el.innerHTML = "<div id=\"eyes\"></div><div id=\"verbal\"></div><div id=\"motor\"></div>";
+        var chartEl = document.getElementById(settings.chart_element);
+        chartEl.innerHTML = "<div id=\"eyes\"></div><div id=\"verbal\"></div><div id=\"motor\"></div>";
     }
     return containersInDom;
 }
@@ -13,6 +13,40 @@ function setUpControls() {
     if(controls){
         controls.style.display = "none";
     }
+}
+
+function convertValue(value, valueToChange, substituteValue){
+    return value === valueToChange ? substituteValue : value;
+}
+
+function processNeurologicalData(obs){
+    for (var i = 0; i < obs.length; i++) {
+        var ob = obs[i];
+        ob["completed_by"] = ob["write_uid"][1];
+        ob["chart_eyes"] = convertValue(ob["eyes"], "NT", false);
+        ob["chart_verbal"] = convertValue(ob["verbal"], "NT", false);
+        ob["chart_motor"] = convertValue(ob["motor"], "NT", false);
+        ob["table_eyes"] = convertValue(ob["eyes"], "0" , "NT");
+        ob["table_verbal"] = convertValue(ob["verbal"], "0", "NT");
+        ob["table_motor"] = convertValue(ob["motor"], "0", "NT");
+        ob["table_pupil_right_size"] = convertValue(ob["pupil_right_size"], "not observable", "NO");
+        ob["table_pupil_right_size"] = convertValue(ob["pupil_right_size"], null, "");
+        ob["table_pupil_right_reaction"] = convertValue(ob["pupil_right_reaction"], "not testable", "NT");
+        ob["table_pupil_right_reaction"] = convertValue(ob["pupil_right_reaction"], null, "");
+        ob["table_pupil_left_size"] = convertValue(ob["pupil_left_size"], "not observable", "NO");
+        ob["table_pupil_left_size"] = convertValue(ob["pupil_left_size"], null, "");
+        ob["table_pupil_left_reaction"] = convertValue(ob["pupil_left_reaction"], "not testable", "NT");
+        ob["table_pupil_left_reaction"] = convertValue(ob["pupil_left_reaction"], null, "");
+        ob["table_limb_movement_left_arm"] = convertValue(ob["limb_movement_left_arm"], "not observable", "NO");
+        ob["table_limb_movement_left_arm"] = convertValue(ob["limb_movement_left_arm"], null, "");
+        ob["table_limb_movement_right_arm"] = convertValue(ob["limb_movement_right_arm"], "not observable", "NO");
+        ob["table_limb_movement_right_arm"] = convertValue(ob["limb_movement_right_arm"], null, "");
+        ob["table_limb_movement_left_leg"] = convertValue(ob["limb_movement_left_leg"], "not observable", "NO");
+        ob["table_limb_movement_left_leg"] = convertValue(ob["limb_movement_left_leg"], null, "");
+        ob["table_limb_movement_right_leg"] = convertValue(ob["limb_movement_right_leg"], "not observable", "NO");
+        ob["table_limb_movement_right_leg"] = convertValue(ob["limb_movement_right_leg"], null, "");
+    }
+    return obs;
 }
 
 function drawNeurologicalChart(settings, serverData){
@@ -106,8 +140,8 @@ function drawNeurologicalChart(settings, serverData){
 
 function drawNeurologicalTable(settings, serverData){
     var obs = serverData.reverse();
-    var table_el = new window.NH.NHGraphLib("#table");
-    table_el.table = {
+    var tableEl = new window.NH.NHGraphLib("#table");
+    tableEl.table = {
         element: "#table",
         keys: [
             {
@@ -180,28 +214,6 @@ function drawNeurologicalTable(settings, serverData){
             }
         ]
     };
-    table_el.data.raw = processNeurologicalData(obs);
-    table_el.draw();
-}
-
-function processNeurologicalData(obs){
-    for (var i = 0; i < obs.length; i++) {
-        var ob = obs[i];
-        ob["completed_by"] = ob["write_uid"][1];
-        ob["chart_eyes"] = ob["eyes"] === "NT" ? false: parseInt(ob["eyes"]);
-        ob["chart_verbal"] = ob["verbal"] === "NT" ? false: parseInt(ob["verbal"]);
-        ob["chart_motor"] = ob["motor"] === "NT" ? false: parseInt(ob["motor"]);
-        ob["table_eyes"] = ob["eyes"] === "0" ? "NT" : ob["eyes"];
-        ob["table_verbal"] = ob["verbal"] === "0" ? "NT" : ob["verbal"];
-        ob["table_motor"] = ob["motor"] === "0" ? "NT" : ob["motor"];
-        ob["table_pupil_right_size"] = ob["pupil_right_size"] === "not observable" ? "NO": ob["pupil_right_size"];
-        ob["table_pupil_right_reaction"] = ob["pupil_right_reaction"] === "not testable" ? "NT" : ob["pupil_right_reaction"];
-        ob["table_pupil_left_size"] = ob["pupil_left_size"] === "not observable" ? "NO" : ob["pupil_left_size"];
-        ob["table_pupil_left_reaction"] = ob["pupil_left_reaction"] === "not testable" ? "NT" : ob["pupil_left_reaction"];
-        ob["table_limb_movement_left_arm"] = ob["limb_movement_left_arm"] === "not observable" ? "NO" : ob["limb_movement_left_arm"];
-        ob["table_limb_movement_right_arm"] = ob["limb_movement_right_arm"] === "not observable" ? "NO" : ob["limb_movement_right_arm"];
-        ob["table_limb_movement_left_leg"] = ob["limb_movement_left_leg"] === "not observable" ? "NO" : ob["limb_movement_left_leg"];
-        ob["table_limb_movement_right_leg"] = ob["limb_movement_right_leg"] === "not observable" ? "NO" : ob["limb_movement_right_leg"];
-    }
-    return obs;
+    tableEl.data.raw = processNeurologicalData(obs);
+    tableEl.draw();
 }

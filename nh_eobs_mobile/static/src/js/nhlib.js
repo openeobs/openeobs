@@ -1085,12 +1085,12 @@ NHMobilePatient = (function(superClass) {
   };
 
   function NHMobilePatient(refused, partialType) {
-    var data_id, self;
+    var dataId, self;
     if (refused == null) {
       refused = false;
     }
     if (partialType == null) {
-      partialType = 'dot';
+      partialType = "dot";
     }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
@@ -1098,139 +1098,139 @@ NHMobilePatient = (function(superClass) {
     self.setUpTableView();
     self.setUpChartSelect(self);
     self.setUpTabs(self);
-    data_id = document.getElementById('graph-content').getAttribute('data-id');
+    dataId = document.getElementById("graph-content").getAttribute("data-id");
     self.refused = refused;
     self.partial_type = partialType;
-    self.chart_element = 'chart';
-    self.table_element = 'table-content';
-    Promise.when(this.call_resource(this.urls['ajax_get_patient_obs']('ews', data_id))).then(function(raw_data) {
-      var data, obs_data, server_data;
-      server_data = raw_data[0];
-      data = server_data.data;
-      obs_data = data.obs;
-      return self.draw_graph(self, obs_data, 'ews');
+    self.chart_element = "chart";
+    self.table_element = "table-content";
+    Promise.when(this.call_resource(this.urls["ajax_get_patient_obs"]("ews", dataId))).then(function(rawData) {
+      var data, obsData, serverData;
+      serverData = rawData[0];
+      data = serverData.data;
+      obsData = data.obs;
+      return self.drawGraph(self, obsData, "ews");
     });
   }
 
   NHMobilePatient.prototype.setUpObsMenu = function(self) {
-    var obs, obs_menu;
-    obs_menu = document.getElementById('obsMenu');
-    if (obs_menu) {
-      obs_menu.style.display = 'none';
+    var obs, obsMenu;
+    obsMenu = document.getElementById("obsMenu");
+    if (obsMenu) {
+      obsMenu.style.display = "none";
     }
-    obs = document.getElementsByClassName('obs');
+    obs = document.getElementsByClassName("obs");
     if (obs && obs.length > 0) {
-      return obs[0].addEventListener('click', function(e) {
-        return self.handle_event(e, self.show_obs_menu, true);
+      return obs[0].addEventListener("click", function(e) {
+        return self.handle_event(e, self.showObsMenu, true);
       });
     }
   };
 
   NHMobilePatient.prototype.setUpTableView = function() {
     var table_view;
-    table_view = document.getElementById('table-content');
-    return table_view.style.display = 'none';
+    table_view = document.getElementById("table-content");
+    return table_view.style.display = "none";
   };
 
   NHMobilePatient.prototype.setUpChartSelect = function(self) {
     var chartSelect;
-    chartSelect = document.getElementById('chart_select');
+    chartSelect = document.getElementById("chart_select");
     if (chartSelect) {
-      return chartSelect.addEventListener('change', function(event) {
-        return self.handle_event(event, self.change_chart, false, [self]);
+      return chartSelect.addEventListener("change", function(event) {
+        return self.handle_event(event, self.changeChart, false, [self]);
       });
     }
   };
 
   NHMobilePatient.prototype.setUpTabs = function(self) {
     var i, len, results, tab, tabs, tabs_el;
-    tabs_el = document.getElementsByClassName('tabs');
-    tabs = tabs_el[0].getElementsByTagName('a');
+    tabs_el = document.getElementsByClassName("tabs");
+    tabs = tabs_el[0].getElementsByTagName("a");
     results = [];
     for (i = 0, len = tabs.length; i < len; i++) {
       tab = tabs[i];
-      results.push(tab.addEventListener('click', function(e) {
-        return self.handle_event(e, self.handle_tabs, true);
+      results.push(tab.addEventListener("click", function(e) {
+        return self.handle_event(e, self.handleTabs, true);
       }));
     }
     return results;
   };
 
-  NHMobilePatient.prototype.handle_tabs = function(event) {
-    var i, len, tab, tab_target, tabs, target_el;
-    tabs = document.getElementsByClassName('tabs')[0].getElementsByTagName('a');
+  NHMobilePatient.prototype.handleTabs = function(event) {
+    var i, len, tab, tabTarget, tabs, targetEl;
+    tabs = document.getElementsByClassName("tabs")[0].getElementsByTagName("a");
     for (i = 0, len = tabs.length; i < len; i++) {
       tab = tabs[i];
-      tab.classList.remove('selected');
+      tab.classList.remove("selected");
     }
-    document.getElementById('graph-content').style.display = 'none';
-    document.getElementById('table-content').style.display = 'none';
-    target_el = event.src_el;
-    target_el.classList.add('selected');
-    tab_target = target_el.getAttribute('href').replace('#', '');
-    return document.getElementById(tab_target).style.display = 'block';
+    document.getElementById("graph-content").style.display = "none";
+    document.getElementById("table-content").style.display = "none";
+    targetEl = event.src_el;
+    targetEl.classList.add("selected");
+    tabTarget = targetEl.getAttribute("href").replace("#", "");
+    return document.getElementById(tabTarget).style.display = "block";
   };
 
-  NHMobilePatient.prototype.change_chart = function(event, self) {
-    var chart, data_id, new_data_model, table;
+  NHMobilePatient.prototype.changeChart = function(event, self) {
+    var chart, dataId, newDataModel, table;
     chart = document.getElementById(self.chart_element);
     table = document.getElementById(self.table_element);
-    chart.innerHTML = '';
-    table.innerHTML = '';
-    new_data_model = event.src_el.value;
-    data_id = document.getElementById('graph-content').getAttribute('data-id');
-    return Promise.when(self.call_resource(self.urls['ajax_get_patient_obs'](new_data_model, data_id))).then(function(raw_data) {
-      var data, obs_data, server_data;
-      server_data = raw_data[0];
-      data = server_data.data;
-      obs_data = data.obs;
-      return self.draw_graph(self, obs_data, new_data_model);
+    chart.innerHTML = "";
+    table.innerHTML = "";
+    newDataModel = event.src_el.value;
+    dataId = document.getElementById("graph-content").getAttribute("data-id");
+    return Promise.when(self.call_resource(self.urls["ajax_get_patient_obs"](newDataModel, dataId))).then(function(rawData) {
+      var data, obsData, serverData;
+      serverData = rawData[0];
+      data = serverData.data;
+      obsData = data.obs;
+      return self.drawGraph(self, obsData, newDataModel);
     });
   };
 
-  NHMobilePatient.prototype.show_obs_menu = function(event) {
-    var body, menu, obs_menu, pat, pats;
-    obs_menu = document.getElementById('obsMenu');
-    body = document.getElementsByTagName('body')[0];
-    menu = '<ul class="menu">' + obs_menu.innerHTML + '</ul>';
-    pats = document.querySelectorAll('a.patientInfo h3.name strong');
-    pat = '';
+  NHMobilePatient.prototype.showObsMenu = function(event) {
+    var body, menu, obsMenu, pat, pats;
+    obsMenu = document.getElementById("obsMenu");
+    body = document.getElementsByTagName("body")[0];
+    menu = "<ul class=\"menu\">" + obsMenu.innerHTML + "</ul>";
+    pats = document.querySelectorAll("a.patientInfo h3.name strong");
+    pat = "";
     if (pats.length > 0) {
       pat = pats[0].textContent;
     }
-    return new NHModal('obs_menu', 'Pick an observation for ' + pat, menu, ['<a href="#" data-action="close" data-target="obs_menu">Cancel</a>'], 0, body);
+    return new NHModal("obs_menu", "Pick an observation for " + pat, menu, ["<a href=\"#\" data-action=\"close\" " + "data-target=\"obs_menu\">Cancel</a>"], 0, body);
   };
 
-  NHMobilePatient.prototype.draw_graph = function(self, server_data, data_model) {
-    var chart_el, chart_func, chart_func_name, controls, graph_content, graph_tabs, table_func, table_func_name, valid_chart, valid_table;
-    graph_content = document.getElementById('graph-content');
-    controls = document.getElementById('controls');
-    chart_el = document.getElementById(self.chart_element);
-    graph_tabs = graph_content.parentNode.getElementsByClassName('tabs')[0];
-    chart_func_name = 'draw' + data_model.capitalize() + 'Chart';
-    table_func_name = 'draw' + data_model.capitalize() + 'Table';
-    if (server_data.length > 0) {
-      controls.style.display = 'block';
-      graph_tabs.style.display = 'block';
-      chart_func = window[chart_func_name];
-      table_func = window[table_func_name];
-      valid_chart = typeof chart_func === 'function';
-      valid_table = typeof table_func === 'function';
-      if (!valid_chart || !valid_table) {
-        graph_tabs.style.display = 'none';
+  NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
+    var chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableFunc, tableFuncName, validChart, validTable;
+    graphContent = document.getElementById("graph-content");
+    controls = document.getElementById("controls");
+    chartEl = document.getElementById(self.chart_element);
+    graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0];
+    chartFuncName = "draw" + dataModel.capitalize() + "Chart";
+    tableFuncName = "draw" + dataModel.capitalize() + "Table";
+    if (serverData.length > 0) {
+      controls.style.display = "block";
+      graphTabs.style.display = "block";
+      chartFunc = window[chartFuncName];
+      tableFunc = window[tableFuncName];
+      validChart = typeof chartFunc === "function";
+      validTable = typeof tableFunc === "function";
+      if (!validChart || !validTable) {
+        graphTabs.style.display = "none";
       } else {
-        graph_tabs.style.display = 'block';
+        graphTabs.style.display = "block";
       }
-      if (valid_chart) {
-        chart_func(self, server_data);
+      if (validChart) {
+        chartFunc(self, serverData);
       }
-      if (valid_table) {
-        return table_func(self, server_data);
+      if (validTable) {
+        return tableFunc(self, serverData);
       }
     } else {
-      controls.style.display = 'none';
-      chart_el.innerHTML = '<h2>No observation data available for patient</h2>';
-      return graph_tabs.style.display = 'none';
+      controls.style.display = "none";
+      chartEl.innerHTML = "<h2>No observation data available for patient</h2>";
+      return graphTabs.style.display = "none";
     }
   };
 
