@@ -144,8 +144,10 @@ class TestNoOpenObsFound(TransactionCase):
 
         def browse_stub(*args, **kwargs):
             return activity
+
         def search_stub(*args, **kwargs):
             return []
+
         self.activity_model._patch_method('browse', browse_stub)
         self.activity_model._patch_method('search', search_stub)
 
