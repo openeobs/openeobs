@@ -11,7 +11,7 @@ notifications inherit is also included here.
 """
 import logging
 
-from openerp import api
+from openerp import api, exceptions
 from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields
 
@@ -97,25 +97,39 @@ class nh_clinical_notification_frequency(orm.Model):
     }
     _notifications = []
 
+    @api.constrains('observation')
+    def _check_valid_observation_model_name(self):
+        if 'nh.clinical.patient.observation' not in self.observation:
+            raise exceptions.ValidationError(
+                "Observation field assigned an invalid observation model name."
+            )
+
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
         review_frequency = activity_pool.browse(
-            cr, uid, activity_id, context=context)
+            cr, uid, activity_id, context=context
+        )
+        patient_id = review_frequency.data_ref.patient_id.id
+        observation_type = review_frequency.data_ref.observation
         domain = [
-            ('patient_id', '=', review_frequency.data_ref.patient_id.id),
-            ('data_model', '=', review_frequency.data_ref.observation),
+            ('patient_id', '=', patient_id),
+            ('data_model', '=', observation_type),
             ('state', 'not in', ['completed', 'cancelled'])
         ]
         obs_ids = activity_pool.search(
             cr, uid, domain, order='create_date desc, id desc',
+            context=context
+        )
+        if not obs_ids:
+            message = "Review frequency task tried to adjust the frequency " \
+                      "of the currently open obs but no open obs were found."
+            raise ValueError(message)
+        obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
+        obs_pool = self.pool[review_frequency.data_ref.observation]
+        obs_pool.write(
+            cr, uid, obs.data_ref.id,
+            {'frequency': review_frequency.data_ref.frequency},
             context=context)
-        if obs_ids:
-            obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
-            obs_pool = self.pool[review_frequency.data_ref.observation]
-            obs_pool.write(
-                cr, uid, obs.data_ref.id,
-                {'frequency': review_frequency.data_ref.frequency},
-                context=context)
         return super(nh_clinical_notification_frequency, self).complete(
             cr, uid, activity_id, context=context)
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from openerp.tests.common import SingleTransactionCase
 import __builtin__
+
+from openerp.tests.common import TransactionCase, SingleTransactionCase
 
 
 class MockSuperWithComplete(object):
@@ -100,8 +101,15 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
         Test that the complete method uses the submitted patient_id and
         observation parameters to search for the most recent open observation
         """
-        self.review_freq_pool.complete(self.cr, self.uid, 'rev_freq_browse',
-                                       context='test_rev_freq_search_domain')
+        try:
+            self.review_freq_pool.complete(
+                self.cr, self.uid, 'rev_freq_browse',
+                context='test_rev_freq_search_domain'
+            )
+        except ValueError:
+            # Exception correctly thrown, catch it and do nothing, we just want
+            # to see inspect the search domain that was used.
+            pass
         self.assertEqual(search_domain, [
             ('patient_id', '=', self.patient),
             ('data_model', '=', self.OBSERVATION_TYPE),
@@ -117,12 +125,36 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
                                        context='test_rev_freq_update')
         self.assertEqual(update_dict, {'frequency': self.SUBMITTED_FREQ})
 
-    def test_does_not_update_if_no_obs_found(self):
-        """
-        Test that the complete method does not update the frequency if there
-        are no observations found
-        """
-        self.calls_to_write = 0
-        self.review_freq_pool.complete(self.cr, self.uid, 'rev_freq_browse',
-                                       context='test_rev_freq_no_update')
-        self.assertEqual(self.calls_to_write, 0)
+
+class TestNoOpenObsFound(TransactionCase):
+
+    def setUp(self):
+        super(TestNoOpenObsFound, self).setUp()
+        self.notification_frequency_model = \
+            self.env['nh.clinical.notification.frequency']
+        self.activity_model = self.env['nh.activity']
+        self.observation_model = self.env['nh.clinical.patient.observation']
+
+        notification_frequency = self.notification_frequency_model.new()
+        activity = self.activity_model.new({
+            'patient_id': 1,
+            'observation': 'foo'
+        })
+        activity.data_ref = notification_frequency
+
+        def browse_stub(*args, **kwargs):
+            return activity
+        def search_stub(*args, **kwargs):
+            return []
+        self.activity_model._patch_method('browse', browse_stub)
+        self.activity_model._patch_method('search', search_stub)
+
+    def test_no_obs_found_raises_exception(self):
+        with self.assertRaises(ValueError):
+            fake_activity_id = 1
+            self.notification_frequency_model.complete(fake_activity_id)
+
+    def tearDown(self):
+        self.activity_model._revert_method('browse')
+        self.activity_model._revert_method('search')
+        super(TestNoOpenObsFound, self).tearDown()
