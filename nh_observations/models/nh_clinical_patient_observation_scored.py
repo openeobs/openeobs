@@ -177,3 +177,27 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
                 scored_field['type'] = 'text'
                 del scored_field['selection']
         return fields_view_dict
+
+    # TODO Set once on model load rather than process every time.
+    # Tried setting on init() but seems to only be called when module is
+    # updated.
+    @api.model
+    def get_form_description(self, patient_id):
+        """
+        Returns a description in dictionary format of the input fields
+        that would be required in the user gui to submit the
+        observation.
+
+        :param patient_id: :class:`patient<base.nh_clinical_patient>` id
+        :type patient_id: int
+        :returns: a list of dictionaries
+        :rtype: list
+        """
+        form_description_model = self.env['nh.clinical.form_description']
+        form_description = form_description_model.to_dict(self)
+        form_description.append({
+            'name': 'meta',
+            'type': 'meta',
+            'score': True,
+        })
+        return form_description
