@@ -39,6 +39,10 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
         super(TestReviewFrequencyComplete, self).setUp()
         cr, uid = self.cr, self.uid
 
+        self.spell_activity_id = self.activity_pool.new(
+            cr, uid, {}
+        )
+
         def mock_activity_browse(*args, **kwargs):
             if len(args) > 3 and args[3] == 'rev_freq_browse':
                 review_freq = self.review_freq_pool.new(cr, uid, {
@@ -47,12 +51,15 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
                     'observation': self.OBSERVATION_TYPE
                 })
                 return self.activity_pool.new(cr, uid, {
-                    'data_ref': review_freq
+                    'data_ref': review_freq,
+                    'spell_activity_id': self.spell_activity_id
                 })
             elif len(args) > 3 and args[3] == 'act_browse':
                 return self.activity_pool.new(cr, uid, {
-                    'data_ref': self.observation_pool.browse(cr, uid,
-                                                             self.observation)
+                    'data_ref': self.observation_pool.browse(
+                        cr, uid, self.observation
+                    ),
+                    'spell_activity_id': self.spell_activity_id
                 })
             else:
                 return mock_activity_browse.origin(*args, **kwargs)
@@ -111,7 +118,7 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
             # to see inspect the search domain that was used.
             pass
         self.assertEqual(search_domain, [
-            ('patient_id', '=', self.patient),
+            ('spell_activity_id', '=', self.spell_activity_id.id),
             ('data_model', '=', self.OBSERVATION_TYPE),
             ('state', 'not in', ['completed', 'cancelled'])
         ])
@@ -127,7 +134,7 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
 
 
 class TestNoOpenObsFound(TransactionCase):
-
+    """Test the scenario where no observations are found for """
     def setUp(self):
         super(TestNoOpenObsFound, self).setUp()
         self.notification_frequency_model = \

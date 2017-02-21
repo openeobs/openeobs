@@ -26,7 +26,7 @@ class TestFieldValidation(TransactionCase):
             })
 
     def test_observation_model_name_passes_validation(self):
-        an_observation = 'nh.clinical.patient.observation.ews'
+        an_observation = 'nh.clinical.patient.observation.foo'
         self.notification_frequency_model.create({
             'frequency': self.frequency,
             'observation': an_observation,

@@ -106,14 +106,14 @@ class nh_clinical_notification_frequency(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
-        review_frequency = activity_pool.browse(
+        activity_review_frequency = activity_pool.browse(
             cr, uid, activity_id, context=context
         )
-        patient_id = review_frequency.data_ref.patient_id.id
-        observation_type = review_frequency.data_ref.observation
+        spell_activity_id = activity_review_frequency.spell_activity_id.id
+        observation_model_name = activity_review_frequency.data_ref.observation
         domain = [
-            ('patient_id', '=', patient_id),
-            ('data_model', '=', observation_type),
+            ('spell_activity_id', '=', spell_activity_id),
+            ('data_model', '=', observation_model_name),
             ('state', 'not in', ['completed', 'cancelled'])
         ]
         obs_ids = activity_pool.search(
@@ -125,10 +125,10 @@ class nh_clinical_notification_frequency(orm.Model):
                       "of the currently open obs but no open obs were found."
             raise ValueError(message)
         obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
-        obs_pool = self.pool[review_frequency.data_ref.observation]
+        obs_pool = self.pool[activity_review_frequency.data_ref.observation]
         obs_pool.write(
             cr, uid, obs.data_ref.id,
-            {'frequency': review_frequency.data_ref.frequency},
+            {'frequency': activity_review_frequency.data_ref.frequency},
             context=context)
         return super(nh_clinical_notification_frequency, self).complete(
             cr, uid, activity_id, context=context)
