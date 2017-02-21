@@ -356,29 +356,17 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         else:
             return False
 
-    # TODO Set once on model load rather than process every time.
-    # Tried setting on init() but seems to only be called when module is
-    # updated.
-    @api.model
-    def get_form_description(self, patient_id):
+    def get_form_description(self, cr, uid, patient_id, context=None):
         """
         Returns a description in dictionary format of the input fields
         that would be required in the user gui to submit the
         observation.
-
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id
         :type patient_id: int
         :returns: a list of dictionaries
         :rtype: list
         """
-        form_description_model = self.env['nh.clinical.form_description']
-        form_description = form_description_model.to_dict(self)
-        form_description.append({
-            'name': 'meta',
-            'type': 'meta',
-            'score': True,
-        })
-        return form_description
+        return self._form_description
 
     @classmethod
     def get_open_obs_search_domain(cls, spell_activity_id):
