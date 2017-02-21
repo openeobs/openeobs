@@ -82,9 +82,3 @@ class TestFoodFluidColumns(TransactionCase):
         - Type 7
         """
         self.assertTrue(hasattr(self.food_fluid_ob, 'bowels_open'))
-
-    def test_food_fluid_period(self):
-        """
-        Test has field for associating observation with a Food and Fluid period
-        """
-        self.assertTrue(hasattr(self.food_fluid_ob, 'food_fluid_period'))

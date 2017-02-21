@@ -24,5 +24,5 @@ class FormDescription(models.TransientModel):
             }
             form_description.append(field_description)
         desired_order = model.get_obs_field_order()
-        form_description.sort(key=lambda e: desired_order.index(e['name']))
+        form_description.sort(key=lambda e: desired_order.index(e.get('name')))
         return form_description

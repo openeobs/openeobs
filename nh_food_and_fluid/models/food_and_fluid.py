@@ -3,7 +3,7 @@ from openerp import api
 import copy
 
 
-class FoodAndFluid(orm.Model):
+class NHClinicalFoodAndFluid(orm.Model):
 
     _name = 'nh.clinical.patient.observation.food_fluid'
     _inherit = ['nh.clinical.patient.observation']
@@ -35,10 +35,6 @@ class FoodAndFluid(orm.Model):
         'dietary_needs': fields.many2one(
             'nh.clinical.dietary_need',
             'Consider Special Dietary Needs'),
-        'food_fluid_period': fields.many2one(
-            'nh.clinical.patient.observation.food_fluid.period',
-            'Period for Food and Fluid Observations'
-        ),
         'fluid_taken': fields.integer('Fluid Taken (ml) - Include IV / NG'),
         'fluid_description': fields.text('Fluid Description'),
         'food_taken': fields.text('Food Taken'),
@@ -65,84 +61,86 @@ class FoodAndFluid(orm.Model):
         :returns: a list of dictionaries
         :rtype: list
         """
-        form_desc = copy.deepcopy(self._form_description)
-        recorded_concern_model = self.env['nh.clinical.recorded_concern']
-        dietary_need_model = self.env['nh.clinical.dietary_need']
-        recorded_concerns = recorded_concern_model.search([])
-        dietary_needs = dietary_need_model.search([])
-        form_desc[0]['selection'] = \
-            [(rec.id, rec.name) for rec in recorded_concerns]
-        form_desc[1]['selection'] = \
-            [(rec.id, rec.name) for rec in dietary_needs]
+        form_desc = super(NHClinicalFoodAndFluid, self)\
+            .get_form_description(patient_id)
+        # form_desc = copy.deepcopy(self._form_description)
+        # recorded_concern_model = self.env['nh.clinical.recorded_concern']
+        # dietary_need_model = self.env['nh.clinical.dietary_need']
+        # recorded_concerns = recorded_concern_model.search([])
+        # dietary_needs = dietary_need_model.search([])
+        # form_desc[0]['selection'] = \
+        #     [(rec.id, rec.name) for rec in recorded_concerns]
+        # form_desc[1]['selection'] = \
+        #     [(rec.id, rec.name) for rec in dietary_needs]
         return form_desc
 
-    _form_description = [
-        {
-            'name': 'recorded_concerns',
-            'type': 'multiselect',
-            'label': 'Recorded Concerns',
-            'selection': [],
-            'initially_hidden': False
-        },
-        {
-            'name': 'dietary_needs',
-            'type': 'multiselect',
-            'label': 'Consider Special Dietary Needs',
-            'selection': [],
-            'initially_hidden': False
-        },
-        {
-            'name': 'fluid_taken',
-            'type': 'integer',
-            'min': 0,
-            'max': 5000,
-            'label': 'Fluid Taken (ml) - Include IV / NG',
-            'initially_hidden': False,
-            'reference': {
-                'type': 'iframe',
-                'url': '/nh_food_and_fluid/static/src/html/fluid_taken.html',
-                'title': 'Fluid Taken Guidelines',
-                'label': 'Fluid Taken Guidelines'
-            }
-        },
-        {
-            'name': 'fluid_description',
-            'type': 'text',
-            'label': 'Fluid Description',
-            'initially_hidden': False
-        },
-        {
-            'name': 'food_taken',
-            'type': 'text',
-            'label': 'Food Taken',
-            'initially_hidden': False
-        },
-        {
-            'name': 'food_fluid_rejected',
-            'type': 'text',
-            'label': 'Food and Fluid Offered but Rejected',
-            'initially_hidden': False
-        },
-        {
-            'name': 'passed_urine',
-            'type': 'selection',
-            'label': 'Passed Urine',
-            'selection': _passed_urine_options,
-            'initially_hidden': False,
-            'mandatory': True
-        },
-        {
-            'name': 'bowels_open',
-            'type': 'selection',
-            'label': 'Bowels Open',
-            'selection': _bowels_open_options,
-            'initially_hidden': False,
-            'reference': {
-                'type': 'image',
-                'url': '/nh_stools/static/src/img/bristol_stools.png',
-                'title': 'Bristol Stools Reference Chart',
-                'label': 'Bristol Stools Reference Chart'
-            },
-            'mandatory': True
-        }
-    ]
+    # _form_description = [
+    #     {
+    #         'name': 'recorded_concerns',
+    #         'type': 'multiselect',
+    #         'label': 'Recorded Concerns',
+    #         'selection': [],
+    #         'initially_hidden': False
+    #     },
+    #     {
+    #         'name': 'dietary_needs',
+    #         'type': 'multiselect',
+    #         'label': 'Consider Special Dietary Needs',
+    #         'selection': [],
+    #         'initially_hidden': False
+    #     },
+    #     {
+    #         'name': 'fluid_taken',
+    #         'type': 'integer',
+    #         'min': 0,
+    #         'max': 5000,
+    #         'label': 'Fluid Taken (ml) - Include IV / NG',
+    #         'initially_hidden': False,
+    #         'reference': {
+    #             'type': 'iframe',
+    #             'url': '/nh_food_and_fluid/static/src/html/fluid_taken.html',
+    #             'title': 'Fluid Taken Guidelines',
+    #             'label': 'Fluid Taken Guidelines'
+    #         }
+    #     },
+    #     {
+    #         'name': 'fluid_description',
+    #         'type': 'text',
+    #         'label': 'Fluid Description',
+    #         'initially_hidden': False
+    #     },
+    #     {
+    #         'name': 'food_taken',
+    #         'type': 'text',
+    #         'label': 'Food Taken',
+    #         'initially_hidden': False
+    #     },
+    #     {
+    #         'name': 'food_fluid_rejected',
+    #         'type': 'text',
+    #         'label': 'Food and Fluid Offered but Rejected',
+    #         'initially_hidden': False
+    #     },
+    #     {
+    #         'name': 'passed_urine',
+    #         'type': 'selection',
+    #         'label': 'Passed Urine',
+    #         'selection': _passed_urine_options,
+    #         'initially_hidden': False,
+    #         'mandatory': True
+    #     },
+    #     {
+    #         'name': 'bowels_open',
+    #         'type': 'selection',
+    #         'label': 'Bowels Open',
+    #         'selection': _bowels_open_options,
+    #         'initially_hidden': False,
+    #         'reference': {
+    #             'type': 'image',
+    #             'url': '/nh_stools/static/src/img/bristol_stools.png',
+    #             'title': 'Bristol Stools Reference Chart',
+    #             'label': 'Bristol Stools Reference Chart'
+    #         },
+    #         'mandatory': True
+    #     }
+    # ]
