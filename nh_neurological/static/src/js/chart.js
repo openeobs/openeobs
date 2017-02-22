@@ -71,7 +71,7 @@ function drawNeurologicalChart(settings, serverData){
     eyesGraph.options.normal.max = 0;
     eyesGraph.style.dimensions.height = 250;
     eyesGraph.style.pointRadius = 5;
-    eyesGraph.style.data_style = "stepped";
+    eyesGraph.style.data_style = "linear";
     eyesGraph.style.label_width = 60;
     eyesGraph.drawables.background.data = [];
 
@@ -85,7 +85,7 @@ function drawNeurologicalChart(settings, serverData){
     verbalGraph.options.normal.max = 0;
     verbalGraph.style.dimensions.height = 250;
     verbalGraph.style.pointRadius = 5;
-    verbalGraph.style.data_style = "stepped";
+    verbalGraph.style.data_style = "linear";
     verbalGraph.style.label_width = 60;
     verbalGraph.style.padding.top = 10;
     verbalGraph.drawables.background.data = [];
@@ -100,7 +100,7 @@ function drawNeurologicalChart(settings, serverData){
     motorGraph.options.normal.max = 0;
     motorGraph.style.dimensions.height = 250;
     motorGraph.style.pointRadius = 5;
-    motorGraph.style.data_style = "stepped";
+    motorGraph.style.data_style = "linear";
     motorGraph.style.label_width = 60;
     motorGraph.style.padding.top = 10;
     motorGraph.drawables.background.data = [];
