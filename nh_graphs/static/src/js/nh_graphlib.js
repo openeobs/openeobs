@@ -1134,7 +1134,7 @@ NHGraph = (function(superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
-          if (d.none_values === "[]") {
+          if (d.none_values === "[]" && d[self.options.keys[0]]) {
             return d;
           }
         }).x(function(d) {
@@ -1146,7 +1146,7 @@ NHGraph = (function(superClass) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
         self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values === "[]") {
+          if (d.none_values === "[]" && d[self.options.keys[0]]) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {

@@ -451,7 +451,7 @@ class NHGraph extends NHGraphLib
         .interpolate(if self.style.data_style is \
           'stepped' then "step-after" else "linear")
         .defined((d) ->
-          if d.none_values is "[]"
+          if d.none_values is "[]" and d[self.options.keys[0]]
             return d
         )
         .x((d) ->
@@ -470,7 +470,7 @@ class NHGraph extends NHGraphLib
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-          if d.none_values is "[]"
+          if d.none_values is "[]" and d[self.options.keys[0]]
             return d
           )
         )
