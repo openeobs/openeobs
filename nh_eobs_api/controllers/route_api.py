@@ -675,7 +675,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                             cr, uid,
                             datetime.strptime(observation[field], DTF),
                             context=context).strftime(DTF)
-
+            observations.reverse()
             response_data = {
                 'obs': observations,
                 'obsType': obs_type

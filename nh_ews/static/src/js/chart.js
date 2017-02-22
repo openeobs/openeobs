@@ -61,7 +61,7 @@ function processEwsData(obs){
 }
 
 function drawEwsChart(settings, serverData) {
-    var obs = serverData.reverse();
+    var obs = serverData;
     var svg = new window.NH.NHGraphLib("#" + settings.chart_element);
     var respRateGraph = new window.NH.NHGraph();
     respRateGraph.options.keys = ["respiration_rate"];
