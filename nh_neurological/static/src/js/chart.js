@@ -22,6 +22,9 @@ function convertValue(value, valueToChange, substituteValue){
 function processNeurologicalData(obs){
     for (var i = 0; i < obs.length; i++) {
         var ob = obs[i];
+        if(ob["eyes"] && ob["verbal"] && ob["motor"]){
+            ob["none_values"] = "[]"
+        }
         ob["completed_by"] = ob["write_uid"][1];
         ob["chart_eyes"] = convertValue(ob["eyes"], "NT", false);
         ob["chart_verbal"] = convertValue(ob["verbal"], "NT", false);
@@ -29,7 +32,7 @@ function processNeurologicalData(obs){
         ob["table_eyes"] = convertValue(ob["eyes"], "0" , "NT");
         ob["table_verbal"] = convertValue(ob["verbal"], "0", "NT");
         ob["table_motor"] = convertValue(ob["motor"], "0", "NT");
-        ob["table_pupil_right_size"] = convertValue(ob["pupil_right_size"], "not observable", "NO");
+
         ob["table_pupil_right_size"] = convertValue(ob["pupil_right_size"], null, "");
         ob["table_pupil_right_reaction"] = convertValue(ob["pupil_right_reaction"], "not testable", "NT");
         ob["table_pupil_right_reaction"] = convertValue(ob["pupil_right_reaction"], null, "");
