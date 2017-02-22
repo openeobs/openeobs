@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>Open-eObs Styleguide</title>
+    <meta name="description" content="" />
+    <meta name="generator" content="kss-node" />
+
+    <style>
+    html{
+		padding: 0;
+		margin: 0;
+	}
+	body{
+		width: 100%;
+		padding: 0;
+		margin: -1em 0 0 0;
+		background-color: white;
+		overflow: auto !important;
+		font-family: "Droid Sans", "Ubuntu", "Helvetica", sans-serif;
+	}
+
+	.leftnav{
+		width: 20%;
+		position: absolute;
+		top: 1.25em;
+		left: 2.5%;
+	}
+
+	.leftnav.active{
+		position: fixed;
+		top: 0;
+	}
+	.leftnav ul{
+		padding: 0;
+		margin-bottom: 0;
+	}
+	.leftnav li{
+		padding: 0;
+		display: block;
+		margin: 0;
+	}
+	.backtotop{
+		font-size: 0.8em;
+	}
+	.kss-menu-subchild{
+		display: none;
+		font-size: 0.75em;
+	}
+	.kss-menu-subchild.active{
+		display: block;
+	}
+	.leftnav li.active a{
+		border-right: 3px solid rgba(0,0,0,0.1);
+		font-weight: bold;
+	}
+	.leftnav li a{
+		text-transform: capitalize;
+		text-decoration: none;
+		color: #3778e9;
+		display: block;
+		padding: 0.5em 0;
+	}
+	.section{
+		padding-bottom: 3em;
+	}
+	.section:last-child{
+		border-bottom: 0 solid black;
+	}
+	.main{
+		width: 75%;
+		margin-left: 20%;
+		display: block;
+		padding: 0 0 0 5%;
+	}
+	.main .code{
+		padding: 0 5% 1em 5%;
+		border-radius: 5px;
+		border: 1px solid rgba(0,0,0,0.1);
+		display: block;
+		width: 85%;
+		word-break: break-all;
+		word-wrap: break-word;
+		background-color: #f0f0f0;
+	}
+	.main .example{
+		padding: 0 5% 1em 5%;
+		display: inline-block;
+		width: 85%;
+		position: relative;
+		min-height: 1em;
+		margin-top: 1em;
+	}
+	.main .example .header, .mobile_preview .example .header,
+	.main .example .dialog, .mobile_preview .example .dialog,
+	.main .example .cover, .mobile_preview .example .cover,
+	.main .example .full-modal, .mobile_preview .example .full-modal,
+	.main .example #patientName, .mobile_preview .example #patientName,
+	.main .example .footer, .mobile_preview .example .footer,
+	.main .example .share-footer, .mobile_preview .example .share-footer{
+		position: relative !important;
+		z-index: 0 !important;
+		top: 0;
+	}
+
+	.main .example #small_chart{
+		display: none;
+	}
+	.mobile_preview .example #big_chart{
+		display: none;
+	}
+
+	.main .example .cover, .mobile_preview .example .cover{
+		position: absolute !important;
+	}
+
+	.main .example .dialog, .mobile_preview .example .dialog{
+		margin-bottom: 2em;
+		display: inline-block;
+	}
+
+	.main .example:before{
+		box-sizing: border-box;
+	}
+
+	.main .example #obsForm{
+		padding-top: 0;
+	}
+
+	.main .example .element-list, .mobile_preview .example .element-list,
+	.main .example .inline-list, .mobile_preview .example .inline-list{
+		list-style: none;
+		padding-left: 0;
+	}
+
+	.main .example .inline-list li, .mobile_preview .example .inline-list li{
+		display: inline;
+	}
+
+	.main .example .inline-list li > button, .mobile_preview .example .inline-list li > button{
+		margin-bottom: 1rem;
+	}
+
+
+	.main .example .element-list li, .mobile_preview .example .element-list li{
+		padding: 0.8em 0;
+	}
+
+	dl dt{
+		font-weight: bold;
+	}
+
+	h3.styleguide{
+		color: #3778e9;
+	}
+	h2.styleguide{
+		color: #3778e9;
+		text-transform: capitalize;
+	}
+	h4.styleguide{
+		color: #3778e9;
+	}
+
+	.section .styleguide .options{
+		list-style: none;
+		padding: 0;
+		margin: 0 6% 1em 0;
+		float: right;
+		font-size: 0.8em;
+		display: inline-block;
+		width: 50%;
+	}
+	.section .styleguide .options li{
+		display: inline-block;
+		float: right;
+	}
+	.section .styleguide .options li a{
+		background-color: #3778e9;
+		color: white;
+		text-decoration: none;
+		padding: 0.5em 3%;
+		display: inline-block;
+		width: 100%;
+	}
+
+	 .mobile_preview_bg{
+		background-color: rgba(0,0,0,0.6);
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+	}
+	.mobile_preview{
+		background-image: url('public/mio.svg');
+		background-repeat: no-repeat;
+		position: fixed;
+		/*top: 3em;*/
+		left: calc(50% - 240px);
+		height: 1086px;
+		width: 580px;
+	}
+
+	.mobile_preview .wrapper, .tablet_preview .wrapper, .desktop_preview .wrapper{
+		position: relative;
+	}
+	.mobile_preview .example{
+		position: absolute;
+		top: 159px;
+		left: 48px;
+		width: 480px;
+		height: 758px;
+		border: 4px solid #22272d;
+		background-color: white;
+		overflow: scroll;
+		display: block;
+	}
+	@media screen and (min-width: 481px){
+		.main .example #controls #start, .main .example #controls #end,
+		.mobile_preview .example #controls #start, .mobile_preview .example #controls #end{
+      		display: block !important;
+    	}
+	}
+	#top-level-1{
+		text-decoration: underline;
+	}
+
+    </style>
+    <link rel="stylesheet" href="public/compile.css" />
+	<link rel="stylesheet" href="public/hilightjs.style.min.css">
+  </head>
+  <body id="kss-node" class="sg">
+	  <div class="leftnav">
+		<ul>
+			<li><a href="index.html">Overview</a></li>
+              <li class="kss-menu-item" id="top-level-1">
+				  <a href="section-1.html"><span class="kss-name">CSS</span></a>
+			  </li>
+              <li class="kss-menu-item" id="top-level-2">
+				  <a href="section-2.html"><span class="kss-name">Components</span></a>
+			  </li>
+		</ul>
+		  <hr>
+		   <ul class="kss-menu-child">
+			   <li class="kss-submenu-header"><span class="kss-name">CSS</span></li>
+			   <li class="kss-submenu-item'" id="nav-section-1.1">
+				   <a href="#section-1.1"><span class="kss-name">General Styling</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.1"><span class="kss-name">General Styling</span></a>
+							</li>
+				   </ul> -->
+			   </li>
+			   <li class="kss-submenu-item'" id="nav-section-1.3">
+				   <a href="#section-1.3"><span class="kss-name">Typography</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.3"><span class="kss-name">Typography</span></a>
+							</li>
+				   </ul> -->
+			   </li>
+			   <li class="kss-submenu-item'" id="nav-section-1.4">
+				   <a href="#section-1.4"><span class="kss-name">Colour Palette</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.4"><span class="kss-name">Colour Palette</span></a>
+							</li>
+				   </ul> -->
+			   </li>
+			   <li class="kss-submenu-item'" id="nav-section-1.5">
+				   <a href="#section-1.5"><span class="kss-name">Iconography</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.5"><span class="kss-name">Iconography</span></a>
+							</li>
+				   </ul> -->
+			   </li>
+			   <li class="kss-submenu-item'" id="nav-section-1.6">
+				   <a href="#section-1.6"><span class="kss-name">Button</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.6"><span class="kss-name">Button</span></a>
+							</li>
+				   </ul> -->
+			   </li>
+			   <li class="kss-submenu-item backtotop">
+				   <a href="#kss-node"><span class="kss-name">Back to top</span></a>
+			   </li>
+		   </ul>
+	  </div>
+	  <div class="main">
+		<div id="section-1" class="kss-section section">
+			<h2 class="kss-titlev styleguide">CSS</h2>
+			<p class="kss-description"><p>General Style components such as typography, grids, buttons etc</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			</dl>
+		 </div>
+		<div id="section-1.1" class="kss-section section">
+			<h2 class="kss-titlev styleguide">General Styling</h2>
+			<p class="kss-description"><p>Style components used for main UI</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>.header</dt><dd><p>Top level menu container</p>
+</dd>
+			   <dt>.content</dt><dd><p>Main content, is offset to accommodate top level menu</p>
+</dd>
+			   <dt>.content.no-menu</dt><dd><p>Restores the offset as menu isn&apos;t present</p>
+</dd>
+			   <dt>.share-content</dt><dd><p>Adds another offset to the bottom to accommodate for the stand-in screens floating footer</p>
+</dd>
+			   <dt>.footer</dt><dd><p>Footer, contains logged in user details</p>
+</dd>
+			   <dt>.footer .user</dt><dd><p>User details in footer</p>
+</dd>
+			   <dt>.share-footer</dt><dd><p>Container for footer used in stand-in screen</p>
+</dd>
+			   <dt>.share-footer .user</dt><dd><p>User details in stand-in screen</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+</div>
+<div class="content no-menu">
+  <p class="block">Content without menu</p>
+</div>
+<!-- Normal footer -->
+<div class="footer">
+  <p class="user">Test User</p>
+</div>
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a class="selected">Option one</a></li>
+    <li><a>Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+<div class="content share-content">
+  <div class="block">
+    <a class="patientInfo" id="obsButton">
+      <h3 class="name">
+        <strong>Test Patient </strong><br>
+        Ward A, Bed 01
+      </h3>
+      <h3 class="obs button do-it">Take observation</h3>
+    </a>
+  </div>
+</div>
+<!-- Stand-in footer -->
+<div class="share-footer">
+  <p class="user">Test User</p>
+  <ul class="header-menu three-col">
+    <li><a>Share</a></li>
+    <li><a>Claim</a></li>
+    <li><a>Cancel</a></li>
+  </ul>
+</div></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;div class=&quot;header&quot;&gt;
+  &lt;div class=&quot;header-main block&quot;&gt;
+    &lt;img src=&quot;public/logo.png&quot; class=&quot;logo&quot;&gt;
+    &lt;ul class=&quot;header-meta&quot;&gt;
+      &lt;li class=&quot;logout&quot;&gt;&lt;a class=&quot;button back&quot;&gt;Logout&lt;/a&gt;&lt;/li&gt;
+     &lt;/ul&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class=&quot;content no-menu&quot;&gt;
+  &lt;p class=&quot;block&quot;&gt;Content without menu&lt;/p&gt;
+&lt;/div&gt;
+&lt;!-- Normal footer --&gt;
+&lt;div class=&quot;footer&quot;&gt;
+  &lt;p class=&quot;user&quot;&gt;Test User&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class=&quot;header&quot;&gt;
+  &lt;div class=&quot;header-main block&quot;&gt;
+    &lt;img src=&quot;public/logo.png&quot; class=&quot;logo&quot;&gt;
+    &lt;ul class=&quot;header-meta&quot;&gt;
+      &lt;li class=&quot;logout&quot;&gt;&lt;a class=&quot;button back&quot;&gt;Logout&lt;/a&gt;&lt;/li&gt;
+     &lt;/ul&gt;
+  &lt;/div&gt;
+  &lt;ul class=&quot;header-menu two-col&quot;&gt;
+    &lt;li&gt;&lt;a class=&quot;selected&quot;&gt;Option one&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a&gt;Option two &lt;span class=&quot;urgent-badge&quot;&gt;3&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;
+&lt;div class=&quot;content share-content&quot;&gt;
+  &lt;div class=&quot;block&quot;&gt;
+    &lt;a class=&quot;patientInfo&quot; id=&quot;obsButton&quot;&gt;
+      &lt;h3 class=&quot;name&quot;&gt;
+        &lt;strong&gt;Test Patient &lt;/strong&gt;&lt;br&gt;
+        Ward A, Bed 01
+      &lt;/h3&gt;
+      &lt;h3 class=&quot;obs button do-it&quot;&gt;Take observation&lt;/h3&gt;
+    &lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;!-- Stand-in footer --&gt;
+&lt;div class=&quot;share-footer&quot;&gt;
+  &lt;p class=&quot;user&quot;&gt;Test User&lt;/p&gt;
+  &lt;ul class=&quot;header-menu three-col&quot;&gt;
+    &lt;li&gt;&lt;a&gt;Share&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a&gt;Claim&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a&gt;Cancel&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;</code></pre></div>
+		 </div>
+		<div id="section-1.3" class="kss-section section">
+			<h2 class="kss-titlev styleguide">Typography</h2>
+			<p class="kss-description"><p>A typographical scale for text content easy to read on the MioCare devices, using the 35 character rule on a 480px wide screen</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>h1</dt><dd><p>Main header, used once on a page</p>
+</dd>
+			   <dt>h2</dt><dd><p>Secondary header, used sparingly on a page</p>
+</dd>
+			   <dt>h3</dt><dd><p>Tertiary header, most often used header</p>
+</dd>
+			   <dt>h4</dt><dd><p>Used for subsections</p>
+</dd>
+			   <dt>h5</dt><dd><p>Rarely used</p>
+</dd>
+			   <dt>h6</dt><dd><p>Really shouldn&apos;t use this</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><h1>Header 1</h1>
+<h2>Header 2</h2>
+<h3>Header 3</h3>
+<h4>Header 4</h4>
+<h5>Header 5</h5>
+<h6>Header 6</h6>
+<h2>Paragraph Styles</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dignissim ullamcorper eros. Suspendisse efficitur leo id tellus finibus laoreet et ac sem. Nunc vestibulum erat odio. In laoreet posuere libero, at ultricies orci malesuada ac. Duis aliquam quam ut blandit scelerisque. Proin magna felis, luctus vitae justo id, rhoncus gravida nisi. Aenean elementum velit est, sed efficitur justo scelerisque eget. Proin ut arcu a dolor laoreet dictum. Aenean rhoncus, odio at interdum consequat, elit tellus suscipit est, suscipit tristique nisi justo vitae dolor. Fusce et suscipit nibh. Duis dui leo, fermentum a libero sed, cursus imperdiet risus. Sed auctor vehicula interdum. In sit amet ultrices eros, vel tincidunt purus. Nullam porta et risus a eleifend.</p>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h3>Header in paragraph</h3>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h2>List styles</h2>
+<ul>
+  <li>List item</li>
+  <li>List item</li>
+</ul>
+<ol>
+  <li>List item</li>
+  <li>List item</li>
+</ol>
+<dl>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+</dl></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;h1&gt;Header 1&lt;/h1&gt;
+&lt;h2&gt;Header 2&lt;/h2&gt;
+&lt;h3&gt;Header 3&lt;/h3&gt;
+&lt;h4&gt;Header 4&lt;/h4&gt;
+&lt;h5&gt;Header 5&lt;/h5&gt;
+&lt;h6&gt;Header 6&lt;/h6&gt;
+&lt;h2&gt;Paragraph Styles&lt;/h2&gt;
+&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dignissim ullamcorper eros. Suspendisse efficitur leo id tellus finibus laoreet et ac sem. Nunc vestibulum erat odio. In laoreet posuere libero, at ultricies orci malesuada ac. Duis aliquam quam ut blandit scelerisque. Proin magna felis, luctus vitae justo id, rhoncus gravida nisi. Aenean elementum velit est, sed efficitur justo scelerisque eget. Proin ut arcu a dolor laoreet dictum. Aenean rhoncus, odio at interdum consequat, elit tellus suscipit est, suscipit tristique nisi justo vitae dolor. Fusce et suscipit nibh. Duis dui leo, fermentum a libero sed, cursus imperdiet risus. Sed auctor vehicula interdum. In sit amet ultrices eros, vel tincidunt purus. Nullam porta et risus a eleifend.&lt;/p&gt;
+&lt;p&gt;Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.&lt;/p&gt;
+&lt;h3&gt;Header in paragraph&lt;/h3&gt;
+&lt;p&gt;Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.&lt;/p&gt;
+&lt;h2&gt;List styles&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;List item&lt;/li&gt;
+  &lt;li&gt;List item&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol&gt;
+  &lt;li&gt;List item&lt;/li&gt;
+  &lt;li&gt;List item&lt;/li&gt;
+&lt;/ol&gt;
+&lt;dl&gt;
+  &lt;dt&gt;Definition&lt;/dt&gt;
+  &lt;dd&gt;Description&lt;/dd&gt;
+  &lt;dt&gt;Definition&lt;/dt&gt;
+  &lt;dd&gt;Description&lt;/dd&gt;
+&lt;/dl&gt;</code></pre></div>
+		 </div>
+		<div id="section-1.4" class="kss-section section">
+			<h2 class="kss-titlev styleguide">Colour Palette</h2>
+			<p class="kss-description"><p>Colours used in Open-eObs</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>@header-colour</dt><dd><p>282828, Used in the header as a less harsh tone of black</p>
+</dd>
+			   <dt>@body-colour</dt><dd><p>000000, Used in main body for high contrast</p>
+</dd>
+			   <dt>@action-colour</dt><dd><p>ea3172, Main colour from Open-eObs branding, used as a call to action</p>
+</dd>
+			   <dt>@link-colour</dt><dd><p>4491ce, Secondary colour from Open-eObs branding, used as a dismissive action</p>
+</dd>
+			   <dt>@error-color</dt><dd><p>red, Used in a less harsh form throughout the app via a LESS transformation, Used to dictate high clinical risk</p>
+</dd>
+			   <dt>@warning-colour</dt><dd><p>ffd5b4, Used to dictate medium clinical risk</p>
+</dd>
+			   <dt>@ok-colour</dt><dd><p>green, Used in a less hard form throughout the app via a LESS transformation, Used to dictate low clinical risk</p>
+</dd>
+			   <dt>@not-set-colour</dt><dd><p>e5dfff, Used to dictate an unknown clinical risk</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><ul class="element-list">
+  <li><a class="button" style="background-color: #282828;">@header-colour</a></li>
+  <li><a class="button" style="background-color: #000000;">@body-colour</a></li>
+  <li><a class="button" style="background-color: #ea3172;">@action-colour</a></li>
+  <li><a class="button" style="background-color: #4491ce;">@link-colour</a></li>
+  <li><a class="button" style="background-color: red;">@error-colour</a></li>
+  <li><a class="button" style="background-color: #ffd5b4;">@warning-colour</a></li>
+  <li><a class="button" style="background-color: green;">@ok-colour</a></li>
+  <li><a class="button" style="background-color: #e5dfff;">@not-set-colour</a></li>
+</ul></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;ul class=&quot;element-list&quot;&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #282828;&quot;&gt;@header-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #000000;&quot;&gt;@body-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #ea3172;&quot;&gt;@action-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #4491ce;&quot;&gt;@link-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: red;&quot;&gt;@error-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #ffd5b4;&quot;&gt;@warning-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: green;&quot;&gt;@ok-colour&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button&quot; style=&quot;background-color: #e5dfff;&quot;&gt;@not-set-colour&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre></div>
+		 </div>
+		<div id="section-1.5" class="kss-section section">
+			<h2 class="kss-titlev styleguide">Iconography</h2>
+			<p class="kss-description"><p>Icons used to display information</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>i</dt><dd><p>Element used for icons</p>
+</dd>
+			   <dt>.icon-info</dt><dd><p>A &apos;i&apos; in a circle, used for patient information</p>
+</dd>
+			   <dt>.icon-alert</dt><dd><p>An exclamation mark in a triangle, used for alerts</p>
+</dd>
+			   <dt>.icon-left-arrow</dt><dd><p>A left pointing arrow, used to indicate a clinical risk trend that hasn&apos;t changed</p>
+</dd>
+			   <dt>.icon-same-arrow</dt><dd><p>An alias for the icon-left-arrow class</p>
+</dd>
+			   <dt>.icon-up-arrow</dt><dd><p>An upwards pointing arrow, used to indicate a clinical risk that has increased</p>
+</dd>
+			   <dt>.icon-down-arrow</dt><dd><p>A downwards pointing arrow, used to indicate a clinical risk that has decreased</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><ul>
+  <li><strong>Info</strong> <i class="icon-info"></i></li>
+  <li><strong>Alert</strong> <i class="icon-alert"></i></li>
+  <li><strong>Left Arrow</strong> <i class="icon-left-arrow"></i></li>
+  <li><strong>Up Arrow</strong> <i class="icon-up-arrow"></i></li>
+  <li><strong>Down Arrow</strong> <i class="icon-down-arrow"></i></li>
+</ul></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Info&lt;/strong&gt; &lt;i class=&quot;icon-info&quot;&gt;&lt;/i&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Alert&lt;/strong&gt; &lt;i class=&quot;icon-alert&quot;&gt;&lt;/i&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Left Arrow&lt;/strong&gt; &lt;i class=&quot;icon-left-arrow&quot;&gt;&lt;/i&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Up Arrow&lt;/strong&gt; &lt;i class=&quot;icon-up-arrow&quot;&gt;&lt;/i&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Down Arrow&lt;/strong&gt; &lt;i class=&quot;icon-down-arrow&quot;&gt;&lt;/i&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre></div>
+		 </div>
+		<div id="section-1.6" class="kss-section section">
+			<h2 class="kss-titlev styleguide">Button</h2>
+			<p class="kss-description"><p>Styling for buttons</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>.button, button</dt><dd><p>Generic button class</p>
+</dd>
+			   <dt>.button.go</dt><dd><p>Green button to indicate an progressive action</p>
+</dd>
+			   <dt>.button.back</dt><dd><p>Blue button to indicate a regressive action</p>
+</dd>
+			   <dt>.button.alignright</dt><dd><p>Helper class to float button right</p>
+</dd>
+			   <dt>input[type=&quot;submit&quot;][disabled], input[type=&quot;reset&quot;][disabled]</dt><dd><p>Disabled button styling</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><h4>Normal Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button">Default Button</button></li>
+  <li><button type="button" class="go">Login Button</button></li>
+  <li><button type="button" class="back">Menu Button</button></li>
+  <li><button type="button" class="do-it">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it">Cancel Button</button></li>
+</ul>
+<h4>Small Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="small">Default Button</button></li>
+  <li><button type="button" class="go small">Login Button</button></li>
+  <li><button type="button" class="back small">Menu Button</button></li>
+  <li><button type="button" class="do-it small">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it small">Cancel Button</button></li>
+</ul>
+<h4>Big Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="big">Default Button</button></li>
+  <li><button type="button" class="go big">Login Button</button></li>
+  <li><button type="button" class="back big">Menu Button</button></li>
+  <li><button type="button" class="do-it big">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it big">Cancel Button</button></li>
+</ul>
+<h4>Full Width Button</h4>
+<ul class="element-list">
+  <li><a class="button big do-it full-width">A big pink full width button</a></li>
+  <li><a class="button small dont-do-it full-width">A big pink full width button</a></li>
+  <li><a class="button go full-width">A big pink full width button</a></li>
+</ul>
+<h4>Disabled form buttons</h4>
+<ul class="element-list">
+  <li><input type="submit" disabled="disabled" value="Disabled submit button"></li>
+  <li><input type="reset" disabled="disabled" value="Disabled reset button"></li>
+</ul></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;h4&gt;Normal Buttons&lt;/h4&gt;
+&lt;ul class=&quot;inline-list&quot;&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot;&gt;Default Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;go&quot;&gt;Login Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;back&quot;&gt;Menu Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;do-it&quot;&gt;Submit Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;dont-do-it&quot;&gt;Cancel Button&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Small Buttons&lt;/h4&gt;
+&lt;ul class=&quot;inline-list&quot;&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;small&quot;&gt;Default Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;go small&quot;&gt;Login Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;back small&quot;&gt;Menu Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;do-it small&quot;&gt;Submit Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;dont-do-it small&quot;&gt;Cancel Button&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Big Buttons&lt;/h4&gt;
+&lt;ul class=&quot;inline-list&quot;&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;big&quot;&gt;Default Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;go big&quot;&gt;Login Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;back big&quot;&gt;Menu Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;do-it big&quot;&gt;Submit Button&lt;/button&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;dont-do-it big&quot;&gt;Cancel Button&lt;/button&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Full Width Button&lt;/h4&gt;
+&lt;ul class=&quot;element-list&quot;&gt;
+  &lt;li&gt;&lt;a class=&quot;button big do-it full-width&quot;&gt;A big pink full width button&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button small dont-do-it full-width&quot;&gt;A big pink full width button&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a class=&quot;button go full-width&quot;&gt;A big pink full width button&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Disabled form buttons&lt;/h4&gt;
+&lt;ul class=&quot;element-list&quot;&gt;
+  &lt;li&gt;&lt;input type=&quot;submit&quot; disabled=&quot;disabled&quot; value=&quot;Disabled submit button&quot;&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;input type=&quot;reset&quot; disabled=&quot;disabled&quot; value=&quot;Disabled reset button&quot;&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre></div>
+		 </div>
+	  </div>
+	  <script src="public/jquery.js"></script>
+	  <script src="public/jquery-scrollspy.js"></script>
+	  <script type="text/javascript">
+		  $(document).ready(function(){
+			  $('.kss-section').each(function(i){
+               var position = $(this).position();
+               if(i < 1){
+                   position.top = position.top + 40;
+               }
+               $(this).scrollspy({
+                   min: position.top,
+                   max: position.top + $(this).height(),
+                   onEnter: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").addClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").addClass('active');
+                       $('.leftnav').addClass('active');
+
+                   },
+                   onLeave: function(element, position) {
+                       $("li[id='nav-"+element.id+"']").removeClass('active');
+//					   $("li[id='nav-"+element.id+"'] .kss-menu-subchild").removeClass('active');
+                       if(i < 1) {
+                           $('.leftnav').removeClass('active');
+                       }
+                   }
+               });
+
+
+           });
+		  });
+        function mobile(object, type) {
+            var clicked_obj = $(object);
+            var example_obj = clicked_obj.parents('.section').find('.example');
+            var bg = $('<div>');
+            bg.addClass('mobile_preview_bg');
+            bg.css('height', $('body').height()+'px');
+            bg.click(function(){
+                $(this).remove();
+				$('html, body').css({
+					'overflow': 'auto',
+					'height': 'auto'
+				});
+            });
+
+            var iframe = $('<div>');
+            iframe.addClass(type);
+            var wrapper = $('<div>');
+            wrapper.addClass('wrapper');
+            wrapper.append(example_obj.clone());
+            iframe.append(wrapper);
+            bg.append(iframe);
+            $('body').append(bg);
+			$('html, body').css({
+				'overflow': 'hidden',
+				'height': '100%'
+			});
+        }
+    </script>
+  	<script src="public/hilight.js"></script>
+  	<script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
