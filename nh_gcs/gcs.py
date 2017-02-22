@@ -164,6 +164,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
     def read_labels(self, fields=None, load='_classic_read'):
         obs_data = self.read(fields=fields, load=load)
         if obs_data:
-            obs = obs_data[0] if isinstance(obs_data, list) else [obs_data]
+            obs = obs_data if isinstance(obs_data, list) else [obs_data]
             self.convert_field_values_to_labels(obs)
         return obs_data

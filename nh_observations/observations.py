@@ -297,18 +297,19 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         working for GCS / Neurological.
 
         :param obs:
-        :type obs: dict
+        :type obs: list
         """
         if not hasattr(self, '_scored'):
             return
         field_names = [field_name for field_name in self._required
                        if field_name not in self._scored]
-        for field_name in field_names:
-            if field_name in obs:
-                field_value = obs[field_name]
-                field_value_label = self.get_field_value_label(field_name,
-                                                               field_value)
-                obs[field_name] = field_value_label
+        for ob in obs:
+            for field_name in field_names:
+                if field_name in ob:
+                    field_value = ob[field_name]
+                    field_value_label = self.get_field_value_label(field_name,
+                                                                   field_value)
+                    ob[field_name] = field_value_label
 
     def get_field_value_label(self, field_name, field_value):
         """
