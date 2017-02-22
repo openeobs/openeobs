@@ -756,61 +756,75 @@
 			<h3 class="styleguide">Example <ul class="options">
 				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
 			</ul></h3>
-			<div class="example">  <!-- NEWS form -->
-<h2 id="patientName" class="block">
-  <a>Test Patient <i class="icon-info"></i></a>
+			<div class="example"><h2 id="patientName" class="block">
+  <a>Number Fields</a>
 </h2>
 <form id="obsForm">
   <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="standard_number">Standard number field</label>
+        <input name="standard_number" type="number" min="1" max="59" step="1" value="18">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="helper_number">Number field with helper text</label>
+        <input name="helper_number" type="number" min="51" max="100" step="1">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help">This is text explaining how to fill out field</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="reference_number">Number field with reference</label>
+        <input name="reference_number" type="number" min="27.1" max="44.9" step="0.1">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help"></span>
+        <button class="button reference">Reference to load in modal</button>
+      </div>
+    </div>
+  </div>
+  <div>
     <div class="obsField block error">
       <div class="input-header">
-        <label for="respiration_rate">Respiration Rate</label>
-        <input name="respiration_rate" type="number" min="1" max="59" step="1" value="18.7">
+        <label for="error_number">Errored number field</label>
+        <input name="error_number" type="number" min="1" max="59" step="1" value="18.7">
       </div>
       <div class="input-body">
-        <span class="errors"><i class="icon-alert"></i> Value must be a whole number</span>
+        <span class="errors">Value must be a whole number</span>
         <span class="help"></span>
       </div>
     </div>
   </div>
-  <div>
-    <div class="obsField block">
-      <div class="input-header">
-        <label for="indirect_oxymetry_spo2">O<sub>2</sub> Saturation</label>
-        <input name="indirect_oxymetry_spo2" type="number" min="51" max="100" step="1">
-      </div>
-      <div class="input-body">
-        <span class="errors"></span>
-        <span class="help"><span class="targetString"><i class="icon-info"></i> Target: 88-90</span></span>
-      </div>
-    </div>
-  </div>
-  <div>
-    <div class="obsField block">
-      <div class="input-header">
-        <label for="body_temperatute">Body Temperature</label>
-        <input name="body_temperature" type="number" min="27.1" max="44.9" step="0.1">
-      </div>
-      <div class="input-body">
-        <span class="errors"></span>
-        <span class="help"></span>
-        <p>
-          <button class="button reference">AVPU Reference</button>
-        </p>
-      </div>
-    </div>
-  </div>
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Select Fields</a>
+</h2>
+<form id="obsForm">
   <div>
     <div class="obsSelectField block">
       <div class="input-header">
-        <label for="avpu_text">AVPU</label>
+        <label for="standard_select">Standard Select</label>
       </div>
       <div class="input-body">
-        <select name="avpu_text">
-          <option value="a">Alert</option>
-          <option value="v">Voice</option>
-          <option value="p">Pain</option>
-          <option value="u">Unresponsive</option>
+        <select name="standard_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
         </select>
         <span class="errors"></span>
         <span class="help"></span>
@@ -820,132 +834,261 @@
   <div>
     <div class="obsSelectField block">
       <div class="input-header">
-        <label for="oxygen_administration_flag">Supplemental O<sub>2</sub></label>
+        <label for="helper_select">Select with helper text</label>
       </div>
       <div class="input-body">
-        <select name="oxygen_administration_flag">
-          <option value="True">Yes</option>
-          <option value="False">No</option>
+        <select name="helper_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+        </select>
+        <span class="errors"></span>
+        <span class="help">This is text explaining how to fill out field</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsSelectField block">
+      <div class="input-header">
+        <label for="reference_select">Select with reference</label>
+      </div>
+      <div class="input-body">
+        <select name="reference_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
         </select>
         <span class="errors"></span>
         <span class="help"></span>
-        <p>
-          <button class="button reference">Supplemental 0<sub>2</sub> Reference</button>
-        </p>
+        <button class="button reference">Reference to load in modal</button>
       </div>
     </div>
   </div>
   <div>
     <div class="obsSelectField block error">
       <div class="input-header">
-        <label for="oxygen_administration_flag">Supplemental O<sub>2</sub></label>
+        <label for="error_select">Select with error</label>
       </div>
       <div class="input-body">
-        <select name="oxygen_administration_flag">
-          <option value="" selected="selected">Please Select</option>
-          <option value="True">Yes</option>
-          <option value="False">No</option>
+        <select name="error_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
         </select>
-        <span class="errors"><i class="icon alert"></i> Missing Value</span>
+        <span class="errors">Missing Value</span>
         <span class="help"></span>
-        <p>
-          <button class="button reference">Supplemental 0<sub>2</sub> Reference</button>
-        </p>
       </div>
     </div>
   </div>
-  <div class="block obsSelectField" id="parent_recorded_concerns">
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Multiselect Fields</a>
+</h2>
+<form id="obsForm">
+  <div class="block obsSelectField">
       <div class="input-header">
-          <label for="recorded_concerns">
-              Recorded Concerns
-          </label>
+          <label for="standard_multiselect">Standard Multiselect</label>
       </div>
       <div class="input-body">
           <ul class="checklist">
               <li>
-                  <input type="checkbox" name="recorded_concerns" value="1" class="checklist_box">
-                  <label>Dehydrated</label>
-              </li><li>
-                  <input type="checkbox" name="recorded_concerns" value="2" class="checklist_box">
-                  <label>Underweight / Malnourished</label>
-              </li><li>
-                  <input type="checkbox" name="recorded_concerns" value="3" class="checklist_box">
-                  <label>Refeeding Syndrome Risk</label>
-              </li><li>
-                  <input type="checkbox" name="recorded_concerns" value="4" class="checklist_box">
-                  <label>Medical Reason</label>
-              </li><li>
-                  <input type="checkbox" name="recorded_concerns" value="5" class="checklist_box">
-                  <label>Swallowing Risk - Modified Texture</label>
-              </li><li>
-                  <input type="checkbox" name="recorded_concerns" value="6" class="checklist_box">
-                  <label>Eating and Drinking Poorly</label>
+                  <input type="checkbox" name="standard_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="standard_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
               </li>
           </ul>
           <span class="errors"></span>
           <span class="help"></span>
       </div>
   </div>
-  <div class="block obsSubmit">
-    <input type="submit" value="Submit">
+  <div class="block obsSelectField">
+      <div class="input-header">
+          <label for="helper_multiselect">Multiselect with helper text</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="helper_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="helper_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help">This is some text explaining how to fill out field</span>
+      </div>
+  </div>
+  <div class="block obsSelectField">
+      <div class="input-header">
+          <label for="reference_multiselect">Multiselect with reference</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="reference_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="reference_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help"></span>
+          <button class="button reference">Reference to load in modal</button>
+      </div>
+  </div>
+  <div class="block obsSelectField error">
+      <div class="input-header">
+          <label for="error_multiselect">Multiselect with errors</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="error_multiselect" value="1" class="checklist_box">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="error_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors">Missing value</span>
+          <span class="help"></span>
+      </div>
+  </div>
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Text Fields</a>
+</h2>
+<form id="obsForm">
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="standard_text">Standard Text</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="standard_text">Text to submit</textarea>
+          <span class="errors"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="helper_text">Text with helper text</label>
+      </div>
+      <div class="input-body">
+          <span class="help">This is some text explaining how to fill out field</span>
+          <textarea name="helper_text">Text to submit</textarea>
+          <span class="errors"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="reference_text">Text with reference</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="reference_text">Text to submit</textarea>
+          <span class="errors"></span>
+          <button class="button reference">Reference to load in modal</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField error">
+      <div class="input-header">
+          <label for="error_text">Text with error</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="error_text"></textarea>
+          <span class="errors">Missing Value</span>
+      </div>
+    </div>
   </div>
 </form></div>
 			<h3 class="styleguide">Code</h3>
-			<div class="code"><pre><code class="html">  &lt;!-- NEWS form --&gt;
-&lt;h2 id=&quot;patientName&quot; class=&quot;block&quot;&gt;
-  &lt;a&gt;Test Patient &lt;i class=&quot;icon-info&quot;&gt;&lt;/i&gt;&lt;/a&gt;
+			<div class="code"><pre><code class="html">&lt;h2 id=&quot;patientName&quot; class=&quot;block&quot;&gt;
+  &lt;a&gt;Number Fields&lt;/a&gt;
 &lt;/h2&gt;
 &lt;form id=&quot;obsForm&quot;&gt;
   &lt;div&gt;
+    &lt;div class=&quot;obsField block&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+        &lt;label for=&quot;standard_number&quot;&gt;Standard number field&lt;/label&gt;
+        &lt;input name=&quot;standard_number&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;59&quot; step=&quot;1&quot; value=&quot;18&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+        &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;obsField block&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+        &lt;label for=&quot;helper_number&quot;&gt;Number field with helper text&lt;/label&gt;
+        &lt;input name=&quot;helper_number&quot; type=&quot;number&quot; min=&quot;51&quot; max=&quot;100&quot; step=&quot;1&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+        &lt;span class=&quot;help&quot;&gt;This is text explaining how to fill out field&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;obsField block&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+        &lt;label for=&quot;reference_number&quot;&gt;Number field with reference&lt;/label&gt;
+        &lt;input name=&quot;reference_number&quot; type=&quot;number&quot; min=&quot;27.1&quot; max=&quot;44.9&quot; step=&quot;0.1&quot;&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+        &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+        &lt;button class=&quot;button reference&quot;&gt;Reference to load in modal&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
     &lt;div class=&quot;obsField block error&quot;&gt;
       &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;respiration_rate&quot;&gt;Respiration Rate&lt;/label&gt;
-        &lt;input name=&quot;respiration_rate&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;59&quot; step=&quot;1&quot; value=&quot;18.7&quot;&gt;
+        &lt;label for=&quot;error_number&quot;&gt;Errored number field&lt;/label&gt;
+        &lt;input name=&quot;error_number&quot; type=&quot;number&quot; min=&quot;1&quot; max=&quot;59&quot; step=&quot;1&quot; value=&quot;18.7&quot;&gt;
       &lt;/div&gt;
       &lt;div class=&quot;input-body&quot;&gt;
-        &lt;span class=&quot;errors&quot;&gt;&lt;i class=&quot;icon-alert&quot;&gt;&lt;/i&gt; Value must be a whole number&lt;/span&gt;
+        &lt;span class=&quot;errors&quot;&gt;Value must be a whole number&lt;/span&gt;
         &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div&gt;
-    &lt;div class=&quot;obsField block&quot;&gt;
-      &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;indirect_oxymetry_spo2&quot;&gt;O&lt;sub&gt;2&lt;/sub&gt; Saturation&lt;/label&gt;
-        &lt;input name=&quot;indirect_oxymetry_spo2&quot; type=&quot;number&quot; min=&quot;51&quot; max=&quot;100&quot; step=&quot;1&quot;&gt;
-      &lt;/div&gt;
-      &lt;div class=&quot;input-body&quot;&gt;
-        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
-        &lt;span class=&quot;help&quot;&gt;&lt;span class=&quot;targetString&quot;&gt;&lt;i class=&quot;icon-info&quot;&gt;&lt;/i&gt; Target: 88-90&lt;/span&gt;&lt;/span&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
-  &lt;div&gt;
-    &lt;div class=&quot;obsField block&quot;&gt;
-      &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;body_temperatute&quot;&gt;Body Temperature&lt;/label&gt;
-        &lt;input name=&quot;body_temperature&quot; type=&quot;number&quot; min=&quot;27.1&quot; max=&quot;44.9&quot; step=&quot;0.1&quot;&gt;
-      &lt;/div&gt;
-      &lt;div class=&quot;input-body&quot;&gt;
-        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
-        &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
-        &lt;p&gt;
-          &lt;button class=&quot;button reference&quot;&gt;AVPU Reference&lt;/button&gt;
-        &lt;/p&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
+&lt;/form&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h2 id=&quot;patientName&quot; class=&quot;block&quot;&gt;
+  &lt;a&gt;Select Fields&lt;/a&gt;
+&lt;/h2&gt;
+&lt;form id=&quot;obsForm&quot;&gt;
   &lt;div&gt;
     &lt;div class=&quot;obsSelectField block&quot;&gt;
       &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;avpu_text&quot;&gt;AVPU&lt;/label&gt;
+        &lt;label for=&quot;standard_select&quot;&gt;Standard Select&lt;/label&gt;
       &lt;/div&gt;
       &lt;div class=&quot;input-body&quot;&gt;
-        &lt;select name=&quot;avpu_text&quot;&gt;
-          &lt;option value=&quot;a&quot;&gt;Alert&lt;/option&gt;
-          &lt;option value=&quot;v&quot;&gt;Voice&lt;/option&gt;
-          &lt;option value=&quot;p&quot;&gt;Pain&lt;/option&gt;
-          &lt;option value=&quot;u&quot;&gt;Unresponsive&lt;/option&gt;
+        &lt;select name=&quot;standard_select&quot;&gt;
+          &lt;option value=&quot;&quot;&gt;Please Select&lt;/option&gt;
+          &lt;option value=&quot;1&quot;&gt;Option 1&lt;/option&gt;
+          &lt;option value=&quot;2&quot;&gt;Option 2&lt;/option&gt;
         &lt;/select&gt;
         &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
         &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
@@ -955,74 +1098,189 @@
   &lt;div&gt;
     &lt;div class=&quot;obsSelectField block&quot;&gt;
       &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;oxygen_administration_flag&quot;&gt;Supplemental O&lt;sub&gt;2&lt;/sub&gt;&lt;/label&gt;
+        &lt;label for=&quot;helper_select&quot;&gt;Select with helper text&lt;/label&gt;
       &lt;/div&gt;
       &lt;div class=&quot;input-body&quot;&gt;
-        &lt;select name=&quot;oxygen_administration_flag&quot;&gt;
-          &lt;option value=&quot;True&quot;&gt;Yes&lt;/option&gt;
-          &lt;option value=&quot;False&quot;&gt;No&lt;/option&gt;
+        &lt;select name=&quot;helper_select&quot;&gt;
+          &lt;option value=&quot;&quot;&gt;Please Select&lt;/option&gt;
+          &lt;option value=&quot;1&quot;&gt;Option 1&lt;/option&gt;
+          &lt;option value=&quot;2&quot;&gt;Option 2&lt;/option&gt;
+        &lt;/select&gt;
+        &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+        &lt;span class=&quot;help&quot;&gt;This is text explaining how to fill out field&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;obsSelectField block&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+        &lt;label for=&quot;reference_select&quot;&gt;Select with reference&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+        &lt;select name=&quot;reference_select&quot;&gt;
+          &lt;option value=&quot;&quot;&gt;Please Select&lt;/option&gt;
+          &lt;option value=&quot;1&quot;&gt;Option 1&lt;/option&gt;
+          &lt;option value=&quot;2&quot;&gt;Option 2&lt;/option&gt;
         &lt;/select&gt;
         &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
         &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
-        &lt;p&gt;
-          &lt;button class=&quot;button reference&quot;&gt;Supplemental 0&lt;sub&gt;2&lt;/sub&gt; Reference&lt;/button&gt;
-        &lt;/p&gt;
+        &lt;button class=&quot;button reference&quot;&gt;Reference to load in modal&lt;/button&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div&gt;
     &lt;div class=&quot;obsSelectField block error&quot;&gt;
       &lt;div class=&quot;input-header&quot;&gt;
-        &lt;label for=&quot;oxygen_administration_flag&quot;&gt;Supplemental O&lt;sub&gt;2&lt;/sub&gt;&lt;/label&gt;
+        &lt;label for=&quot;error_select&quot;&gt;Select with error&lt;/label&gt;
       &lt;/div&gt;
       &lt;div class=&quot;input-body&quot;&gt;
-        &lt;select name=&quot;oxygen_administration_flag&quot;&gt;
-          &lt;option value=&quot;&quot; selected=&quot;selected&quot;&gt;Please Select&lt;/option&gt;
-          &lt;option value=&quot;True&quot;&gt;Yes&lt;/option&gt;
-          &lt;option value=&quot;False&quot;&gt;No&lt;/option&gt;
+        &lt;select name=&quot;error_select&quot;&gt;
+          &lt;option value=&quot;&quot;&gt;Please Select&lt;/option&gt;
+          &lt;option value=&quot;1&quot;&gt;Option 1&lt;/option&gt;
+          &lt;option value=&quot;2&quot;&gt;Option 2&lt;/option&gt;
         &lt;/select&gt;
-        &lt;span class=&quot;errors&quot;&gt;&lt;i class=&quot;icon alert&quot;&gt;&lt;/i&gt; Missing Value&lt;/span&gt;
+        &lt;span class=&quot;errors&quot;&gt;Missing Value&lt;/span&gt;
         &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
-        &lt;p&gt;
-          &lt;button class=&quot;button reference&quot;&gt;Supplemental 0&lt;sub&gt;2&lt;/sub&gt; Reference&lt;/button&gt;
-        &lt;/p&gt;
       &lt;/div&gt;
     &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class=&quot;block obsSelectField&quot; id=&quot;parent_recorded_concerns&quot;&gt;
+&lt;/form&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h2 id=&quot;patientName&quot; class=&quot;block&quot;&gt;
+  &lt;a&gt;Multiselect Fields&lt;/a&gt;
+&lt;/h2&gt;
+&lt;form id=&quot;obsForm&quot;&gt;
+  &lt;div class=&quot;block obsSelectField&quot;&gt;
       &lt;div class=&quot;input-header&quot;&gt;
-          &lt;label for=&quot;recorded_concerns&quot;&gt;
-              Recorded Concerns
-          &lt;/label&gt;
+          &lt;label for=&quot;standard_multiselect&quot;&gt;Standard Multiselect&lt;/label&gt;
       &lt;/div&gt;
       &lt;div class=&quot;input-body&quot;&gt;
           &lt;ul class=&quot;checklist&quot;&gt;
               &lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;1&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Dehydrated&lt;/label&gt;
-              &lt;/li&gt;&lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;2&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Underweight / Malnourished&lt;/label&gt;
-              &lt;/li&gt;&lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;3&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Refeeding Syndrome Risk&lt;/label&gt;
-              &lt;/li&gt;&lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;4&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Medical Reason&lt;/label&gt;
-              &lt;/li&gt;&lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;5&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Swallowing Risk - Modified Texture&lt;/label&gt;
-              &lt;/li&gt;&lt;li&gt;
-                  &lt;input type=&quot;checkbox&quot; name=&quot;recorded_concerns&quot; value=&quot;6&quot; class=&quot;checklist_box&quot;&gt;
-                  &lt;label&gt;Eating and Drinking Poorly&lt;/label&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;standard_multiselect&quot; value=&quot;1&quot; class=&quot;checklist_box&quot; checked=&quot;checked&quot;&gt;
+                  &lt;label&gt;Option 1&lt;/label&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;standard_multiselect&quot; value=&quot;2&quot; class=&quot;checklist_box&quot;&gt;
+                  &lt;label&gt;Option 2&lt;/label&gt;
               &lt;/li&gt;
           &lt;/ul&gt;
           &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
           &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
       &lt;/div&gt;
   &lt;/div&gt;
-  &lt;div class=&quot;block obsSubmit&quot;&gt;
-    &lt;input type=&quot;submit&quot; value=&quot;Submit&quot;&gt;
+  &lt;div class=&quot;block obsSelectField&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;helper_multiselect&quot;&gt;Multiselect with helper text&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;ul class=&quot;checklist&quot;&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;helper_multiselect&quot; value=&quot;1&quot; class=&quot;checklist_box&quot; checked=&quot;checked&quot;&gt;
+                  &lt;label&gt;Option 1&lt;/label&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;helper_multiselect&quot; value=&quot;2&quot; class=&quot;checklist_box&quot;&gt;
+                  &lt;label&gt;Option 2&lt;/label&gt;
+              &lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;help&quot;&gt;This is some text explaining how to fill out field&lt;/span&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;block obsSelectField&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;reference_multiselect&quot;&gt;Multiselect with reference&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;ul class=&quot;checklist&quot;&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;reference_multiselect&quot; value=&quot;1&quot; class=&quot;checklist_box&quot; checked=&quot;checked&quot;&gt;
+                  &lt;label&gt;Option 1&lt;/label&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;reference_multiselect&quot; value=&quot;2&quot; class=&quot;checklist_box&quot;&gt;
+                  &lt;label&gt;Option 2&lt;/label&gt;
+              &lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+          &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+          &lt;button class=&quot;button reference&quot;&gt;Reference to load in modal&lt;/button&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;block obsSelectField error&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;error_multiselect&quot;&gt;Multiselect with errors&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;ul class=&quot;checklist&quot;&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;error_multiselect&quot; value=&quot;1&quot; class=&quot;checklist_box&quot;&gt;
+                  &lt;label&gt;Option 1&lt;/label&gt;
+              &lt;/li&gt;
+              &lt;li&gt;
+                  &lt;input type=&quot;checkbox&quot; name=&quot;error_multiselect&quot; value=&quot;2&quot; class=&quot;checklist_box&quot;&gt;
+                  &lt;label&gt;Option 2&lt;/label&gt;
+              &lt;/li&gt;
+          &lt;/ul&gt;
+          &lt;span class=&quot;errors&quot;&gt;Missing value&lt;/span&gt;
+          &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+      &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/form&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;h2 id=&quot;patientName&quot; class=&quot;block&quot;&gt;
+  &lt;a&gt;Text Fields&lt;/a&gt;
+&lt;/h2&gt;
+&lt;form id=&quot;obsForm&quot;&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;block obsField&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;standard_text&quot;&gt;Standard Text&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+          &lt;textarea name=&quot;standard_text&quot;&gt;Text to submit&lt;/textarea&gt;
+          &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;block obsField&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;helper_text&quot;&gt;Text with helper text&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;span class=&quot;help&quot;&gt;This is some text explaining how to fill out field&lt;/span&gt;
+          &lt;textarea name=&quot;helper_text&quot;&gt;Text to submit&lt;/textarea&gt;
+          &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;block obsField&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;reference_text&quot;&gt;Text with reference&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+          &lt;textarea name=&quot;reference_text&quot;&gt;Text to submit&lt;/textarea&gt;
+          &lt;span class=&quot;errors&quot;&gt;&lt;/span&gt;
+          &lt;button class=&quot;button reference&quot;&gt;Reference to load in modal&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;div class=&quot;block obsField error&quot;&gt;
+      &lt;div class=&quot;input-header&quot;&gt;
+          &lt;label for=&quot;error_text&quot;&gt;Text with error&lt;/label&gt;
+      &lt;/div&gt;
+      &lt;div class=&quot;input-body&quot;&gt;
+          &lt;span class=&quot;help&quot;&gt;&lt;/span&gt;
+          &lt;textarea name=&quot;error_text&quot;&gt;&lt;/textarea&gt;
+          &lt;span class=&quot;errors&quot;&gt;Missing Value&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
   &lt;/div&gt;
 &lt;/form&gt;</code></pre></div>
 		 </div>
