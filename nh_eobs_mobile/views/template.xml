@@ -243,6 +243,9 @@
                             <t t-if="item['type']=='selection'">
                                 <t t-call="nh_eobs_mobile.observation_data_select"/>
                             </t>
+                            <t t-if="item['type']=='multiselect'">
+                                <t t-call="nh_eobs_mobile.observation_data_multiselect"/>
+                            </t>
                         </div>
                         <t t-if="section=='task'">
                             <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
@@ -277,7 +280,7 @@
                    </select>
                     <t t-set="reference" t-value="item.get('reference')"/>
                    <t t-if="reference">
-                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
                    </t>
                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
@@ -289,21 +292,12 @@
             <div t-att-class="'block obsField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
                     <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
-                        <!-- <t t-if="item['target']">
-                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
-                        </t> -->
-
-                    <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
-                    <!-- </t>
-                    <t t-if="item['text']">
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
-                    </t>  -->
+                    <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                 </div>
                 <div class="input-body">
                     <t t-set="reference" t-value="item.get('reference')"/>
                     <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
                     </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
@@ -314,38 +308,53 @@
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_text_input">
             <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
-                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
-                        <!-- <t t-if="item['target']">
-                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
-                        </t> -->
-
-                    <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
-                    <!-- </t>
-                    <t t-if="item['text']">
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
-                    </t>  -->
+                    <label t-att-for="item['name']">
+                        <t t-esc="item['label']"/>
+                        <t t-if="'secondary_label' in item and item['secondary_label']">
+                            <br/>
+                            <span class="secondary-label"><t t-esc="item['secondary_label']"/></span>
+                        </t>
+                    </label>
                 </div>
                 <div class="input-body">
+                    <textarea t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"></textarea>
                     <t t-set="reference" t-value="item.get('reference')"/>
                     <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
+                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
                     </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
                 </div>
-                <!--<div class="input-body">-->
-                    <!--<span class="errors">-->
-                        <!--<t t-if="item['errors']">-->
-                            <!--<t t-esc="item['errors']"/>-->
-                        <!--</t>-->
-                    <!--</span>-->
-                    <!--<span class="help">-->
-                        <!--<t t-if="item['info']">-->
-                            <!--<t t-esc="item['info']"/>-->
-                        <!--</t>-->
-                    <!--</span>-->
-                <!--</div>-->
+            </div>
+        </template>
+
+        <template name="Checkboxes" t-name="nh_eobs_mobile.observation_data_multiselect">
+            <div t-att-class="'block obsSelectField valHide' if item.get('initially_hidden')==True else 'block obsSelectField'" t-att-id="'parent_{0}'.format(item.get('name'))">
+                <div class="input-header">
+                    <label t-att-for="item.get('name')">
+                        <t t-esc="item.get('label')"/>
+                        <t t-if="item.get('secondary_label')">
+                            <br/>
+                            <span class="secondary-label"><t t-esc="item.get('secondary_label')"/></span>
+                        </t>
+                    </label>
+                </div>
+                <div class="input-body">
+                    <t t-set="options" t-value="item.get('selection')"/>
+                    <ul class="checklist">
+                        <li t-foreach="options" t-as="option">
+                            <input type="checkbox" t-att-name="item.get('name')" t-att-value="option[0]" class="checklist_box"/>
+                            <label><t t-esc="option[1]"/></label>
+                        </li>
+                    </ul>
+
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <p><button t-att-data-type="reference.get('type')" t-att-data-url="reference.get('url')" t-att-data-title="reference.get('title')" class="button reference exclude"><t t-esc="reference.get('label')"/></button></p>
+                    </t>
+                    <span class="errors"><t t-esc="item.get('errors', '')"/></span>
+                    <span class="help"><t t-esc="item.get('info', '')"/></span>
+                </div>
             </div>
         </template>
 

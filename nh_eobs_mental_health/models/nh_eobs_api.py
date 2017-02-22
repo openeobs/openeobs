@@ -12,6 +12,44 @@ class NHeObsAPI(orm.AbstractModel):
 
     _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
+    _active_observations = [
+        {
+            'type': 'ews',
+            'name': 'NEWS'
+        },
+        {
+            'type': 'height',
+            'name': 'Height'
+        },
+        {
+            'type': 'weight',
+            'name': 'Weight'
+        },
+        {
+            'type': 'blood_product',
+            'name': 'Blood Product'
+        },
+        {
+            'type': 'food_fluid',
+            'name': 'Daily Food and Fluid'
+        },
+        {
+            'type': 'blood_sugar',
+            'name': 'Blood Glucose'
+        },
+        {
+            'type': 'stools',
+            'name': 'Bristol Stool Scale'
+        },
+        {
+            'type': 'gcs',
+            'name': 'Glasgow Coma Scale (GCS)'
+        },
+        {
+            'type': 'pbp',
+            'name': 'Postural Blood Pressure'
+        }
+    ]
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """

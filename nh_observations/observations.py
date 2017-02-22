@@ -46,7 +46,8 @@ class NhClinicalPatientObservation(orm.AbstractModel):
 
     @api.multi
     def get_obs_fields(self):
-        return self.env['nh.clinical.field_utils'].get_obs_fields(self)
+        return self.env['nh.clinical.field_utils'].\
+            get_obs_fields_from_model(self)
 
     def get_obs_field_names(self):
         obs_fields = self.get_obs_fields()

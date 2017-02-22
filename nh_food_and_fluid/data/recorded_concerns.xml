@@ -1,0 +1,28 @@
+<openerp>
+    <data noupdate="1">
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_dehydrated">
+            <field name="name">Dehydrated</field>
+        </record>
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_underweight">
+            <field name="name">Underweight / Malnourished</field>
+        </record>
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_refeeding_syndrome">
+            <field name="name">Refeeding Syndrome Risk</field>
+        </record>
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_medical_reason">
+            <field name="name">Medical Reason</field>
+        </record>
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_swallowing_risk">
+            <field name="name">Swallowing Risk - Modified Texture</field>
+        </record>
+
+        <record model="nh.clinical.recorded_concern" id="recorded_concern_eating_poorly">
+            <field name="name">Eating and Drinking Poorly</field>
+        </record>
+    </data>
+</openerp>
