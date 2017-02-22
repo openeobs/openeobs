@@ -10,7 +10,7 @@ class FormDescription(models.TransientModel):
     def to_dict(cls, model):
         form_description = []
         field_utils = cls.pool['nh.clinical.field_utils']
-        obs_fields = field_utils.get_obs_fields(model)
+        obs_fields = field_utils.get_obs_fields_from_model(model)
         for field in obs_fields:
             field_description = {
                 'name': field.name,
