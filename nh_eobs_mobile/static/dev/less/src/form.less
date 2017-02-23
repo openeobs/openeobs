@@ -71,7 +71,7 @@ Markup:
         <input name="error_number" type="number" min="1" max="59" step="1" value="18.7">
       </div>
       <div class="input-body">
-        <span class="errors">Value must be a whole number</span>
+        <span class="errors"><label for="error_number" class="error">Value must be a whole number</label></span>
         <span class="help"></span>
       </div>
     </div>
@@ -142,7 +142,7 @@ Markup:
           <option value="1">Option 1</option>
           <option value="2">Option 2</option>
         </select>
-        <span class="errors">Missing Value</span>
+        <span class="errors"><label for="error_select" class="error">Missing Value</label></span>
         <span class="help"></span>
       </div>
     </div>
@@ -226,7 +226,7 @@ Markup:
                   <label>Option 2</label>
               </li>
           </ul>
-          <span class="errors">Missing value</span>
+          <span class="errors"><label for="error_multiselect" class="error">Missing value</label></span>
           <span class="help"></span>
       </div>
   </div>
@@ -281,7 +281,7 @@ Markup:
       <div class="input-body">
           <span class="help"></span>
           <textarea name="error_text"></textarea>
-          <span class="errors">Missing Value</span>
+          <span class="errors"><label for="error_text" class="error">Missing Value</label></span>
       </div>
     </div>
   </div>
@@ -322,7 +322,7 @@ Styleguide 2.3.1
 
 @import "utils.less";
 #patientName{
-  margin-top: -2px;
+  margin-top: -4px;
   position: fixed;
   background-color: white;
   padding-top: 0.3em;
@@ -342,6 +342,15 @@ Styleguide 2.3.1
 
 #obsForm{
   padding-top: 3em;
+  .errors{
+      label{
+        font-weight: normal;
+      }
+    }
+
+    .help{
+      font-style: italic;
+    }
   .obsField{
     // Flex conversion
     display: flex;
@@ -373,7 +382,6 @@ Styleguide 2.3.1
         flex: 1;
         line-height: 1.75rem;
         height: 1.75rem;
-        padding: 0.3rem 0;
         border-radius: 5px;
         border: 1px solid rgba(0,0,0,0.5);
 
@@ -411,9 +419,6 @@ Styleguide 2.3.1
       textarea{
         border-radius: 5px;
       }
-    }
-    .help{
-      font-style: italic;
     }
 
     .reference{

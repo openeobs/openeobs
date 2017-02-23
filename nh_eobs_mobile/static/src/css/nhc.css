@@ -341,53 +341,267 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
-@font-face {
-  font-family: 'FontAwesome';
-  src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
-  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
-  font-weight: normal;
-  font-style: normal;
+.alert {
+  border-radius: 5px;
+  padding: 2%;
 }
-.block {
-  width: 90%;
-  padding-left: 5%;
-  padding-right: 5%;
+.alert.alert-error {
+  background-color: #ffcccc;
+  color: white;
+  text-shadow: 0px 1px 1px #444444;
 }
-.block .block {
-  width: 100%;
-  padding-left: 0%;
-  padding-right: 0%;
+/*
+
+Typography
+
+A typographical scale for text content easy to read on the MioCare devices, using the 35 character rule on a 480px wide screen
+
+h1 - Main header, used once on a page
+h2 - Secondary header, used sparingly on a page
+h3 - Tertiary header, most often used header
+h4 - Used for subsections
+h5 - Rarely used
+h6 - Really shouldn't use this
+
+Markup:
+<h1>Header 1</h1>
+<h2>Header 2</h2>
+<h3>Header 3</h3>
+<h4>Header 4</h4>
+<h5>Header 5</h5>
+<h6>Header 6</h6>
+<h2>Paragraph Styles</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dignissim ullamcorper eros. Suspendisse efficitur leo id tellus finibus laoreet et ac sem. Nunc vestibulum erat odio. In laoreet posuere libero, at ultricies orci malesuada ac. Duis aliquam quam ut blandit scelerisque. Proin magna felis, luctus vitae justo id, rhoncus gravida nisi. Aenean elementum velit est, sed efficitur justo scelerisque eget. Proin ut arcu a dolor laoreet dictum. Aenean rhoncus, odio at interdum consequat, elit tellus suscipit est, suscipit tristique nisi justo vitae dolor. Fusce et suscipit nibh. Duis dui leo, fermentum a libero sed, cursus imperdiet risus. Sed auctor vehicula interdum. In sit amet ultrices eros, vel tincidunt purus. Nullam porta et risus a eleifend.</p>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h3>Header in paragraph</h3>
+<p>Ut consectetur lacus vel orci fringilla hendrerit. Phasellus semper metus accumsan mauris consequat, sit amet vehicula odio feugiat. Proin vitae aliquet sem. Nulla mollis mollis sapien in malesuada. Nullam tempus nibh at posuere egestas. Proin convallis, sem nec dictum elementum, turpis justo iaculis lorem, dictum facilisis orci ante sit amet ligula. Sed ornare venenatis neque, at ultricies tellus rutrum a. Praesent varius arcu enim, vel tristique sem fringilla ut. Aliquam hendrerit ex metus, nec tristique neque molestie non. Maecenas vitae leo elit. Donec rutrum egestas turpis, vel sagittis mauris volutpat nec. Duis magna dui, finibus ac placerat volutpat, semper eget orci. Proin vulputate, leo at posuere porta, arcu nisl sagittis diam, ac pulvinar urna velit in sapien. Phasellus aliquam mollis tellus vitae condimentum. Phasellus eget metus nec sem auctor pretium vitae quis massa.</p>
+<h2>List styles</h2>
+<ul>
+  <li>List item</li>
+  <li>List item</li>
+</ul>
+<ol>
+  <li>List item</li>
+  <li>List item</li>
+</ol>
+<dl>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+  <dt>Definition</dt>
+  <dd>Description</dd>
+</dl>
+
+Styleguide 1.3
+*/
+body {
+  font-size: 1rem;
+  line-height: 1.4rem;
+  margin: 0 auto;
 }
-button,
-.button {
-  padding: .3em 2% .3em 2%;
+h1 {
+  font-size: 2em;
+  line-height: 1;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+h2 {
+  font-size: 1.7em;
+  line-height: 1.1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+h3 {
+  font-size: 1.5em;
+  line-height: 1.1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+  padding-top: 1em;
+}
+h4 {
+  font-size: 1.4em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+h5 {
+  font-size: 1.3em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+h6 {
+  font-size: 1.2em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+ul,
+ol,
+pre,
+table,
+blockquote {
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+p {
   font-size: 1em;
   line-height: 1.4;
-  height: 2.4em;
-  border-radius: 5px;
-  background-color: #888888;
-  border: 1px solid #888888;
-  text-decoration: none;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
 }
-button.alignright,
-.button.alignright {
-  float: right;
+dd {
+  -webkit-margin-start: 0;
+}
+/* Sanitation */
+hr {
+  border: 1px solid;
+  margin: -1px 0;
+}
+ul ul,
+ol ol,
+ul ol,
+ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+b,
+strong,
+em,
+small,
+code {
+  line-height: 1;
+}
+sup,
+sub {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+}
+sub {
+  top: 0.4em;
+}
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 4.17vw;
+  }
+}
+/*
+
+CSS
+
+General Style components such as typography, grids, buttons etc
+
+Styleguide 1.0
+*/
+/*
+
+Components
+
+Component pieces for UI such as modals, menus, data visualisation
+
+Styleguide 2.0
+*/
+/*
+
+General Styling
+
+Style components used for main UI
+
+.header - Top level menu container
+.content - Main content, is offset to accommodate top level menu
+.content.no-menu - Restores the offset as menu isn't present
+.share-content - Adds another offset to the bottom to accommodate for the stand-in screens floating footer
+.footer - Footer, contains logged in user details
+.footer .user - User details in footer
+.share-footer - Container for footer used in stand-in screen
+.share-footer .user - User details in stand-in screen
+
+Markup:
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+</div>
+<div class="content no-menu">
+  <p class="block">Content without menu</p>
+</div>
+<!-- Normal footer -->
+<div class="footer">
+  <p class="user">Test User</p>
+</div>
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a class="selected">Option one</a></li>
+    <li><a>Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+<div class="content share-content">
+  <div class="block">
+    <a class="patientInfo" id="obsButton">
+      <h3 class="name">
+        <strong>Test Patient </strong><br>
+        Ward A, Bed 01
+      </h3>
+      <h3 class="obs button do-it">Take observation</h3>
+    </a>
+  </div>
+</div>
+<!-- Stand-in footer -->
+<div class="share-footer">
+  <p class="user">Test User</p>
+  <ul class="header-menu three-col">
+    <li><a>Share</a></li>
+    <li><a>Claim</a></li>
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+
+Styleguide 1.1
+*/
+.content {
+  margin-top: 6.5em;
+}
+.content.no-menu {
+  margin-top: 4em;
+}
+.share-content {
+  margin-bottom: 3.3em;
+}
+.footer {
+  height: 1.5em;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: inherit;
+  padding-left: 0;
   display: inline-block;
-  clear: left;
 }
-button.go,
-.button.go {
-  background-color: #22b232;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  border: 1px solid #40b21b;
+.footer .user {
+  color: rgba(0, 0, 0, 0.3);
+  float: right;
+  padding: 0;
+  margin: 0;
+  margin-left: 5%;
 }
-button.back,
-.button.back {
-  background-color: #4491ce;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  border: 1px solid #a9dbff;
+.share-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 101%;
+}
+.share-footer .user {
+  text-align: right;
+  margin-right: 6%;
+  color: rgba(0, 0, 0, 0.3);
 }
 a.patientInfo {
   display: block;
@@ -400,14 +614,60 @@ a.patientInfo .obs {
   width: 40%;
   position: absolute;
   right: 0;
-  top: 0em;
+  top: 1em;
   text-align: right;
-  padding: 0.3em 2%;
-  border-radius: 5px;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  background-color: #ea3172;
+  margin-top: -1px;
 }
+#obsButton {
+  margin-bottom: 2em;
+}
+span.alignright {
+  float: right;
+}
+li.rightContent {
+  position: relative;
+}
+li.rightContent span.aside {
+  position: absolute;
+  right: 5%;
+}
+li.popuprightContent {
+  position: relative;
+}
+li.popuprightContent span.aside {
+  position: absolute;
+  right: 5%;
+  width: 10%;
+  top: -0.3em;
+}
+/*
+Menu
+
+Styling for the main menu
+
+.header - Defines the navigation as floating at the top of the page
+.header-main - Contains utility items such as logo, logout etc
+.header-main .logo - Logo (floated left)
+.header-main .header-meta - Contains utility buttons (floated right)
+.header-menu - Contains the main navigation items used in conjuction with inline button style
+.header-menu li .urgent-badge - Used to show notifications for stand-in
+
+Markup:
+<div class="header">
+  <div class="header-main block">
+    <img src="public/logo.png" class="logo">
+    <ul class="header-meta">
+      <li class="logout"><a class="button back">Logout</a></li>
+     </ul>
+  </div>
+  <ul class="header-menu two-col">
+    <li><a class="selected">Option one</a></li>
+    <li><a>Option two <span class="urgent-badge">3</a></li>
+  </ul>
+</div>
+
+Styleguide 2.1
+*/
 .header {
   display: inline-block;
   padding-top: 0.5em;
@@ -438,7 +698,6 @@ a.patientInfo .obs {
   float: right;
   list-style: none;
   margin: 0;
-  margin-top: 0.45em;
   width: 200px;
   padding-left: 0;
 }
@@ -514,14 +773,6 @@ a.patientInfo .obs {
 .tabs.twocol li {
   width: 50%;
 }
-.header-menu.three-col li,
-.dialog .options.three-col li,
-.tabs.three-col li,
-.header-menu.threecol li,
-.dialog .options.threecol li,
-.tabs.threecol li {
-  width: 33%;
-}
 .header-menu.two-col li:first-child,
 .dialog .options.two-col li:first-child,
 .tabs.two-col li:first-child,
@@ -531,6 +782,14 @@ a.patientInfo .obs {
   border-right: 1px solid #eeeeee;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+}
+.header-menu.three-col li,
+.dialog .options.three-col li,
+.tabs.three-col li,
+.header-menu.threecol li,
+.dialog .options.threecol li,
+.tabs.threecol li {
+  width: 33%;
 }
 .header-menu.three-col li:first-child,
 .dialog .options.three-col li:first-child,
@@ -542,292 +801,330 @@ a.patientInfo .obs {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.header-menu.three-col li:last-child,
-.dialog .options.three-col li:last-child,
-.tabs.three-col li:last-child,
-.header-menu.threecol li:last-child,
-.dialog .options.threecol li:last-child,
-.tabs.threecol li:last-child {
-  border-left: 1px solid #eeeeee;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
+/*
+
+Iconography
+
+Icons used to display information
+
+i - Element used for icons
+.icon-info - A 'i' in a circle, used for patient information
+.icon-alert - An exclamation mark in a triangle, used for alerts
+.icon-left-arrow - A left pointing arrow, used to indicate a clinical risk trend that hasn't changed
+.icon-same-arrow - An alias for the icon-left-arrow class
+.icon-up-arrow - An upwards pointing arrow, used to indicate a clinical risk that has increased
+.icon-down-arrow - A downwards pointing arrow, used to indicate a clinical risk that has decreased
+
+Markup:
+<ul>
+  <li><strong>Info</strong> <i class="icon-info"></i></li>
+  <li><strong>Alert</strong> <i class="icon-alert"></i></li>
+  <li><strong>Left Arrow</strong> <i class="icon-left-arrow"></i></li>
+  <li><strong>Up Arrow</strong> <i class="icon-up-arrow"></i></li>
+  <li><strong>Down Arrow</strong> <i class="icon-down-arrow"></i></li>
+</ul>
+
+Styleguide 1.5
+*/
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
+  src: url('../fonts/fontawesome-webfont.eot?#iefix&v=4.0.3') format('embedded-opentype'), url('../fonts/fontawesome-webfont.woff?v=4.0.3') format('woff'), url('../fonts/fontawesome-webfont.ttf?v=4.0.3') format('truetype'), url('../fonts/fontawesome-webfont.svg?v=4.0.3#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
 }
-.tabs {
-  border-top: 0px solid black;
-  margin-bottom: 5em;
-}
-.tabs li {
-  border: 1px solid #eeeeee;
-  width: 49.5% !important;
-}
-.tabs li:first-child {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-.tabs li:first-child a {
-  border-bottom-left-radius: 5px;
-  border-top-left-radius: 5px;
-}
-.tabs li:last-child {
-  border-left: 0px solid black;
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-.tabs li:last-child a {
-  border-bottom-right-radius: 5px;
-  border-top-right-radius: 5px;
-}
-.content {
-  margin-top: 6.5em;
-}
-.share-content{
-    margin-bottom: 3.3em;
-}
-.content.no-menu {
-  margin-top: 4em;
-}
-.tasklist {
-  margin: 0;
-  padding: 0;
-}
-.tasklist li a {
-  display: block;
-  padding-top: 0.7em;
-  padding-bottom: 0.7em;
-  border-bottom: 1px solid #eeeeee;
-  position: relative;
-}
-.tasklist li a .task-meta {
-  width: 100%;
-  clear: both;
-  float: none;
-    display: inline-block;
-}
-.tasklist li a .task-right {
-  float: right;
-  width: 27.5%;
-  margin-left: 2.5%;
-  margin-top: 0px;
-  text-align: right;
-  font-weight: bold;
-}
-.tasklist li a .task-right p {
-  margin-top: 0px;
-  margin-bottom: 1em;
-}
-.tasklist li a .task-left {
-  float: left;
-  width: 67.5%;
-  margin-right: 2.5%;
-  text-align: left;
-  margin-top: 0px;
-}
-.tasklist li a h2 {
-  width: 65%;
-  color: #262626;
-}
-.tasklist li a p {
-  color: #000000;
-}
-.tasklist li a p.taskInfo {
-  text-decoration: underline;
-}
-.tasklist li a.level-one {
-  background-color: #ccffcc;
-}
-.tasklist li a.level-two {
-  background-color: #ffdfbe;
-}
-.tasklist li a.level-three,
-.tasklist li a.urgent {
-  background-color: #ffcccc;
-}
-.tasklist li a.level-not-set {
-  background-color: #e5dfff;
-}
-#patientName {
-  margin-top: -2px;
-  position: fixed;
-  background-color: white;
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
-  z-index: 9997;
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
-}
-#patientName a {
-  text-decoration: none;
-  color: #282828;
-  width: 100%;
-  display: block;
-}
-#patientName .icon-info {
-  float: right;
-}
-#obsForm {
-  padding-top: 3em;
-}
-#obsForm .obsField {
-  border-bottom: 1px solid #888888;
-  padding-top: 1em;
-  padding-bottom: 0.7em;
-  height: 3.4em;
-}
-#obsForm .obsField .input-header label {
-  width: 45%;
-  float: left;
-  font-size: 1.2em;
-  padding-top: 0.6em;
-  padding-bottom: 0.6em;
-}
-#obsForm .obsField .input-header input {
-  width: 45%;
-  float: right;
-}
-#obsForm .obsField.error {
-  background-color: #ffcccc !important;
-  height: 4.4em;
-}
-#obsForm .obsField.warning {
-  background-color: #ffdfbe;
-  height: 4.4em;
-}
-#obsForm .obsField.warning.error {
-  height: 5em !important;
-}
-#obsForm .obsField .input-body .errors {
-  display: block;
-}
-#obsForm .obsField .input-body .help {
+i {
+  font-family: 'fontAwesome';
+  font-style: normal;
   display: inline-block;
-  width: 43%;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
 }
-#obsForm .obsField .targetString {
-  font-style: italic;
+.icon-info:before {
+  content: "\f05a";
 }
-#obsForm .obsSelectField {
-  border-bottom: 1px solid #888888;
-  padding-top: 1em;
-  padding-bottom: 1em;
+.icon-alert:before {
+  content: "\f071";
 }
-#obsForm .obsSelectField .input-header label {
-  font-size: 1.2em;
-  padding-top: 0.6em;
+.icon-left-arrow:before,
+.icon-same-arrow:before {
+  content: "\f060";
 }
-#obsForm .obsSelectField.error {
-  background-color: #ffcccc;
+.icon-up-arrow:before {
+  content: "\f062";
 }
-#obsForm .obsSelectField.warning {
-  background-color: #ffffff;
+.icon-down-arrow:before {
+  content: "\f063";
 }
-#obsForm .input-body {
-  padding-top: 1em;
+/*
+
+  Grid
+
+  Styles for aligning elements, basically everything on the page clears the edge of the browser by 5% (ideal for proper scrolling space)
+
+  .block - Adds 5% padding
+  .block .block - Removes the 5% padding from a nested block class
+
+  Markup:
+  <div class="block">
+    <p>This is a single block</p>
+    <div class="block">
+      <p>This is inside a double block</p>
+    </div>
+  </div>
+
+  Styleguide 1.2
+  */
+.block {
+  width: 90%;
+  padding-left: 5%;
+  padding-right: 5%;
 }
-#obsForm .input-body input[type="range"] {
-  -webkit-appearance: none;
-  background-color: #4491ce !important;
-  height: 0.5em;
-  padding: 0;
+.block .block {
   width: 100%;
-  border-radius: 20px;
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.6);
-  display: inline-block;
-  margin-top: 1em;
+  padding-left: 0%;
+  padding-right: 0%;
 }
-#obsForm .input-body input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 2em;
-  height: 2em;
-  border-radius: 50%;
-  background: #ea3172;
-  box-shadow: 0xp 0px 5px rgba(0, 0, 0, 0.6);
-}
-#obsForm .input-body select {
-  width: 100%;
-  height: 2.4em;
-  padding: 0.3em 2% 0.3em 2%;
-  font-size: 1em;
-  line-height: 1.4;
-  border-radius: 5px;
-  border-color: #4491ce;
-  color: #ea3172;
-  font-weight: bold;
-  background-color: #ffffff;
-  margin-bottom: 1em;
-}
-#obsForm .input-body .button {
-  background-color: #ea3172;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  width: 100%;
-  display: inline-block;
-  /*padding-top: 1em;*/
-  /*padding-bottom: 0px;*/
-  text-align: center;
-}
-#obsForm .obsSubmit {
-  padding-top: 2em;
-  /* padding-bottom: 1em; */
-}
-#obsForm .obsSubmit input {
-  background-color: #ea3172;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0px 1px 0px #666666;
-  border: 1px solid #ff9494;
-  font-size: 1.2em;
-  height: 2.4em;
-  width: 100%;
-}
-.obsConfirm {
-  margin: 0px;
-}
-.obsConfirm #cancelSubmit {
-  padding: 0px;
-}
-.obsSubmit .button {
-  background-color: #ea3172;
-  width: 100%;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0px 1px 0px #666666;
-  font-size: 1.2em;
-  height: 2.4em;
-  text-align: center;
-  display: inline-block;
-  padding: 0px;
-  padding-top: 1em;
-}
-.obsConfirm .button {
-  background-color: #4491ce;
-  width: 100%;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0px 1px 0px #666666;
-  font-size: 1.2em;
-  height: 2.4em;
-  text-align: center;
-  display: inline-block;
-  padding: 0px;
-  padding-top: 1em;
-}
-.breadcrumbs {
-  list-style: none;
-  padding: 0px;
-  margin: 0px;
-  padding-top: 0.5em;
-}
-.breadcrumbs li {
-  display: inline;
-}
-.breadcrumbs li a {
-  text-decoration: none;
-  padding-top: 0.5em;
-  padding-bottom: 0.5em;
-  padding-left: 4%;
-}
-.breadcrumbs li a:after {
-  content: " >";
-}
+/*
+
+Colour Palette
+
+Colours used in Open-eObs
+
+@header-colour - 282828, Used in the header as a less harsh tone of black
+@body-colour - 000000, Used in main body for high contrast
+@action-colour -  ea3172, Main colour from Open-eObs branding, used as a call to action
+@link-colour -  4491ce, Secondary colour from Open-eObs branding, used as a dismissive action
+@error-color -  red, Used in a less harsh form throughout the app via a LESS transformation, Used to dictate high clinical risk
+@warning-colour - ffd5b4, Used to dictate medium clinical risk
+@ok-colour -  green, Used in a less hard form throughout the app via a LESS transformation, Used to dictate low clinical risk
+@not-set-colour -  e5dfff, Used to dictate an unknown clinical risk
+
+Markup:
+<ul class="element-list">
+  <li><a class="button" style="background-color: #282828;">@header-colour</a></li>
+  <li><a class="button" style="background-color: #000000;">@body-colour</a></li>
+  <li><a class="button" style="background-color: #ea3172;">@action-colour</a></li>
+  <li><a class="button" style="background-color: #4491ce;">@link-colour</a></li>
+  <li><a class="button" style="background-color: red;">@error-colour</a></li>
+  <li><a class="button" style="background-color: #ffd5b4;">@warning-colour</a></li>
+  <li><a class="button" style="background-color: green;">@ok-colour</a></li>
+  <li><a class="button" style="background-color: #e5dfff;">@not-set-colour</a></li>
+</ul>
+
+Styleguide 1.4
+*/
+/*
+Modals
+
+Styling for modals - Generated by NHMobile Js Library
+
+.dialog - The main modal container
+.dialog .dialogContent - Contains the content of the modal
+.dialog h2 - The title for the modal
+.dialog .options - The buttons for the modal
+.dialog dl - Styling for definition lists in modal
+.dialog dl dt.twoline, .dialog dl dd.twoline - A two line entry in the definition list (for long strings)
+.dialog .menu - Style a list of links to act as a menu
+.dialog img, .dialog iframe - Full width images and iframes in modals (for reference materials)
+.cover - Background for modal
+
+Markup:
+<!-- Cover -->
+<div class="cover" style="height: 100%"></div>
+<!-- Standard Modal -->
+<div class="dialog">
+  <h2>Example</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <p>An example description</p>
+  </div>
+  <ul class="options one-col">
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+<!-- Menu Modal -->
+<div class="dialog">
+  <h2>Select an option</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <ul class="menu">
+      <li><a>Option one</a></li>
+      <li><a>Option two</a></li>
+      <li><a>Option three</a></li>
+      <li><a>Option four</a></li>
+      <li><a>Option five</a></li>
+      <li><a>Option six</a></li>
+      <li><a>Option seven</a></li>
+      <li><a>Option eight</a></li>
+      <li><a>Option nine</a></li>
+    </ul>
+  </div>
+  <ul class="options one-col">
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+<!-- Definition List Modal -->
+<div class="dialog">
+  <h2> Example Patient <span class="alignright">M</span></h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <dl>
+      <dt>DOB:</dt>
+      <dd>1988-01-012</dd>
+      <dt>Location:</dt>
+      <dd>Bed 04,Ward A</dd>
+      <dt class="twoline">Latest Score:</dt>
+      <dd class="twoline">2</dd>
+      <dt>Hospital ID:</dt>
+      <dd>2535699</dd>
+      <dt>NHS Number:</dt>
+      <dd>179 188 1618</dd>
+    </dl>
+    <p><a class="button full-width big do-it">View Patient Observation Data</a></p>
+  </div>
+  <ul class="options one-col">
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+<!-- Standard Modal -->
+<div class="dialog">
+  <h2>Reference Iframe</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <iframe src="http://www.neovahealth.co.uk"></iframe>
+  </div>
+  <ul class="options one-col">
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+
+Styleguide 2.4.0
+*/
+/*
+Clinical Risk Modals
+
+Styling for modals that contain clinical risks
+
+.dialog.clinicalrisk-low - Colours the modal green to indicate low clinical risk
+.dialog.clinicalrisk-medium - Colours the modal orange to indicate medium clinical risk
+.dialog.clinicalrisk-high - Colours the modal red to indicate high clinical risk
+
+Markup:
+<!-- Cover -->
+<div class="cover" style="height: 100%"></div>
+<!-- Low Clinical Risk Modal -->
+<div class="dialog clinicalrisk-low">
+  <h2>Submit NEWS of 1 for Example Patient?</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <p><strong>Clinical risk: Low</strong></p>
+    <p>Please confirm you want to submit this score</p>
+  </div>
+  <ul class="options two-col">
+    <li><a>Cancel</a></li>
+    <li><a>Submit</a></li>
+  </ul>
+</div>
+<!-- Medium Clinical Risk Modal -->
+<div class="dialog clinicalrisk-medium">
+  <h2>Submit NEWS of 5 for Example Patient?</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <p><strong>Clinical risk: Medium</strong></p>
+    <p>Please confirm you want to submit this score</p>
+  </div>
+  <ul class="options two-col">
+    <li><a>Cancel</a></li>
+    <li><a>Submit</a></li>
+  </ul>
+</div>
+<!-- High Clinical Risk Modal -->
+<div class="dialog clinicalrisk-high">
+  <h2>Submit NEWS of 18 for Example Patient?</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <p><strong>Clinical risk: High</strong></p>
+    <p>Please confirm you want to submit this score</p>
+  </div>
+  <ul class="options two-col">
+    <li><a>Cancel</a></li>
+    <li><a>Submit</a></li>
+  </ul>
+</div>
+
+Styleguide 2.4.1
+*/
+/*
+Form Modals
+
+Styling for modals that allow the user to select options via select and checbox
+
+.dialog select - Select box inside a modal
+.dialog .sharelist - Layout to display a checkbox inline with a label
+.dialog .sharelist input - Override to make checkbox bigger so can be hit easier
+
+Markup:
+<!-- Cover -->
+<div class="cover" style="height: 100%"></div>
+<!-- Select Modal -->
+<div class="dialog">
+  <h2>Submit partial observation</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <p class="block">Please state reason for submitting partial observation</p>
+    <select name="partial_reason">
+      <option value="not_in_bed">Patient not in bed</option>
+      <option value="asleep">Patient asleep</option>
+    </select>
+  </div>
+  <ul class="options two-col">
+    <li><a>Cancel</a></li>
+    <li><a>Confirm</a></li>
+  </ul>
+</div>
+<!-- Checkbox Modal -->
+<div class="dialog">
+  <h2>Assign patient to colleague</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <form id="nurse_list">
+      <ul class="sharelist">
+        <li>
+          <input type="checkbox" name="test_input_1" class="patient_share_nurse">
+          <label for="test_input_1">A Colleague (5)</label>
+        </li>
+        <li>
+          <input type="checkbox" name="test_input_2" class="patient_share_nurse">
+          <label for="test_input_2">Another Colleague (3)</label>
+        </li>
+        <li>
+          <input type="checkbox" name="test_input_3" class="patient_share_nurse">
+          <label for="test_input_3">Yet Another Colleague (16)</label>
+        </li>
+        <li>
+          <input type="checkbox" name="test_input_4" class="patient_share_nurse">
+          <label for="test_input_4">And Another Colleague (0)</label>
+        </li>
+        <li>
+          <input type="checkbox" name="test_input_5" class="patient_share_nurse">
+          <label for="test_input_5">Last One (1)</label>
+        </li>
+      </ul>
+      <p class="error"></p>
+    </form>
+  </div>
+  <ul class="options two-col">
+    <li><a>Assign</a></li>
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+<!-- Textarea Modal -->
+<div class="dialog">
+  <h2>Scan patient wristband</h2>
+  <div class="dialogContent" style="max-height: 220px;">
+    <div class="block">
+      <textarea name="barcode_scan" class="barcode_scan"></textarea>
+    </div>
+  </div>
+  <ul class="options one-col">
+    <li><a>Cancel</a></li>
+  </ul>
+</div>
+
+Styleguide 2.4.2
+*/
 .dialog {
   width: 90%;
   margin-left: 5%;
@@ -839,7 +1136,6 @@ a.patientInfo .obs {
   position: fixed;
   top: 40%;
   left: 0px;
-  /*display: none;*/
   z-index: 9999;
 }
 .dialog.clinicalrisk-low {
@@ -858,10 +1154,39 @@ a.patientInfo .obs {
   max-width: 100%;
   height: auto;
 }
+.dialog .dialogContent .tasklist {
+  list-style: none;
+}
+.dialog .dialogContent .tasklist .block > a {
+  padding-bottom: 0;
+}
+.dialog .dialogContent .tasklist .block .task-meta {
+  display: inline-block;
+}
+.dialog .dialogContent .sharelist {
+  padding-left: 0;
+}
+.dialog .dialogContent .sharelist li > label {
+  flex: 4 0 0;
+  margin: 0.8em 0;
+}
+.dialog .dialogContent .sharelist input {
+  height: 2.4em;
+  margin: 0.5em 0;
+}
+.dialog .dialogContent p:first-child,
+.dialog .dialogContent dl:first-child {
+  margin-top: 0.6rem;
+}
 .dialog.obsAlert {
   display: inline-block !important;
 }
-.dialog h2,
+.dialog h2 {
+  margin-top: 0.6rem;
+  margin-bottom: 0.6rem;
+  padding-left: 5%;
+  padding-right: 5%;
+}
 .dialog p {
   padding-left: 5%;
   padding-right: 5%;
@@ -888,6 +1213,13 @@ a.patientInfo .obs {
 }
 .dialog dl dd.twoline {
   height: 2.2em;
+}
+.dialog iframe {
+  width: 100%;
+  border: 0 solid black;
+}
+.dialog img {
+  width: 100%;
 }
 .dialog .options li:first-child,
 .dialog .options li:first-child a {
@@ -961,302 +1293,50 @@ a.patientInfo .obs {
   margin-bottom: 1em;
   margin-left: 5%;
 }
-.newsScoreGreen,
-#obsScore.green {
-  color: green;
-}
-.newsScoreAmber,
-#obsScore.amber {
-  color: #ffd5b4;
-}
-.newsScoreRed,
-#obsScore.red {
-  color: red;
+body.no-scroll {
+  overflow: hidden;
+  height: 100%;
 }
 .cover {
   display: inline-block;
-  height: 1000%;
+  height: 100%;
   width: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 9998;
-  position: absolute;
+  position: fixed;
   top: 0px;
   left: 0px;
 }
-.patientlist {
-  margin: 0;
-  padding: 0;
-}
-.patientlist li {
-  display: block;
-}
-.patientlist li a {
-  /*display: block;
-    padding-top: 0.7em;
-    padding-bottom: 0.7em;
-    border-bottom: 1px solid #eeeeee;
-    font-size: 1.2em;
-    color: #282828;
-    height: inherit;
-    float: none;
-    clear: both;
-    position: relative;  */
-}
-.patientlist li a .aside {
-  position: absolute;
-  right: 5%;
-  text-align: right;
-  /*top: -1.2em;
-      font-size: 0.8em;*/
-  width: 37%;
-}
-.patientlist li a.level-one {
-  background-color: #ccffcc;
-}
-.patientlist li a.level-two {
-  background-color: #ffdfbe;
-}
-.patientlist li a.level-three,
-.patientlist li a.urgent {
-  background-color: #ffcccc;
-}
-.footer {
-  height: 1.5em;
-  position: fixed;
-  bottom: 0px;
-  right: 0px;
-  width: inherit;
-  padding-left: 0;
-  display: inline-block;
-}
-.footer .user {
-  color: rgba(0, 0, 0, 0.3);
-  float: right;
-  padding: 0;
-  margin: 0;
-  margin-left: 5%;
-}
-.chart {
+.barcode_scan {
   margin-bottom: 1em;
-}
-.chart .axis path,
-.chart .axis line {
-  fill: none;
-  stroke: black;
-  shape-rendering: crispEdges;
-}
-.chart .axis text {
-  font-family: sans-serif;
-  font-size: 11px;
-}
-.chart .grid .tick {
-  stroke: lightgrey;
-  opacity: 0.7;
-}
-.chart .grid path {
-  stroke-width: 0;
-}
-.chart div.ui-content {
-  padding-right: 0px;
-}
-.table-wrapper {
-  position: relative;
-  margin-bottom: 2em;
-}
-.table-wrapper .table-wrapper {
-  width: 91.5%;
-  overflow: auto;
-}
-.table-wrapper .table-wrapper #chartTable {
+  border-radius: 5px;
   width: 100%;
 }
-.table-wrapper .table-wrapper #chartTable th {
-  text-align: center;
-  font-size: 0.8em;
-  border-bottom: 1px solid #262626;
-  border-left: 1px solid #262626;
-}
-.table-wrapper .table-wrapper #chartTable th:first-child {
-  text-align: left;
-  padding-left: 0px;
-  border-left: 0px solid black;
-}
-.table-wrapper .table-wrapper #chartTable tr:nth-child(even) {
-  background-color: #dddddd;
-}
-.table-wrapper .table-wrapper #chartTable tr td {
-  padding-left: 1%;
-  padding-right: 1%;
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
-  text-align: center;
-  border-left: 1px solid #262626;
-}
-.table-wrapper .table-wrapper #chartTable tr td:first-child {
-  text-align: left;
-  padding-left: 0px;
-  border-left: 0px solid black;
-}
-.alert {
-  border-radius: 5px;
-  padding: 2%;
-}
-.alert.alert-error {
-  background-color: #ffcccc;
-  color: white;
-  text-shadow: 0px 1px 1px #444444;
-}
-.MEWShide,
-.valHide {
-  display: none;
-}
-i {
-  font-family: 'fontAwesome';
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-}
-.icon-info:before {
-  content: "\f05a";
-}
-.icon-person:before {
-  content: "\f007";
-}
-.icon-alert:before {
-  content: "\f071";
-}
-.icon-left-arrow:before {
-  content: "\f060";
-}
-.icon-up-arrow:before {
-  content: "\f062";
-}
-.icon-down-arrow:before {
-  content: "\f063";
-}
-.mobDT {
-  width: 30%;
-  float: right;
-  margin-left: 2%;
-}
-span.alignright {
-  float: right;
-}
-li.rightContent {
-  position: relative;
-}
-li.rightContent span.aside {
-  position: absolute;
-  right: 5%;
-}
-li.popuprightContent {
-  position: relative;
-}
-li.popuprightContent span.aside {
-  position: absolute;
-  right: 5%;
-  width: 10%;
-  top: -0.3em;
-}
-div.contextPopup {
-  position: absolute;
-  text-align: center;
-  width: 5%;
-  height: inherit;
-  padding: 0.4em 0.25%;
-  font: 0.8em sans-serif;
-  background: rgba(0, 0, 0, 0.7);
-  border: solid 0px rgba(0, 0, 0, 0.7);
-  border-radius: 8px;
-  border-bottom-left-radius: 0px;
-  pointer-events: none;
-  color: white;
-}
-circle.contextPoint {
-  fill: black;
-  stroke-width: 5px;
-  stroke: rgba(0, 0, 0, 0);
-}
-circle.emptyContextPoint {
-  fill: none;
-  stroke-width: 1px;
-  stroke: #000000;
-}
-rect.red {
-  fill: #ffcccc;
-}
-rect.amber {
-  fill: #ffe9c8;
-}
-rect.green {
-  fill: #ccffcc;
-}
-.chartDates {
-  display: none;
-  height: 4em;
-}
-.chartDates p {
-  display: inline-block;
-  float: left;
-}
-.obsChange .obsSelectField {
-  border-bottom: 0px solid black !important;
-  padding-bottom: 0px !important;
-}
-.obsChange .obsSubmit {
-  padding-bottom: 0px !important;
-}
-#obsButton {
-  margin-bottom: 2em;
-}
-.card {
-  border: 1px solid #dddddd;
-  box-shadow: 1px 0px 3px #888888;
-  border-radius: 5px;
-  margin-bottom: 2em;
-}
-.card h3 {
-  background-color: #4491ce;
-  color: white;
-  display: block;
-  width: 90%;
-  padding: 0.2em 5%;
-  margin-top: 0px;
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-}
-.card table {
-  margin: 0 5%;
-  width: 90%;
-}
-.card table tr td:first-child {
-  font-weight: bold;
-  width: 60%;
-}
-.card table tr td {
-  vertical-align: top;
-}
-.card table tr td table {
-  width: 100%;
-  margin: 0%;
-}
-.patient_obs {
-  padding: 0.3em 2%;
-  border-radius: 5px;
-  color: #ffffff;
-  text-shadow: 0px 1px 0px #666666;
-  background-color: #ea3172;
-  width: 100%;
-  display: block;
-  font-size: 1.2em;
-  text-align: center;
-}
+/*
+Full Screen Modals
+
+Modals that display in full screen, usually used to display iframes
+
+.full-modal - Container for full screen modal
+.full-modal iframe - Styling for iframe inside full screen modal
+.full-modal p - Styling for top level bar (used for full screen modal options)
+.full-modal p a - Styling for links in top level bar
+
+Markup:
+<!-- Cover -->
+<!-- High Clinical Risk Modal -->
+<div class="full-modal">
+  <p><a>Close popup</a></p>
+  <iframe src="http://www.neovahealth.co.uk"></iframe>
+</div>
+
+Styleguide 2.4.3
+*/
 .full-modal {
   width: 100%;
   height: 100%;
   z-index: 999999999999999;
-  position: absolute;
+  position: fixed;
   top: 0px;
   left: 0px;
   background-color: white;
@@ -1279,36 +1359,1132 @@ rect.green {
   height: 100%;
   background-color: white;
 }
+/*
+Button
+
+Styling for buttons
+
+.button, button - Generic button class
+.button.go - Green button to indicate an progressive action
+.button.back - Blue button to indicate a regressive action
+.button.alignright - Helper class to float button right
+input[type="submit"][disabled], input[type="reset"][disabled] - Disabled button styling
+
+Markup:
+<h4>Normal Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button">Default Button</button></li>
+  <li><button type="button" class="go">Login Button</button></li>
+  <li><button type="button" class="back">Menu Button</button></li>
+  <li><button type="button" class="do-it">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it">Cancel Button</button></li>
+</ul>
+<h4>Small Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="small">Default Button</button></li>
+  <li><button type="button" class="go small">Login Button</button></li>
+  <li><button type="button" class="back small">Menu Button</button></li>
+  <li><button type="button" class="do-it small">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it small">Cancel Button</button></li>
+</ul>
+<h4>Big Buttons</h4>
+<ul class="inline-list">
+  <li><button type="button" class="big">Default Button</button></li>
+  <li><button type="button" class="go big">Login Button</button></li>
+  <li><button type="button" class="back big">Menu Button</button></li>
+  <li><button type="button" class="do-it big">Submit Button</button></li>
+  <li><button type="button" class="dont-do-it big">Cancel Button</button></li>
+</ul>
+<h4>Full Width Button</h4>
+<ul class="element-list">
+  <li><a class="button big do-it full-width">A big pink full width button</a></li>
+  <li><a class="button small dont-do-it full-width">A big pink full width button</a></li>
+  <li><a class="button go full-width">A big pink full width button</a></li>
+</ul>
+<h4>Disabled form buttons</h4>
+<ul class="element-list">
+  <li><input type="submit" disabled="disabled" value="Disabled submit button"></li>
+  <li><input type="reset" disabled="disabled" value="Disabled reset button"></li>
+</ul>
+
+Styleguide 1.6
+*/
+button,
+.button,
+input[type="submit"],
+input[type="reset"] {
+  padding: .3em 2% .3em 2%;
+  border-radius: 5px;
+  background-color: #888888;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+button:hover,
+.button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+button.disabled,
+.button.disabled,
+input[type="submit"].disabled,
+input[type="reset"].disabled,
+button[disabled],
+.button[disabled],
+input[type="submit"][disabled],
+input[type="reset"][disabled] {
+  background-color: #6f6f6f;
+}
+button.disabled,
+.button.disabled,
+input[type="submit"].disabled,
+input[type="reset"].disabled,
+button[disabled],
+.button[disabled],
+input[type="submit"][disabled],
+input[type="reset"][disabled] {
+  color: #e6e6e6;
+}
+button.alignright,
+.button.alignright,
+input[type="submit"].alignright,
+input[type="reset"].alignright {
+  float: right;
+  display: inline-block;
+  clear: left;
+}
+button.go,
+.button.go,
+input[type="submit"].go,
+input[type="reset"].go {
+  background-color: #22b232;
+}
+button.go:hover,
+.button.go:hover,
+input[type="submit"].go:hover,
+input[type="reset"].go:hover,
+button.go.disabled,
+.button.go.disabled,
+input[type="submit"].go.disabled,
+input[type="reset"].go.disabled,
+button.go[disabled],
+.button.go[disabled],
+input[type="submit"].go[disabled],
+input[type="reset"].go[disabled] {
+  background-color: #1a8726;
+}
+button.back,
+.button.back,
+input[type="submit"].back,
+input[type="reset"].back,
+button.dont-do-it,
+.button.dont-do-it,
+input[type="submit"].dont-do-it,
+input[type="reset"].dont-do-it,
+button[type="reset"],
+.button[type="reset"],
+input[type="submit"][type="reset"],
+input[type="reset"][type="reset"] {
+  background-color: #4491ce;
+}
+button.back:hover,
+.button.back:hover,
+input[type="submit"].back:hover,
+input[type="reset"].back:hover,
+button.dont-do-it:hover,
+.button.dont-do-it:hover,
+input[type="submit"].dont-do-it:hover,
+input[type="reset"].dont-do-it:hover,
+button[type="reset"]:hover,
+.button[type="reset"]:hover,
+input[type="submit"][type="reset"]:hover,
+input[type="reset"][type="reset"]:hover,
+button.back.disabled,
+.button.back.disabled,
+input[type="submit"].back.disabled,
+input[type="reset"].back.disabled,
+button.dont-do-it.disabled,
+.button.dont-do-it.disabled,
+input[type="submit"].dont-do-it.disabled,
+input[type="reset"].dont-do-it.disabled,
+button[type="reset"].disabled,
+.button[type="reset"].disabled,
+input[type="submit"][type="reset"].disabled,
+input[type="reset"][type="reset"].disabled,
+button.back[disabled],
+.button.back[disabled],
+input[type="submit"].back[disabled],
+input[type="reset"].back[disabled],
+button.dont-do-it[disabled],
+.button.dont-do-it[disabled],
+input[type="submit"].dont-do-it[disabled],
+input[type="reset"].dont-do-it[disabled],
+button[type="reset"][disabled],
+.button[type="reset"][disabled],
+input[type="submit"][type="reset"][disabled],
+input[type="reset"][type="reset"][disabled] {
+  background-color: #2e77b1;
+}
+button.do-it,
+.button.do-it,
+input[type="submit"].do-it,
+input[type="reset"].do-it,
+button[type="submit"],
+.button[type="submit"],
+input[type="submit"][type="submit"],
+input[type="reset"][type="submit"] {
+  background-color: #ea3172;
+}
+button.do-it:hover,
+.button.do-it:hover,
+input[type="submit"].do-it:hover,
+input[type="reset"].do-it:hover,
+button[type="submit"]:hover,
+.button[type="submit"]:hover,
+input[type="submit"][type="submit"]:hover,
+input[type="reset"][type="submit"]:hover,
+button.do-it.disabled,
+.button.do-it.disabled,
+input[type="submit"].do-it.disabled,
+input[type="reset"].do-it.disabled,
+button[type="submit"].disabled,
+.button[type="submit"].disabled,
+input[type="submit"][type="submit"].disabled,
+input[type="reset"][type="submit"].disabled,
+button.do-it[disabled],
+.button.do-it[disabled],
+input[type="submit"].do-it[disabled],
+input[type="reset"].do-it[disabled],
+button[type="submit"][disabled],
+.button[type="submit"][disabled],
+input[type="submit"][type="submit"][disabled],
+input[type="reset"][type="submit"][disabled] {
+  background-color: #d31558;
+}
+button.small,
+.button.small,
+input[type="submit"].small,
+input[type="reset"].small {
+  font-size: 0.75rem;
+}
+button.big,
+.button.big,
+input[type="submit"].big,
+input[type="reset"].big {
+  font-size: 1.5rem;
+}
+button.full-width,
+.button.full-width,
+input[type="submit"].full-width,
+input[type="reset"].full-width {
+  width: 96%;
+  display: block;
+}
+button.rounder,
+.button.rounder,
+input[type="submit"].rounder,
+input[type="reset"].rounder {
+  border-radius: 10px;
+}
+/*
+Tabs
+
+Styling for tabs, currently supports two tabs only
+
+.tabs - Tab container
+.tabs li - Tab style
+.tabs li:first-child, .tabs li:last-child, .tabs li:first-child a, .tabs li:last-child a - Curved corners for end tabs
+
+Markup:
+<ul class="tabs">
+  <li><a>Tab one</a></li>
+  <li><a>Tab two</a></li>
+</ul>
+
+Styleguide 2.5
+*/
+.tabs {
+  border-top: 0px solid black;
+  margin-bottom: 5em;
+}
+.tabs li {
+  border: 1px solid #eeeeee;
+  width: 49.5% !important;
+}
+.tabs li:first-child {
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.tabs li:first-child a {
+  border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+}
+.tabs li:last-child {
+  border-left: 0px solid black;
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+.tabs li:last-child a {
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
+}
+/*
+Form
+
+Styling for forms
+
+#patientName - Floating container for patient name & information button
+#patientName a - Link containing patient name & information button
+#patientName .icon-info - Information button, float right
+#obsForm - Form element with offset for floating patient name & information button
+#obsForm .obsField - Container for form element (text, number inputs)
+#obsForm .obsSelectField - Container for form element (select inputs)
+#obsForm .obsField.valHide, #obsForm .obsSelectField.valHide - Hidden input, used with NHMobileForm JS for form control
+#obsForm .obsField.error, #obsForm .obsSelectField.error - Container for invalid form element
+#obsForm .obsField .input-header - Container for label & input
+#obsForm .obsSelectField .input-header - Container for label
+#obsForm .obsField .input-header label - Label for form element, floats left
+#obsForm .obsField .input-header label - Label for form element
+#obsForm .obsField .input-header input - Input for form element, float right
+#obsForm .obsField .input-body - Container for form element information
+#obsForm .obsSelectField .input-body - Container for form select and information
+#obsForm .obsField .input-body .errors, #obsForm .obsSelectField .input-body .errors - Placeholder for error messages used in validation
+#obsForm .obsField .input-body .help, #obsForm .obsField .input-body .help - Placeholder for help messages
+#obsForm .obsSubmit input[type="submit"] - Submit observation
+
+Markup:
+<h2 id="patientName" class="block">
+  <a>Number Fields</a>
+</h2>
+<form id="obsForm">
+  <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="standard_number">Standard number field</label>
+        <input name="standard_number" type="number" min="1" max="59" step="1" value="18">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="helper_number">Number field with helper text</label>
+        <input name="helper_number" type="number" min="51" max="100" step="1">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help">This is text explaining how to fill out field</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsField block">
+      <div class="input-header">
+        <label for="reference_number">Number field with reference</label>
+        <input name="reference_number" type="number" min="27.1" max="44.9" step="0.1">
+      </div>
+      <div class="input-body">
+        <span class="errors"></span>
+        <span class="help"></span>
+        <button class="button reference">Reference to load in modal</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsField block error">
+      <div class="input-header">
+        <label for="error_number">Errored number field</label>
+        <input name="error_number" type="number" min="1" max="59" step="1" value="18.7">
+      </div>
+      <div class="input-body">
+        <span class="errors"><label for="error_number" class="error">Value must be a whole number</label></span>
+        <span class="help"></span>
+      </div>
+    </div>
+  </div>
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Select Fields</a>
+</h2>
+<form id="obsForm">
+  <div>
+    <div class="obsSelectField block">
+      <div class="input-header">
+        <label for="standard_select">Standard Select</label>
+      </div>
+      <div class="input-body">
+        <select name="standard_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+        </select>
+        <span class="errors"></span>
+        <span class="help"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsSelectField block">
+      <div class="input-header">
+        <label for="helper_select">Select with helper text</label>
+      </div>
+      <div class="input-body">
+        <select name="helper_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+        </select>
+        <span class="errors"></span>
+        <span class="help">This is text explaining how to fill out field</span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsSelectField block">
+      <div class="input-header">
+        <label for="reference_select">Select with reference</label>
+      </div>
+      <div class="input-body">
+        <select name="reference_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+        </select>
+        <span class="errors"></span>
+        <span class="help"></span>
+        <button class="button reference">Reference to load in modal</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="obsSelectField block error">
+      <div class="input-header">
+        <label for="error_select">Select with error</label>
+      </div>
+      <div class="input-body">
+        <select name="error_select">
+          <option value="">Please Select</option>
+          <option value="1">Option 1</option>
+          <option value="2">Option 2</option>
+        </select>
+        <span class="errors"><label for="error_select" class="error">Missing Value</label></span>
+        <span class="help"></span>
+      </div>
+    </div>
+  </div>
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Multiselect Fields</a>
+</h2>
+<form id="obsForm">
+  <div class="block obsSelectField">
+      <div class="input-header">
+          <label for="standard_multiselect">Standard Multiselect</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="standard_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="standard_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help"></span>
+      </div>
+  </div>
+  <div class="block obsSelectField">
+      <div class="input-header">
+          <label for="helper_multiselect">Multiselect with helper text</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="helper_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="helper_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help">This is some text explaining how to fill out field</span>
+      </div>
+  </div>
+  <div class="block obsSelectField">
+      <div class="input-header">
+          <label for="reference_multiselect">Multiselect with reference</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="reference_multiselect" value="1" class="checklist_box" checked="checked">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="reference_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"></span>
+          <span class="help"></span>
+          <button class="button reference">Reference to load in modal</button>
+      </div>
+  </div>
+  <div class="block obsSelectField error">
+      <div class="input-header">
+          <label for="error_multiselect">Multiselect with errors</label>
+      </div>
+      <div class="input-body">
+          <ul class="checklist">
+              <li>
+                  <input type="checkbox" name="error_multiselect" value="1" class="checklist_box">
+                  <label>Option 1</label>
+              </li>
+              <li>
+                  <input type="checkbox" name="error_multiselect" value="2" class="checklist_box">
+                  <label>Option 2</label>
+              </li>
+          </ul>
+          <span class="errors"><label for="error_multiselect" class="error">Missing value</label></span>
+          <span class="help"></span>
+      </div>
+  </div>
+</form>
+<p></p>
+<h2 id="patientName" class="block">
+  <a>Text Fields</a>
+</h2>
+<form id="obsForm">
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="standard_text">Standard Text</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="standard_text">Text to submit</textarea>
+          <span class="errors"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="helper_text">Text with helper text</label>
+      </div>
+      <div class="input-body">
+          <span class="help">This is some text explaining how to fill out field</span>
+          <textarea name="helper_text">Text to submit</textarea>
+          <span class="errors"></span>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField">
+      <div class="input-header">
+          <label for="reference_text">Text with reference</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="reference_text">Text to submit</textarea>
+          <span class="errors"></span>
+          <button class="button reference">Reference to load in modal</button>
+      </div>
+    </div>
+  </div>
+  <div>
+    <div class="block obsField error">
+      <div class="input-header">
+          <label for="error_text">Text with error</label>
+      </div>
+      <div class="input-body">
+          <span class="help"></span>
+          <textarea name="error_text"></textarea>
+          <span class="errors"><label for="error_text" class="error">Missing Value</label></span>
+      </div>
+    </div>
+  </div>
+</form>
+
+Styleguide 2.3.0
+*/
+/*
+
+Notification Form
+
+Form that contains notifications, normally there's are triggered by hospital policy
+
+#obsForm h3 - Title for observation
+#obsForm p - Description for observation
+#obsForm .obsSubmit input[type="submit"] - Confirm notification acted upon
+#obsForm .obsConfirm input[type="reset"] - Cancel notification
+
+Markup:
+<h2 id="patientName" class="block">
+  <a>Test Patient <i class="icon-info"></i></a>
+</h2>
+<form id="obsForm" class="block">
+  <h3>Notification title</h3>
+  <p>A paragraph to explain the notification</p>
+  <div class="block obsSubmit">
+    <input type="submit" value="Confirm notification">
+  </div>
+  <p class="obsConfirm">
+    <input type="reset" value="Cancel notification" class="button" id="cancelSubmit">
+  </p>
+</form>
+
+Styleguide 2.3.1
+
+*/
+#patientName {
+  margin-top: -4px;
+  position: fixed;
+  background-color: white;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+  z-index: 9997;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.4);
+}
+#patientName a {
+  text-decoration: none;
+  color: #282828;
+  width: 100%;
+  display: block;
+}
+#patientName .icon-info {
+  float: right;
+}
+#obsForm {
+  padding-top: 3em;
+}
+#obsForm .errors label {
+  font-weight: normal;
+}
+#obsForm .help {
+  font-style: italic;
+}
+#obsForm .obsField {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #888888;
+  padding-top: 1em;
+  padding-bottom: 0.7em;
+}
+#obsForm .obsField .input-header {
+  display: flex;
+}
+#obsForm .obsField .input-header label {
+  flex: 1 1;
+  padding-right: 5%;
+  font-weight: bold;
+}
+#obsForm .obsField .input-header input {
+  flex: 1;
+  line-height: 1.75rem;
+  height: 1.75rem;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+}
+#obsForm .obsField.error {
+  background-color: #ffcccc !important;
+}
+#obsForm .obsField.warning {
+  background-color: #ffdfbe;
+}
+#obsForm .obsField.valHide {
+  display: none;
+}
+#obsForm .obsField .input-body {
+  display: flex;
+  flex-direction: column;
+}
+#obsForm .obsField .input-body textarea {
+  border-radius: 5px;
+}
+#obsForm .obsField .reference {
+  margin-top: 1em;
+}
+#obsForm .obsSelectField {
+  border-bottom: 1px solid #888888;
+  padding-top: 1em;
+  padding-bottom: 0.7em;
+}
+#obsForm .obsSelectField .input-header {
+  margin-bottom: 1rem;
+}
+#obsForm .obsSelectField .input-header label {
+  font-weight: bold;
+}
+#obsForm .obsSelectField.error {
+  background-color: #ffcccc;
+}
+#obsForm .obsSelectField.warning {
+  background-color: #ffffff;
+}
+#obsForm .obsSelectField.valHide {
+  display: none;
+}
+#obsForm .input-body select {
+  width: 100%;
+  padding: 0.3em 2% 0.3em 2%;
+  border-radius: 5px;
+  border-color: #4491ce;
+  color: #ea3172;
+  font-weight: bold;
+  background-color: #ffffff;
+  margin-bottom: 1em;
+}
+#obsForm .input-body .button {
+  background-color: #ea3172;
+  color: #ffffff;
+  text-shadow: 0px 1px 0px #666666;
+  width: 100%;
+  display: inline-block;
+  text-align: center;
+}
+#obsForm .input-body .checklist {
+  padding-left: 0;
+}
+#obsForm .input-body .checklist li > label {
+  flex: 4 0 0;
+  margin: 0.8em 0;
+}
+#obsForm .input-body .checklist input {
+  height: 2.4em;
+  margin: 0.5em 0;
+}
+#obsForm .obsSubmit,
+#obsForm .obsConfirm {
+  padding-top: 1em;
+  /* padding-bottom: 1em; */
+}
+#obsForm .obsSubmit input,
+#obsForm .obsConfirm input {
+  width: 100%;
+}
+.obsChange .obsSelectField {
+  border-bottom: 0px solid black !important;
+  padding-bottom: 0px !important;
+}
+.obsChange .obsSubmit {
+  padding-bottom: 0px !important;
+}
+/*
+List
+
+Structures for listing patients
+
+.tasklist - Main container for patient list
+.tasklist li a - List item, a link so maximum hit area is available
+.tasklist li a.level-not-set - List item with an unknown clinical risk
+.tasklist li a.level-one - List item with low clinical risk
+.tasklist li a.level-two - List item with medium clinical risk
+.tasklist li a.level-three - List item with high clinical risk
+.tasklist .task-meta - Container for information for list item
+.tasklist .task-meta .task-right - Right hand side information, used for time until next NEWS observation / task deadline
+.tasklist .task-meta .task-right .aside - Floats information right
+.tasklist .task-meta .task-left - Left hand side information, used for patient details
+.tasklist .task-meta .taskInfo - Used to display the task information
+
+Markup:
+<ul class="tasklist">
+  <li>
+    <a class="block level-one">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">06:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Test Patient</strong> (2 <i class="icon-down-arrow"></i>) <br>
+          <em>Bed 01, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-two">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Another Patient</strong> (5 <i class="icon-up-arrow"></i>) <br>
+          <em>Bed 02, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-three">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">00:30 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Ill Patient</strong> (17 <i class="icon-left-arrow"></i>) <br>
+          <em>Bed 03, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+  <li>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient</strong><br>
+          <em>Bed 04, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
+</ul>
+
+Styleguide 2.2.0
+*/
+.tasklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tasklist li a {
+  display: block;
+  padding-top: 0.7em;
+  padding-bottom: 0.7em;
+  border-bottom: 1px solid #eeeeee;
+  position: relative;
+}
+.tasklist li a .task-meta {
+  width: 100%;
+  clear: both;
+  float: none;
+  display: inline-block;
+}
+.tasklist li a .task-right {
+  float: right;
+  width: 27.5%;
+  margin-left: 2.5%;
+  margin-top: 0px;
+  text-align: right;
+  font-weight: bold;
+}
+.tasklist li a .task-right p {
+  margin-top: 0px;
+  margin-bottom: 1em;
+}
+.tasklist li a .task-left {
+  float: left;
+  width: 67.5%;
+  margin-right: 2.5%;
+  text-align: left;
+  margin-top: 0px;
+}
+.tasklist li a h2 {
+  width: 65%;
+  color: #262626;
+}
+.tasklist li a p {
+  color: #000000;
+}
+.tasklist li a p.taskInfo {
+  text-decoration: underline;
+}
+.tasklist li a.level-one {
+  background-color: #ccffcc;
+}
+.tasklist li a.level-two {
+  background-color: #ffdfbe;
+}
+.tasklist li a.level-three,
+.tasklist li a.urgent {
+  background-color: #ffcccc;
+}
+.tasklist li a.level-not-set {
+  background-color: #e5dfff;
+}
+/*
+Stand-in List
+
+Structures for listing patients for stand-in functionality
+
+.sharelist - Main container for stand-in patient list, used in conjunction with .tasklist styling
+.sharelist .share_all - Button for selecting all patients
+.sharelist label.shared - A patient already shared as part of stand-in, coloured grey
+.sharelist label .patient-share - Checkbox for selecting patient
+.sharelist label > div - Patient information similar to task / patient list
+.sharelist label .task-meta .taskInfo - Stand-in information
+
+
+Markup:
+<ul class="tasklist sharelist">
+  <li>
+    <a class="share_all">Select all</a>
+  </li>
+  <li>
+    <label class="shared">
+      <input type="checkbox" class="patient-share">
+      <div class="level-none block">
+        <div class="task-meta">
+          <div class="task-right">
+            <p class="aside">12:00 Hours</p>
+          </div>
+          <div class="task-left">
+            <strong>Test Patient</strong> (0 <i class="icon-down-arrow"></i>) <br>
+            <em>Bed 03, Ward A</em>
+          </div>
+        </div>
+        <div class="task-meta">
+          <p class="taskInfo">Shared with: A Nurse, B Nurse<br>
+          Following: C Nurse<br>
+          Invited: D Nurse</p>
+        </div>
+      </div>
+    </label>
+  </li>
+  <li>
+    <label>
+      <input type="checkbox" class="patient-share">
+      <div class="level-three block">
+        <div class="task-meta">
+          <div class="task-right">
+            <p class="aside">00:30 Hours</p>
+          </div>
+          <div class="task-left">
+            <strong>Ill Patient</strong> (17 <i class="icon-left-arrow"></i>) <br>
+            <em>Bed 03, Ward A</em>
+          </div>
+        </div>
+        <div class="task-meta">
+          <p class="taskInfo"><br><br></p>
+        </div>
+      </div>
+    </label>
+  </li>
+</ul>
+
+Styleguide 2.2.1
+*/
+.sharelist,
+.checklist {
+  list-style: none;
+  width: 100%;
+}
+.sharelist li,
+.checklist li {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  border-bottom: 1px solid #eeeeee;
+}
+.sharelist li .patient-share,
+.checklist li .patient-share,
+.sharelist li .patient_share_nurse,
+.checklist li .patient_share_nurse,
+.sharelist li .checklist_box,
+.checklist li .checklist_box {
+  flex: 1 0 0 ;
+  align-self: center;
+}
+.sharelist li > label,
+.checklist li > label {
+  flex: 4 0 0;
+  margin: 0;
+  margin-bottom: 0.8em;
+}
+.sharelist li label,
+.checklist li label {
+  display: flex;
+  position: relative;
+  margin-bottom: 0;
+  width: 100%;
+}
+.sharelist li label > .block,
+.checklist li label > .block {
+  flex: 4 0 0;
+  border-bottom: 0 solid black;
+}
+.sharelist li label .block,
+.checklist li label .block {
+  padding-top: 0.7em;
+  padding-bottom: 0.7em;
+}
+.sharelist li label .task-meta,
+.checklist li label .task-meta {
+  width: 100%;
+  clear: both;
+  float: none;
+}
+.sharelist li label .task-right,
+.checklist li label .task-right {
+  float: right;
+  width: 27.5%;
+  margin-left: 2.5%;
+  margin-top: 0;
+  text-align: right;
+  font-weight: bold;
+}
+.sharelist li label .task-right p,
+.checklist li label .task-right p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+.sharelist li label .task-left,
+.checklist li label .task-left {
+  float: left;
+  width: 67.5%;
+  margin-right: 2.5%;
+  text-align: left;
+  margin-top: 0;
+}
+.sharelist li label .task-left em,
+.checklist li label .task-left em {
+  font-weight: normal;
+  font-style: italic;
+}
+.sharelist li label h2,
+.checklist li label h2 {
+  width: 65%;
+  color: #262626;
+}
+.sharelist li label p,
+.checklist li label p {
+  color: black;
+}
+.sharelist li label p.taskInfo,
+.checklist li label p.taskInfo {
+  text-decoration: underline;
+}
+.sharelist li label .level-one,
+.checklist li label .level-one {
+  background-color: #ccffcc;
+}
+.sharelist li label .level-two,
+.checklist li label .level-two {
+  background-color: #ffdfbe;
+}
+.sharelist li label .level-three,
+.checklist li label .level-three,
+.sharelist li label .urgent,
+.checklist li label .urgent {
+  background-color: #ffcccc;
+}
+.sharelist li label .level-not-set,
+.checklist li label .level-not-set {
+  background-color: #e5dfff;
+}
+.sharelist li label .shared,
+.checklist li label .shared {
+  background-color: #eeeeee;
+}
+.share_invite .task-meta {
+  padding-top: 1em;
+  padding-bottom: 0;
+  background-color: #ffcccc;
+  border-radius: 10px;
+}
+.share_invite .task-meta .task-left {
+  padding-left: 2.5%;
+  width: 65%;
+}
+.share_invite .task-meta .task-right {
+  padding-right: 2.5%;
+  width: 25%;
+}
+.share_invite .task-meta .task-right .aside {
+  float: right;
+  background-color: #4491ce;
+  color: white;
+  border-radius: 10px;
+  padding: 0.5em 2.5%;
+}
+/*
+
+Data Visualisation
+
+Styles for SVG Charts drawn by NHGraphLib and D3.js
+
+svg - Main SVG Chart
+text.title - SVG Header text
+circle.point - Complete data point for linear graph
+circle.empty_point - Incomplete data point from a partial observation for a linear graph
+rect.empty_point - Incomplete data point from a partial observation for a ranged graph
+svg .axis - Container for chart axes
+svg .axis path, svg .axis line - Lines used to plot chart axes
+svg .axis text - Text for chart axes
+svg .background - Container for the chart background, used to show colour ranges & target values
+svg .background .green, svg .background .amber, svg .background .red, svg .background .normal - Colours the background rectangles green, amber, red and grey respectively
+svg .background line - Makes sure grid lines are crisp
+svg .brush - Styling for the brush, used for selecting a subset of data
+svg .data path - Styling for the line used to connect data points in a linear graph
+#chart_popup - A tooltip for the charts to show individual values on hover over
+
+Markup:
+<div id="chart">
+  <svg width="100%" height="400px">
+    <text class="title" transform="translate(0,60)">Respiration Rate</text>
+    <g class="nhfocus" transform="translate(40, 140)" width="1033" id="big_chart">
+      <g class="nhgraph" width="1383" height="199"><g class="background"><text x="991" y="163" class="label">RR</text><text x="991" y="181" class="measurement">18/min</text><rect class="red range" x="0" y="153.225" width="973" clip-path="url(#respiration_rate-clip)" height="45.775000000000006"></rect><rect class="green range" x="0" y="138.29999999999998" width="973" clip-path="url(#respiration_rate-clip)" height="15.925000000000011"></rect><rect class="amber range" x="0" y="73.625" width="973" clip-path="url(#respiration_rate-clip)" height="20.89999999999999"></rect><rect class="red range" x="0" y="-100.5" width="973" clip-path="url(#respiration_rate-clip)" height="175.125"></rect><rect class="normal" y="99.5" x="0" width="973" clip-path="url(#respiration_rate-clip)" height="39.79999999999998"></rect><line class="vertical grid" x1="93.08307842234916" x2="93.08307842234916" y1="0" y2="199"></line><line class="vertical grid" x1="235.31528653799302" x2="235.31528653799302" y1="0" y2="199"></line><line class="vertical grid" x1="377.5474946536369" x2="377.5474946536369" y1="0" y2="199"></line><line class="vertical grid" x1="519.7797027692808" x2="519.7797027692808" y1="0" y2="199"></line><line class="vertical grid" x1="662.0119108849246" x2="662.0119108849246" y1="0" y2="199"></line><line class="vertical grid" x1="804.2441190005685" x2="804.2441190005685" y1="0" y2="199"></line><line class="vertical grid" x1="946.4763271162124" x2="946.4763271162124" y1="0" y2="199"></line><line class="horizontal grid" x1="0" x2="973" y1="199" y2="199"></line><line class="horizontal grid" x1="0" x2="973" y1="174.125" y2="174.125"></line><line class="horizontal grid" x1="0" x2="973" y1="149.25" y2="149.25"></line><line class="horizontal grid" x1="0" x2="973" y1="124.375" y2="124.375"></line><line class="horizontal grid" x1="0" x2="973" y1="99.5" y2="99.5"></line><line class="horizontal grid" x1="0" x2="973" y1="74.625" y2="74.625"></line><line class="horizontal grid" x1="0" x2="973" y1="49.75" y2="49.75"></line><line class="horizontal grid" x1="0" x2="973" y1="24.875" y2="24.875"></line><line class="horizontal grid" x1="0" x2="973" y1="0" y2="0"></line></g><g class="axes"><g class="x axis"><g class="tick" transform="translate(93.08307842234916,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">00:00</tspan></text></g><g class="tick" transform="translate(377.5474946536369,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">06:00</tspan></text></g><g class="tick" transform="translate(662.0119108849246,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">12:00</tspan></text></g><g class="tick" transform="translate(946.4763271162124,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">18:00</tspan></text></g><g class="tick" transform="translate(235.31528653799302,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">03:00</tspan></text></g><g class="tick" transform="translate(519.7797027692808,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">09:00</tspan></text></g><g class="tick" transform="translate(804.2441190005685,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">15:00</tspan></text></g><path class="domain" d="M0,-6V0H973V-6"></path></g><g class="y axis"><g class="tick" transform="translate(0,199)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">0</text></g><g class="tick" transform="translate(0,174.125)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">5</text></g><g class="tick" transform="translate(0,149.25)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">10</text></g><g class="tick" transform="translate(0,124.375)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">15</text></g><g class="tick" transform="translate(0,99.5)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">20</text></g><g class="tick" transform="translate(0,74.625)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">25</text></g><g class="tick" transform="translate(0,49.75)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">30</text></g><g class="tick" transform="translate(0,24.875)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">35</text></g><g class="tick" transform="translate(0,0)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">40</text></g><path class="domain" d="M-6,0H0V199H-6"></path></g></g><g class="data"><path d="M906.624969546033,109.45L567.9411087951057,114.425L66.37503045396713,94.52499999999999" clip-path="url(#respiration_rate-clip)" class="path"></path><circle cx="66.37503045396713" cy="94.52499999999999" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="567.9411087951057" cy="114.425" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="906.624969546033" cy="109.45" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle></g><defs><clipPath class="clip" id="respiration_rate-clip"><rect width="973" height="202" y="0" x="0"></rect></clipPath></defs></g>
+    </g>
+    <g class="nhfocus" transform="translate(40, 140)" width="409" id="small_chart">
+      <g class="nhgraph" width="1383" height="199"><g class="background"><text x="367" y="163" class="label">RR</text><text x="367" y="181" class="measurement">18/min</text><rect class="red range" x="0" y="153.225" width="349" clip-path="url(#respiration_rate-clip)" height="45.775000000000006"></rect><rect class="green range" x="0" y="138.29999999999998" width="349" clip-path="url(#respiration_rate-clip)" height="15.925000000000011"></rect><rect class="amber range" x="0" y="73.625" width="349" clip-path="url(#respiration_rate-clip)" height="20.89999999999999"></rect><rect class="red range" x="0" y="-100.5" width="349" clip-path="url(#respiration_rate-clip)" height="175.125"></rect><rect class="normal" y="99.5" x="0" width="349" clip-path="url(#respiration_rate-clip)" height="39.79999999999998"></rect><line class="vertical grid" x1="33.38745567255895" x2="33.38745567255895" y1="0" y2="199"></line><line class="vertical grid" x1="84.40394142010233" x2="84.40394142010233" y1="0" y2="199"></line><line class="vertical grid" x1="135.4204271676457" x2="135.4204271676457" y1="0" y2="199"></line><line class="vertical grid" x1="186.43691291518908" x2="186.43691291518908" y1="0" y2="199"></line><line class="vertical grid" x1="237.45339866273247" x2="237.45339866273247" y1="0" y2="199"></line><line class="vertical grid" x1="288.4698844102759" x2="288.4698844102759" y1="0" y2="199"></line><line class="vertical grid" x1="339.48637015781924" x2="339.48637015781924" y1="0" y2="199"></line><line class="horizontal grid" x1="0" x2="349" y1="199" y2="199"></line><line class="horizontal grid" x1="0" x2="349" y1="174.125" y2="174.125"></line><line class="horizontal grid" x1="0" x2="349" y1="149.25" y2="149.25"></line><line class="horizontal grid" x1="0" x2="349" y1="124.375" y2="124.375"></line><line class="horizontal grid" x1="0" x2="349" y1="99.5" y2="99.5"></line><line class="horizontal grid" x1="0" x2="349" y1="74.625" y2="74.625"></line><line class="horizontal grid" x1="0" x2="349" y1="49.75" y2="49.75"></line><line class="horizontal grid" x1="0" x2="349" y1="24.875" y2="24.875"></line><line class="horizontal grid" x1="0" x2="349" y1="0" y2="0"></line></g><g class="axes"><g class="x axis"><g class="tick" transform="translate(33.38745567255895,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">00:00</tspan></text></g><g class="tick" transform="translate(135.4204271676457,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">06:00</tspan></text></g><g class="tick" transform="translate(237.45339866273247,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">12:00</tspan></text></g><g class="tick" transform="translate(339.48637015781924,0)" style="opacity: 1;"><line y2="-6" x2="0"></line><text y="-41" x="0" dy="0em" style="text-anchor: middle;"><tspan style="font-size: 12px;">Wed</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">2/09/15</tspan><tspan style="font-size: 12px;" x="0" dy="14.399999999999999">18:00</tspan></text></g><path class="domain" d="M0,-6V0H349V-6"></path></g><g class="y axis"><g class="tick" transform="translate(0,199)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">0</text></g><g class="tick" transform="translate(0,174.125)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">5</text></g><g class="tick" transform="translate(0,149.25)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">10</text></g><g class="tick" transform="translate(0,124.375)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">15</text></g><g class="tick" transform="translate(0,99.5)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">20</text></g><g class="tick" transform="translate(0,74.625)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">25</text></g><g class="tick" transform="translate(0,49.75)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">30</text></g><g class="tick" transform="translate(0,24.875)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">35</text></g><g class="tick" transform="translate(0,0)" style="opacity: 1;"><line x2="-6" y2="0"></line><text x="-9" y="0" dy=".32em" style="text-anchor: end;">40</text></g><path class="domain" d="M-6,0H0V199H-6"></path></g></g><g class="data"><path d="M325.19230665114645,109.45L203.71166183914895,114.425L23.807693348853576,94.52499999999999" clip-path="url(#respiration_rate-clip)" class="path"></path><circle cx="23.807693348853576" cy="94.52499999999999" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="203.71166183914895" cy="114.425" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle><circle cx="325.19230665114645" cy="109.45" r="3" class="point" clip-path="url(#respiration_rate-clip)"></circle></g><defs><clipPath class="clip" id="respiration_rate-clip"><rect width="349" height="202" y="0" x="0"></rect></clipPath></defs></g>    </g>
+  </svg>
+</div>
+
+Styleguide 2.6.0
+
+*/
 #table-content,
 #graph-content {
   display: inline-block;
   width: 100%;
 }
-#table-content {
-  padding-top: 2em;
+text.title {
+  font-weight: bold;
+  font-size: 2em;
 }
-
-#table-content table{
-    width: 100%;
+circle .point {
+  fill: black;
+  stroke: black;
+  stroke-width: 1px;
 }
-
-#table-content tr th, #table-content tr td{
-    text-align: center;
-    vertical-align: top;
+circle .empty_point {
+  fill: white;
+  stroke: black;
+  stroke-width: 1px;
 }
-
-#table-content tbody tr:nth-child(odd){
-    background-color: rgba(128, 126, 126, 0.1);
+rect .empty_point {
+  fill: white;
+  stroke: black;
+  stroke-width: 1px;
 }
-
-#table-content tr th:first-child, #table-content tr td:first-child{
-    text-align: left;
-}
-
-#table-content thead th, #table-content tbody td{
-    padding: 0.5em 10px;
-}
-/* svg stuff */
 svg .axis path,
 svg .axis line {
   fill: none;
@@ -1360,6 +2536,143 @@ svg .data path {
 #chart_popup.hidden {
   display: none;
 }
+/*
+
+Tabular Data
+
+Styles for displaying tabular data
+
+.nhtable, #table-content table - Container for tabular data
+.nhtable th:first-child, #table-content table th:first-child - Table header, left aligned
+.nhtable th, #table-content table th - Table header, center aligned
+.nhtable tbody tr, #table-content table tbody tr - Table row
+.nhtable tbody tr:nth-child(even), #table-content table tbody tr:nth-child(odd) - Table row, alternate rows are coloured light grey
+.nhtable td:first-child, #table-content table td:first-child - Table data, left aligned
+.nhtable td, #table-content table td - Table data, center aligned
+
+Markup:
+<div class="block">
+  <!-- Graph based table, generated by NHGraphLib -->
+  <div id="graph-content">
+    <div id="chart">
+      <h3>Non-plottable Values</h3>
+      <table class="nhtable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>AVPU</th>
+            <th>On Supplemental O<sub>2</sub></th>
+            <th>Inspired Oxygen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1988-01-12 06:00</td>
+            <td>A</td>
+            <td>Yes</td>
+            <td><strong>Device</strong> Nasal Cannula<br>
+            <strong>Flow</strong> 5l/hr</td>
+          </tr>
+          <tr>
+            <td>1988-01-12 07:00</td>
+            <td>A</td>
+            <td>No</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>1988-01-12 08:00</td>
+            <td>A</td>
+            <td>No</td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Tabular data, generated by nh_eobs_mobile -->
+  <div id="table-content">
+    <h3>Tabular Values</h3>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>06:00<br>
+          1988-01-12</th>
+          <th>07:00<br>
+          1988-01-12</th>
+          <th>08:00<br>
+          1988-01-12</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>NEWS Score</td>
+          <td>0</td>
+          <td>1</td>
+          <td>2</td>
+        </tr>
+        <tr>
+          <td>Respiration Rate</td>
+          <td>18</td>
+          <td>21</td>
+          <td>11</td>
+        </tr>
+        <tr>
+          <td>O<sub>2</sub> Saturation</td>
+          <td>99</td>
+          <td>100</td>
+          <td>99</td>
+        </tr>
+        <tr>
+          <td>Body Temperature</td>
+          <td>37.5</td>
+          <td>40.1</td>
+          <td>38.0</td>
+        </tr>
+        <tr>
+          <td>Blood Pressure Systolic</td>
+          <td>120</td>
+          <td>130</td>
+          <td>140</td>
+        </tr>
+        <tr>
+          <td>Blood Pressure Diastolic</td>
+          <td>80</td>
+          <td>90</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td>Pulse Rate</td>
+          <td>50</td>
+          <td>80</td>
+          <td>60</td>
+        </tr>
+        <tr>
+          <td>AVPU</td>
+          <td>A</td>
+          <td>V</td>
+          <td>P</td>
+        </tr>
+        <tr>
+          <td>Patient On Supplemental O<sub>2</sub></td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Inspired Oxygen</td>
+          <td><strong>Device:</strong> Nasal Cannula<br>
+          <strong>Flow:</strong> 5l/hr</td.
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+Styleguide 2.6.1
+*/
 .nhtable {
   width: 100%;
   border-bottom-left-radius: 10px;
@@ -1393,10 +2706,67 @@ svg .data path {
   padding-left: 0px;
   border-left: 0px solid black;
 }
-text.title {
-  font-weight: bold;
-  font-size: 2em;
+#table-content {
+  padding-top: 2em;
 }
+#table-content table {
+  width: 100%;
+}
+#table-content tr th,
+#table-content tr td {
+  text-align: center;
+  vertical-align: top;
+}
+#table-content tr th:first-child,
+#table-content tr td:first-child {
+  text-align: left;
+}
+#table-content tbody tr:nth-child(odd) {
+  background-color: rgba(128, 126, 126, 0.1);
+}
+#table-content thead th,
+#table-content tbody td {
+  padding: 0.5em 10px;
+}
+/*
+
+Mobile controls
+
+Styling for controls used on mobile to select subset of data
+
+#graph-content - Container for graph version of patient data
+#table-content - Container for table version of patient data
+#controls - Container for input based controls for mobile use
+#controls #range - Checkbox for showing ranged values
+
+Markup:
+<!-- Mobile Controls -->
+<div class="block">
+  <div id="graph-content">
+    <div id="controls">
+      <div id="start">
+        <h4>Start Date</h4>
+        <label for="start_date">Date: <input type="date" name="start_date"></label>
+        <label for="start_time">Time: <input type="time" name="start_time"></label>
+      </div>
+      <div id="end">
+        <h4>End Date</h4>
+        <label for="end_date">Date: <input type="date" name="end_date"></label>
+        <label for="end_time">Time: <input type="time" name="end_time"></label>
+      </div>
+      <div id="range">
+        <label for="rangify">
+          <h4>Ranged values</h4>
+          <input type="checkbox" name="rangify">
+        </label>
+      </div>
+    </div>
+  </div>
+  <div id="table-content"></div>
+</div>
+
+Styleguide 2.6.2
+*/
 #controls {
   position: relative;
   width: 80%;
@@ -1431,205 +2801,6 @@ text.title {
     display: none;
   }
 }
-
-
-.barcode_scan{
-    margin-bottom: 1em;
-    border-radius: 5px;
-    width: 100%;
-}
-
-.sharelist{
-    list-style: none;
-    width: 100%;
-}
-
-.sharelist li{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    border-bottom: 1px solid #eeeeee;
-}
-
-.sharelist li .patient-share, .sharelist li .patient_share_nurse{
-    flex: 1 0 0;
-    align-self: center;
-}
-.sharelist li label >.block{
-    flex: 4 0 0;
-    /*border-left: 1px solid #eeeeee;*/
-    border-bottom: 0px solid black;
-}
-#nurse_list .sharelist li > label{
-    flex: 4 0 0;
-    margin: 0.8em 0;
-}
-.share-footer{
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 101%;
-}
-.share-footer .user{
-    text-align: right;
-    margin-right: 6%;
-    color: rgba(0, 0, 0, 0.3);
-}
-
-#nurse_list .sharelist{
-    padding-left: 0;
-}
-
-.sharelist li label {
-  display: flex;
-  position: relative;
-  margin-bottom: 0;
-  width: 100%;
-}
-
-.sharelist li label .block{
-    padding-top: 0.7em;
-  padding-bottom: 0.7em;
-}
-.sharelist li label .task-meta {
-  width: 100%;
-  clear: both;
-  float: none;
-}
-.sharelist li label .task-right {
-  float: right;
-  width: 27.5%;
-  margin-left: 2.5%;
-  margin-top: 0px;
-  text-align: right;
-  font-weight: bold;
-}
-.sharelist li label .task-right p {
-  margin-top: 0px;
-  margin-bottom: 1em;
-}
-.sharelist li label .task-left {
-  float: left;
-  width: 67.5%;
-  margin-right: 2.5%;
-  text-align: left;
-  margin-top: 0px;
-}
-.sharelist li label .task-left em{
-    font-weight: normal;
-    font-style: italic;
-}
-.sharelist li label h2 {
-  width: 65%;
-  color: #262626;
-}
-.sharelist li label p {
-  color: #000000;
-}
-.sharelist li label p.taskInfo {
-  text-decoration: underline;
-}
-.sharelist li label .level-one {
-  background-color: #ccffcc;
-}
-.sharelist li label .level-two {
-  background-color: #ffdfbe;
-}
-.sharelist li label .level-three,
-.sharelist li label .urgent {
-  background-color: #ffcccc;
-}
-.sharelist li label .level-not-set {
-  background-color: #e5dfff;
-}
-
-.sharelist li label.shared{
-    background-color: #eeeeee;
-}
-
-#assign_nurse .dialogContent input{
-    height: 2.4em;
-    margin: 0.5em 0;
-}
-
-.dialogContent .tasklist{
-    list-style: none;
-}
-.dialogContent .tasklist .block > a{
-    padding-bottom: 0;
-}
-.dialogContent .tasklist .task-meta{
-    display: inline-block;
-}
-
-.share_invite .task-meta{
-    padding-top: 1em;
-    padding-bottom: 0;
-    background-color: #ffcccc;
-    border-radius: 10px;
-}
-
-.share_invite .task-meta .task-left{
-    padding-left: 2.5%;
-    width: 65%;
-}
-
-.share_invite .task-meta .task-right{
-    padding-right: 2.5%;
-    width: 25%;
-}
-
-.share_invite .task-meta .task-right .aside{
-    float: right;
-    background-color: #4491ce;
-    color: white;
-    border-radius: 10px;
-    padding: 0.5em 2.5%;
-}
-
-.share_all{
-    background-color: #ea3172;
-    padding: 0.8em 2.5%;
-    margin: 0.5em 5%;
-    border-radius: 10px;
-    color: white;
-    font-weight: bold;
-    text-shadow: 0px 1px 0px #666666;
-}
-
-#popup_iframe iframe, #popup_image img{
-    width: 100%;
-}
-
-#popup_iframe iframe{
-    border: 0 solid black;
-}
-
-input[type="submit"][disabled]{
-  background-color: #be285d !important;
-}
-
-input[type="reset"][disabled]{
-  background-color: #3674a5 !important;
-}
-circle.empty_point, rect.empty_point {
-    fill: white;
-    stroke: black;
-    stroke-width: 1px;
-}
-circle.point{
-    fill: black;
-    stroke: black;
-    stroke-width: 1px;
-}
-text.refused_point, text.partial_point{
-    font-size: 10px;
-}
-body.no-scroll{
-  overflow: hidden;
-  height: 100%;
-}
-
 #chart_select {
   width: 100%;
   height: 2.4em;
