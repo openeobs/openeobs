@@ -278,12 +278,12 @@
                             <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                   <t t-if="reference">
-                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
-                   </t>
                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                   <t t-set="reference" t-value="item.get('reference')"/>
+                   <t t-if="reference">
+                       <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                   </t>
                </div>
            </div>
         </template>
@@ -295,12 +295,12 @@
                     <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                 </div>
                 <div class="input-body">
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                    <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
-                    </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                    </t>
                 </div>
             </div>
         </template>
@@ -317,13 +317,12 @@
                     </label>
                 </div>
                 <div class="input-body">
-                    <textarea t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"></textarea>
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                    <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button></p>
-                    </t>
-                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                    <textarea t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"></textarea>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span><t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                    </t>
                 </div>
             </div>
         </template>
@@ -347,13 +346,12 @@
                             <label><t t-esc="option[1]"/></label>
                         </li>
                     </ul>
-
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                    <t t-if="reference">
-                        <p><button t-att-data-type="reference.get('type')" t-att-data-url="reference.get('url')" t-att-data-title="reference.get('title')" class="button reference exclude"><t t-esc="reference.get('label')"/></button></p>
-                    </t>
                     <span class="errors"><t t-esc="item.get('errors', '')"/></span>
                     <span class="help"><t t-esc="item.get('info', '')"/></span>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference.get('type')" t-att-data-url="reference.get('url')" t-att-data-title="reference.get('title')" class="button reference exclude"><t t-esc="reference.get('label')"/></button>
+                    </t>
                 </div>
             </div>
         </template>
@@ -386,7 +384,7 @@
                                 </t>
                             </h3>
                             <t t-if="len(obs_list) > 0">
-                                <h3 class="obs">Take observation</h3>
+                                <button class="obs big do-it">Take observation</button>
                             </t>
                         </a>
                         <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
