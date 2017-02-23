@@ -64,7 +64,7 @@ class NhClinicalPatientObservationNeurological(models.Model):
         _limb_movement_selection, 'Limb Movement - Left Leg'
     )
     limb_movement_right_leg = obs_fields.Selection(
-        _limb_movement_selection, 'Limb Movement - Right leg'
+        _limb_movement_selection, 'Limb Movement - Right Leg'
     )
 
     @api.model

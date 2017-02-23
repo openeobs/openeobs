@@ -115,9 +115,9 @@ function drawNeurologicalChart(settings, serverData){
     eyesFocus.graphs.push(eyesGraph);
     verbalFocus.graphs.push(verbalGraph);
     motorFocus.graphs.push(motorGraph);
-    eyesFocus.title = "Coma Scale - Eyes Open";
-    verbalFocus.title = "Coma Scale - Best Verbal Response";
-    motorFocus.title = "Coma Scale - Best Motor Response";
+    eyesFocus.title = "Coma Scale - Eyes";
+    verbalFocus.title = "Coma Scale - Verbal";
+    motorFocus.title = "Coma Scale - Motor";
     if(!containersInDom){
         eyesFocus.style.margin.top = 70;
         verbalFocus.style.margin.top = 70;
