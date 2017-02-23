@@ -68,8 +68,8 @@ function drawNeurologicalChart(settings, serverData){
     eyesGraph.options.label = "";
     eyesGraph.options.measurement = "";
     eyesGraph.options.title = "Coma Scale - Eyes";
-    eyesGraph.axes.y.min = 1;
-    eyesGraph.axes.y.max = 4;
+    eyesGraph.axes.y.min = 0.5;
+    eyesGraph.axes.y.max = 4.5;
     eyesGraph.options.normal.min = 0;
     eyesGraph.options.normal.max = 0;
     eyesGraph.style.dimensions.height = 250;
@@ -82,8 +82,8 @@ function drawNeurologicalChart(settings, serverData){
     verbalGraph.options.label = "";
     verbalGraph.options.measurement = "";
     verbalGraph.options.title = "Coma Scale - Verbal";
-    verbalGraph.axes.y.min = 1;
-    verbalGraph.axes.y.max = 5;
+    verbalGraph.axes.y.min = 0.5;
+    verbalGraph.axes.y.max = 5.5;
     verbalGraph.options.normal.min = 0;
     verbalGraph.options.normal.max = 0;
     verbalGraph.style.dimensions.height = 250;
@@ -97,8 +97,8 @@ function drawNeurologicalChart(settings, serverData){
     motorGraph.options.label = "";
     motorGraph.options.measurement = "";
     motorGraph.options.title = "Coma Scale - Motor";
-    motorGraph.axes.y.min = 1;
-    motorGraph.axes.y.max = 6;
+    motorGraph.axes.y.min = 0.5;
+    motorGraph.axes.y.max = 6.5;
     motorGraph.options.normal.min = 0;
     motorGraph.options.normal.max = 0;
     motorGraph.style.dimensions.height = 250;
