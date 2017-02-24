@@ -1202,7 +1202,7 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
-    var activeTab, chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableEl, tableFunc, tableFuncName, validChart, validTable;
+    var activeTab, chartEl, chartFunc, chartFuncName, controls, el, graphContent, graphTabs, i, len, tableEl, tableFunc, tableFuncName, validChart, validTable, visualisation_els;
     graphContent = document.getElementById("graph-content");
     controls = document.getElementById("controls");
     chartEl = document.getElementById(self.chart_element);
@@ -1212,11 +1212,11 @@ NHMobilePatient = (function(superClass) {
     chartFuncName = "draw" + dataModel.capitalize() + "Chart";
     tableFuncName = "draw" + dataModel.capitalize() + "Table";
     if (serverData.length > 0) {
-      controls.style.display = "block";
-      graphTabs.style.display = "block";
-      chartEl.style.display = "block";
-      graphContent.style.display = "block";
-      tableEl.style.display = "block";
+      visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl];
+      for (i = 0, len = visualisation_els.length; i < len; i++) {
+        el = visualisation_els[i];
+        el.style.display = "block";
+      }
       chartFunc = window[chartFuncName];
       tableFunc = window[tableFuncName];
       validChart = typeof chartFunc === "function";

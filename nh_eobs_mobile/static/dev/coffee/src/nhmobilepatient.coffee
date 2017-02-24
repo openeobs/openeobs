@@ -117,11 +117,9 @@ class NHMobilePatient extends NHMobile
     chartFuncName = "draw" + dataModel.capitalize() + "Chart"
     tableFuncName = "draw" + dataModel.capitalize() + "Table"
     if serverData.length > 0
-      controls.style.display = "block"
-      graphTabs.style.display = "block"
-      chartEl.style.display = "block"
-      graphContent.style.display = "block"
-      tableEl.style.display = "block"
+      visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl]
+      for el in visualisation_els
+        el.style.display = "block"
       chartFunc = window[chartFuncName]
       tableFunc = window[tableFuncName]
       validChart = (typeof chartFunc is "function")
