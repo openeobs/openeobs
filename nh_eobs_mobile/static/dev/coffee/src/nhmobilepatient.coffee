@@ -110,6 +110,7 @@ class NHMobilePatient extends NHMobile
     graphContent = document.getElementById("graph-content")
     controls = document.getElementById("controls")
     chartEl = document.getElementById(self.chart_element)
+    tableEl = document.getElementById(self.table_element)
     graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0]
     chartFuncName = "draw" + dataModel.capitalize() + "Chart"
     tableFuncName = "draw" + dataModel.capitalize() + "Table"
@@ -131,6 +132,7 @@ class NHMobilePatient extends NHMobile
     else
       controls.style.display = "none"
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>"
+      tableEl.innerHTML = "<h2>No observation data available for patient</h2>"
       graphTabs.style.display = "none"
 
 ### istanbul ignore if ###

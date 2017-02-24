@@ -131,10 +131,11 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
-    var chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableFunc, tableFuncName, validChart, validTable;
+    var chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableEl, tableFunc, tableFuncName, validChart, validTable;
     graphContent = document.getElementById("graph-content");
     controls = document.getElementById("controls");
     chartEl = document.getElementById(self.chart_element);
+    tableEl = document.getElementById(self.table_element);
     graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0];
     chartFuncName = "draw" + dataModel.capitalize() + "Chart";
     tableFuncName = "draw" + dataModel.capitalize() + "Table";
@@ -159,6 +160,7 @@ NHMobilePatient = (function(superClass) {
     } else {
       controls.style.display = "none";
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>";
+      tableEl.innerHTML = "<h2>No observation data available for patient</h2>";
       return graphTabs.style.display = "none";
     }
   };

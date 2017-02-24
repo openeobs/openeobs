@@ -482,6 +482,84 @@ describe('Patient Information Functionality', function(){
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
         });
 
+        it('Hides tabs and shows message when no observation data found - from table tab on other obs', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+                var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+
+            // initial - set to neuro
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var initial_chart_select = document.getElementById('chart_select');
+            initial_chart_select.value = 'neuro';
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            initial_chart_select.dispatchEvent(change_event);
+
+
+            // press table tab
+            var tabs = document.getElementsByClassName('tabs');
+            var table_tab = tabs[0].getElementsByTagName('a')[1];
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            table_tab.dispatchEvent(click_event);
+
+            // select chart
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'ews';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+
+            // assert
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            var table = document.getElementById('table-content');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(table.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+        });
+
         it('Hides tabs when only needs to draw chart or table and not both', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
