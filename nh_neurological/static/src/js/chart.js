@@ -145,7 +145,6 @@ function drawNeurologicalChart(settings, serverData){
 }
 
 function drawNeurologicalTable(settings, serverData){
-    var obs = serverData.reverse();
     var tableEl = new window.NH.NHGraphLib("#table");
     tableEl.table = {
         element: "#table",
@@ -220,6 +219,6 @@ function drawNeurologicalTable(settings, serverData){
             }
         ]
     };
-    tableEl.data.raw = processNeurologicalData(obs);
+    tableEl.data.raw = processNeurologicalData(serverData);
     tableEl.draw();
 }
