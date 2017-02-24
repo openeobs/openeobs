@@ -112,11 +112,16 @@ class NHMobilePatient extends NHMobile
     chartEl = document.getElementById(self.chart_element)
     tableEl = document.getElementById(self.table_element)
     graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0]
+    activeTab =
+      graphTabs.getElementsByClassName("selected")[0].getAttribute('href')
     chartFuncName = "draw" + dataModel.capitalize() + "Chart"
     tableFuncName = "draw" + dataModel.capitalize() + "Table"
     if serverData.length > 0
       controls.style.display = "block"
       graphTabs.style.display = "block"
+      chartEl.style.display = "block"
+      graphContent.style.display = "block"
+      tableEl.style.display = "block"
       chartFunc = window[chartFuncName]
       tableFunc = window[tableFuncName]
       validChart = (typeof chartFunc is "function")
@@ -129,6 +134,10 @@ class NHMobilePatient extends NHMobile
         chartFunc(self, serverData)
       if validTable
         tableFunc(self, serverData)
+      if activeTab is "#graph-content"
+        tableEl.style.display = "none"
+      else
+        graphContent.style.display = "none"
     else
       controls.style.display = "none"
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>"

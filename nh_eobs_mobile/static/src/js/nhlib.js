@@ -1202,17 +1202,21 @@ NHMobilePatient = (function(superClass) {
   };
 
   NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
-    var chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableEl, tableFunc, tableFuncName, validChart, validTable;
+    var activeTab, chartEl, chartFunc, chartFuncName, controls, graphContent, graphTabs, tableEl, tableFunc, tableFuncName, validChart, validTable;
     graphContent = document.getElementById("graph-content");
     controls = document.getElementById("controls");
     chartEl = document.getElementById(self.chart_element);
     tableEl = document.getElementById(self.table_element);
     graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0];
+    activeTab = graphTabs.getElementsByClassName("selected")[0].getAttribute('href');
     chartFuncName = "draw" + dataModel.capitalize() + "Chart";
     tableFuncName = "draw" + dataModel.capitalize() + "Table";
     if (serverData.length > 0) {
       controls.style.display = "block";
       graphTabs.style.display = "block";
+      chartEl.style.display = "block";
+      graphContent.style.display = "block";
+      tableEl.style.display = "block";
       chartFunc = window[chartFuncName];
       tableFunc = window[tableFuncName];
       validChart = typeof chartFunc === "function";
@@ -1226,7 +1230,12 @@ NHMobilePatient = (function(superClass) {
         chartFunc(self, serverData);
       }
       if (validTable) {
-        return tableFunc(self, serverData);
+        tableFunc(self, serverData);
+      }
+      if (activeTab === "#graph-content") {
+        return tableEl.style.display = "none";
+      } else {
+        return graphContent.style.display = "none";
       }
     } else {
       controls.style.display = "none";
