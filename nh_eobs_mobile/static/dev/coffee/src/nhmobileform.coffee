@@ -31,6 +31,12 @@ class NHMobileForm extends NHMobile
                 )
 #                input.addEventListener('change', self.trigger_actions)
               when 'submit' then input.addEventListener('click', (e) ->
+                form_elements = (element for element in @form.elements \
+                  when not element.classList.contains('exclude'))
+                for el in form_elements
+                  change_event = document.createEvent('CustomEvent')
+                  change_event.initCustomEvent('change', false, true, false)
+                  el.dispatchEvent(change_event)
                 self.handle_event(e, self.submit, true)
               )
               when 'reset' then input.addEventListener('click', (e) ->
@@ -46,6 +52,8 @@ class NHMobileForm extends NHMobile
                   self.handle_event(e, self.trigger_actions, true)
                 )
           when 'select' then input.addEventListener('change', (e) ->
+            self.handle_event(e, self.validate, true)
+            e.handled = false
             self.handle_event(e, self.trigger_actions, true)
           )
           when 'button' then input.addEventListener('click', (e) ->
@@ -68,15 +76,14 @@ class NHMobileForm extends NHMobile
 
     document.addEventListener 'post_score_submit', (event) ->
       self.handle_event(event, self.process_post_score_submit, true, self)
-#      if not event.handled
-#        self.process_post_score_submit(self, event)
-#        event.handled = true
 
     document.addEventListener 'partial_submit', (event) ->
       self.handle_event(event, self.process_partial_submit, true, self)
-#      if not event.handled
-#        self.process_partial_submit(self,event)
-#        event.handled = true
+
+    document.addEventListener(
+      'display_partial_reasons',
+      self.handle_display_partial_reasons.bind(self)
+    )
 
     @patient_name_el.addEventListener 'click', (event) ->
       event.preventDefault()
@@ -140,6 +147,11 @@ class NHMobileForm extends NHMobile
           if regex_res
             @.add_input_errors(input, 'Invalid value')
             return
+    else
+      if input.getAttribute('data-required').toLowerCase() is 'true'
+        @.add_input_errors(input, 'Missing value')
+        return
+
 
   # Validate number input to make sure it fits within the defined range and is
   # float or int
@@ -216,6 +228,8 @@ class NHMobileForm extends NHMobile
 #    event.preventDefault()
     @.reset_form_timeout(@)
     ajax_act = @form.getAttribute('ajax-action')
+    ajax_partial_act = @form.getAttribute('ajax-partial-action')
+    ajax_args = @form.getAttribute('ajax-args')
     form_elements =
       (element for element in @form.elements \
         when not element.classList.contains('exclude'))
@@ -223,23 +237,30 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value or \
-      element.value is '')
+      (el for el in form_elements when not el.value and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
+        el.value is '' and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true'))
+    empty_mandatory =
+      (el for el in form_elements when not el.value and \
+        (el.getAttribute('data-required').toLowerCase() is 'true') \
+        or el.value is '' \
+        and (el.getAttribute('data-required').toLowerCase() is 'true'))
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
-        @form.getAttribute('ajax-args'))
-    else if empty_elements.length>0 and ajax_act.indexOf('notification') > 0
-      msg = '<p>The form contains empty fields, please enter '+
-        'data into these fields and resubmit</p>'
-      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
-        'Cancel</a>'
-      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
-        msg, [btn], 0, @.form)
+      @submit_observation(@, form_elements, ajax_act, ajax_args)
+    else if empty_mandatory.length > 0 or empty_elements.length>0 and \
+      ajax_act.indexOf('notification') > 0
+        msg = '<p>The form contains empty fields, please enter '+
+          'data into these fields and resubmit</p>'
+        btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+          'Cancel</a>'
+        new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+          msg, [btn], 0, @.form)
     else if invalid_elements.length>0
       msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
@@ -253,7 +274,10 @@ class NHMobileForm extends NHMobile
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @display_partial_reasons(@)
+      if ajax_partial_act is 'score'
+        @submit_observation(@, form_elements, ajax_act, ajax_args, true)
+      else
+        @display_partial_reasons(@)
 
   show_reference: (event) =>
 #    event.preventDefault()
@@ -273,7 +297,6 @@ class NHMobileForm extends NHMobile
       btn = '<a href="#" data-action="close" data-target="popup_iframe">'+
         'Cancel</a>'
       new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, @.form)
-
 
   display_partial_reasons: (self) =>
     form_type = self.form.getAttribute('data-source')
@@ -300,9 +323,10 @@ class NHMobileForm extends NHMobile
       new window.NH.NHModal('partial_reasons', server_data.title,
         msg+select, [can_btn, con_btn], 0, self.form)
 
-  submit_observation: (self, elements, endpoint, args) =>
+  submit_observation: (self, elements, endpoint, args, partial = false) =>
     # turn form data in to serialised string and ping off to server
-    serialised_string = (el.name+'='+el.value for el in elements).join("&")
+    serialised_string = (el.name+'='+encodeURIComponent(el.value) \
+      for el in elements).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
@@ -310,10 +334,12 @@ class NHMobileForm extends NHMobile
       data = server_data.data
       body = document.getElementsByTagName('body')[0]
       if server_data.status is 'success' and data.status is 3
+        data_action = if not partial then \
+          'submit' else 'display_partial_reasons'
         can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
-          'data-action="submit" data-ajax-action="'+
+          'data-action="' + data_action + '" data-ajax-action="'+
           data.next_action+'">Submit</a>'
         new window.NH.NHModal('submit_observation',
           server_data.title + ' for ' + self.patient_name() + '?',
@@ -470,6 +496,9 @@ class NHMobileForm extends NHMobile
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
+
+  handle_display_partial_reasons: (event) ->
+    this.display_partial_reasons(this)
 
 ### istanbul ignore if ###
 if !window.NH

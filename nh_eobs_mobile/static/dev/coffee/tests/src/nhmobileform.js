@@ -45,6 +45,25 @@ NHMobileForm = (function(superClass) {
               });
             case 'submit':
               return input.addEventListener('click', function(e) {
+                var change_event, el, element, form_elements, j, len1;
+                form_elements = (function() {
+                  var j, len1, ref1, results;
+                  ref1 = this.form.elements;
+                  results = [];
+                  for (j = 0, len1 = ref1.length; j < len1; j++) {
+                    element = ref1[j];
+                    if (!element.classList.contains('exclude')) {
+                      results.push(element);
+                    }
+                  }
+                  return results;
+                }).call(this);
+                for (j = 0, len1 = form_elements.length; j < len1; j++) {
+                  el = form_elements[j];
+                  change_event = document.createEvent('CustomEvent');
+                  change_event.initCustomEvent('change', false, true, false);
+                  el.dispatchEvent(change_event);
+                }
                 return self.handle_event(e, self.submit, true);
               });
             case 'reset':
@@ -65,6 +84,8 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', function(e) {
+            self.handle_event(e, self.validate, true);
+            e.handled = false;
             return self.handle_event(e, self.trigger_actions, true);
           });
         case 'button':
@@ -101,6 +122,7 @@ NHMobileForm = (function(superClass) {
     document.addEventListener('partial_submit', function(event) {
       return self.handle_event(event, self.process_partial_submit, true, self);
     });
+    document.addEventListener('display_partial_reasons', self.handle_display_partial_reasons.bind(self));
     return this.patient_name_el.addEventListener('click', function(event) {
       var can_btn, patient_id;
       event.preventDefault();
@@ -161,6 +183,10 @@ NHMobileForm = (function(superClass) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        this.add_input_errors(input, 'Missing value');
       }
     }
   };
@@ -270,9 +296,11 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, ajax_args, ajax_partial_act, btn, button, el, element, empty_elements, empty_mandatory, form_elements, i, invalid_elements, j, len, len1, msg;
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
+    ajax_partial_act = this.form.getAttribute('ajax-partial-action');
+    ajax_args = this.form.getAttribute('ajax-args');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -300,9 +328,20 @@ NHMobileForm = (function(superClass) {
       var i, len, results;
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
-        element = form_elements[i];
-        if (!element.value || element.value === '') {
-          results.push(element);
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-necessary').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-necessary').toLowerCase() === 'true')) {
+          results.push(el);
+        }
+      }
+      return results;
+    })();
+    empty_mandatory = (function() {
+      var i, len, results;
+      results = [];
+      for (i = 0, len = form_elements.length; i < len; i++) {
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-required').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-required').toLowerCase() === 'true')) {
+          results.push(el);
         }
       }
       return results;
@@ -324,8 +363,8 @@ NHMobileForm = (function(superClass) {
         button = action_buttons[i];
         button.setAttribute('disabled', 'disabled');
       }
-      return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
-    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      return this.submit_observation(this, form_elements, ajax_act, ajax_args);
+    } else if (empty_mandatory.length > 0 || empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
       msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
@@ -350,7 +389,11 @@ NHMobileForm = (function(superClass) {
         button = action_buttons[j];
         button.setAttribute('disabled', 'disabled');
       }
-      return this.display_partial_reasons(this);
+      if (ajax_partial_act === 'score') {
+        return this.submit_observation(this, form_elements, ajax_act, ajax_args, true);
+      } else {
+        return this.display_partial_reasons(this);
+      }
     }
   };
 
@@ -397,26 +440,30 @@ NHMobileForm = (function(superClass) {
     });
   };
 
-  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args) {
+  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args, partial) {
     var el, serialised_string, url;
+    if (partial == null) {
+      partial = false;
+    }
     serialised_string = ((function() {
       var i, len, results;
       results = [];
       for (i = 0, len = elements.length; i < len; i++) {
         el = elements[i];
-        results.push(el.name + '=' + el.value);
+        results.push(el.name + '=' + encodeURIComponent(el.value));
       }
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
     return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, k, len, len1, len2, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, data_action, element, i, j, k, len, len1, len2, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
       server_data = raw_data[0];
       data = server_data.data;
       body = document.getElementsByTagName('body')[0];
       if (server_data.status === 'success' && data.status === 3) {
+        data_action = !partial ? 'submit' : 'display_partial_reasons';
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
-        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
+        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="' + data_action + '" data-ajax-action="' + data.next_action + '">Submit</a>';
         new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
@@ -625,6 +672,10 @@ NHMobileForm = (function(superClass) {
     })();
     endpoint = event.detail.endpoint;
     return self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'));
+  };
+
+  NHMobileForm.prototype.handle_display_partial_reasons = function(event) {
+    return this.display_partial_reasons(this);
   };
 
   return NHMobileForm;

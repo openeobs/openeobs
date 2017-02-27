@@ -39,6 +39,7 @@ class nh_clinical_notification(orm.AbstractModel):
         Returns a description in dictionary format of the input fields
         that would be required in the user gui when the notification is
         shown.
+
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id
         :type patient_id: int
         :returns: a list of dictionaries

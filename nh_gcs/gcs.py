@@ -4,15 +4,16 @@
 `gcs.py` defines the Glasgow Coma Scale observation class and its
 standard behaviour and policy triggers based on this worldwide standard.
 """
-from openerp.osv import orm, fields, osv
-import logging
 import bisect
-from openerp import SUPERUSER_ID
+import logging
+
+from openerp import models, fields, osv, SUPERUSER_ID, api
+from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_patient_observation_gcs(orm.Model):
+class nh_clinical_patient_observation_gcs(models.Model):
     """
     Represents an Glasgow Coma Scale
     :class:`observation<observations.nh_clinical_patient_observation>`
@@ -27,28 +28,36 @@ class nh_clinical_patient_observation_gcs(orm.Model):
     flexion, extension, none.
     """
     _name = 'nh.clinical.patient.observation.gcs'
-    _inherit = ['nh.clinical.patient.observation']
+    _inherit = ['nh.clinical.patient.observation_scored']
+
+    # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
+    _scored = ['eyes', 'verbal', 'motor']
     _description = "GCS Observation"
-    _eyes = [('4', '4: Opens eyes spontaneously'),
-             ('3', '3: Opens eyes in response to voice'),
-             ('2', '2: Opens eyes in response to painful stimuli'),
-             ('1', '1: Does not open eyes'),
-             ('C', 'C: Closed by swelling')]
-    _verbal = [('5', '5: Oriented, converses normally'),
-               ('4', '4: Confused, disoriented'),
-               ('3', '3: Utters inappropiate words'),
-               ('2', '2: Incomprehensible sounds'),
-               ('1', '1: Makes no sounds'),
-               ('T', 'T: Intubated')]
-    _motor = [('6', '6: Obeys commands'),
-              ('5', '5: Localizes painful stimuli'),
-              ('4', '4: Flexion / Withdrawal to painful stimuli'),
-              ('3', '3: Abnormal flexion to painful stimuli '
-                    '(decorticate response)'),
-              ('2', '2: Extension to painful stimuli (decerebrate response)'),
-              ('1', '1: Makes no movements')
-              ]
+    _eyes_selection = [
+        ('SP', 'Spontaneous'),
+        ('TS', 'To Sound'),
+        ('TP', 'To Pressure'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
+    ]
+    _verbal_selection = [
+        ('OR', 'Orientated'),
+        ('CO', 'Confused'),
+        ('WO', 'Words'),
+        ('SO', 'Sounds'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
+    ]
+    _motor_selection = [
+        ('OC', 'Obey Commands'),
+        ('LO', 'Localising'),
+        ('NF', 'Normal Flexion'),
+        ('AF', 'Abnormal Flexion'),
+        ('EX', 'Extension'),
+        ('NN', 'None'),
+        ('NT', 'Not Testable')
+    ]
 
     """
     Default GCS policy has 5 different scenarios:
@@ -63,74 +72,28 @@ class nh_clinical_patient_observation_gcs(orm.Model):
                'frequencies': [30, 60, 120, 240, 720],
                'notifications': [[], [], [], [], []]}
 
-    def calculate_score(self, gcs_data):
-        """
-        Computes the score based on the GCS parameters provided.
+    eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open', required=True)
+    verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response',
+                                  required=True)
+    motor = obs_fields.Selection(_motor_selection, 'Best Motor Response',
+                                 required=True)
 
-        :param gcs_data: The GCS parameters: ``eyes``, ``verbal`` and
-                         ``motor``.
-        :type gcs_data: dict
-        :returns: ``score``
-        :rtype: dict
-        """
-        eyes = 1 if gcs_data['eyes'] == 'C' else int(gcs_data['eyes'])
-        verbal = 1 if gcs_data['verbal'] == 'T' else int(gcs_data['verbal'])
-        motor = int(gcs_data['motor'])
+    # TODO For some reason if you do not re-declare these as Odoo's field type,
+    # type() will return nh_observation's Selection field type instead...
+    # This strange behaviour breaks nh_clinical_form_description.to_dict()
+    frequency = fields.Selection(default=60)
+    partial_reason = fields.Selection()
 
-        return {'score': eyes+verbal+motor}
-
-    def _get_score(self, cr, uid, ids, field_names, arg, context=None):
-        res = {}
-        for gcs in self.browse(cr, uid, ids, context):
-            res[gcs.id] = self.calculate_score(
-                {'eyes': gcs.eyes, 'verbal': gcs.verbal, 'motor': gcs.motor})
-            _logger.debug(
-                "Observation GCS activity_id=%s gcs_id=%s score: %s"
-                % (gcs.activity_id.id, gcs.id, res[gcs.id]))
-        return res
-
-    _columns = {
-        'score': fields.function(
-            _get_score, type='integer', multi='score', string='Score', store={
-                'nh.clinical.patient.observation.gcs':
-                    (lambda self, cr, uid, ids, ctx: ids, [], 10)}),
-        'eyes': fields.selection(_eyes, 'Eyes'),
-        'verbal': fields.selection(_verbal, 'Verbal'),
-        'motor': fields.selection(_motor, 'Motor')
-    }
-
-    _defaults = {
-        'frequency': 60
-    }
-
-    _form_description = [
-        {
-            'name': 'meta',
-            'type': 'meta',
-            'score': True
-        },
-        {
-            'name': 'eyes',
-            'type': 'selection',
-            'label': 'Eyes',
-            'selection': _eyes,
-            'initially_hidden': False
-        },
-        {
-            'name': 'verbal',
-            'type': 'selection',
-            'label': 'Verbal',
-            'selection': _verbal,
-            'initially_hidden': False
-        },
-        {
-            'name': 'motor',
-            'type': 'selection',
-            'label': 'Motor',
-            'selection': _motor,
-            'initially_hidden': False
+    def calculate_score(self, obs_data, return_dictionary=True):
+        is_dict = isinstance(obs_data, dict)
+        obs_data_dict = {
+            'eyes': obs_data['eyes'] if is_dict else obs_data.eyes,
+            'verbal': obs_data['verbal'] if is_dict else obs_data.verbal,
+            'motor': obs_data['motor'] if is_dict else obs_data.motor
         }
-    ]
+        return super(nh_clinical_patient_observation_gcs, self)\
+            .calculate_score(obs_data_dict,
+                             return_dictionary=return_dictionary)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -166,7 +129,7 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         }, context=context)
 
         return super(nh_clinical_patient_observation_gcs, self).complete(
-            cr, SUPERUSER_ID, activity_id, context)
+            cr, uid, activity_id, context)
 
     def create_activity(self, cr, uid, vals_activity=None, vals_data=None,
                         context=None):
@@ -196,3 +159,11 @@ class nh_clinical_patient_observation_gcs(orm.Model):
         return super(
             nh_clinical_patient_observation_gcs, self).create_activity(
             cr, uid, vals_activity, vals_data, context)
+
+    @api.multi
+    def read_labels(self, fields=None, load='_classic_read'):
+        obs_data = self.read(fields=fields, load=load)
+        if obs_data:
+            obs = obs_data if isinstance(obs_data, list) else [obs_data]
+            self.convert_field_values_to_labels(obs)
+        return obs_data
