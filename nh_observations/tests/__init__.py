@@ -3,5 +3,6 @@
 from . import test_review_frequency_complete
 from . import test_review_frequency_form_description
 from .frequencies import test_frequencies
+from .nh_clinical_notification_frequency import *
 from .nh_clinical_patient_observation import *
 from .nh_clinical_patient_observation_scored import *

@@ -110,13 +110,15 @@ class NhClinicalTestUtils(AbstractModel):
             'hca': other_hca
         }
 
-    def complete_open_activity(self, data_model, user_id=None):
+    def complete_open_activity(self, data_model, user_id=None, vals=None):
         """
         Find and complete open activity in specified model
 
         :param data_model: Model to complete
         :param user_id: user to complete as
         """
+        if not vals:
+            vals = {}
         if not user_id:
             user_id = self.nurse.id
         api_pool = self.pool['nh.eobs.api']
@@ -130,7 +132,7 @@ class NhClinicalTestUtils(AbstractModel):
             self.env.cr,
             user_id,
             task.id,
-            {}
+            vals
         )
 
     def cancel_open_activity(self, data_model, user_id=None):
