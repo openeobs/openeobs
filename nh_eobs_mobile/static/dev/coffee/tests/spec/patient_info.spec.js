@@ -60,9 +60,9 @@ describe('Patient Information Functionality', function(){
        expect(typeof(NHMobileBarcode.prototype.barcode_scanned)).toBe('function');
     });
 
-    it('Has a function for drawing a patient observation chart', function(){
-       expect(typeof(NHMobilePatient.prototype.draw_graph)).toBe('function');
-    });
+    // it('Has a function for drawing a patient observation chart', function(){
+    //    expect(typeof(NHMobilePatient.prototype.drawGraph)).toBe('function');
+    // });
 
     describe('Getting patient information by sending patient ID to server', function(){
         it('Calls the server for patient information and displays in modal', function(){
@@ -384,13 +384,25 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Displaying the patient\'s observation in a chart', function(){
-        var nhpatient, NHGraphLib, NHGraph, NHTable, NHFocus, NHContext;
+        var nhpatient;
         beforeEach(function(){
+            window.drawEwsChart = null;
+            window.drawNeuroChart = function(){
+                    return {
+                        init: function(){ return 'a'; },
+                        draw: function(){ return 'b'; }
+                    };
+                };
+            window.drawNeuroTable = function(){ return null; };
             var test = document.getElementById('test');
             test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
                 '<h3 class="name"><strong>Test Patient</strong></h3>' +
                 '<h3 class="obs">Obs</h3></a>' +
-                    '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
+                '<select name="chart_select" id="chart_select">' +
+                '<option value="ews" selected="selected">NEWS</option>' +
+                '<option value="neuro">Neurological observation</option>' +
+                '</select>' +
                 '<ul class="two-col tabs">' +
                 '<li><a href="#graph-content" class="selected tab">Graph</a></li>' +
                 '<li><a href="#table-content" class="tab">Table</a></li>' +
@@ -424,113 +436,9 @@ describe('Patient Information Functionality', function(){
                 '<div id="chart"></div>' +
                 '</div>' +
                 '<div id="table-content"></div>';
-
-            NHGraphLib = (function(){
-                function NHGraphLib(element){
-                    this.context = null;
-                    this.focus = null;
-                    this.table = {
-                        keys: [],
-                        element: ''
-                    };
-                    this.data = {
-                        raw: []
-                    };
-                    this.options = {
-                        controls: {
-                            rangify: null,
-                            date: {
-                                start: null,
-                                end: null
-                            },
-                            time: {
-                                start: null,
-                                end: null
-                            }
-                        }
-                    };
-                }
-                NHGraphLib.prototype.draw = function(){};
-                NHGraphLib.prototype.init = function(){
-                    // Do some foo in here to return the created object?
-                };
-                return NHGraphLib;
-            })();
-            if(!window.NH){
-                window.NH = {};
-            }
-            window.NH.NHGraphLib = NHGraphLib;
-            NHGraph = (function(){
-                function NHGraph(){
-                    this.options = {
-                        keys: [],
-                        label: '',
-                        measurement: '',
-                        normal: {
-                            min: 0,
-                            max: 0
-                        }
-                    };
-                    this.axes = {
-                        y: {
-                            min: 0,
-                            max: 40
-                        }
-                    };
-                    this.style = {
-                        dimensions: {
-                            height: 0
-                        },
-                        data_style: '',
-                        label_width: 0,
-                        axis:{
-                            x: {
-                                hide: false
-                            }
-                        }
-                    };
-                    this.drawables = {
-                        background: {
-                            data: []
-                        }
-                    }
-                }
-                return NHGraph;
-            })();
-            window.NH.NHGraph = NHGraph;
-            NHFocus = (function(){
-                function NHFocus(){
-                    this.graphs = [];
-                    this.tables = [];
-                    this.title = '';
-                    this.style = {
-                        padding: {
-                            right: 0
-                        }
-                    }
-                }
-                return NHFocus;
-            })();
-            window.NH.NHFocus = NHFocus;
-            NHContext = (function(){
-                function NHContext(){
-                    this.graph = null;
-                    this.title = '';
-                }
-                return NHContext;
-            })();
-            window.NH.NHContext = NHContext;
-            NHTable = (function(){
-                function NHTable(){
-                    this.title = '';
-                    this.keys = [];
-                }
-                return NHTable;
-            })();
-            window.NH.NHTable = NHTable;
         });
 
-        it('On receiving no data from the server removes the tabs, controls and shows a message to say so', function(){
+        it('Loads NEWS by default', function() {
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
                 var empty_graph = new NHMobileData({
@@ -544,9 +452,28 @@ describe('Patient Information Functionality', function(){
                 promise.complete(empty_graph);
                 return promise;
             });
-            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
             nhpatient = new NHMobilePatient();
-            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('ews');
+        });
+
+        it('Hides tabs and shows message when no observation data found', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: []
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
             var tabs = document.getElementsByClassName('tabs');
             expect(tabs[0].style.display).toBe('none');
             var controls = document.getElementById('controls');
@@ -555,12 +482,247 @@ describe('Patient Information Functionality', function(){
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
         });
 
-        it('On receiving data from the server creates NHGraph and NHTable objects to draw into the chart element', function(){
+        it('Hides tabs and shows message when no observation data found - from table tab on other obs', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+                var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+
+            // initial - set to neuro
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var initial_chart_select = document.getElementById('chart_select');
+            initial_chart_select.value = 'neuro';
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            initial_chart_select.dispatchEvent(change_event);
+
+
+            // press table tab
+            var tabs = document.getElementsByClassName('tabs');
+            var table_tab = tabs[0].getElementsByTagName('a')[1];
+            var click_event = document.createEvent('CustomEvent');
+            click_event.initCustomEvent('click', false, true, false);
+            table_tab.dispatchEvent(click_event);
+
+            // select chart
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'ews';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+
+            // assert
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            var table = document.getElementById('table-content');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(table.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+        });
+
+        it('Hides tabs when only needs to draw chart or table and not both', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
                 var graph_data = new NHMobileData({
-                    status: 'success', 
-                    title: 'Test Patient', 
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: [ {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }]
+                    }
+                });
+                promise.complete(graph_data);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+        });
+
+        it('Shows tabs, form controls and chart when observation data is found', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'changeChart').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+
+            // Initial load with no obs
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'neuro';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            // After change to obs with data
+            expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro');
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('block');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).not.toBe('<h2>No observation data available for patient</h2>');
+
+            chart_select.value = 'ews';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            // After change to obs with no data
+            expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('ews');
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+
+        });
+
+        it('Fetches data for the selected observation when the \'See observation data for:\' dropdown is changed', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var empty_graph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                            obs: []
+                    }
+                });
+                promise.complete(empty_graph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'changeChart').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+
+            var chart_select = document.getElementById('chart_select');
+            chart_select.value = 'neuro';
+
+            var change_event = document.createEvent('CustomEvent');
+            change_event.initCustomEvent('change', false, true, false);
+            chart_select.dispatchEvent(change_event);
+
+            expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro')
+        });
+
+        it('On receiving data from the server calls the relevant function to draw the charts', function(){
+            spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
+               var promise = new Promise();
+                var graph_data = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
                     description: 'Observations for Test Patient',
                     data: {
                        obs: [{
@@ -622,37 +784,13 @@ describe('Patient Information Functionality', function(){
                 promise.complete(graph_data);
                 return promise;
             });
-            spyOn(NHMobilePatient.prototype, 'draw_graph').and.callThrough();
-            var graphlib_constructor = spyOn(window.NH, 'NHGraphLib').and.callFake(function(args){
-                return new NHGraphLib(args);
-            });
-            var graph_constructor = spyOn(window.NH, 'NHGraph').and.callFake(function(){
-                return new NHGraph();
-            });
-            var table_constructor = spyOn(window.NH, 'NHTable').and.callFake(function(){
-                return new NHTable();
-            });
-            var focus_constructor = spyOn(window.NH, 'NHFocus').and.callFake(function(){
-                return new NHFocus();
-            });
-            var context_constructor = spyOn(window.NH, 'NHContext').and.callFake(function(){
-                return new NHContext();
-            });
-            spyOn(NHGraphLib.prototype, 'init');
-            spyOn(NHGraphLib.prototype, 'draw');
+            spyOn(window, 'drawEwsChart');
             nhpatient = new NHMobilePatient();
-            expect(NHMobilePatient.prototype.draw_graph).toHaveBeenCalled();
-            expect(graphlib_constructor).toHaveBeenCalledWith('#chart');
-            expect(graph_constructor.calls.count()).toBe(6);
-            expect(table_constructor.calls.count()).toBe(1);
-            expect(focus_constructor.calls.count()).toBe(1);
-            expect(context_constructor.calls.count()).toBe(1);
-            expect(NHGraphLib.prototype.init).toHaveBeenCalled();
-            expect(NHGraphLib.prototype.draw).toHaveBeenCalled();
+            expect(window.drawEwsChart).toHaveBeenCalled()
         });
 
         it('Changes the displayed content when I press a tab', function(){
-            spyOn(NHMobilePatient.prototype, 'handle_tabs').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'handleTabs').and.callThrough();
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
                 var empty_graph = new NHMobileData({
@@ -672,7 +810,7 @@ describe('Patient Information Functionality', function(){
             var click_event1 = document.createEvent('CustomEvent');
             click_event1.initCustomEvent('click', false, true, false);
             test_buttons[1].dispatchEvent(click_event1);
-            expect(NHMobilePatient.prototype.handle_tabs).toHaveBeenCalled();
+            expect(NHMobilePatient.prototype.handleTabs).toHaveBeenCalled();
             expect(test_buttons[0].classList.contains('selected')).toBe(false);
             expect(test_buttons[1].classList.contains('selected')).toBe(true);
             expect(document.getElementById('graph-content').style.display).toBe('none');
@@ -680,7 +818,7 @@ describe('Patient Information Functionality', function(){
             var click_event = document.createEvent('CustomEvent');
             click_event.initCustomEvent('click', false, true, false);
             test_buttons[0].dispatchEvent(click_event);
-            expect(NHMobilePatient.prototype.handle_tabs.calls.count()).toBe(2);
+            expect(NHMobilePatient.prototype.handleTabs.calls.count()).toBe(2);
             expect(test_buttons[0].classList.contains('selected')).toBe(true);
             expect(test_buttons[1].classList.contains('selected')).toBe(false);
             expect(document.getElementById('graph-content').style.display).toBe('block');
@@ -688,8 +826,9 @@ describe('Patient Information Functionality', function(){
         });
 
         it('Show the obs list in a modal when I press the obs menu button', function(){
-            spyOn(NHMobilePatient.prototype, 'show_obs_menu').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'showObsMenu').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'drawGraph');
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
                 var empty_graph = new NHMobileData({
@@ -708,8 +847,8 @@ describe('Patient Information Functionality', function(){
             click_event.initCustomEvent('click', false, true, false);
             test_button.dispatchEvent(click_event);
             var body = document.getElementsByTagName('body')[0];
-            expect(NHMobilePatient.prototype.show_obs_menu).toHaveBeenCalled();
-            expect(NHMobilePatient.prototype.show_obs_menu.calls.count()).toBe(1);
+            expect(NHMobilePatient.prototype.showObsMenu).toHaveBeenCalled();
+            expect(NHMobilePatient.prototype.showObsMenu.calls.count()).toBe(1);
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('obs_menu');
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ' + patient_info_data.data.full_name);

@@ -3,22 +3,23 @@
 """
 Defines helper methods and handlers for eObs Mobile.
 """
-from openerp import http
-from openerp.modules.module import get_module_path
+import logging
 from datetime import datetime
-from openerp.http import request
-from werkzeug import utils
-from werkzeug import exceptions
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
-from openerp.osv import orm
+
+import jinja2
+import openerp
+import os
+import re
+from openerp import http
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
-import openerp
-import re
 from openerp.addons.nh_eobs_mobile.controllers import urls
-import jinja2
-import os
-import logging
+from openerp.http import request
+from openerp.modules.module import get_module_path
+from openerp.osv import orm
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from werkzeug import exceptions
+from werkzeug import utils
 
 _logger = logging.getLogger(__name__)
 
@@ -855,6 +856,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             cr, uid,
             activity_type='nh.clinical.patient.follow',
             context=context)
+        obs_data_vis_list = api_pool.get_data_visualisation_resources(
+            cr, uid, context=context)
         return request.render(
             'nh_eobs_mobile.patient',
             qcontext={
@@ -863,7 +866,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 'section': 'patient',
                 'obs_list': obs,
                 'notification_count': len(follow_activities),
-                'username': request.session['login']
+                'username': request.session['login'],
+                'data_vis_list': obs_data_vis_list
             }
         )
 
@@ -930,11 +934,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
             elif form_input['type'] == 'meta':
-                obs_score = form_input['score']
-                score_present = 'score' in form_input
-                form['obs_needs_score'] = obs_score if score_present else False
+                obs_score = form_input.get('score')
+                form['obs_needs_score'] = obs_score
+                partial_flow = form_input.get('partial_flow')
+                if partial_flow:
+                    form['partial_flow'] = partial_flow
         observation_name_list = []
-        for ob in api_pool._active_observations:
+        for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:
                 observation_name_list.append(ob['name'])
         if len(observation_name_list) == 0:

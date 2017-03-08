@@ -1,7 +1,7 @@
-from openerp.osv import orm
-import openerp.modules as addons
 import openerp.addons.nh_eobs_mobile.controllers.main as mobile_controller
+import openerp.modules as addons
 from openerp.addons.nh_eobs_mobile.controllers.urls import URLS
+from openerp.osv import orm
 
 
 class NHEobsMobileMain(orm.AbstractModel):
@@ -9,6 +9,15 @@ class NHEobsMobileMain(orm.AbstractModel):
     _name = 'nh.eobs.mobile.mental'
 
     def process_patient_list(self, cr, uid, patient_list, context=None):
+        """
+        Process the patient list.
+
+        :param cr:
+        :param uid:
+        :param patient_list:
+        :param context:
+        :return:
+        """
         spell_model = self.pool['nh.clinical.spell']
         patient_ids = [patient.get('id') for patient in patient_list]
         spell_ids = spell_model.search(cr, uid, [

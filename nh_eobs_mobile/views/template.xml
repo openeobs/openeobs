@@ -226,7 +226,7 @@
                     <h2 id="patientName" class="block">
                         <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
                     </h2>
-                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])">
+                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])"  t-att-ajax-partial-action="form.get('partial_flow')">
                         <div t-foreach="inputs" t-as="item">
                             <t t-if="item['name']=='systolic_sitting'">
                                 <h3 class="block">Lying/Sitting Blood Pressure</h3>
@@ -269,8 +269,7 @@
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                </div>
                <div class="input-body">
-                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''">
-
+                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')">
                         <option value="">Please Select</option>
                         <t t-foreach="item['selection_options']" t-as="option">
                             <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
@@ -295,7 +294,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
@@ -321,7 +320,7 @@
                         </t> -->
 
                     <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''"/>
+                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true')"/>
                     <!-- </t>
                     <t t-if="item['text']">
                         <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
@@ -386,6 +385,14 @@
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
                             </t>
                         </ul>
+                        <t t-if="len(data_vis_list) > 0">
+                            <h4>See Observation Data For:</h4>
+                            <select id="chart_select" name="chart_select">
+                                <t t-foreach="data_vis_list" t-as="data_vis">
+                                    <option t-att-value="data_vis.get('data_model')" t-att-selected="'selected' if data_vis.get('data_model') == 'ews' else False"><t t-esc="data_vis.get('model_name')"/></option>
+                                </t>
+                            </select>
+                        </t>
                         <ul class="two-col tabs">
                             <li><a href="#graph-content" class="selected">Graph</a></li>
                             <li><a href="#table-content">Table</a></li>
@@ -428,11 +435,14 @@
                     <script type="text/javascript">
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
                     </script>
+                    <t t-if="len(data_vis_list) > 0">
+                        <t t-foreach="data_vis_list" t-as="data_vis">
+                            <script t-att-src="data_vis.get('resource')" type="text/javascript"></script>
+                        </t>
+                    </t>
                 </div>
             </t>
         </template>
-
-
 
     </data>
 </openerp>

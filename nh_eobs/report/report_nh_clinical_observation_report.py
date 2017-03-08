@@ -83,23 +83,22 @@ class ObservationReport(models.AbstractModel):
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
         partner_pool = self.pool['res.partner']
+
         base_report = self.create_report_data(data)
+
         spell_id = int(data.spell_id)
         spell = spell_pool.read(cr, uid, [spell_id])[0]
         dates = self.process_report_dates(data, spell, base_report)
         spell_activity_id = spell['activity_id'][0]
         self.spell_activity_id = spell_activity_id
-
         spell_docs = spell['con_doctor_ids']
         spell['consultants'] = False
         if len(spell_docs) > 0:
             spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
-        #
-        # # - get patient id
         self.patient_id = spell['patient_id'][0]
         patient_id = self.patient_id
-        #
-        # get patient information
+
+        # Get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient_location = patient.get('current_location_id')
         patient['dob'] = helpers.convert_db_date_to_context_date(
@@ -215,12 +214,13 @@ class ObservationReport(models.AbstractModel):
         return rep_data
 
     @api.multi
-    def get_activity_data(self, spell_id, model, start_time, end_time):
+    def get_activity_data(
+            self, spell_activity_id, model, start_time, end_time):
         """
         Returns a list of dictionaries, each one representing the values of one
         :class:<nh_activity.activity.nh_activity> record.
 
-        :param spell_id:
+        :param spell_activity_id:
         :param model: The name of the model matching the type of activity data
         to retrieve activities for.
         :type model: str
@@ -234,11 +234,27 @@ class ObservationReport(models.AbstractModel):
 
         states = self._get_allowed_activity_states_for_model(model)
         domain = helpers.create_search_filter(
-            spell_id, model, start_time, end_time, states=states
+            spell_activity_id, model, start_time, end_time, states=states
         )
         self.add_exclude_placement_cancel_reason_parameter_to_domain(domain)
+
         activity_ids = activity_model.search(cr, uid, domain)
-        return activity_model.read(cr, uid, activity_ids)
+        activity_data = activity_model.read(cr, uid, activity_ids)
+        self.add_user_key(activity_data)
+
+        return activity_data
+
+    def add_user_key(self, activity_data_list):
+        for activity_data in activity_data_list:
+            terminate_user_tuple = activity_data.get('terminate_uid')
+            is_tuple = isinstance(terminate_user_tuple, tuple)
+            user_name = terminate_user_tuple[1] \
+                if is_tuple and len(terminate_user_tuple) > 1 else False
+            if not user_name and is_tuple:
+                user_id = terminate_user_tuple[0]
+                user_model = self.env['res.users']
+                user_name = user_model.get_name(user_id)
+            activity_data['user'] = user_name
 
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']
@@ -272,13 +288,13 @@ class ObservationReport(models.AbstractModel):
         else:
             return 'completed'
 
-    def get_model_data(self, spell_id, model, start, end):
+    def get_model_data(self, spell_activity_id, model, start, end):
         """
-        Get activities associated with the passed model and return them as
-        a dictionary.
+        Get activities associated with the passed model and spell id and
+        return them as a dictionary.
 
-        :param spell_id:
-        :type spell_id: int
+        :param spell_activity_id:
+        :type spell_activity_id: int
         :param model:
         :type model: str
         :param start:
@@ -289,7 +305,8 @@ class ObservationReport(models.AbstractModel):
         range.
         :rtype: dict
         """
-        activity_data = self.get_activity_data(spell_id, model, start, end)
+        activity_data = \
+            self.get_activity_data(spell_activity_id, model, start, end)
         if activity_data:
             self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)
@@ -310,15 +327,27 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         model_pool = self.pool[model]
         for activity in activity_data:
-            model_data = model_pool.read(
-                cr, uid, self._get_data_ref_id(activity), []
-            )
+            obs_id = self._get_data_ref_id(activity)
+            # TODO EOBS-1011: Report shouldn't have to check whether to call
+            # read or read_labels
+            if 'nh.clinical.patient.observation' in model_pool._name:
+                model_data = model_pool.read_labels(cr, uid, obs_id, [])
+            else:
+                model_data = model_pool.read(cr, uid, obs_id, [])
+            if isinstance(model_data, list):
+                # V8 read always returns a list, V7 doesn't when single int is
+                # passed as id instead of a list.
+                if len(model_data) > 1:
+                    message = "Should have read data for only one record " \
+                              "but more than one was found."
+                    raise ValueError(message)
+                model_data = model_data[0]
+
             if model_data:
-                stat = 'No'
                 date_terminated = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
-                    stat = 'Yes'
-                    model_data['status'] = stat
+                    status = 'Yes'
+                    model_data['status'] = status
                 if 'date_started' in model_data and model_data['date_started']:
                     model_data['date_started'] = \
                         helpers.convert_db_date_to_context_date(
@@ -510,6 +539,7 @@ class ObservationReport(models.AbstractModel):
                                   ews_model,
                                   data.start_time, data.end_time)
         ews = self.convert_partial_reasons_to_labels(ews)
+
         for observation in ews:
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
@@ -525,7 +555,9 @@ class ObservationReport(models.AbstractModel):
             observation['values']['o2_target'] = False
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
+
         self.add_triggered_action_keys_to_obs_dicts(ews)
+
         return ews
 
     @api.model
@@ -1030,6 +1062,7 @@ class ObservationReport(models.AbstractModel):
         for activity in activity_data:
             self.convert_activity_dates_to_context_dates(activity)
 
+    # TODO EOBS-1013: Merge report helpers for dates into datetime_utils model
     def convert_activity_dates_to_context_dates(self, activity):
         """
         Ensures dates on the passed activity are in the correct format and

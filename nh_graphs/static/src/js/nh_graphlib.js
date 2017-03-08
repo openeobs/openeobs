@@ -325,11 +325,12 @@ NHGraphLib = (function() {
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
     return cells = rows.selectAll('td').data(function(d) {
-      var data, fix_val, i, j, key, len, len1, o, obj, ref, t, v;
+      var data, fix_val, i, j, key, len, len1, o, obj, p, ref, t, v;
       data = [
         {
           title: d['title'],
-          value: d['title']
+          value: d['title'],
+          presentation: d['presentation']
         }
       ];
       for (i = 0, len = raw_data.length; i < len; i++) {
@@ -347,25 +348,29 @@ NHGraphLib = (function() {
             if (d['title']) {
               data.push({
                 title: d['title'],
-                value: fix_val
+                value: fix_val,
+                presentation: d['presentation']
               });
             }
           }
         } else {
           t = d['title'];
           v = [];
+          p = d['presentation'];
           ref = d['keys'];
           for (j = 0, len1 = ref.length; j < len1; j++) {
             o = ref[j];
             v.push({
               title: o['title'],
-              value: obj[o['keys'][0]]
+              value: obj[o['keys'][0]],
+              presentation: p
             });
           }
           if (t) {
             data.push({
               title: t,
-              value: v
+              value: v,
+              presentation: p
             });
           }
         }
@@ -387,7 +392,11 @@ NHGraphLib = (function() {
         }
         return text;
       } else {
-        return d.value;
+        if (d.presentation === 'bold') {
+          return '<strong>' + d.value + '</strong>';
+        } else {
+          return d.value;
+        }
       }
     });
   };
@@ -842,7 +851,8 @@ NHGraph = (function(superClass) {
         },
         width: 2
       },
-      range_padding: 1
+      range_padding: 1,
+      pointRadius: 3
     };
     this.options = {
       keys: new Array(),
@@ -1124,7 +1134,7 @@ NHGraph = (function(superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
-          if (d.none_values === "[]") {
+          if (d.none_values === "[]" && d[self.options.keys[0]]) {
             return d;
           }
         }).x(function(d) {
@@ -1136,14 +1146,14 @@ NHGraph = (function(superClass) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
         self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values === "[]") {
+          if (d.none_values === "[]" && d[self.options.keys[0]]) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", self.style.pointRadius).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup(d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1165,7 +1175,7 @@ NHGraph = (function(superClass) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", self.style.pointRadius).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
