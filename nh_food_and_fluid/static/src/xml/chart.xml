@@ -1,0 +1,5 @@
+<templates>
+    <div t-name="food_fluid_table" class="nh_ewschart">
+        <div id="table-content"></div>
+    </div>
+</templates>

@@ -97,7 +97,8 @@ class NHGraphLib
     # - Keys: List of keys to use with the data set to render table
     @table = {
       element: null,
-      keys: null
+      keys: null,
+      type: null
     }
     @version = '0.0.1'
     self = @
@@ -352,7 +353,19 @@ class NHGraphLib
     tbody = container.append('tbody').attr('class', 'tbody')
     header_row = [{'date_terminated': 'Date'}]
     raw_data = self.data.raw.reverse()
-    thead.append('tr').selectAll('th')
+    if self.table.type is 'nested'
+      first_row = [{'period_title': '', 'observations': [{}]}]
+      thead.append('tr').selectAll('.group-header')
+        .data(first_row.concat(raw_data)).enter()
+        .append('th').html((d) ->
+          return d.period_title
+        ).attr('colspan', (d) ->
+          return d.observations.length
+        ).attr('class', 'group-header')
+      raw_data = raw_data.reduce((a, b) ->
+        return a.concat(b.observations)
+      , [])
+    thead.append('tr').selectAll('.column-header')
     .data(header_row.concat(raw_data)).enter()
     .append('th').html((d) ->
       term_date = d.date_terminated
@@ -363,6 +376,11 @@ class NHGraphLib
       if date_rotate.length is 1
         return date_rotate[0]
       return date_rotate[1] + '<br>' + date_rotate[0]
+    ).attr('class', (d) ->
+      cls = 'column-header '
+      if d.class
+        cls += d.class
+      return cls
     )
     rows = tbody.selectAll('tr.row')
     .data(self.table.keys).enter()
@@ -374,6 +392,7 @@ class NHGraphLib
           title: d['title'],
           value: d['title'],
           presentation: d['presentation']
+          class: false
         }
       ]
       for obj in raw_data
@@ -387,7 +406,8 @@ class NHGraphLib
               data.push {
                 title: d['title'],
                 value: fix_val,
-                presentation: d['presentation']
+                presentation: d['presentation'],
+                class: obj["class"]
               }
         else
           t = d['title']
@@ -397,10 +417,11 @@ class NHGraphLib
             v.push {
               title: o['title'],
               value: obj[o['keys'][0]],
-              presentation: p
+              presentation: p,
+              class: obj[o["class"]]
             }
           if t
-            data.push {title: t, value: v, presentation: p}
+            data.push {title: t, value: v, presentation: p, class: false}
       return data
     ).enter().append('td').html((d) ->
       if typeof d.value is 'object'
@@ -416,6 +437,8 @@ class NHGraphLib
           return '<strong>' + d.value + '</strong>'
         else
           return d.value
+     ).attr("class", (d) ->
+       return d.class
      )
 
 ### istanbul ignore if ###

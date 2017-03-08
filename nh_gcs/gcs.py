@@ -7,7 +7,7 @@ standard behaviour and policy triggers based on this worldwide standard.
 import bisect
 import logging
 
-from openerp import models, fields, osv, SUPERUSER_ID, api
+from openerp import models, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
     _scored = ['eyes', 'verbal', 'motor']
-    _description = "GCS Observation"
+    _description = "GCS"
     _eyes_selection = [
         ('SP', 'Spontaneous'),
         ('TS', 'To Sound'),
@@ -77,12 +77,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
                                   required=True)
     motor = obs_fields.Selection(_motor_selection, 'Best Motor Response',
                                  required=True)
-
-    # TODO For some reason if you do not re-declare these as Odoo's field type,
-    # type() will return nh_observation's Selection field type instead...
-    # This strange behaviour breaks nh_clinical_form_description.to_dict()
-    frequency = fields.Selection(default=60)
-    partial_reason = fields.Selection()
 
     def calculate_score(self, obs_data, return_dictionary=True):
         is_dict = isinstance(obs_data, dict)
@@ -159,11 +153,3 @@ class nh_clinical_patient_observation_gcs(models.Model):
         return super(
             nh_clinical_patient_observation_gcs, self).create_activity(
             cr, uid, vals_activity, vals_data, context)
-
-    @api.multi
-    def read_labels(self, fields=None, load='_classic_read'):
-        obs_data = self.read(fields=fields, load=load)
-        if obs_data:
-            obs = obs_data if isinstance(obs_data, list) else [obs_data]
-            self.convert_field_values_to_labels(obs)
-        return obs_data

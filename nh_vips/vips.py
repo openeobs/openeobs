@@ -26,7 +26,7 @@ class nh_clinical_patient_observation_vips(orm.Model):
     _name = 'nh.clinical.patient.observation.vips'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['pain', 'redness', 'swelling', 'cord', 'pyrexia']
-    _description = "VIPS Observation"
+    _description = "VIPS"
     _selection = [('no', 'No'), ('yes', 'Yes')]
 
     """

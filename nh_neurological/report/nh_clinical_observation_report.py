@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-from openerp import models
 import copy
 
+from openerp import models
 
-class NhClinicalPatientObservationReport(models.Model):
+
+class NhClinicalPatientObservationReport(models.AbstractModel):
 
     _name = 'report.nh.clinical.observation_report'
     _inherit = 'report.nh.clinical.observation_report'
 
     def get_report_data(self, data, ews_only=False):
         report_data = super(NhClinicalPatientObservationReport, self)\
-            .get_report_data(data)
+            .get_report_data(data, ews_only=ews_only)
         neuro_data = self.get_neurological_observations(data)
         json_neuro_data = []
         for activity in neuro_data:

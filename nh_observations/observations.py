@@ -13,6 +13,7 @@ import logging
 from datetime import datetime as dt, timedelta as td
 
 from openerp import SUPERUSER_ID, api
+from openerp.addons.nh_observations import fields as obs_fields
 from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -29,6 +30,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     """
     _name = 'nh.clinical.patient.observation'
     _inherit = ['nh.activity.data']
+
     # Fields required for complete observation.
     # Also decides the order fields are displayed in the mobile view.
     _required = []
@@ -41,12 +43,21 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         ['doctors_request', 'Doctor\'s request']
     ]
 
+    @classmethod
+    def get_description(cls, append_observation=True):
+        description = \
+            super(NhClinicalPatientObservation, cls).get_description()
+        if append_observation:
+            description += ' Observation'
+        return description
+
     def get_obs_field_order(self):
         return self._required
 
     @api.multi
     def get_obs_fields(self):
-        return self.env['nh.clinical.field_utils'].get_obs_fields(self)
+        return self.env['nh.clinical.field_utils'].\
+            get_obs_fields_from_model(self)
 
     def get_obs_field_names(self):
         obs_fields = self.get_obs_fields()
@@ -71,6 +82,18 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             [partial_reason[0] for partial_reason in self._partial_reasons]
         reason_index = partial_reasons.index(reason)
         return self._partial_reasons[reason_index][1]
+
+    def get_submission_message(self):
+        """
+        Provides a message to be displayed when the observation is submitted.
+
+        :return:
+        :rtype str
+        """
+        raise NotImplementedError(
+            "Get submission message method not implemented for model: {}"
+            .format(self._name)
+        )
 
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         """
@@ -123,21 +146,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
                 return False
         return True
 
-    def complete(self, cr, uid, activity_id, context=None):
-        activity_pool = self.pool['nh.activity']
-        activity = activity_pool.browse(cr, uid, activity_id)
-        res = super(NhClinicalPatientObservation, self).complete(
-            cr, uid, activity_id, context)
-        if activity.data_ref.is_partial and not \
-                activity.data_ref.partial_reason:
-            raise osv.except_osv("Observation Error!",
-                                 "Missing partial observation reason")
-        if not activity.date_started:
-            self.pool['nh.activity'].write(
-                cr, uid, activity_id,
-                {'date_started': activity.date_terminated}, context=context)
-        return res
-
     _columns = {
         'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
                                       required=True),
@@ -153,6 +161,21 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     _defaults = {
 
     }
+
+    def complete(self, cr, uid, activity_id, context=None):
+        activity_pool = self.pool['nh.activity']
+        activity = activity_pool.browse(cr, uid, activity_id)
+        res = super(NhClinicalPatientObservation, self).complete(
+            cr, uid, activity_id, context)
+        if activity.data_ref.is_partial and not \
+                activity.data_ref.partial_reason:
+            raise osv.except_osv("Observation Error!",
+                                 "Missing partial observation reason")
+        if not activity.date_started:
+            self.pool['nh.activity'].write(
+                cr, uid, activity_id,
+                {'date_started': activity.date_terminated}, context=context)
+        return res
 
     def create(self, cr, uid, vals, context=None):
         """
@@ -271,38 +294,47 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             res = res[0] if nolist and len(res) > 0 else res
         return res
 
-    @api.multi
-    def read_labels(self, *args, **kwargs):
+    @api.model
+    def read_obs_for_patient(self, patient_id):
         """
-        Odoo views automatically convert values to their labels, but other UIs
-        like the mobile pages do not.
+        Read all observations for the patient.
 
-        It is not currently necessary to convert labels at this base level but
-        the method is declared here to be overridden by subclasses.
-
-        :param args:
-        :param kwargs:
+        :param patient_id:
+        :type patient_id: int
         :return:
         :rtype: dict
         """
-        return self.read(*args, **kwargs)
+        domain = [
+            ('patient_id', '=', patient_id)
+        ]
+        obs = self.search_read(domain, order='date_terminated desc, id desc')
+        return obs
+
+    @api.multi
+    def read_labels(self, fields=None, load='_classic_read'):
+        """
+        Return a 'read-like' dictionary with field labels instead of values.
+
+        :param fields:
+        :param load:
+        :return:
+        :rtype: dict
+        """
+        obs_data = self.read(fields=fields, load=load)
+        if obs_data:
+            obs = obs_data if isinstance(obs_data, list) else [obs_data]
+            self.convert_field_values_to_labels(obs)
+        return obs_data
 
     def convert_field_values_to_labels(self, obs):
         """
         Convert the values in the passed dictionary to their corresponding
         labels.
 
-        NOTE: Only converts fields whose names are in the `_scored` class
-        variable. This is a temporary implementation to get the functionality
-        working for GCS / Neurological.
-
         :param obs:
         :type obs: list
         """
-        if not hasattr(self, '_scored'):
-            return
-        field_names = [field_name for field_name in self._required
-                       if field_name not in self._scored]
+        field_names = self.get_obs_field_names()
         for ob in obs:
             for field_name in field_names:
                 if field_name in ob:
@@ -315,9 +347,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         """
         Lookup the label for the passed field value and return it.
 
-        NOTE: Currently only converts selection fields. This is a temporary
-        implementation to get the functionality for GCS / Neurological working.
-
         :param field_name:
         :type field_name: str
         :param field_value:
@@ -325,15 +354,29 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :return: Field label.
         :rtype: str
         """
-        if not hasattr(self._fields[field_name], 'selection') \
-                or not field_value:
-            return
-        selection = self._fields[field_name].selection
-        valid_value_tuple = \
-            [valid_value_tuple for valid_value_tuple in selection
-             if valid_value_tuple[0] == field_value][0]
-        valid_value_label = valid_value_tuple[1]
-        return valid_value_label
+        field = self._fields[field_name]
+        if isinstance(field, obs_fields.Selection):
+            selection = field.selection
+            valid_value_tuple = \
+                [valid_value_tuple for valid_value_tuple in selection
+                 if valid_value_tuple[0] == field_value][0]
+            return valid_value_tuple[1]
+        if isinstance(field, obs_fields.Many2Many):
+            related_ids = field_value
+            related_model = self.env[field.comodel_name]
+            return [rec.name for rec in related_model.browse(related_ids)]
+        return field_value
+
+    @api.multi
+    def get_formatted_obs(self):
+        """
+        Get a dictionary of observation data formatted for display.
+
+        :return:
+        :rtype: dict
+        """
+        observations = self.read_labels()
+        return observations
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         """
@@ -599,7 +642,7 @@ class NhClinicalPatientObservation_height(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['height']
     _num_fields = ['height']
-    _description = "Height Observation"
+    _description = "Height"
     _columns = {
         'height': fields.float('Height', digits=(1, 2)),
     }
@@ -625,7 +668,7 @@ class nh_clinical_patient_observation_weight(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['weight']
     _num_fields = ['weight']
-    _description = "Weight Observation"
+    _description = "Weight"
     _columns = {
         'weight': fields.float('Weight', digits=(3, 1)),
     }
@@ -724,7 +767,7 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['vol', 'product']
     _num_fields = ['vol']
-    _description = "Blood Product Observation"
+    _description = "Blood Product"
     _blood_product_values = [
         ['rbc', 'RBC'],
         ['ffp', 'FFP'],
@@ -766,7 +809,7 @@ class nh_clinical_patient_observation_blood_sugar(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['blood_sugar']
     _num_fields = ['blood_sugar']
-    _description = "Blood Sugar Observation"
+    _description = "Blood Sugar"
     _columns = {
         'blood_sugar': fields.float('Blood Sugar', digits=(2, 1)),
     }
@@ -793,7 +836,7 @@ class nh_clinical_patient_observation_pain(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['rest_score', 'movement_score']
     _num_fields = ['rest_score', 'movement_score']
-    _description = "Pain Score Observation"
+    _description = "Pain Score"
     _columns = {
         'rest_score': fields.integer('Pain Score at rest'),
         'movement_score': fields.integer('Pain Score on movement')
@@ -826,7 +869,7 @@ class nh_clinical_patient_observation_urine_output(orm.Model):
     _name = 'nh.clinical.patient.observation.urine_output'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['urine_output']
-    _description = "Urine Output Observation"
+    _description = "Urine Output"
     _columns = {
         'urine_output': fields.integer('Urine Output')
     }

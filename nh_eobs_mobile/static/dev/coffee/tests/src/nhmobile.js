@@ -192,7 +192,7 @@ NHMobile = (function(superClass) {
       if (data.gender) {
         patient_name += '<span class="alignright">' + data.gender + '</span>';
       }
-      patient_details = self.render_patient_info(data, true, self) + '<p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button patient_obs">' + 'View Patient Observation Data</a></p>';
+      patient_details = self.render_patient_info(data, true, self) + '<p><a href="' + self.urls['single_patient'](patient_id).url + '" id="patient_obs_fullscreen" class="button big full-width do-it">' + 'View Patient Observation Data</a></p>';
       cancel = '<a href="#" data-target="patient_info" ' + 'data-action="close">Cancel</a>';
       new NHModal('patient_info', patient_name, patient_details, [cancel], 0, document.getElementsByTagName('body')[0]);
       fullscreen = document.getElementById('patient_obs_fullscreen');

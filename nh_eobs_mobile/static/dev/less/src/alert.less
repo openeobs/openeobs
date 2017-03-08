@@ -1,0 +1,11 @@
+@import "utils.less";
+
+.alert{
+  border-radius: 5px;
+  padding: 2%;
+  &.alert-error{
+    .subtle-bgcolour(@error-color);
+    color: white;
+    text-shadow: 0px 1px 1px #444444;
+  }
+}

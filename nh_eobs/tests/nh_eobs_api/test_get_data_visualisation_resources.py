@@ -66,7 +66,9 @@ class TestGetDataVisualisationResources(TransactionCase):
                 {
                     'data_model': mod.replace(obs_prefix, ''),
                     'resource': test_resource,
-                    'model_name': model._description
+                    'model_name': model.get_description(
+                        append_observation=False
+                    )
                 }
             ]
         )

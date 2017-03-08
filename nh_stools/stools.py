@@ -21,7 +21,7 @@ class nh_clinical_patient_observation_stools(orm.Model):
     _name = 'nh.clinical.patient.observation.stools'
     _inherit = ['nh.clinical.patient.observation']
     _required = []
-    _description = "Bristol Stool Scale Observation"
+    _description = "Bristol Stool Scale"
     _boolean_selection = [[True, 'Yes'], [False, 'No']]
     _quantity_selection = [['large', 'Large'],
                            ['medium', 'Medium'],

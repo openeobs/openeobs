@@ -300,7 +300,7 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.draw_table = function(self) {
-    var cells, container, header_row, raw_data, rows, table_el, tbody, thead;
+    var cells, container, first_row, header_row, raw_data, rows, table_el, tbody, thead;
     table_el = nh_graphs.select(self.table.element);
     container = nh_graphs.select('#table-content').append('table');
     thead = container.append('thead').attr('class', 'thead');
@@ -311,6 +311,19 @@ NHGraphLib = (function() {
       }
     ];
     raw_data = self.data.raw.reverse();
+    if (self.table.type === 'nested') {
+      first_row = [
+        {
+          'key': '',
+          'values': [{}]
+        }
+      ];
+      thead.append('tr').selectAll('th').data(first_row.concat(raw_data)).enter().append('th').text(function(d) {
+        return d.key;
+      }).attr('colspan', function(d) {
+        return d.values.length;
+      });
+    }
     thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
       var date_rotate, term_date;
       term_date = d.date_terminated;

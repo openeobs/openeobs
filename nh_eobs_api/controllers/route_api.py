@@ -370,7 +370,8 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
             title='Successfully Submitted{0} {1}'.format(
-                ' Partial' if partial else '', ob_pool._description),
+                ' Partial' if partial else '',
+                ob_pool.get_description(append_observation=True)),
             description=rel_tasks,
             data=response_data)
         return request.make_response(
@@ -702,12 +703,14 @@ class NH_API(openerp.addons.web.controllers.main.Home):
 
     @http.route(**route_manager.expose_route('json_patient_form_action'))
     def process_patient_observation_form(self, *args, **kw):
-        observation = kw.get('observation')  # TODO: add a check if is None (?)
-        patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
+        # TODO: add a check if is None (?)
+        obs_model_name = kw.get('observation')
+        # TODO: add a check if is None (?)
+        patient_id = kw.get('patient_id')
         cr, uid, context = request.cr, request.uid, request.context
         api = request.registry('nh.eobs.api')
         activity_api = request.registry('nh.activity')
-        obs_str = 'nh.clinical.patient.observation.'+observation
+        obs_str = 'nh.clinical.patient.observation.'+obs_model_name
         observation_pool = request.registry(obs_str)
         converter_pool = request.registry('ir.fields.converter')
         converter = converter_pool.for_model(cr, uid, observation_pool,
@@ -722,7 +725,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             del kw_copy['startTimestamp']
         if data_task_id:
             del kw_copy['taskId']
-        if observation is not None:
+        if obs_model_name is not None:
             del kw_copy['observation']
         if patient_id is not None:
             del kw_copy['patient_id']
@@ -739,37 +742,59 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         if data_device_id:
             converted_data['device_id'] = data_device_id
 
-        new_activity = api.create_activity_for_patient(cr, uid,
-                                                       int(patient_id),
-                                                       observation,
-                                                       context=context)
-        api.complete(cr, uid, int(new_activity), converted_data, context)
-        triggered_ids = activity_api.search(
-            cr, uid,
-            [['creator_id', '=', int(new_activity)]]
+        new_activity_id = api.create_activity_for_patient(
+            cr, uid, int(patient_id), obs_model_name, context=context
         )
-        triggered_tasks_read = activity_api.read(cr, uid, triggered_ids, [])
-        triggered_tasks = []
-        for trig_task in triggered_tasks_read:
-            access = api.check_activity_access(cr, uid, trig_task['id'])
-            is_not_ob = observation not in trig_task['data_model']
-            is_open = trig_task['state'] not in ['completed', 'cancelled']
-            if access and is_open and is_not_ob:
-                triggered_tasks.append(trig_task)
+        api.complete(cr, uid, int(new_activity_id), converted_data, context)
+
         partial = 'partial_reason' in kw_copy and kw_copy['partial_reason']
+
+        new_activity = activity_api.browse(cr, uid, new_activity_id)
+        observation = new_activity.data_ref
+        description = self.get_submission_message(observation)
+
+        triggered_tasks = []
+        if obs_model_name == 'ews':
+            triggered_ids = activity_api.search(
+                cr, uid,
+                [['creator_id', '=', int(new_activity_id)]]
+            )
+            triggered_tasks_read = activity_api.read(cr, uid, triggered_ids,
+                                                     [])
+            for trig_task in triggered_tasks_read:
+                access = api.check_activity_access(cr, uid, trig_task['id'])
+                is_not_ob = obs_model_name not in trig_task['data_model']
+                is_open = trig_task['state'] not in ['completed', 'cancelled']
+                if access and is_open and is_not_ob:
+                    triggered_tasks.append(trig_task)
+
+            rel_tasks = \
+                'Here are related tasks based on the observation' if len(
+                    triggered_tasks
+                ) > 0 else ''
+
+            description = rel_tasks
+
         response_data = {'related_tasks': triggered_tasks, 'status': 1}
-        rel_tasks = 'Here are related tasks based on the observation' if len(
-            triggered_tasks
-        ) > 0 else ''
+
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
             title='Successfully Submitted{0} {1}'.format(
-                ' Partial' if partial else '', observation_pool._description
+                ' Partial' if partial else '',
+                observation_pool.get_description(append_observation=True)
             ),
-            description=rel_tasks,
+            description=description,
             data=response_data
         )
         return request.make_response(
             response_json,
             headers=ResponseJSON.HEADER_CONTENT_TYPE
         )
+
+    @staticmethod
+    def get_submission_message(observation):
+        try:
+            message = observation.get_submission_message()
+        except NotImplementedError:
+            message = ''
+        return message
