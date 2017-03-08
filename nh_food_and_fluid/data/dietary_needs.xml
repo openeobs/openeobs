@@ -1,0 +1,16 @@
+<openerp>
+    <data noupdate="1">
+
+        <record model="nh.clinical.dietary_need" id="dietary_need_religious">
+            <field name="name">Religious / Cultural</field>
+        </record>
+
+        <record model="nh.clinical.dietary_need" id="dietary_need_vegan">
+            <field name="name">Vegan / Vegetarian</field>
+        </record>
+
+        <record model="nh.clinical.dietary_need" id="dietary_need_food_sensitivity">
+            <field name="name">Food Sensitivity / Allergy</field>
+        </record>
+    </data>
+</openerp>

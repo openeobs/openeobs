@@ -101,7 +101,8 @@ class test_observations(common.SingleTransactionCase):
             cr, user_id, height_activity_id)
 
         self.assertTrue(
-            check_height.summary == self.height_pool._description,
+            check_height.summary ==
+            self.height_pool.get_description(),
             msg="Height Observation: Activity summary not submitted correctly")
         self.assertTrue(
             check_height.data_ref.patient_id.id == patient_id,
@@ -136,7 +137,8 @@ class test_observations(common.SingleTransactionCase):
             cr, user_id, weight_activity_id)
 
         self.assertTrue(
-            check_weight.summary == self.weight_pool._description,
+            check_weight.summary ==
+            self.weight_pool.get_description(),
             msg="Weight Observation: Activity summary not submitted correctly")
         self.assertTrue(
             check_weight.data_ref.patient_id.id == patient_id,
@@ -172,7 +174,8 @@ class test_observations(common.SingleTransactionCase):
             cr, user_id, blood_sugar_activity_id)
 
         self.assertTrue(
-            check_blood_sugar.summary == self.blood_sugar_pool._description,
+            check_blood_sugar.summary ==
+            self.blood_sugar_pool.get_description(),
             msg="Blood Sugar Observation: Activity summary not submitted "
                 "correctly")
         self.assertTrue(
@@ -214,7 +217,7 @@ class test_observations(common.SingleTransactionCase):
 
         self.assertTrue(
             check_blood_product.summary ==
-            self.blood_product_pool._description,
+            self.blood_product_pool.get_description(),
             msg="Blood Product Observation: Activity summary not submitted "
                 "correctly")
         self.assertTrue(

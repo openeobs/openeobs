@@ -11,7 +11,8 @@
     'website': 'http://www.neovahealth.co.uk/',
     'depends': [
         'nh_eobs',
-        'nh_eobs_mobile'
+        'nh_eobs_mobile',
+        'nh_food_and_fluid'
     ],
     'data': [
         'data/master_data.xml',

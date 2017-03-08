@@ -68,7 +68,7 @@
                     <div class="block obsField valHide" id="parent_int_exclude">
                         <div class="input-header">
                             <label for="int_exclude">Integer Hidden</label>
-                            <input type="number" name="int_exclude" id="int_exclude" min="1" max="59" step="1" class="exclude" data-required="false" data-necessary="true"/>
+                            <input type="number" name="int_exclude" id="int_exclude" min="1" max="59" step="1" class="exclude" data-required="false" data-necessary="false"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -83,11 +83,9 @@
                             <input type="number" name="int_reference" id="int_reference" min="1" max="59" step="1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <p>
-                                <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
-                            </p>
                             <span class="errors"></span>
                             <span class="help"></span>
+                            <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button reference exclude">Reference</button>
                         </div>
                     </div>
                 </div>
@@ -144,7 +142,7 @@
                     <div class="block obsField valHide" id="parent_float_exclude">
                         <div class="input-header">
                             <label for="float_exclude">Float Hidden</label>
-                            <input type="number" name="float_exclude" id="float_exclude" min="1" max="35.9" step="0.1" class="exclude" data-required="false" data-necessary="true"/>
+                            <input type="number" name="float_exclude" id="float_exclude" min="1" max="35.9" step="0.1" class="exclude" data-required="false" data-necessary="false"/>
                         </div>
                         <div class="input-body">
                             <span class="errors"></span>
@@ -159,11 +157,9 @@
                             <input type="number" name="float_reference" id="float_reference" min="1" max="35.9" step="0.1" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <p>
-                                <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
-                            </p>
                             <span class="errors"></span>
                             <span class="help"></span>
+                            <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button reference exclude">Reference</button>
                         </div>
                     </div>
                 </div>
@@ -184,11 +180,11 @@
                     <div class="block obsField" id="parent_text">
                         <div class="input-header">
                             <label for="text">Text</label>
-                            <input type="text" name="text" id="text" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <span class="errors"></span>
                             <span class="help"></span>
+                            <textarea name="text" id="text" data-required="false" data-necessary="true"></textarea>
+                            <span class="errors"></span>
                         </div>
                     </div>
                 </div>
@@ -196,11 +192,11 @@
                     <div class="block obsField" id="parent_text_validation">
                         <div class="input-header">
                             <label for="text_validation">Text Validation</label>
-                            <input type="text" name="text_validation" id="text_validation" data-validation="[{'message': {'target': 'Validation field must contain a value', 'value': ''}, 'condition': {'operator': '!==', 'target': 'text_validation', 'value': ''}}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <span class="errors"></span>
                             <span class="help"></span>
+                            <textarea name="text_validation" id="text_validation" data-validation="[{'message': {'target': 'Validation field must contain a value', 'value': ''}, 'condition': {'operator': '!==', 'target': 'text_validation', 'value': ''}}]" data-required="false" data-necessary="true"></textarea>
+                            <span class="errors"></span>
                         </div>
                     </div>
                 </div>
@@ -208,11 +204,11 @@
                     <div class="block obsField" id="parent_text_onchange">
                         <div class="input-header">
                             <label for="text_onchange">Text On Change</label>
-                            <input type="text" name="text_onchange" id="text_onchange" data-onchange="[{'action': 'disable', 'fields': ['text'], 'condition': [['text_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['text'], 'condition': [['text_onchange', '==', '']]}]" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <span class="errors"></span>
                             <span class="help"></span>
+                            <textarea name="text_onchange" id="text_onchange" data-onchange="[{'action': 'disable', 'fields': ['text'], 'condition': [['text_onchange', '!=', '']]}, {'action': 'enable', 'fields': ['text'], 'condition': [['text_onchange', '==', '']]}]" data-required="false" data-necessary="true"></textarea>
+                            <span class="errors"></span>
                         </div>
                     </div>
                 </div>
@@ -220,23 +216,11 @@
                     <div class="block obsField valHide" id="parent_text_exclude">
                         <div class="input-header">
                             <label for="text_exclude">Text Hidden</label>
-                            <input type="text" name="text_exclude" id="text_exclude" class="exclude" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <span class="errors"></span>
                             <span class="help"></span>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <div class="block obsField" id="parent_text_pattern">
-                        <div class="input-header">
-                            <label for="text_pattern">Text Pattern</label>
-                            <input type="text" name="text_pattern" id="text_pattern" pattern="^[0-9]{4,6}$" data-required="false" data-necessary="true"/>
-                        </div>
-                        <div class="input-body">
+                            <textarea name="text_exclude" id="text_exclude" class="exclude"  data-required="false" data-necessary="false"></textarea>
                             <span class="errors"></span>
-                            <span class="help"></span>
                         </div>
                     </div>
                 </div>
@@ -244,14 +228,12 @@
                     <div class="block obsField" id="parent_text_reference">
                         <div class="input-header">
                             <label for="text_reference">Text Reference</label>
-                            <input type="text" name="text_reference" id="text_reference" data-required="false" data-necessary="true"/>
                         </div>
                         <div class="input-body">
-                            <p>
-                                <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
-                            </p>
-                            <span class="errors"></span>
                             <span class="help"></span>
+                            <textarea name="text_reference" id="text_reference" data-required="false" data-necessary="true"></textarea>
+                            <span class="errors"></span>
+                            <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button reference exclude">Reference</button>
                         </div>
                     </div>
                 </div>
@@ -259,12 +241,13 @@
                     <div class="block obsField" id="parent_text_target">
                         <div class="input-header">
                             <label for="text_target">Text Target<br/>
-                                <span class="secondary-label">Target Text</span></label>
-                            <input type="text" name="text_target" id="text_target" data-required="false" data-necessary="true"/>
+                                <span class="secondary-label">Target Text</span>
+                            </label>
                         </div>
                         <div class="input-body">
-                            <span class="errors"></span>
                             <span class="help"></span>
+                            <textarea name="text_target" id="text_target" data-required="false" data-necessary="true"></textarea>
+                            <span class="errors"></span>
                         </div>
                     </div>
                 </div>
@@ -293,7 +276,7 @@
                             <label for="select_exclude">Select Hidden</label>
                         </div>
                         <div class="input-body">
-                            <select id="select_exclude" name="select_exclude" class="exclude" data-required="false" data-necessary="true">
+                            <select id="select_exclude" name="select_exclude" class="exclude" data-required="false" data-necessary="false">
                                 <option value="">Please Select</option>
                                 <option value="an">An</option>
                                 <option value="option">Option</option>
@@ -339,11 +322,9 @@
                                 <option value="the">The</option>
                                 <option value="list">List</option>
                             </select>
-                            <p>
-                                <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button exclude">Reference</button>
-                            </p>
                             <span class="errors"></span>
                             <span class="help"></span>
+                            <button data-type="image" data-url="/mobile/src/reference.jpg" data-title="Reference Image" class="button reference exclude">Reference</button>
                         </div>
                     </div>
                 </div>

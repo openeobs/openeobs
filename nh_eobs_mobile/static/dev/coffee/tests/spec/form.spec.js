@@ -3,16 +3,16 @@
  */
 describe('Data Entry Functionality', function(){
     beforeEach(function(){
-        var body_el = document.getElementsByTagName('body')[0];
+        var bodyEl = document.getElementsByTagName('body')[0];
         var test = document.getElementById('test');
         if (test != null) {
             test.parentNode.removeChild(test);
         }
-        var test_area = document.createElement('div');
-        test_area.setAttribute('id', 'test');
-        test_area.style.height = '500px';
-        test_area.innerHTML = '';
-        body_el.appendChild(test_area);
+        var testArea = document.createElement('div');
+        testArea.setAttribute('id', 'test');
+        testArea.style.height = '500px';
+        testArea.innerHTML = '';
+        bodyEl.appendChild(testArea);
     });
 
     afterEach(function(){
@@ -111,21 +111,21 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_float = document.getElementById('test_float');
-                var parent_float = test_float.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var float_errors = parent_float.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testFloat = document.getElementById('test_float');
+                var parentFloat = testFloat.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var floatErrors = parentFloat.getElementsByClassName('errors')[0];
 
                 // set value
-                test_int.value = 0;
-                test_float.value = 0;
+                testInt.value = 0;
+                testFloat.value = 0;
 
                 // change event - int
-                var int_event = document.createEvent('CustomEvent');
-                int_event.initCustomEvent('change', false, true, false);
-                test_int.dispatchEvent(int_event);
+                var intEvent = document.createEvent('CustomEvent');
+                intEvent.initCustomEvent('change', false, true, false);
+                testInt.dispatchEvent(intEvent);
 
                 // verify calls - int
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -133,13 +133,13 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - int
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too low</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Input too low</label>');
 
                 // change event - float
-                var float_event = document.createEvent('CustomEvent');
-                float_event.initCustomEvent('change', false, true, false);
-                test_float.dispatchEvent(float_event);
+                var floatEvent = document.createEvent('CustomEvent');
+                floatEvent.initCustomEvent('change', false, true, false);
+                testFloat.dispatchEvent(floatEvent);
 
                 // verify calls - float
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -147,8 +147,8 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - float
-                expect(parent_float.classList.contains('error')).toBe(true);
-                expect(float_errors.innerHTML).toBe('<label for="test_float" class="error">Input too low</label>');
+                expect(parentFloat.classList.contains('error')).toBe(true);
+                expect(floatErrors.innerHTML).toBe('<label for="test_float" class="error">Input too low</label>');
             });
 
             it('Informs the user when they set the input to a value higher than the max specified', function(){
@@ -157,21 +157,21 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_float = document.getElementById('test_float');
-                var parent_float = test_float.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var float_errors = parent_float.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testFloat = document.getElementById('test_float');
+                var parentFloat = testFloat.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var floatErrors = parentFloat.getElementsByClassName('errors')[0];
 
                 // set value
-                test_int.value = 1337;
-                test_float.value = 1337;
+                testInt.value = 1337;
+                testFloat.value = 1337;
 
                 // change event - int
-                var int_event = document.createEvent('CustomEvent');
-                int_event.initCustomEvent('change', false, true, false);
-                test_int.dispatchEvent(int_event);
+                var intEvent = document.createEvent('CustomEvent');
+                intEvent.initCustomEvent('change', false, true, false);
+                testInt.dispatchEvent(intEvent);
 
                 // verify calls - int
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -179,13 +179,13 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - int
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
 
                 // change event - float
-                var float_event = document.createEvent('CustomEvent');
-                float_event.initCustomEvent('change', false, true, false);
-                test_float.dispatchEvent(float_event);
+                var floatEvent = document.createEvent('CustomEvent');
+                floatEvent.initCustomEvent('change', false, true, false);
+                testFloat.dispatchEvent(floatEvent);
 
                 // verify calls - float
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -193,8 +193,8 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - float
-                expect(parent_float.classList.contains('error')).toBe(true);
-                expect(float_errors.innerHTML).toBe('<label for="test_float" class="error">Input too high</label>');
+                expect(parentFloat.classList.contains('error')).toBe(true);
+                expect(floatErrors.innerHTML).toBe('<label for="test_float" class="error">Input too high</label>');
             });
 
             it('Informs the user when they set the input to a float value and the input is a integer', function(){
@@ -203,21 +203,21 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_float = document.getElementById('test_float');
-                var parent_float = test_float.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var float_errors = parent_float.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testFloat = document.getElementById('test_float');
+                var parentFloat = testFloat.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var floatErrors = parentFloat.getElementsByClassName('errors')[0];
 
                 // set value
-                test_int.value = 11.5;
-                test_float.value = 11.5;
+                testInt.value = 11.5;
+                testFloat.value = 11.5;
 
                 // change event - int
-                var int_event = document.createEvent('CustomEvent');
-                int_event.initCustomEvent('change', false, true, false);
-                test_int.dispatchEvent(int_event);
+                var intEvent = document.createEvent('CustomEvent');
+                intEvent.initCustomEvent('change', false, true, false);
+                testInt.dispatchEvent(intEvent);
 
                 // verify calls - int
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -225,13 +225,13 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - int
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Must be whole number</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Must be whole number</label>');
 
                 // change event - float
-                var float_event = document.createEvent('CustomEvent');
-                float_event.initCustomEvent('change', false, true, false);
-                test_float.dispatchEvent(float_event);
+                var floatEvent = document.createEvent('CustomEvent');
+                floatEvent.initCustomEvent('change', false, true, false);
+                testFloat.dispatchEvent(floatEvent);
 
                 // verify calls - float
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -239,8 +239,8 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - float
-                expect(parent_float.classList.contains('error')).toBe(false);
-                expect(float_errors.innerHTML).toBe('');
+                expect(parentFloat.classList.contains('error')).toBe(false);
+                expect(floatErrors.innerHTML).toBe('');
             });
 
             it('Informs the user when they set the input to a value that does not meet the criteria of the data-validation attribute', function(){
@@ -249,21 +249,21 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_attr = document.getElementById('test_attr');
-                var parent_attr = test_attr.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testAttr = document.getElementById('test_attr');
+                var parentAttr = testAttr.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var attrErrors = parentAttr.getElementsByClassName('errors')[0];
 
                 // set value
-                test_int.value = 11;
-                test_attr.value = 18;
+                testInt.value = 11;
+                testAttr.value = 18;
 
                 // change event
-                var attr_event = document.createEvent('CustomEvent');
-                attr_event.initCustomEvent('change', false, true, false);
-                test_attr.dispatchEvent(attr_event);
+                var attrEvent = document.createEvent('CustomEvent');
+                attrEvent.initCustomEvent('change', false, true, false);
+                testAttr.dispatchEvent(attrEvent);
 
                 // verify calls
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -271,10 +271,10 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM
-                expect(parent_attr.classList.contains('error')).toBe(true);
-                expect(attr_errors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">value error</label>');
+                expect(parentAttr.classList.contains('error')).toBe(true);
+                expect(attrErrors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">value error</label>');
             });
 
             it('Informs the user when they set the input to a value but the other input in data-validation is not set', function(){
@@ -283,20 +283,20 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_attr = document.getElementById('test_attr');
-                var parent_attr = test_attr.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testAttr = document.getElementById('test_attr');
+                var parentAttr = testAttr.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var attrErrors = parentAttr.getElementsByClassName('errors')[0];
 
                 // set value
-                test_attr.value = 18;
+                testAttr.value = 18;
 
                 // change event
-                var attr_event = document.createEvent('CustomEvent');
-                attr_event.initCustomEvent('change', false, true, false);
-                test_attr.dispatchEvent(attr_event);
+                var attrEvent = document.createEvent('CustomEvent');
+                attrEvent.initCustomEvent('change', false, true, false);
+                testAttr.dispatchEvent(attrEvent);
 
                 // verify calls
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -304,27 +304,27 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM
-                expect(parent_attr.classList.contains('error')).toBe(true);
-                expect(attr_errors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Please enter a value</label>');
+                expect(parentAttr.classList.contains('error')).toBe(true);
+                expect(attrErrors.innerHTML).toBe('<label for="test_attr" class="error">target error</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Please enter a value</label>');
 
                 // Fix the issue
                 NHMobileForm.prototype.add_input_errors.calls.reset();
                 NHMobileForm.prototype.reset_input_errors.calls.reset();
                 NHMobileForm.prototype.validate.calls.reset();
-                test_int.value = 19;
+                testInt.value = 19;
 
 
                 // change event
-                var fix_int_event = document.createEvent('CustomEvent');
-                fix_int_event.initCustomEvent('change', false, true, false);
-                test_int.dispatchEvent(fix_int_event);
+                var fixIntEvent = document.createEvent('CustomEvent');
+                fixIntEvent.initCustomEvent('change', false, true, false);
+                testInt.dispatchEvent(fixIntEvent);
 
                 // change event
-                var fix_event = document.createEvent('CustomEvent');
-                fix_event.initCustomEvent('change', false, true, false);
-                test_attr.dispatchEvent(fix_event);
+                var fixEvent = document.createEvent('CustomEvent');
+                fixEvent.initCustomEvent('change', false, true, false);
+                testAttr.dispatchEvent(fixEvent);
 
                 // verify calls
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -332,10 +332,10 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).not.toHaveBeenCalled();
 
                 // verify DOM
-                expect(parent_attr.classList.contains('error')).toBe(false);
-                expect(attr_errors.innerHTML).toBe('');
-                expect(parent_int.classList.contains('error')).toBe(false);
-                expect(int_errors.innerHTML).toBe('');
+                expect(parentAttr.classList.contains('error')).toBe(false);
+                expect(attrErrors.innerHTML).toBe('');
+                expect(parentInt.classList.contains('error')).toBe(false);
+                expect(intErrors.innerHTML).toBe('');
             });
 
             it('Keeps invalid number flag when another validation criteria is met', function(){
@@ -344,20 +344,20 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_int = document.getElementById('test_int');
-                var parent_int = test_int.parentNode.parentNode;
-                var test_attr = document.getElementById('test_attr');
-                var parent_attr = test_attr.parentNode.parentNode;
-                var int_errors = parent_int.getElementsByClassName('errors')[0];
-                var attr_errors = parent_attr.getElementsByClassName('errors')[0];
+                var testInt = document.getElementById('test_int');
+                var parentInt = testInt.parentNode.parentNode;
+                var testAttr = document.getElementById('test_attr');
+                var parentAttr = testAttr.parentNode.parentNode;
+                var intErrors = parentInt.getElementsByClassName('errors')[0];
+                var attrErrors = parentAttr.getElementsByClassName('errors')[0];
 
                 // set value to be too low on the data-validation element
-                test_int.value = 1337;
+                testInt.value = 1337;
 
                 // change event - attr
-                var int_high_event = document.createEvent('CustomEvent');
-                int_high_event.initCustomEvent('change', false, true, false);
-                test_int.dispatchEvent(int_high_event);
+                var intHighEvent = document.createEvent('CustomEvent');
+                intHighEvent.initCustomEvent('change', false, true, false);
+                testInt.dispatchEvent(intHighEvent);
 
                 // verify calls - attr
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -365,16 +365,16 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - int
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
 
                 // set value to be normal for the target element on data-validation
-                test_attr.value = 18;
+                testAttr.value = 18;
 
                 // change event
-                var attr_val_event = document.createEvent('CustomEvent');
-                attr_val_event.initCustomEvent('change', false, true, false);
-                test_attr.dispatchEvent(attr_val_event);
+                var attrValEvent = document.createEvent('CustomEvent');
+                attrValEvent.initCustomEvent('change', false, true, false);
+                testAttr.dispatchEvent(attrValEvent);
 
                 // verify calls
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -382,8 +382,8 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM
-                expect(parent_int.classList.contains('error')).toBe(true);
-                expect(int_errors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
+                expect(parentInt.classList.contains('error')).toBe(true);
+                expect(intErrors.innerHTML).toBe('<label for="test_int" class="error">Input too high</label>');
             });
         });
 
@@ -435,17 +435,17 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_text = document.getElementById('test_text');
-                var parent_text = test_text.parentNode.parentNode;
-                var text_errors = parent_text.getElementsByClassName('errors')[0];
+                var testText = document.getElementById('test_text');
+                var parentText = testText.parentNode.parentNode;
+                var textErrors = parentText.getElementsByClassName('errors')[0];
 
                 // set incorrect value
-                test_text.value = '666';
+                testText.value = '666';
 
                 // change event - incorrect
-                var three_event = document.createEvent('CustomEvent');
-                three_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(three_event);
+                var threeEvent = document.createEvent('CustomEvent');
+                threeEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(threeEvent);
 
                 // verify calls - incorrect
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -453,24 +453,24 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - incorrect
-                expect(parent_text.classList.contains('error')).toBe(true);
-                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+                expect(parentText.classList.contains('error')).toBe(true);
+                expect(textErrors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
 
                 // set correct value
-                test_text.value = '1337';
+                testText.value = '1337';
 
                 // change event - correct
-                var four_event = document.createEvent('CustomEvent');
-                four_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(four_event);
+                var fourEvent = document.createEvent('CustomEvent');
+                fourEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(fourEvent);
 
                 // verify calls - correct
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
 
                 // verify DOM - correct
-                expect(parent_text.classList.contains('error')).toBe(false);
-                expect(text_errors.innerHTML).toBe('');
+                expect(parentText.classList.contains('error')).toBe(false);
+                expect(textErrors.innerHTML).toBe('');
             });
 
             it('Informs the user when they set the input to a value incorrect (too much)', function(){
@@ -479,17 +479,17 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_text = document.getElementById('test_text');
-                var parent_text = test_text.parentNode.parentNode;
-                var text_errors = parent_text.getElementsByClassName('errors')[0];
+                var testText = document.getElementById('test_text');
+                var parentText = testText.parentNode.parentNode;
+                var textErrors = parentText.getElementsByClassName('errors')[0];
 
                 // set incorrect value
-                test_text.value = '1337666';
+                testText.value = '1337666';
 
                 // change event - incorrect
-                var seven_event = document.createEvent('CustomEvent');
-                seven_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(seven_event);
+                var sevenEvent = document.createEvent('CustomEvent');
+                sevenEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(sevenEvent);
 
                 // verify calls - incorrect
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -497,24 +497,24 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - incorrect
-                expect(parent_text.classList.contains('error')).toBe(true);
-                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+                expect(parentText.classList.contains('error')).toBe(true);
+                expect(textErrors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
 
                 // set correct value
-                test_text.value = '1337';
+                testText.value = '1337';
 
                 // change event - correct
-                var four_event = document.createEvent('CustomEvent');
-                four_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(four_event);
+                var fourEvent = document.createEvent('CustomEvent');
+                fourEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(fourEvent);
 
                 // verify calls - correct
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
 
                 // verify DOM - correct
-                expect(parent_text.classList.contains('error')).toBe(false);
-                expect(text_errors.innerHTML).toBe('');
+                expect(parentText.classList.contains('error')).toBe(false);
+                expect(textErrors.innerHTML).toBe('');
             });
 
             it('Informs the user when they set the input to a value incorrect (wrong type)', function(){
@@ -523,17 +523,17 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_text = document.getElementById('test_text');
-                var parent_text = test_text.parentNode.parentNode;
-                var text_errors = parent_text.getElementsByClassName('errors')[0];
+                var testText = document.getElementById('test_text');
+                var parentText = testText.parentNode.parentNode;
+                var textErrors = parentText.getElementsByClassName('errors')[0];
 
                 // set incorrect value
-                test_text.value = '1234a';
+                testText.value = '1234a';
 
                 // change event - incorrect
-                var alpha_event = document.createEvent('CustomEvent');
-                alpha_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(alpha_event);
+                var alphaEvent = document.createEvent('CustomEvent');
+                alphaEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(alphaEvent);
 
                 // verify calls - incorrect
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -541,24 +541,24 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - incorrect
-                expect(parent_text.classList.contains('error')).toBe(true);
-                expect(text_errors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
+                expect(parentText.classList.contains('error')).toBe(true);
+                expect(textErrors.innerHTML).toBe('<label for="test_text" class="error">Invalid value</label>');
 
                 // set correct value
-                test_text.value = '1337';
+                testText.value = '1337';
 
                 // change event - correct
-                var four_event = document.createEvent('CustomEvent');
-                four_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(four_event);
+                var fourEvent = document.createEvent('CustomEvent');
+                fourEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(fourEvent);
 
                 // verify calls - correct
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
 
                 // verify DOM - correct
-                expect(parent_text.classList.contains('error')).toBe(false);
-                expect(text_errors.innerHTML).toBe('');
+                expect(parentText.classList.contains('error')).toBe(false);
+                expect(textErrors.innerHTML).toBe('');
             });
         });
 
@@ -613,17 +613,17 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_text = document.getElementById('test_select');
-                var parent_text = test_text.parentNode.parentNode;
-                var text_errors = parent_text.getElementsByClassName('errors')[0];
+                var testText = document.getElementById('test_select');
+                var parentText = testText.parentNode.parentNode;
+                var textErrors = parentText.getElementsByClassName('errors')[0];
 
                 // set incorrect value
-                test_text.value = '';
+                testText.value = '';
 
                 // change event - incorrect
-                var three_event = document.createEvent('CustomEvent');
-                three_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(three_event);
+                var threeEvent = document.createEvent('CustomEvent');
+                threeEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(threeEvent);
 
                 // verify calls - incorrect
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
@@ -631,24 +631,24 @@ describe('Data Entry Functionality', function(){
                 expect(NHMobileForm.prototype.add_input_errors).toHaveBeenCalled();
 
                 // verify DOM - incorrect
-                expect(parent_text.classList.contains('error')).toBe(true);
-                expect(text_errors.innerHTML).toBe('<label for="test_select" class="error">Missing value</label>');
+                expect(parentText.classList.contains('error')).toBe(true);
+                expect(textErrors.innerHTML).toBe('<label for="test_select" class="error">Missing value</label>');
 
                 // set correct value
-                test_text.value = 'correct';
+                testText.value = 'correct';
 
                 // change event - correct
-                var four_event = document.createEvent('CustomEvent');
-                four_event.initCustomEvent('change', false, true, false);
-                test_text.dispatchEvent(four_event);
+                var fourEvent = document.createEvent('CustomEvent');
+                fourEvent.initCustomEvent('change', false, true, false);
+                testText.dispatchEvent(fourEvent);
 
                 // verify calls - correct
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.reset_input_errors).toHaveBeenCalled();
 
                 // verify DOM - correct
-                expect(parent_text.classList.contains('error')).toBe(false);
-                expect(text_errors.innerHTML).toBe('');
+                expect(parentText.classList.contains('error')).toBe(false);
+                expect(textErrors.innerHTML).toBe('');
             });
         });
     });
@@ -700,11 +700,11 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-            var change_event = document.createEvent('CustomEvent', {
+            var changeEvent = document.createEvent('CustomEvent', {
                 'detail': 'form timed out'
             });
-            change_event.initCustomEvent('form_timeout', false, true, false);
-            document.dispatchEvent(change_event);
+            changeEvent.initCustomEvent('form_timeout', false, true, false);
+            document.dispatchEvent(changeEvent);
             expect(NHMobileForm.prototype.handle_timeout).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('form_timeout');
@@ -804,25 +804,25 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
-                var invalid_input = document.getElementById('invalid_input');
+                var submitButton = document.getElementById('submit');
+                var invalidInput = document.getElementById('invalid_input');
 
                 // change event
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                invalid_input.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                invalidInput.dispatchEvent(changeEvent);
 
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation).not.toHaveBeenCalled();
-                //expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                //expect(submitButton.getAttribute('disabled')).toBe('disabled');
 
                 // check modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -834,23 +834,23 @@ describe('Data Entry Functionality', function(){
                 var dialog = document.getElementById('invalid_form');
                 var canbuttons = dialog.getElementsByTagName('a');
                 var canbutton = canbuttons[0]; // should be confirm button
-                var can_event = document.createEvent('CustomEvent');
-                can_event.initCustomEvent('click', false, true, false);
-                canbutton.dispatchEvent(can_event);
+                var canEvent = document.createEvent('CustomEvent');
+                canEvent.initCustomEvent('click', false, true, false);
+                canbutton.dispatchEvent(canEvent);
 
-                invalid_input.value = 90;
+                invalidInput.value = 90;
 
                 // change event
-                var change_event2 = document.createEvent('CustomEvent');
-                change_event2.initCustomEvent('change', false, true, false);
-                invalid_input.dispatchEvent(change_event2);
+                var changeEvent2 = document.createEvent('CustomEvent');
+                changeEvent2.initCustomEvent('change', false, true, false);
+                invalidInput.dispatchEvent(changeEvent2);
 
                 expect(NHMobileForm.prototype.validate).toHaveBeenCalled();
 
                 // click event
-                var click_event2 = document.createEvent('CustomEvent');
-                click_event2.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event2);
+                var clickEvent2 = document.createEvent('CustomEvent');
+                clickEvent2.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent2);
 
                 // check that process_partial_submit has been called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
@@ -940,18 +940,18 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.display_partial_reasons).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.process_request).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
 
                 // check modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -966,10 +966,10 @@ describe('Data Entry Functionality', function(){
                 select.value = 1;
                 var canbuttons = dialog.getElementsByTagName('a');
                 var conbutton = canbuttons[1]; // should be confirm button
-                var con_event = document.createEvent('CustomEvent');
-                con_event.initCustomEvent('click', false, true, false);
+                var conEvent = document.createEvent('CustomEvent');
+                conEvent.initCustomEvent('click', false, true, false);
                 NHModal.prototype.create_dialog.calls.reset();
-                conbutton.dispatchEvent(con_event);
+                conbutton.dispatchEvent(conEvent);
 
                 // check that process_partial_submit has been called
                 expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
@@ -1040,18 +1040,18 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.display_partial_reasons).not.toHaveBeenCalled();
                 expect(NHMobileForm.prototype.process_request).not.toHaveBeenCalled();
-                //expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                //expect(submitButton.getAttribute('disabled')).toBe('disabled');
 
                 // check modal was called
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -1138,9 +1138,9 @@ describe('Data Entry Functionality', function(){
                 var cancel_button = document.getElementById('cancelSubmit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                cancel_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                cancel_button.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.cancel_notification).toHaveBeenCalled();
@@ -1157,10 +1157,10 @@ describe('Data Entry Functionality', function(){
                 select.value = 1;
                 var canbuttons = dialog.getElementsByTagName('a');
                 var conbutton = canbuttons[1]; // should be confirm button
-                var con_event = document.createEvent('CustomEvent');
-                con_event.initCustomEvent('click', false, true, false);
+                var conEvent = document.createEvent('CustomEvent');
+                conEvent.initCustomEvent('click', false, true, false);
                 NHModal.prototype.create_dialog.calls.reset();
-                conbutton.dispatchEvent(con_event);
+                conbutton.dispatchEvent(conEvent);
 
                 // check that process_partial_submit has been called
                 expect(NHMobileForm.prototype.process_partial_submit).toHaveBeenCalled();
@@ -1293,16 +1293,16 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
@@ -1318,13 +1318,13 @@ describe('Data Entry Functionality', function(){
                 var dialog = document.getElementById('submit_observation');
                 var options = dialog.getElementsByTagName('a');
                 var option = options[1];
-                var submit_event = document.createEvent('CustomEvent');
-                submit_event.initCustomEvent('click', false, true, false);
+                var submitEvent = document.createEvent('CustomEvent');
+                submitEvent.initCustomEvent('click', false, true, false);
                 NHMobileForm.prototype.submit_observation.calls.reset();
-                option.dispatchEvent(submit_event);
+                option.dispatchEvent(submitEvent);
 
                 // verify submit called again
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(document.getElementById('submit_observation')).toBe(null);
                 expect(NHModal.prototype.handle_button_events).toHaveBeenCalled();
                 expect(NHModal.prototype.close_modal).toHaveBeenCalled();
@@ -1347,16 +1347,16 @@ describe('Data Entry Functionality', function(){
                     return false;
                 });
                 form.setAttribute('ajax-args', 'test,1');
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
@@ -1379,16 +1379,16 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
@@ -1404,12 +1404,12 @@ describe('Data Entry Functionality', function(){
                 var dialog = document.getElementById('submit_observation');
                 var options = dialog.getElementsByTagName('a');
                 var option = options[0];
-                var submit_event = document.createEvent('CustomEvent');
-                submit_event.initCustomEvent('click', false, true, false);
-                option.dispatchEvent(submit_event);
+                var submitEvent = document.createEvent('CustomEvent');
+                submitEvent.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(submitEvent);
 
                 // verify submit called again
-                expect(submit_button.getAttribute('disabled')).toBe(null);
+                expect(submitButton.getAttribute('disabled')).toBe(null);
                 expect(document.getElementById('submit_observation')).toBe(null);
             });
 
@@ -1423,16 +1423,16 @@ describe('Data Entry Functionality', function(){
                 var input = document.getElementById('test_int');
                 input.value = null;
 
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.count()).toBe(1);
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
@@ -1448,9 +1448,9 @@ describe('Data Entry Functionality', function(){
                 var dialog = document.getElementById('submit_observation');
                 var options = dialog.getElementsByTagName('a');
                 var option = options[1];
-                var submit_event = document.createEvent('CustomEvent');
-                submit_event.initCustomEvent('click', false, true, false);
-                option.dispatchEvent(submit_event);
+                var submitEvent = document.createEvent('CustomEvent');
+                submitEvent.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(submitEvent);
 
                 // Ensure that partial reason dialog pops up after
                 expect(document.getElementById('submit_observation')).toBe(null);
@@ -1465,9 +1465,9 @@ describe('Data Entry Functionality', function(){
                 select.value = 1;
                 var options = dialog.getElementsByTagName('a');
                 var option = options[1];
-                var submit_event = document.createEvent('CustomEvent');
-                submit_event.initCustomEvent('click', false, true, false);
-                option.dispatchEvent(submit_event);
+                var submitEvent = document.createEvent('CustomEvent');
+                submitEvent.initCustomEvent('click', false, true, false);
+                option.dispatchEvent(submitEvent);
 
                 expect(document.getElementById('partial_reasons')).toBe(null);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -1575,16 +1575,16 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
@@ -1601,16 +1601,16 @@ describe('Data Entry Functionality', function(){
                     return false;
                 });
                 form.setAttribute('ajax-args', 'test,1');
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,1');
@@ -1628,16 +1628,16 @@ describe('Data Entry Functionality', function(){
                     return false;
                 });
                 form.setAttribute('ajax-args', 'test,2');
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,2');
@@ -1654,16 +1654,16 @@ describe('Data Entry Functionality', function(){
                     return false;
                 });
                 form.setAttribute('ajax-args', 'test,3');
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe(null);
+                expect(submitButton.getAttribute('disabled')).toBe(null);
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,3');
@@ -1724,12 +1724,12 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
@@ -1817,16 +1817,16 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var submit_button = document.getElementById('submit');
+                var submitButton = document.getElementById('submit');
 
                 // click event
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                submit_button.dispatchEvent(click_event);
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                submitButton.dispatchEvent(clickEvent);
 
                 //verify submit called
                 expect(NHMobileForm.prototype.submit).toHaveBeenCalled();
-                expect(submit_button.getAttribute('disabled')).toBe('disabled');
+                expect(submitButton.getAttribute('disabled')).toBe('disabled');
                 expect(NHMobileForm.prototype.submit_observation).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[2]).toBe('test');
                 expect(NHMobileForm.prototype.submit_observation.calls.mostRecent().args[3]).toBe('test,0');
@@ -1898,7 +1898,7 @@ describe('Data Entry Functionality', function(){
                     '<option value="2">Show</option>' +
                     '</select>' +
                     '<div id="parent_affected_element"><input type="number" id="affected_element" data-required="false" data-necessary="true"></div>' +
-                    '<div id="parent_hidden_affected_element" style="display: none;"><input type="number" id="hidden_affected_element" class="exclude" data-required="false" data-necessary="true"></div>' +
+                    '<div id="parent_hidden_affected_element" style="display: none;"><input type="number" id="hidden_affected_element" class="exclude" data-required="false" data-necessary="false"></div>' +
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
                 mobile = new NHMobileForm();
@@ -1920,15 +1920,17 @@ describe('Data Entry Functionality', function(){
                 var element = document.getElementById('affected_element');
                 expect(parent_element.style.display).not.toBe('none');
                 expect(element.classList.contains('exclude')).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
                 origin_element.value = 1;
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.hide_triggered_elements.calls.mostRecent().args[0]).toBe('affected_element');
                 expect(parent_element.style.display).toBe('none');
                 expect(element.classList.contains('exclude')).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
             });
 
             it('Hides input mentioned in the data-onchange attribute when the hide condition is met (no value set)', function(){
@@ -1940,17 +1942,19 @@ describe('Data Entry Functionality', function(){
                 expect(parent_element.style.display).not.toBe('none');
                 expect(parent_hidden_element.style.display).toBe('none');
                 expect(element.classList.contains('exclude')).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
                 expect(hidden_element.classList.contains('exclude')).toBe(true);
                 origin_element.value = '';
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
                 expect(parent_element.style.display).toBe('none');
                 expect(parent_hidden_element.style.display).toBe('none');
                 expect(element.classList.contains('exclude')).toBe(true);
                 expect(hidden_element.classList.contains('exclude')).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
             });
 
             it('Shows the input mentioned in the data-onchange attribute when the show condition is met', function(){
@@ -1959,15 +1963,17 @@ describe('Data Entry Functionality', function(){
                 var element = document.getElementById('hidden_affected_element');
                 expect(parent_element.style.display).toBe('none');
                 expect(element.classList.contains('exclude')).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
                 origin_element.value = 2;
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.show_triggered_elements).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.show_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
                 expect(parent_element.style.display).not.toBe('none');
                 expect(element.classList.contains('exclude')).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
             });
         });
 
@@ -1993,13 +1999,13 @@ describe('Data Entry Functionality', function(){
                 });
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
-                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'enable\', \'fields\': [\'disabled_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'True\']]}, {\'action\': \'disable\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'False\']]}]">' +
+                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'enable\', \'fields\': [\'disabled_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'True\']]}, {\'action\': \'disable\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'False\']]}]" data-required="false" data-necessary="true">' +
                     '<option value="">Default</option>' +
                     '<option value="False">Disable</option>' +
                     '<option value="True">Enable</option>' +
                     '</select>' +
                     '<input type="number" id="affected_element" data-required="false" data-necessary="true">' +
-                    '<input type="number" id="disabled_affected_element" class="exclude" disabled="disabled" data-required="false" data-necessary="true">' +
+                    '<input type="number" id="disabled_affected_element" class="exclude" disabled="disabled" data-required="false" data-necessary="false">' +
                     '<input type="number" id="value_change" data-onchange="[{\'action\': \'disable\', \'fields\': [\'origin_element\'], \'condition\': [[\'value_change\', \'!=\', \'affected_element\']]}]" data-required="false" data-necessary="true">'+
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
@@ -2016,15 +2022,17 @@ describe('Data Entry Functionality', function(){
                 var element = document.getElementById('affected_element');
                 expect(element.classList.contains('exclude')).not.toBe(true);
                 expect(element.disabled).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
                 origin_element.value = "False";
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.disable_triggered_elements).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.disable_triggered_elements.calls.mostRecent().args[0]).toBe('affected_element');
                 expect(element.classList.contains('exclude')).toBe(true);
                 expect(element.disabled).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
             });
 
             it('Disables the input mentioned in the data-onchange attribute when the disable condition is met (comparative value)', function(){
@@ -2035,14 +2043,16 @@ describe('Data Entry Functionality', function(){
                 value_change.value = 1337;
                 expect(origin_element.classList.contains('exclude')).not.toBe(true);
                 expect(origin_element.disabled).not.toBe(true);
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                value_change.dispatchEvent(change_event);
+                expect(origin_element.getAttribute('data-necessary')).toBe('true');
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                value_change.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.disable_triggered_elements).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.disable_triggered_elements.calls.mostRecent().args[0]).toBe('origin_element');
                 expect(origin_element.classList.contains('exclude')).toBe(true);
                 expect(origin_element.disabled).toBe(true);
+                expect(origin_element.getAttribute('data-necessary')).toBe('false');
             });
 
             it('Enables the input mentioned in the data-onchange attribute when the enable condition is met', function(){
@@ -2050,15 +2060,17 @@ describe('Data Entry Functionality', function(){
                 var element = document.getElementById('disabled_affected_element');
                 expect(element.classList.contains('exclude')).toBe(true);
                 expect(element.disabled).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
                 origin_element.value = "True";
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.enable_triggered_elements).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.enable_triggered_elements.calls.mostRecent().args[0]).toBe('disabled_affected_element');
                 expect(element.classList.contains('exclude')).not.toBe(true);
                 expect(element.disabled).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
             });
         });
 
@@ -2100,10 +2112,10 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_button = document.getElementById('image_reference');
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                test_button.dispatchEvent(click_event);
+                var testButton = document.getElementById('image_reference');
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                testButton.dispatchEvent(clickEvent);
                 expect(NHMobileForm.prototype.show_reference).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.show_reference.calls.count()).toBe(1);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -2118,10 +2130,10 @@ describe('Data Entry Functionality', function(){
                     event.preventDefault();
                     return false;
                 });
-                var test_button = document.getElementById('iframe_reference');
-                var click_event = document.createEvent('CustomEvent');
-                click_event.initCustomEvent('click', false, true, false);
-                test_button.dispatchEvent(click_event);
+                var testButton = document.getElementById('iframe_reference');
+                var clickEvent = document.createEvent('CustomEvent');
+                clickEvent.initCustomEvent('click', false, true, false);
+                testButton.dispatchEvent(clickEvent);
                 expect(NHMobileForm.prototype.show_reference).toHaveBeenCalled();
                 expect(NHMobileForm.prototype.show_reference.calls.count()).toBe(1);
                 expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -2171,14 +2183,77 @@ describe('Data Entry Functionality', function(){
                 var radio_3 = document.getElementById('radio_3');
                 var radio_jackie = document.getElementById('radio_jackie');
                 radio_1.checked = true;
-                var change_event = document.createEvent('CustomEvent');
-                change_event.initCustomEvent('click', false, true, false);
-                radio_1.dispatchEvent(change_event);
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('click', false, true, false);
+                radio_1.dispatchEvent(changeEvent);
                 expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
                 expect(radio_1.classList.contains('exclude')).not.toBe(true);
                 expect(radio_2.classList.contains('exclude')).toBe(true);
                 expect(radio_3.classList.contains('exclude')).toBe(true);
                 expect(radio_jackie.classList.contains('exclude')).not.toBe(true);
+            });
+        });
+
+        describe('Setting exclude classes on unselected checkbox inputs', function(){
+            var mobile;
+             beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var promise = new Promise();
+                     var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
+                    return promise;
+                });
+
+                var test = document.getElementById('test');
+                test.innerHTML =
+                    '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '<div class="block obsSelectField">' +
+                    '<div class="input-header">' +
+                    '<label for="standard_multiselect">Standard Multiselect</label>' +
+                    '</div>' +
+                    '<div class="input-body">' +
+                    '<ul class="checklist">' +
+                    '<li>' +
+                    '<input type="checkbox" name="multiselect" value="1" id="checkbox_1" class="checklist_box">' +
+                    '<label>Option 1</label>' +
+                    '</li>' +
+                    '<li>' +
+                    '<input type="checkbox" name="multiselect" value="2" id="checkbox_2" class="checklist_box">' +
+                    '<label>Option 2</label>' +
+                    '</li>' +
+                    '</ul>' +
+                    '<span class="errors"></span>' +
+                    '<span class="help"></span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            afterEach(function(){
+               cleanUp();
+                mobile = null;
+            });
+
+            it('Adds a class of exclude to all radio inputs with the same name that do not have the same value', function(){
+                var checkbox1 = document.getElementById('checkbox_1');
+                var checkbox2 = document.getElementById('checkbox_2');
+                checkbox1.checked = true;
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('click', false, true, false);
+                checkbox1.dispatchEvent(changeEvent);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(checkbox1.classList.contains('exclude')).not.toBe(true);
+                expect(checkbox2.classList.contains('exclude')).toBe(true);
             });
         });
     });

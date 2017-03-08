@@ -34,7 +34,7 @@ class NhClinicalPatientObservationNeurological(models.Model):
         ('NO', 'Not Observable')
     ]
 
-    _description = "Neurological Observation"
+    _description = "Neurological"
     # TODO Remove when EOBS-982 complete.
     # Also decides the order fields are displayed in the mobile view.
     _required = [
@@ -93,3 +93,14 @@ class NhClinicalPatientObservationNeurological(models.Model):
         :rtype: str
         """
         return '/nh_neurological/static/src/js/chart.js'
+
+    def get_submission_message(self):
+        """
+        Override of `nh.clinical.patient.observation` method.
+
+        :return:
+        """
+        score = self.score
+        message = 'The Coma Scale score for this observation is {}'\
+            .format(score)
+        return message

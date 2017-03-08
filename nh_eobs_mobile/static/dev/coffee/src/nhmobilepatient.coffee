@@ -124,22 +124,22 @@ class NHMobilePatient extends NHMobile
       tableFunc = window[tableFuncName]
       validChart = (typeof chartFunc is "function")
       validTable = (typeof tableFunc is "function")
-      if not validChart or not validTable
-        graphTabs.style.display = "none"
-      else
-        graphTabs.style.display = "block"
       if validChart
         chartFunc(self, serverData)
       if validTable
         tableFunc(self, serverData)
-      if activeTab is "#graph-content"
-        tableEl.style.display = "none"
+      if not validChart or not validTable
+        graphTabs.style.display = "none"
       else
-        graphContent.style.display = "none"
+        graphTabs.style.display = "block"
+        if activeTab is "#graph-content"
+          tableEl.style.display = "none"
+        else
+          graphContent.style.display = "none"
     else
       controls.style.display = "none"
+      graphContent.style.display = "block"
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>"
-      tableEl.innerHTML = "<h2>No observation data available for patient</h2>"
       graphTabs.style.display = "none"
 
 ### istanbul ignore if ###

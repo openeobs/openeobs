@@ -47,19 +47,19 @@ text.title{
 }
 
 circle{
-  .point{
+  &.point{
     fill: black;
     stroke: black;
     stroke-width: 1px;
   }
-  .empty_point{
+  &.empty_point{
     fill: white;
     stroke: black;
     stroke-width: 1px;
   }
 }
 rect{
-  .empty_point{
+  &.empty_point{
     fill: white;
     stroke: black;
     stroke-width: 1px;
@@ -321,6 +321,19 @@ Styleguide 2.6.1
   }
   thead th, tbody td{
     padding: 0.5em 10px;
+  }
+  .nested-first{
+    border-left: 1px solid black;
+  }
+  .nested-last{
+    border-right: 1px solid black;
+  }
+  .group-header{
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+  }
+  .group-header:first-child{
+    border-left: none;
   }
 }
 

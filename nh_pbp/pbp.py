@@ -25,7 +25,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['systolic_sitting', 'diastolic_sitting',
                  'systolic_standing', 'diastolic_standing']
-    _description = "Postural Blood Pressure Observation"
+    _description = "Postural Blood Pressure"
 
     _POLICY = {'schedule': [[6, 0], [18, 0]], 'notifications': [
         [],

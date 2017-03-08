@@ -1,0 +1,56 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_wardboard_food_fluid_table_form">
+            <field name="name">Wardboard Food and Fluid Observation List View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Food and Fluid Observation List View" version="7.0" edit="0" create="0" class="paged_table">
+                    <sheet>
+                        <field name="food_fluid_ids" widget="food_fluid_table"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_food_fluid_table">
+            <field name="name">Food and Fluid Observation Log</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_food_fluid_table_form"/>
+        </record>
+
+        <record model="ir.ui.view" id="view_food_fluid_wardboard_form">
+            <field name="name">Food and Fluid Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="wardboard_food_fluid_table" string="Food and Fluid Log" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_tree_observation_food_fluid">
+            <field name="name">Tree View Observation Food and Fluid</field>
+            <field name="model">nh.clinical.patient.observation.food_fluid</field>
+            <field name="arch" type="xml">
+                <tree string="Food and Fluid Observations" class="nhc_obs_list">
+                    <field name="date_terminated" widget="nhc_datetime" string="Terminated Time"/>
+                    <field name="recorded_concerns"/>
+                    <field name="dietary_needs"/>
+                    <field name="fluid_taken"/>
+                    <field name="fluid_description"/>
+                    <field name="food_taken"/>
+                    <field name="food_fluid_rejected"/>
+                    <field name="passed_urine"/>
+                    <field name="bowels_open"/>
+                    <field name="terminate_uid"  class="nhc_obs_group_separation" string="Completed By"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</openerp>

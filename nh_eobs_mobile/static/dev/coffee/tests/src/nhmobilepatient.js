@@ -150,26 +150,26 @@ NHMobilePatient = (function(superClass) {
       tableFunc = window[tableFuncName];
       validChart = typeof chartFunc === "function";
       validTable = typeof tableFunc === "function";
-      if (!validChart || !validTable) {
-        graphTabs.style.display = "none";
-      } else {
-        graphTabs.style.display = "block";
-      }
       if (validChart) {
         chartFunc(self, serverData);
       }
       if (validTable) {
         tableFunc(self, serverData);
       }
-      if (activeTab === "#graph-content") {
-        return tableEl.style.display = "none";
+      if (!validChart || !validTable) {
+        return graphTabs.style.display = "none";
       } else {
-        return graphContent.style.display = "none";
+        graphTabs.style.display = "block";
+        if (activeTab === "#graph-content") {
+          return tableEl.style.display = "none";
+        } else {
+          return graphContent.style.display = "none";
+        }
       }
     } else {
       controls.style.display = "none";
+      graphContent.style.display = "block";
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>";
-      tableEl.innerHTML = "<h2>No observation data available for patient</h2>";
       return graphTabs.style.display = "none";
     }
   };

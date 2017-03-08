@@ -72,7 +72,8 @@ NHGraphLib = (function() {
     this.focus = null;
     this.table = {
       element: null,
-      keys: null
+      keys: null,
+      type: null
     };
     this.version = '0.0.1';
     self = this;
@@ -300,7 +301,7 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.draw_table = function(self) {
-    var cells, container, header_row, raw_data, rows, table_el, tbody, thead;
+    var cells, container, first_row, header_row, raw_data, rows, table_el, tbody, thead;
     table_el = nh_graphs.select(self.table.element);
     container = nh_graphs.select('#table-content').append('table');
     thead = container.append('thead').attr('class', 'thead');
@@ -311,7 +312,23 @@ NHGraphLib = (function() {
       }
     ];
     raw_data = self.data.raw.reverse();
-    thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
+    if (self.table.type === 'nested') {
+      first_row = [
+        {
+          'period_title': '',
+          'observations': [{}]
+        }
+      ];
+      thead.append('tr').selectAll('.group-header').data(first_row.concat(raw_data)).enter().append('th').html(function(d) {
+        return d.period_title;
+      }).attr('colspan', function(d) {
+        return d.observations.length;
+      }).attr('class', 'group-header');
+      raw_data = raw_data.reduce(function(a, b) {
+        return a.concat(b.observations);
+      }, []);
+    }
+    thead.append('tr').selectAll('.column-header').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
       var date_rotate, term_date;
       term_date = d.date_terminated;
       if (d.date_terminated !== "Date") {
@@ -322,6 +339,13 @@ NHGraphLib = (function() {
         return date_rotate[0];
       }
       return date_rotate[1] + '<br>' + date_rotate[0];
+    }).attr('class', function(d) {
+      var cls;
+      cls = 'column-header ';
+      if (d["class"]) {
+        cls += d["class"];
+      }
+      return cls;
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
     return cells = rows.selectAll('td').data(function(d) {
@@ -330,7 +354,8 @@ NHGraphLib = (function() {
         {
           title: d['title'],
           value: d['title'],
-          presentation: d['presentation']
+          presentation: d['presentation'],
+          "class": false
         }
       ];
       for (i = 0, len = raw_data.length; i < len; i++) {
@@ -349,7 +374,8 @@ NHGraphLib = (function() {
               data.push({
                 title: d['title'],
                 value: fix_val,
-                presentation: d['presentation']
+                presentation: d['presentation'],
+                "class": obj["class"]
               });
             }
           }
@@ -363,14 +389,16 @@ NHGraphLib = (function() {
             v.push({
               title: o['title'],
               value: obj[o['keys'][0]],
-              presentation: p
+              presentation: p,
+              "class": obj[o["class"]]
             });
           }
           if (t) {
             data.push({
               title: t,
               value: v,
-              presentation: p
+              presentation: p,
+              "class": false
             });
           }
         }
@@ -398,6 +426,8 @@ NHGraphLib = (function() {
           return d.value;
         }
       }
+    }).attr("class", function(d) {
+      return d["class"];
     });
   };
 

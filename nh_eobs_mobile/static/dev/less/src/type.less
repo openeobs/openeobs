@@ -38,51 +38,91 @@ Markup:
   <dt>Definition</dt>
   <dd>Description</dd>
 </dl>
+<dl class="inline">
+  <dt>Definition</dt>
+  <dd>Description</dd>
+  <dt>Defintion</dt>
+  <dd>Description</dd>
+</dl>
 
 Styleguide 1.3
 */
 @import "utils.less";
 
 body {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1rem;
+  line-height: 1.4rem;
   margin: 0 auto;
 }
 h1 {
-  font-size: 2.1875rem;
-  line-height: 3.5rem;
-  margin-top: 3.5rem;
-  margin-bottom: 0;
-  //margin-bottom: 1.75rem;
+  font-size: 2em;
+  line-height: 1;
+  margin-top: 0;
+  margin-bottom: 0.5em;
 }
 h2 {
-  font-size: 1.8125rem;
-  line-height: 2.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 0;
-  //margin-bottom: 1.75rem;
+  font-size: 1.7em;
+  line-height: 1.1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
 }
 h3 {
-  font-size: 1.5rem;
-  line-height: 1.75rem;
-  margin-top: 1.75rem;
-  margin-bottom: 0;
-  //margin-bottom: 1.75rem;
+  font-size: 1.5em;
+  line-height: 1.1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+  padding-top: 1em;
 }
 h4 {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-  margin-top: 1.75rem;
-  margin-bottom: 0;
-  //margin-bottom: 1.75rem;
+  font-size: 1.4em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+h5 {
+  font-size: 1.3em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
+}
+h6 {
+  font-size: 1.2em;
+  line-height: 1;
+  margin-top: 0.7em;
+  margin-bottom: 0.3em;
 }
 ul, ol, pre, table, blockquote {
-  margin-top: 1.75rem;
-  margin-bottom: 1.75rem;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
 }
 p{
-  margin-top: 0;
-  margin-bottom: 1.75rem;
+  font-size: 1em;
+  line-height: 1.4;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+dl.inline{
+  //display: flex;
+  //flex-wrap: wrap;
+  //flex-direction: column;
+  //margin: 0;
+  //height: 4em;
+  dt, dd {
+    //margin: 0;
+    //flex: 0 1 30%;
+    //min-height: 0;
+    //box-sizing: border-box;
+    float: left
+  }
+  dt{
+    //order: 1;
+    font-weight: bold;
+    margin-right: 5%;
+  }
+  dd{
+    //order: 2;
+    //text-align: right;
+  }
 }
 dd{
   -webkit-margin-start: 0;
@@ -109,9 +149,17 @@ sub {
   top: 0.4em;
 }
 
-@media screen and (max-width: 480px){
-  body{
-    // Responsive font
-    font-size: 4.17vw;
+p.food_fluid_period{
+  text-align: right;
+  strong{
+    float: left;
+    text-align: left;
   }
 }
+
+//@media screen and (max-width: 480px){
+//  body{
+//    // Responsive font
+//    font-size: 4.17vw;
+//  }
+//}
