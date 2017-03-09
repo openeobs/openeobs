@@ -5,4 +5,6 @@
     background-color: black;
     color: white;
     font-weight: bold;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
 }
