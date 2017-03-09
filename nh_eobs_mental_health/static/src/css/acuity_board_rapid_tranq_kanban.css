@@ -1,0 +1,8 @@
+.openerp .oe_kanban_view .oe_kanban_card > .kanban-card-header-alert{
+    margin: -5px !important;
+    margin-bottom: 5px !important;
+    padding: 5px;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+}

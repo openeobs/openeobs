@@ -25,6 +25,12 @@
                 <xpath expr="//kanban/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
                 </xpath>
+
+                <xpath expr="//templates/t/div/div[@class='oe_dropdown_toggle oe_dropdown_kanban']" position="before">
+                    <t t-if="record.rapid_tranq.raw_value === true">
+                        <p class="kanban-card-header-alert">Rapid Tranquilisation</p>
+                    </t>
+                </xpath>
             </field>
         </record>
 
