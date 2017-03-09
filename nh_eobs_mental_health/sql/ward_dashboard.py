@@ -223,6 +223,7 @@ class WardDashboardSQL(orm.AbstractModel):
         return self.wardboard_skeleton.replace(
             'spell.move_date,',
             'spell.move_date, '
+            'spell.rapid_tranq AS rapid_tranq, '
             'CASE '
             'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' '
             'WHEN '
