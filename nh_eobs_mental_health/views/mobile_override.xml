@@ -1,7 +1,17 @@
 <openerp>
     <data>
         <template id="nh_eobs_mental_health.patient_task_list" inherit_id="nh_eobs_mobile.patient_task_list">
-            <xpath expr="//t/div/ul/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
+            <xpath expr="//t/div/ul/t/li/a" position="before">
+                <t t-if="item.get('rapid_tranq') == True">
+                    <div class="status-flag">
+                        Meh
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//t/div/ul/t/li" position="attributes">
+                <attribute name="class"><t t-if="item.get('rapid_tranq') == True">status-alert</t></attribute>
+            </xpath>
+            <xpath expr="//t/div/ul/t/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
                  <p class="aside">
                      <t t-if="item.get('refusal_in_effect') == True">
                          Refused -

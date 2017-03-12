@@ -2182,6 +2182,25 @@ Markup:
       </div>
     </a>
   </li>
+  <li class="status-alert">
+    <div class="status-flag">
+      Rapid Tranquilisation
+    </div>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient 5</strong><br>
+          <em>Bed 05, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
 </ul>
 
 Styleguide 2.2.0
@@ -2190,6 +2209,15 @@ Styleguide 2.2.0
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.tasklist li.status-alert {
+  border: 3px solid black;
+}
+.tasklist li .status-flag {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 5%;
 }
 .tasklist li a {
   display: block;
