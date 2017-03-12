@@ -14,6 +14,11 @@
                     <field name="acuity_index" readonly="1" invisible="1"/>
                     <field name="rapid_tranq" readonly="1" invisible="1"/>
                 </xpath>
+                <xpath expr="//sheet/group/group" position="after">
+                    <group string="Rapid Tranquilisation" attrs="{'invisible':[['rapid_tranq','=',False]]}">
+                        <field name="rapid_tranq" string="Active"/>
+                    </group>
+                </xpath>
             </field>
         </record>
 
@@ -22,6 +27,9 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
             <field name="arch" type="xml">
+                <xpath expr="//kanban" position="attributes">
+                    <attribute name="default_order">rapid_tranq asc</attribute>
+                </xpath>
                 <xpath expr="//kanban/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
                 </xpath>
