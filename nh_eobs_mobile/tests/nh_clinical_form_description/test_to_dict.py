@@ -16,13 +16,13 @@ class TestToDict(TransactionCase):
             'an_odoo_field': an_odoo_field
         }
 
-        def get_obs_field_order(self):
+        @staticmethod
+        def get_obs_field_order():
             return ['obb', 'odd']
 
         an_obs_field.name = 'obb'
         an_odoo_field.name = 'odd'
         an_obs_field.necessary = True
-
 
     def setUp(self):
         super(TestToDict, self).setUp()

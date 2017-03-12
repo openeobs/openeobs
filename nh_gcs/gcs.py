@@ -7,7 +7,7 @@ standard behaviour and policy triggers based on this worldwide standard.
 import bisect
 import logging
 
-from openerp import models, osv, SUPERUSER_ID, api
+from openerp import models, osv, SUPERUSER_ID
 from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
     _scored = ['eyes', 'verbal', 'motor']
-    _description = "GCS Observation"
+    _description = "GCS"
     _eyes_selection = [
         ('SP', 'Spontaneous'),
         ('TS', 'To Sound'),
@@ -153,11 +153,3 @@ class nh_clinical_patient_observation_gcs(models.Model):
         return super(
             nh_clinical_patient_observation_gcs, self).create_activity(
             cr, uid, vals_activity, vals_data, context)
-
-    @api.multi
-    def read_labels(self, fields=None, load='_classic_read'):
-        obs_data = self.read(fields=fields, load=load)
-        if obs_data:
-            obs = obs_data[0] if isinstance(obs_data, list) else [obs_data]
-            self.convert_field_values_to_labels(obs)
-        return obs_data

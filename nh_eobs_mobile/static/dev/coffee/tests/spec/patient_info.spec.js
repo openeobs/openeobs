@@ -3,7 +3,7 @@
  */
 describe('Patient Information Functionality', function(){
     var mobile;
-    var patient_info_data = new NHMobileData({
+    var patientInfoData = new NHMobileData({
         status: 'success',
         title: 'Test Patient',
         description: 'Information on Test Patient',
@@ -18,16 +18,16 @@ describe('Patient Information Functionality', function(){
         }
     });
     beforeEach(function(){
-        var body_el = document.getElementsByTagName('body')[0];
+        var bodyEl = document.getElementsByTagName('body')[0];
         var test = document.getElementById('test');
         if (test != null) {
             test.parentNode.removeChild(test);
         }
-        var test_area = document.createElement('div');
-        test_area.setAttribute('id', 'test');
-        test_area.style.height = '500px';
-        test_area.innerHTML = '';
-        body_el.appendChild(test_area);
+        var testArea = document.createElement('div');
+        testArea.setAttribute('id', 'test');
+        testArea.style.height = '500px';
+        testArea.innerHTML = '';
+        bodyEl.appendChild(testArea);
         if (mobile == null) {
             mobile = new NHMobile();
         }
@@ -68,7 +68,7 @@ describe('Patient Information Functionality', function(){
         it('Calls the server for patient information and displays in modal', function(){
             spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete(patient_info_data);
+                promise.complete(patientInfoData);
                 return promise;
             });
             spyOn(NHMobile.prototype, 'get_patient_info').and.callThrough();
@@ -83,18 +83,18 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Rendering patient information using patient data from server', function(){
-        var test_pat;
+        var testPat;
         beforeEach(function(){
-            test_pat = patient_info_data.data;
+            testPat = patientInfoData.data;
         });
         it('Renders name and gender in body if nameless flag set to false', function(){
-            var test_pat_info = mobile.render_patient_info(test_pat, false, mobile)
-            expect(test_pat_info).toBe('<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl>');
+            var testPatInfo = mobile.render_patient_info(testPat, false, mobile);
+            expect(testPatInfo).toBe('<dl><dt>Name:</dt><dd>Test Patient</dd><dt>Gender:</dt><dd>M</dd><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl>');
         });
 
         it('Does not render name and gender in body if nameless flag set to true', function(){
-            var test_pat_info = mobile.render_patient_info(test_pat, true, mobile)
-            expect(test_pat_info).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl>');
+            var testPatInfo = mobile.render_patient_info(testPat, true, mobile);
+            expect(testPatInfo).toBe('<dl><dt>DOB:</dt><dd>1988-01-12</dd><dt>Location:</dt><dd>Bed 1</dd><dt class="twoline">Latest Score:</dt><dd class="twoline">1</dd><dt>Hospital ID:</dt><dd>012345678</dd><dt>NHS Number:</dt><dd>NHS012345678</dd></dl>');
         });
     });
 
@@ -110,62 +110,62 @@ describe('Patient Information Functionality', function(){
             mobile = new NHMobile();
             spyOn(NHMobile.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete(patient_info_data);
+                promise.complete(patientInfoData);
                 return promise;
             });
             mobile.get_patient_info(3, mobile);
         });
         afterEach(function(){
-            var full_screen_modals = document.getElementsByClassName('full-modal');
-            for(var i = 0; i < full_screen_modals.length; i++){
-                var modal = full_screen_modals[i];
+            var fullScreenModals = document.getElementsByClassName('full-modal');
+            for(var i = 0; i < fullScreenModals.length; i++){
+                var modal = fullScreenModals[i];
                 modal.parentNode.removeChild(modal);
             }
-            var patient_popup = document.getElementById('patient_info');
-            if(patient_popup != null){
-                patient_popup.parentNode.removeChild(patient_popup);
+            var patientPopup = document.getElementById('patient_info');
+            if(patientPopup != null){
+                patientPopup.parentNode.removeChild(patientPopup);
             }
         });
         it('Adds a fullscreen modal to the DOM on pressing the patient observations button', function(){
-            var full_obs_button = document.getElementById('patient_obs_fullscreen');
-            expect(full_obs_button).not.toBe(null);
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            full_obs_button.dispatchEvent(click_event);
+            var fullObsButton = document.getElementById('patient_obs_fullscreen');
+            expect(fullObsButton).not.toBe(null);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            fullObsButton.dispatchEvent(clickEvent);
             expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
-            var full_screen_modals = document.getElementsByClassName('full-modal');
-            expect(full_screen_modals.length).toBe(1);
+            var fullScreenModals = document.getElementsByClassName('full-modal');
+            expect(fullScreenModals.length).toBe(1);
         });
 
         it('Dismisses a fullscreen modal on pressing the fullscreen modal\'s close button', function(){
-            var full_obs_button = document.getElementById('patient_obs_fullscreen');
-            expect(full_obs_button).not.toBe(null);
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            full_obs_button.dispatchEvent(click_event);
+            var fullObsButton = document.getElementById('patient_obs_fullscreen');
+            expect(fullObsButton).not.toBe(null);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            fullObsButton.dispatchEvent(clickEvent);
             expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
-            var full_screen_modals = document.getElementsByClassName('full-modal');
-            expect(full_screen_modals.length).toBe(1);
-            var full_screen_modal = full_screen_modals[0];
-            var close_full_obs = full_screen_modal.getElementsByTagName('a')[0];
-            var close_click_event = document.createEvent('CustomEvent');
-            close_click_event.initCustomEvent('click', false, true, false);
-            close_full_obs.dispatchEvent(close_click_event);
+            var fullScreenModals = document.getElementsByClassName('full-modal');
+            expect(fullScreenModals.length).toBe(1);
+            var fullScreenModal = fullScreenModals[0];
+            var closeFullObs = fullScreenModal.getElementsByTagName('a')[0];
+            var closeClickEvent = document.createEvent('CustomEvent');
+            closeClickEvent.initCustomEvent('click', false, true, false);
+            closeFullObs.dispatchEvent(closeClickEvent);
             expect(NHMobile.prototype.close_fullscreen_patient_info).toHaveBeenCalled();
-            full_screen_modals = document.getElementsByClassName('full-modal');
-            expect(full_screen_modals.length).toBe(0);
+            fullScreenModals = document.getElementsByClassName('full-modal');
+            expect(fullScreenModals.length).toBe(0);
         });
 
         it('User should not be able to see the floating menu options when in the fullscreen modal view', function(){
-            var full_obs_button = document.getElementById('patient_obs_fullscreen');
-            expect(full_obs_button).not.toBe(null);
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            full_obs_button.dispatchEvent(click_event);
+            var fullObsButton = document.getElementById('patient_obs_fullscreen');
+            expect(fullObsButton).not.toBe(null);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            fullObsButton.dispatchEvent(clickEvent);
             expect(NHMobile.prototype.fullscreen_patient_info).toHaveBeenCalled();
-            var full_screen_modals = document.getElementsByClassName('full-modal');
-            expect(full_screen_modals.length).toBe(1);
-            var modal = full_screen_modals[0];
+            var fullScreenModals = document.getElementsByClassName('full-modal');
+            expect(fullScreenModals.length).toBe(1);
+            var modal = fullScreenModals[0];
             var iframe = modal.getElementsByTagName('iframe')[0];
             var contents = iframe.contentDocument ? iframe.contentDocument : iframe.contentWindow.document;
             var headers = contents.getElementsByClassName('header');
@@ -176,10 +176,10 @@ describe('Patient Information Functionality', function(){
     });
 
     describe('Getting patient information by scanning a barcode on patient\'s wristband', function(){
-        var barcode, test_area, barcode_data;
+        var barcode, testArea, barcodeData;
         beforeEach(function(){
-            test_area = document.getElementById('test');
-            test_area.innerHTML = '<div class="header">' +
+            testArea = document.getElementById('test');
+            testArea.innerHTML = '<div class="header">' +
                 '<div class="header-main block">'+
                 '<img src="/mobile/src/img/logo.png" class="logo">'+
                 '<ul class="header-meta">'+
@@ -190,9 +190,9 @@ describe('Patient Information Functionality', function(){
                 '<li><a href="/mobile/tasks/" id="taskNavItem" class="selected">Tasks</a></li>'+
                 '<li><a href="/mobile/patients/" id="patientNavItem">My Patients</a></li>'+
                 '</ul></div>'
-            trigger_button = test_area.getElementsByClassName('scan')[0];
-            barcode = new NHMobileBarcode(trigger_button);
-            barcode_data = new NHMobileData({
+            triggerButton = testArea.getElementsByClassName('scan')[0];
+            barcode = new NHMobileBarcode(triggerButton);
+            barcodeData = new NHMobileData({
                 status: 'success',
                 title: 'Test Patient',
                 description: 'Information on Test Patient',
@@ -222,7 +222,7 @@ describe('Patient Information Functionality', function(){
             });
             spyOn(NHMobileBarcode.prototype, 'process_request').and.callFake(function(){
                 var promise = new Promise();
-                promise.complete(barcode_data);
+                promise.complete(barcodeData);
                 return promise;
             });
         });
@@ -230,11 +230,11 @@ describe('Patient Information Functionality', function(){
         it('On pressing the scan button a modal is shown with input box and input box is focused', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            var triggerButton = testArea.getElementsByClassName('scan')[0];
             // fire a click event on the scan button
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            trigger_button.dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            triggerButton.dispatchEvent(clickEvent);
             expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
             // check the modal is called
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -251,11 +251,11 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
-            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            var triggerButton = testArea.getElementsByClassName('scan')[0];
             // get input showing
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            trigger_button.dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            triggerButton.dispatchEvent(clickEvent);
             expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
             // fire change event on input
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -264,10 +264,10 @@ describe('Patient Information Functionality', function(){
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
             var input = document.getElementsByClassName('barcode_scan')[0];
             input.value = '123412341234,123445';
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('keypress', false, true, false);
-            change_event.keyCode = 13;
-            input.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('keypress', false, true, false);
+            changeEvent.keyCode = 13;
+            input.dispatchEvent(changeEvent);
             // test function it calls asks server using hospital number
             expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
             expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
@@ -277,11 +277,11 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            var triggerButton = testArea.getElementsByClassName('scan')[0];
             // get input showing
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            trigger_button.dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            triggerButton.dispatchEvent(clickEvent);
             expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
             // fire change event on input
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -290,10 +290,10 @@ describe('Patient Information Functionality', function(){
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
             var input = document.getElementsByClassName('barcode_scan')[0];
             input.value = '123412341234,123445';
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('keypress', false, true, false);
-            change_event.keyCode = 116;
-            input.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('keypress', false, true, false);
+            changeEvent.keyCode = 116;
+            input.dispatchEvent(changeEvent);
             // go get data from server
             expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
             expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
@@ -309,11 +309,11 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            var triggerButton = testArea.getElementsByClassName('scan')[0];
             // get input showing
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            trigger_button.dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            triggerButton.dispatchEvent(clickEvent);
             expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
             // fire change event on input
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -322,25 +322,25 @@ describe('Patient Information Functionality', function(){
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
             var input = document.getElementsByClassName('barcode_scan')[0];
             input.value = '';
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('keypress', false, true, false);
-            change_event.keyCode = 116;
-            input.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('keypress', false, true, false);
+            changeEvent.keyCode = 116;
+            input.dispatchEvent(changeEvent);
             // go get data from server
             expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
             expect(NHMobileBarcode.prototype.process_request).not.toHaveBeenCalled();
         });
 
         it('It receives patient\'s data, without activities and render it', function(){
-            barcode_data.data.activities = [];
+            barcodeData.data.activities = [];
             spyOn(NHMobileBarcode.prototype, 'trigger_button_click').and.callThrough();
             spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
             spyOn(NHMobileBarcode.prototype, 'barcode_scanned').and.callThrough();
-            var trigger_button = test_area.getElementsByClassName('scan')[0];
+            var triggerButton = testArea.getElementsByClassName('scan')[0];
             // get input showing
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            trigger_button.dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            triggerButton.dispatchEvent(clickEvent);
             expect(NHMobileBarcode.prototype.trigger_button_click).toHaveBeenCalled();
             // fire change event on input
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
@@ -349,10 +349,10 @@ describe('Patient Information Functionality', function(){
             expect(NHModal.prototype.create_dialog.calls.argsFor(0)[3]).toBe('<div class="block"><textarea name="barcode_scan" class="barcode_scan"></textarea></div>');
             var input = document.getElementsByClassName('barcode_scan')[0];
             input.value = '123412341234,123445';
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('keypress', false, true, false);
-            change_event.keyCode = 116;
-            input.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('keypress', false, true, false);
+            changeEvent.keyCode = 116;
+            input.dispatchEvent(changeEvent);
             // go get data from server
             expect(NHMobileBarcode.prototype.barcode_scanned).toHaveBeenCalled();
             expect(NHMobileBarcode.prototype.process_request).toHaveBeenCalled();
@@ -365,8 +365,8 @@ describe('Patient Information Functionality', function(){
         });
 
         afterEach(function(){
-            var test_area = document.getElementById('test');
-            test_area.innerHTML = '';
+            var testArea = document.getElementById('test');
+            testArea.innerHTML = '';
             if(barcode != null){
                 barcode = null;
             }
@@ -441,7 +441,7 @@ describe('Patient Information Functionality', function(){
         it('Loads NEWS by default', function() {
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
@@ -449,7 +449,7 @@ describe('Patient Information Functionality', function(){
                             obs: []
                     }
                 });
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
@@ -460,7 +460,7 @@ describe('Patient Information Functionality', function(){
         it('Hides tabs and shows message when no observation data found', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
@@ -468,7 +468,7 @@ describe('Patient Information Functionality', function(){
                             obs: []
                     }
                 });
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
@@ -479,6 +479,85 @@ describe('Patient Information Functionality', function(){
             var controls = document.getElementById('controls');
             expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
+            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+        });
+
+        it('Hides tabs and shows message when no observation data found - from table tab on other obs', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+                var promise = new Promise();
+                var emptyGraph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(emptyGraph);
+                return promise;
+            });
+
+            // initial - set to neuro
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var initialChartSelect = document.getElementById('chart_select');
+            initialChartSelect.value = 'neuro';
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            initialChartSelect.dispatchEvent(changeEvent);
+
+
+            // press table tab
+            var tabs = document.getElementsByClassName('tabs');
+            var table_tab = tabs[0].getElementsByTagName('a')[1];
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            table_tab.dispatchEvent(clickEvent);
+
+            // select chart
+            var chartSelect = document.getElementById('chart_select');
+            chartSelect.value = 'ews';
+
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
+
+
+            // assert
+            var tabs = document.getElementsByClassName('tabs');
+            expect(tabs[0].style.display).toBe('none');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+            var graphContent = document.getElementById('graph-content');
+            expect(graphContent.style.display).toBe('block');
+            var chart = document.getElementById('chart');
+            expect(chart.style.display).toBe('block');
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
         });
 
@@ -520,6 +599,10 @@ describe('Patient Information Functionality', function(){
             expect(tabs[0].style.display).toBe('none');
             var controls = document.getElementById('controls');
             expect(controls.style.display).toBe('block');
+            var chartEl = document.getElementById('chart');
+            expect(chartEl.style.display).toBe('block');
+            var tableEl = document.getElementById('table-content');
+            expect(tableEl.style.display).toBe('block');
         });
 
         it('Shows tabs, form controls and chart when observation data is found', function(){
@@ -550,7 +633,7 @@ describe('Patient Information Functionality', function(){
                     ]
                 }
                var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
@@ -558,7 +641,7 @@ describe('Patient Information Functionality', function(){
                        obs: obs
                     }
                 });
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'changeChart').and.callThrough();
@@ -574,12 +657,12 @@ describe('Patient Information Functionality', function(){
             var chart = document.getElementById('chart');
             expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
 
-            var chart_select = document.getElementById('chart_select');
-            chart_select.value = 'neuro';
+            var chartSelect = document.getElementById('chart_select');
+            chartSelect.value = 'neuro';
 
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('change', false, true, false);
-            chart_select.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
 
             // After change to obs with data
             expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
@@ -591,11 +674,11 @@ describe('Patient Information Functionality', function(){
             var chart = document.getElementById('chart');
             expect(chart.innerHTML).not.toBe('<h2>No observation data available for patient</h2>');
 
-            chart_select.value = 'ews';
+            chartSelect.value = 'ews';
 
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('change', false, true, false);
-            chart_select.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
 
             // After change to obs with no data
             expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
@@ -612,7 +695,7 @@ describe('Patient Information Functionality', function(){
         it('Fetches data for the selected observation when the \'See observation data for:\' dropdown is changed', function(){
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
@@ -620,7 +703,7 @@ describe('Patient Information Functionality', function(){
                             obs: []
                     }
                 });
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             spyOn(NHMobilePatient.prototype, 'changeChart').and.callThrough();
@@ -628,12 +711,12 @@ describe('Patient Information Functionality', function(){
             nhpatient = new NHMobilePatient();
             expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
 
-            var chart_select = document.getElementById('chart_select');
-            chart_select.value = 'neuro';
+            var chartSelect = document.getElementById('chart_select');
+            chartSelect.value = 'neuro';
 
-            var change_event = document.createEvent('CustomEvent');
-            change_event.initCustomEvent('change', false, true, false);
-            chart_select.dispatchEvent(change_event);
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
 
             expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
             expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro')
@@ -715,34 +798,34 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobilePatient.prototype, 'handleTabs').and.callThrough();
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
                     data: {
                         obs: []
                     }});
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             nhpatient = new NHMobilePatient();
-            var test_buttons = document.getElementsByClassName('tab');
-            expect(test_buttons[0].classList.contains('selected')).toBe(true);
-            expect(test_buttons[1].classList.contains('selected')).toBe(false);
-            var click_event1 = document.createEvent('CustomEvent');
-            click_event1.initCustomEvent('click', false, true, false);
-            test_buttons[1].dispatchEvent(click_event1);
+            var testButtons = document.getElementsByClassName('tab');
+            expect(testButtons[0].classList.contains('selected')).toBe(true);
+            expect(testButtons[1].classList.contains('selected')).toBe(false);
+            var clickEvent1 = document.createEvent('CustomEvent');
+            clickEvent1.initCustomEvent('click', false, true, false);
+            testButtons[1].dispatchEvent(clickEvent1);
             expect(NHMobilePatient.prototype.handleTabs).toHaveBeenCalled();
-            expect(test_buttons[0].classList.contains('selected')).toBe(false);
-            expect(test_buttons[1].classList.contains('selected')).toBe(true);
+            expect(testButtons[0].classList.contains('selected')).toBe(false);
+            expect(testButtons[1].classList.contains('selected')).toBe(true);
             expect(document.getElementById('graph-content').style.display).toBe('none');
             expect(document.getElementById('table-content').style.display).toBe('block');
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            test_buttons[0].dispatchEvent(click_event);
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            testButtons[0].dispatchEvent(clickEvent);
             expect(NHMobilePatient.prototype.handleTabs.calls.count()).toBe(2);
-            expect(test_buttons[0].classList.contains('selected')).toBe(true);
-            expect(test_buttons[1].classList.contains('selected')).toBe(false);
+            expect(testButtons[0].classList.contains('selected')).toBe(true);
+            expect(testButtons[1].classList.contains('selected')).toBe(false);
             expect(document.getElementById('graph-content').style.display).toBe('block');
             expect(document.getElementById('table-content').style.display).toBe('none');
         });
@@ -753,27 +836,27 @@ describe('Patient Information Functionality', function(){
             spyOn(NHMobilePatient.prototype, 'drawGraph');
             spyOn(NHMobilePatient.prototype, 'call_resource').and.callFake(function(){
                 var promise = new Promise();
-                var empty_graph = new NHMobileData({
+                var emptyGraph = new NHMobileData({
                     status: 'success',
                     title: 'Test Patient',
                     description: 'Observations for Test Patient',
                     data: {
                         obs: []
                     }});
-                promise.complete(empty_graph);
+                promise.complete(emptyGraph);
                 return promise;
             });
             nhpatient = new NHMobilePatient();
-            var test_button = document.getElementsByClassName('obs')[0];
-            var click_event = document.createEvent('CustomEvent');
-            click_event.initCustomEvent('click', false, true, false);
-            test_button.dispatchEvent(click_event);
+            var testButton = document.getElementsByClassName('obs')[0];
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            testButton.dispatchEvent(clickEvent);
             var body = document.getElementsByTagName('body')[0];
             expect(NHMobilePatient.prototype.showObsMenu).toHaveBeenCalled();
             expect(NHMobilePatient.prototype.showObsMenu.calls.count()).toBe(1);
             expect(NHModal.prototype.create_dialog).toHaveBeenCalled();
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[1]).toBe('obs_menu');
-            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ' + patient_info_data.data.full_name);
+            expect(NHModal.prototype.create_dialog.calls.mostRecent().args[2]).toBe('Pick an observation for ' + patientInfoData.data.full_name);
             expect(NHModal.prototype.create_dialog.calls.mostRecent().args[3]).toBe('<ul class="menu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>');
         });
 
@@ -796,9 +879,9 @@ describe('Patient Information Functionality', function(){
         if (test != null) {
             test.parentNode.removeChild(test);
         }
-        var full_screen_modals = document.getElementsByClassName('full-modal');
-        for(var i = 0; i < full_screen_modals.length; i++){
-            var modal = full_screen_modals[i];
+        var fullScreenModals = document.getElementsByClassName('full-modal');
+        for(var i = 0; i < fullScreenModals.length; i++){
+            var modal = fullScreenModals[i];
             modal.parentNode.removeChild(modal);
         }
     });

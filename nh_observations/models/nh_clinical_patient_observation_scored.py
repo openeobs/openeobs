@@ -29,7 +29,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
             record.score = score
             _logger.debug(
                 "%s activity_id=%s gcs_id=%s score: %s"
-                % (self._description, self.activity_id.id, self.id, score)
+                % (self.get_description(), self.activity_id.id, self.id, score)
             )
 
     score = fields.Integer(
@@ -158,7 +158,7 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         Validation occurs client-side and if it fails the values seem to be
         silently omitted from the view.
 
-        This method intercepts the retrival of the field definition and
+        This method intercepts the retrieval of the field definition and
         converts the type of the fields to 'text', effectively allowing the
         converted score value of the field (which is a string representation
         of a number) to pass validation.
@@ -201,3 +201,28 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
             'score': True,
         })
         return form_description
+
+    def convert_field_values_to_labels(self, obs):
+        """
+        Convert the values in the passed dictionary to their corresponding
+        labels.
+
+        NOTE: Only converts fields whose names are not in the `_scored` class
+        variable. This is a temporary implementation to get the functionality
+        working for GCS / Neurological.
+
+        :param obs:
+        :type obs: list
+        """
+        scored_fields = [] if not hasattr(self, '_scored') else self._scored
+        field_names = [field_name for field_name in self._required
+                       if field_name not in scored_fields]
+        for ob in obs:
+            for field_name in field_names:
+                if field_name in ob:
+                    field_value = ob[field_name]
+                    if field_value:
+                        field_value_label = self.get_field_value_label(
+                            field_name, field_value
+                        )
+                        ob[field_name] = field_value_label

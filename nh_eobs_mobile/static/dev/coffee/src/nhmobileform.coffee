@@ -45,6 +45,17 @@ class NHMobileForm extends NHMobile
               when 'radio' then input.addEventListener('click', (e) ->
                 self.handle_event(e, self.trigger_actions, true)
               )
+              when 'checkbox'
+                input.addEventListener('click', (e) ->
+                  self.handle_event(e, self.validate, false)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, false)
+                )
+                input.addEventListener('change', (e) ->
+                  self.handle_event(e, self.validate, false)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, false)
+                )
               when 'text'
                 input.addEventListener('change', (e) ->
                   self.handle_event(e, self.validate, true)
@@ -59,6 +70,12 @@ class NHMobileForm extends NHMobile
           when 'button' then input.addEventListener('click', (e) ->
             self.handle_event(e, self.show_reference, true)
           )
+          when 'textarea'
+            input.addEventListener('change', (e) ->
+              self.handle_event(e, self.validate, true)
+              e.handled = false
+              self.handle_event(e, self.trigger_actions, true)
+            )
 
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
@@ -115,7 +132,7 @@ class NHMobileForm extends NHMobile
       input.value
     @reset_input_errors(input)
     if typeof(value) isnt 'undefined' and value isnt ''
-      if input.getAttribute('type') is 'number' and not isNaN(value)
+      if input_type is 'number' and not isNaN(value)
         @validate_number_input(input)
         if input.getAttribute('data-validation')
           criterias = eval(input.getAttribute('data-validation'))
@@ -141,7 +158,7 @@ class NHMobileForm extends NHMobile
               @.add_input_errors(other_input, 'Please enter a value')
           @validate_number_input(other_input)
           @validate_number_input(target_input)
-      if input.getAttribute('type') is 'text'
+      if input_type is 'text'
         if input.getAttribute('pattern')
           regex_res = input.validity.patternMismatch
           if regex_res
@@ -177,9 +194,16 @@ class NHMobileForm extends NHMobile
 #    input = if event.srcElement then event.srcElement else event.target
     input = event.src_el
     value = input.value
-    if input.getAttribute('type') is 'radio'
+    type = input.getAttribute('type')
+    if type is 'radio'
       for el in document.getElementsByName(input.name)
         if el.value isnt value
+          el.classList.add('exclude')
+        else
+          el.classList.remove('exclude')
+    if type is 'checkbox'
+      for el in document.getElementsByName(input.name)
+        if not el.checked
           el.classList.add('exclude')
         else
           el.classList.remove('exclude')
@@ -325,8 +349,19 @@ class NHMobileForm extends NHMobile
 
   submit_observation: (self, elements, endpoint, args, partial = false) =>
     # turn form data in to serialised string and ping off to server
-    serialised_string = (el.name+'='+encodeURIComponent(el.value) \
-      for el in elements).join("&")
+    formValues = {}
+    for el in elements
+      type = el.getAttribute('type')
+      if not formValues.hasOwnProperty(el.name)
+        if type is 'checkbox'
+          formValues[el.name] = [el.value]
+        else
+          formValues[el.name] = el.value
+      else
+        if type is 'checkbox'
+          formValues[el.name].push(el.value)
+    serialised_string = (key+'='+encodeURIComponent(value) \
+      for key, value of formValues).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
@@ -433,14 +468,14 @@ class NHMobileForm extends NHMobile
     window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
 
   reset_input_errors: (input) ->
-    container_el = input.parentNode.parentNode
+    container_el = @.findParentWithClass(input, 'block')
     error_el = container_el.getElementsByClassName('errors')[0]
     container_el.classList.remove('error')
     input.classList.remove('error')
     error_el.innerHTML = ''
 
   add_input_errors: (input, error_string) ->
-    container_el = input.parentNode.parentNode
+    container_el = @.findParentWithClass(input, 'block')
     error_el = container_el.getElementsByClassName('errors')[0]
     container_el.classList.add('error')
     input.classList.add('error')
@@ -452,21 +487,25 @@ class NHMobileForm extends NHMobile
     el.style.display = 'none'
     inp = document.getElementById(field)
     inp.classList.add('exclude')
+    inp.setAttribute('data-necessary', 'false')
 
   show_triggered_elements: (field) ->
     el = document.getElementById('parent_'+field)
     el.style.display = 'block'
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
+    inp.setAttribute('data-necessary', 'true')
 
   disable_triggered_elements: (field) ->
     inp = document.getElementById(field)
     inp.classList.add('exclude')
+    inp.setAttribute('data-necessary', 'false')
     inp.disabled = true
 
   enable_triggered_elements: (field) ->
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
+    inp.setAttribute('data-necessary', 'true')
     inp.disabled = false
 
   process_partial_submit: (event, self) ->
@@ -499,6 +538,13 @@ class NHMobileForm extends NHMobile
 
   handle_display_partial_reasons: (event) ->
     this.display_partial_reasons(this)
+
+  findParentWithClass: (el, className) ->
+    while el.parentNode
+      el = el.parentNode
+      if className in el.classList
+        return el
+    return null
 
 ### istanbul ignore if ###
 if !window.NH

@@ -68,8 +68,8 @@ function drawNeurologicalChart(settings, serverData){
     eyesGraph.options.label = "";
     eyesGraph.options.measurement = "";
     eyesGraph.options.title = "Coma Scale - Eyes";
-    eyesGraph.axes.y.min = 1;
-    eyesGraph.axes.y.max = 4;
+    eyesGraph.axes.y.min = 0.5;
+    eyesGraph.axes.y.max = 4.5;
     eyesGraph.options.normal.min = 0;
     eyesGraph.options.normal.max = 0;
     eyesGraph.style.dimensions.height = 250;
@@ -82,8 +82,8 @@ function drawNeurologicalChart(settings, serverData){
     verbalGraph.options.label = "";
     verbalGraph.options.measurement = "";
     verbalGraph.options.title = "Coma Scale - Verbal";
-    verbalGraph.axes.y.min = 1;
-    verbalGraph.axes.y.max = 5;
+    verbalGraph.axes.y.min = 0.5;
+    verbalGraph.axes.y.max = 5.5;
     verbalGraph.options.normal.min = 0;
     verbalGraph.options.normal.max = 0;
     verbalGraph.style.dimensions.height = 250;
@@ -97,8 +97,8 @@ function drawNeurologicalChart(settings, serverData){
     motorGraph.options.label = "";
     motorGraph.options.measurement = "";
     motorGraph.options.title = "Coma Scale - Motor";
-    motorGraph.axes.y.min = 1;
-    motorGraph.axes.y.max = 6;
+    motorGraph.axes.y.min = 0.5;
+    motorGraph.axes.y.max = 6.5;
     motorGraph.options.normal.min = 0;
     motorGraph.options.normal.max = 0;
     motorGraph.style.dimensions.height = 250;
@@ -115,9 +115,9 @@ function drawNeurologicalChart(settings, serverData){
     eyesFocus.graphs.push(eyesGraph);
     verbalFocus.graphs.push(verbalGraph);
     motorFocus.graphs.push(motorGraph);
-    eyesFocus.title = "Coma Scale - Eyes Open";
-    verbalFocus.title = "Coma Scale - Best Verbal Response";
-    motorFocus.title = "Coma Scale - Best Motor Response";
+    eyesFocus.title = "Coma Scale - Eyes";
+    verbalFocus.title = "Coma Scale - Verbal";
+    motorFocus.title = "Coma Scale - Motor";
     if(!containersInDom){
         eyesFocus.style.margin.top = 70;
         verbalFocus.style.margin.top = 70;
@@ -145,7 +145,6 @@ function drawNeurologicalChart(settings, serverData){
 }
 
 function drawNeurologicalTable(settings, serverData){
-    var obs = serverData.reverse();
     var tableEl = new window.NH.NHGraphLib("#table");
     tableEl.table = {
         element: "#table",
@@ -220,6 +219,6 @@ function drawNeurologicalTable(settings, serverData){
             }
         ]
     };
-    tableEl.data.raw = processNeurologicalData(obs);
+    tableEl.data.raw = processNeurologicalData(serverData);
     tableEl.draw();
 }

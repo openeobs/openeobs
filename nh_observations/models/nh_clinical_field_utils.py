@@ -13,7 +13,15 @@ class FieldUtils(models.AbstractModel):
 
     @classmethod
     def is_obs_field(self, field):
-        return isinstance(field, nh_obs_fields.Selection)
+        fields = (
+            nh_obs_fields.Selection,
+            nh_obs_fields.Text,
+            nh_obs_fields.Integer,
+            nh_obs_fields.One2many,
+            nh_obs_fields.Many2one,
+            nh_obs_fields.Many2Many
+        )
+        return isinstance(field, fields)
 
     def get_obs_fields_from_model(self, model):
         fields = model._fields.values()

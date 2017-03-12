@@ -41,7 +41,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                    'blood_pressure_diastolic', 'pulse_rate', 'flow_rate',
                    'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap',
                    'niv_epap']
-    _description = "NEWS Observation"
+    _description = "NEWS"
 
     _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': '31023'}
     _O2_RANGES = {'ranges': [91, 93, 95], 'scores': '3210'}

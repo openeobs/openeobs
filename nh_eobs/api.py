@@ -26,48 +26,6 @@ class nh_eobs_api(orm.AbstractModel):
     # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
 
-    # TODO: EOBS-1004 Refactor nh_eobs
-    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
-    # 'type' is the suffix of an observation model name.
-    # e.g. 'nh.clinical.patient.observation.ews'
-    #
-    # 'name' is the label that will appear in the UI when selecting the type of
-    # observation to perform.
-    _active_observations = [
-        {
-            'type': 'ews',
-            'name': 'NEWS'
-        },
-        {
-            'type': 'height',
-            'name': 'Height'
-        },
-        {
-            'type': 'weight',
-            'name': 'Weight'
-        },
-        {
-            'type': 'blood_product',
-            'name': 'Blood Product'
-        },
-        {
-            'type': 'blood_sugar',
-            'name': 'Blood Sugar'
-        },
-        {
-            'type': 'stools',
-            'name': 'Bristol Stool Scale'
-        },
-        {
-            'type': 'gcs',
-            'name': 'Glasgow Coma Scale (GCS)'
-        },
-        {
-            'type': 'pbp',
-            'name': 'Postural Blood Pressure'
-        }
-    ]
-
     def _get_activity_type(self, cr, uid, activity_type, observation=False,
                            context=None):
         model_pool = self.pool['ir.model']
@@ -559,7 +517,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of all observation types
         :rtype: list
         """
-
         activity_pool = self.pool['nh.activity']
         spell_id = activity_pool.search(
             cr, uid, [['location_id.user_ids', 'in', [uid]],
@@ -568,8 +525,28 @@ class nh_eobs_api(orm.AbstractModel):
                       ['data_model', '=', 'nh.clinical.spell']],
             context=context)
         if spell_id:
-            return self._active_observations
+            return self._get_active_observations(cr, uid)
         return []
+
+    # TODO EOBS-1004: Refactor nh_eobs
+    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
+    @api.model
+    def _get_active_observations(self):
+        active_observations = []
+        obs_prefix = 'nh.clinical.patient.observation.'
+        obs_models = self.get_observation_models()
+        for obs_model in obs_models:
+            model = self.env[obs_model]
+            # 'type' is the suffix of an observation model name.
+            # e.g. 'nh.clinical.patient.observation.ews'
+            #
+            # 'name' is the label that will appear in the UI when selecting
+            # the type of observation to perform.
+            active_observations.append({
+                'type': obs_model.replace(obs_prefix, ''),
+                'name': model.get_description(append_observation=False)
+            })
+        return active_observations
 
     @api.model
     def get_data_visualisation_resources(self):
@@ -580,8 +557,7 @@ class nh_eobs_api(orm.AbstractModel):
         :return: list of JS file URLs used for drawing graphs
         """
         obs_prefix = 'nh.clinical.patient.observation.'
-        mod_list = [
-            mod for mod in self.env.registry.models if obs_prefix in mod]
+        mod_list = self.get_observation_models()
         resource_list = []
         for mod in mod_list:
             model = self.env[mod]
@@ -592,10 +568,18 @@ class nh_eobs_api(orm.AbstractModel):
                     {
                         'data_model': mod.replace(obs_prefix, ''),
                         'resource': mod_data_vis,
-                        'model_name': model._description
+                        'model_name': model.get_description(
+                            append_observation=False
+                        )
                     }
                 )
         return resource_list
+
+    def get_observation_models(self):
+        obs_prefix = 'nh.clinical.patient.observation.'
+        observation_model_list = [mod for mod in self.env.registry.models
+                                  if obs_prefix in mod]
+        return observation_model_list
 
     # # # # # # #
     #  PATIENTS #
@@ -1118,8 +1102,11 @@ class nh_eobs_api(orm.AbstractModel):
                   ('data_model', '!=', 'nh.clinical.spell')]
 
         obs_ids = model_pool.search(cr, uid, domain, context=context)
-        observations = model_pool.read_labels(cr, uid, obs_ids, [],
-                                              context=context)
+        observations = []
+        if obs_ids:
+            observations = model_pool.get_formatted_obs(
+                cr, uid, obs_ids, context=context
+            )
         return observations
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,

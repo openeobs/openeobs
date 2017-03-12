@@ -28,6 +28,24 @@ class NHClinicalWardboard(orm.Model):
         flags = spell_model.read(cr, uid, ids, ['obs_stop'], context=context)
         return dict([(rec.get('id'), rec.get('obs_stop')) for rec in flags])
 
+    def _get_rapid_tranq_from_spell(
+            self, cr, uid, ids, field_name, arg, context=None):
+        """
+        Function field to return rapid_tranq from spell
+
+        :param cr: Odoo cursor
+        :param uid: User ID of user doing operation
+        :param ids: Ids to read
+        :param field_name: name of field
+        :param arg: arguments
+        :param context: Odoo context
+        :return: rapid_tranq flag from spell
+        """
+        spell_model = self.pool['nh.clinical.spell']
+        flags = spell_model.read(
+            cr, uid, ids, ['rapid_tranq'], context=context)
+        return dict([(rec.get('id'), rec.get('rapid_tranq')) for rec in flags])
+
     acuity_selection = [
         ('NoScore', 'New Pt / Obs Restart'),
         ('High', 'High Risk'),
@@ -40,7 +58,9 @@ class NHClinicalWardboard(orm.Model):
 
     _columns = {
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean'),
-        'acuity_index': fields.text('Index on Acuity Board')
+        'acuity_index': fields.text('Index on Acuity Board'),
+        'rapid_tranq': fields.function(
+            _get_rapid_tranq_from_spell, type='boolean')
     }
 
     @api.multi
@@ -331,8 +351,9 @@ class NHClinicalWardboard(orm.Model):
             ], context=context)
             if spell_id:
                 spell_id = spell_id[0]
-                spell = spell_model.read(cr, user, spell_id, ['obs_stop'],
-                                         context=context)
+                spell = spell_model.read(
+                    cr, user, spell_id, ['obs_stop', 'rapid_tranq'],
+                    context=context)
                 if spell.get('obs_stop'):
                     pme_model = self.pool[
                         'nh.clinical.patient_monitoring_exception']
@@ -345,6 +366,8 @@ class NHClinicalWardboard(orm.Model):
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
+                elif 'rapid_tranq' in spell:
+                    rec['rapid_tranq'] = spell.get('rapid_tranq')
                 elif rec.get('acuity_index') == 'Refused':
                     rec['frequency'] = 'Refused - {0}'.format(rec['frequency'])
                     rec['next_diff'] = 'Refused - {0}'.format(rec['next_diff'])

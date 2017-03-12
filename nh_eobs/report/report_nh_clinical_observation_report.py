@@ -238,7 +238,8 @@ class ObservationReport(models.AbstractModel):
         )
         self.add_exclude_placement_cancel_reason_parameter_to_domain(domain)
 
-        activity_ids = activity_model.search(cr, uid, domain)
+        activity_ids = activity_model.search(cr, uid, domain,
+                                             order='date_terminated asc')
         activity_data = activity_model.read(cr, uid, activity_ids)
         self.add_user_key(activity_data)
 

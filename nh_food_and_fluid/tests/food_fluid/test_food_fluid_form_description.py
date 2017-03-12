@@ -29,7 +29,8 @@ class TestFoodFluidFormDescription(TransactionCase):
         ]
         self.assertEqual(entry.get('name'), 'recorded_concerns')
         self.assertEqual(entry.get('type'), 'multiselect')
-        self.assertEqual(entry.get('label'), 'Recorded Concerns')
+        self.assertEqual(entry.get('label'), 'Recorded Concern')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
 
     def test_dietary_needs_dict(self):
@@ -46,6 +47,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('name'), 'dietary_needs')
         self.assertEqual(entry.get('type'), 'multiselect')
         self.assertEqual(entry.get('label'), 'Consider Special Dietary Needs')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
 
     def test_fluid_taken_dict(self):
@@ -56,6 +58,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         entry = self.form_desc[2]
         self.assertEqual(entry.get('name'), 'fluid_taken')
         self.assertEqual(entry.get('type'), 'integer')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual(entry.get('min'), 0)
         self.assertEqual(entry.get('max'), 5000)
         self.assertEqual(
@@ -66,9 +69,9 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(reference.get('url'),
                          '/nh_food_and_fluid/static/src/html/fluid_taken.html')
         self.assertEqual(reference.get('title'),
-                         'Fluid Taken Guidelines')
+                         'Fluid Taken Guidance')
         self.assertEqual(reference.get('label'),
-                         'Fluid Taken Guidelines')
+                         'Fluid Taken Guidance')
 
     def test_fluid_description_dict(self):
         """
@@ -78,6 +81,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         entry = self.form_desc[3]
         self.assertEqual(entry.get('name'), 'fluid_description')
         self.assertEqual(entry.get('type'), 'text')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual(entry.get('label'), 'Fluid Description')
 
     def test_food_taken_dict(self):
@@ -87,6 +91,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         entry = self.form_desc[4]
         self.assertEqual(entry.get('name'), 'food_taken')
         self.assertEqual(entry.get('type'), 'text')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual(entry.get('label'), 'Food Taken')
 
     def test_food_fluid_rejected_dict(self):
@@ -97,6 +102,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         entry = self.form_desc[5]
         self.assertEqual(entry.get('name'), 'food_fluid_rejected')
         self.assertEqual(entry.get('type'), 'text')
+        self.assertEqual(entry.get('necessary'), 'false')
         self.assertEqual(
             entry.get('label'), 'Food and Fluid Offered but Rejected')
 
@@ -116,8 +122,9 @@ class TestFoodFluidFormDescription(TransactionCase):
         ]
         self.assertEqual(entry.get('name'), 'passed_urine')
         self.assertEqual(entry.get('type'), 'selection')
+        self.assertEqual(entry.get('necessary'), 'true')
+        self.assertTrue(entry.get('required'))
         self.assertEqual(entry.get('label'), 'Passed Urine')
-        self.assertTrue(entry.get('mandatory'))
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
 
     def test_bowels_open_dict(self):
@@ -149,7 +156,8 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('name'), 'bowels_open')
         self.assertEqual(entry.get('type'), 'selection')
         self.assertEqual(entry.get('label'), 'Bowels Open')
-        self.assertTrue(entry.get('mandatory'))
+        self.assertEqual(entry.get('necessary'), 'true')
+        self.assertTrue(entry.get('required'))
         self.assertEqual([rec[1] for rec in entry.get('selection')], options)
         reference = entry.get('reference')
         self.assertIsNotNone(reference)
@@ -159,6 +167,6 @@ class TestFoodFluidFormDescription(TransactionCase):
             '/nh_stools/static/src/img/bristol_stools.png'
         )
         self.assertEqual(reference.get('title'),
-                         'Bristol Stools Reference Chart')
+                         'Bristol Stools Type Chart')
         self.assertEqual(reference.get('label'),
-                         'Bristol Stools Reference Chart')
+                         'Bristol Stools Type Chart')

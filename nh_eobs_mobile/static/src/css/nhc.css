@@ -390,6 +390,12 @@ Markup:
   <dt>Definition</dt>
   <dd>Description</dd>
 </dl>
+<dl class="inline">
+  <dt>Definition</dt>
+  <dd>Description</dd>
+  <dt>Defintion</dt>
+  <dd>Description</dd>
+</dl>
 
 Styleguide 1.3
 */
@@ -449,6 +455,14 @@ p {
   margin-top: 0.7em;
   margin-bottom: 0.7em;
 }
+dl.inline dt,
+dl.inline dd {
+  float: left;
+}
+dl.inline dt {
+  font-weight: bold;
+  margin-right: 5%;
+}
 dd {
   -webkit-margin-start: 0;
 }
@@ -480,10 +494,12 @@ sub {
 sub {
   top: 0.4em;
 }
-@media screen and (max-width: 480px) {
-  body {
-    font-size: 4.17vw;
-  }
+p.food_fluid_period {
+  text-align: right;
+}
+p.food_fluid_period strong {
+  float: left;
+  text-align: left;
 }
 /*
 
@@ -2166,6 +2182,25 @@ Markup:
       </div>
     </a>
   </li>
+  <li class="status-alert">
+    <div class="status-flag">
+      Rapid Tranquilisation
+    </div>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient 5</strong><br>
+          <em>Bed 05, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
 </ul>
 
 Styleguide 2.2.0
@@ -2174,6 +2209,15 @@ Styleguide 2.2.0
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.tasklist li.status-alert {
+  border: 3px solid black;
+}
+.tasklist li .status-flag {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 5%;
 }
 .tasklist li a {
   display: block;
@@ -2470,17 +2514,17 @@ text.title {
   font-weight: bold;
   font-size: 2em;
 }
-circle .point {
+circle.point {
   fill: black;
   stroke: black;
   stroke-width: 1px;
 }
-circle .empty_point {
+circle.empty_point {
   fill: white;
   stroke: black;
   stroke-width: 1px;
 }
-rect .empty_point {
+rect.empty_point {
   fill: white;
   stroke: black;
   stroke-width: 1px;
@@ -2727,6 +2771,19 @@ Styleguide 2.6.1
 #table-content thead th,
 #table-content tbody td {
   padding: 0.5em 10px;
+}
+#table-content .nested-first {
+  border-left: 1px solid black;
+}
+#table-content .nested-last {
+  border-right: 1px solid black;
+}
+#table-content .group-header {
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+}
+#table-content .group-header:first-child {
+  border-left: none;
 }
 /*
 

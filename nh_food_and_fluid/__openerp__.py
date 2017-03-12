@@ -9,16 +9,22 @@
     'description': """    """,
     'author': 'BJSS',
     'website': 'http://www.bjss.com/',
-    'depends': ['nh_observations'],
+    'depends': [
+        'nh_observations',
+        'nh_eobs'
+    ],
     'data': [
         'security/ir.model.access.csv',
         'data/recorded_concerns.xml',
-        'data/dietary_needs.xml'
+        'data/dietary_needs.xml',
+        'views/observation_report_template.xml',
+        'views/acuity_board_buttons.xml',
+        'views/static_file_include.xml'
     ],
     'demo': [],
     'css': [],
     'js': [],
-    'qweb': [],
+    'qweb': ['static/src/xml/chart.xml'],
     'images': [],
     'application': True,
     'installable': True,

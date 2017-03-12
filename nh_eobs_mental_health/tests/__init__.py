@@ -1,4 +1,4 @@
-from . import test_spell_obs_stop_property
+from .nh_clinical_spell import *
 from .nh_clinical_doctor_activities import *
 from .nh_clinical_notification_clinical_review import *
 from .nh_clinical_notification_clinical_review_frequency import *

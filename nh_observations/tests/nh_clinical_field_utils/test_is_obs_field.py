@@ -18,4 +18,4 @@ class TestIsObsField(TransactionCase):
     def test_odoo_field_returns_false(self):
         field = odoo_fields.Selection()
         is_obs_field = self.field_utils.is_obs_field(field)
-        self.assertTrue(is_obs_field)
+        self.assertFalse(is_obs_field)

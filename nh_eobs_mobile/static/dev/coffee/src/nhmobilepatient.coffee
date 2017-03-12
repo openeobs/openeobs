@@ -110,26 +110,35 @@ class NHMobilePatient extends NHMobile
     graphContent = document.getElementById("graph-content")
     controls = document.getElementById("controls")
     chartEl = document.getElementById(self.chart_element)
+    tableEl = document.getElementById(self.table_element)
     graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0]
+    activeTab =
+      graphTabs.getElementsByClassName("selected")[0].getAttribute('href')
     chartFuncName = "draw" + dataModel.capitalize() + "Chart"
     tableFuncName = "draw" + dataModel.capitalize() + "Table"
     if serverData.length > 0
-      controls.style.display = "block"
-      graphTabs.style.display = "block"
+      visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl]
+      for el in visualisation_els
+        el.style.display = "block"
       chartFunc = window[chartFuncName]
       tableFunc = window[tableFuncName]
       validChart = (typeof chartFunc is "function")
       validTable = (typeof tableFunc is "function")
-      if not validChart or not validTable
-        graphTabs.style.display = "none"
-      else
-        graphTabs.style.display = "block"
       if validChart
         chartFunc(self, serverData)
       if validTable
         tableFunc(self, serverData)
+      if not validChart or not validTable
+        graphTabs.style.display = "none"
+      else
+        graphTabs.style.display = "block"
+        if activeTab is "#graph-content"
+          tableEl.style.display = "none"
+        else
+          graphContent.style.display = "none"
     else
       controls.style.display = "none"
+      graphContent.style.display = "block"
       chartEl.innerHTML = "<h2>No observation data available for patient</h2>"
       graphTabs.style.display = "none"
 

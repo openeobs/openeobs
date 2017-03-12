@@ -19,7 +19,7 @@ class nh_clinical_patient_observation_neurovascular(orm.Model):
     _name = 'nh.clinical.patient.observation.neurovascular'
     _inherit = ['nh.clinical.patient.observation']
     _required = []
-    _description = "Neurovascular Observation"
+    _description = "Neurovascular"
     _limb_selection = [['la', 'Left Arm'], ['ra', 'Right Arm'],
                        ['ll', 'Left Leg'], ['rl', 'Right Leg']]
     _columns = {

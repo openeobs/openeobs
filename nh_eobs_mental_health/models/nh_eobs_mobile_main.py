@@ -1,7 +1,7 @@
-from openerp.osv import orm
-import openerp.modules as addons
 import openerp.addons.nh_eobs_mobile.controllers.main as mobile_controller
+import openerp.modules as addons
 from openerp.addons.nh_eobs_mobile.controllers.urls import URLS
+from openerp.osv import orm
 
 
 class NHEobsMobileMain(orm.AbstractModel):
@@ -9,6 +9,15 @@ class NHEobsMobileMain(orm.AbstractModel):
     _name = 'nh.eobs.mobile.mental'
 
     def process_patient_list(self, cr, uid, patient_list, context=None):
+        """
+        Process the patient list.
+
+        :param cr:
+        :param uid:
+        :param patient_list:
+        :param context:
+        :return:
+        """
         spell_model = self.pool['nh.clinical.spell']
         patient_ids = [patient.get('id') for patient in patient_list]
         spell_ids = spell_model.search(cr, uid, [
@@ -17,13 +26,16 @@ class NHEobsMobileMain(orm.AbstractModel):
         ], context=context)
         spells = spell_model.read(cr, uid, spell_ids, [
             'obs_stop',
+            'rapid_tranq',
             'patient_id'
         ], context=context)
         obs_stop = {}
+        rapid_tranq = {}
         for spell in spells:
             patient_id = spell.get('patient_id')
             if patient_id:
                 obs_stop[patient_id[0]] = spell.get('obs_stop')
+                rapid_tranq[patient_id[0]] = spell.get('rapid_tranq')
         for patient in patient_list:
             patient['url'] = '{0}{1}'.format(
                 URLS['single_patient'], patient['id'])
@@ -35,6 +47,7 @@ class NHEobsMobileMain(orm.AbstractModel):
                 patient['deadline_time'] = 'Observations Stopped'
             else:
                 patient['deadline_time'] = patient['next_ews_time']
+            patient['rapid_tranq'] = rapid_tranq.get(patient.get('id'), False)
             patient['summary'] = patient.get('summary', False)
             if patient.get('followers'):
                 followers = patient['followers']
