@@ -510,21 +510,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form_input['step'] = 0.1 if input_type is 'float' else 1
                 form_input['type'] = 'number'
                 form_input['number'] = True
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 form_input['min'] = str(form_input['min'])
             elif form_input['type'] == 'selection':
                 form_input['selection_options'] = []
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 for option in form_input['selection']:
                     opt = dict()
                     opt['value'] = '{0}'.format(option[0])
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
             elif form_input['type'] == 'text':
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
             elif form_input['type'] == 'meta':
                 score = 'score' in form_input
                 input_score = form_input['score']
@@ -921,13 +921,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form_input['step'] = 0.1 if input_type is 'float' else 1
                 form_input['type'] = 'number'
                 form_input['number'] = True
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 form_input['min'] = str(form_input['min'])
             elif form_input['type'] == 'selection':
                 form_input['selection_options'] = []
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 for option in form_input['selection']:
                     opt = dict()
                     opt['value'] = '{0}'.format(option[0])

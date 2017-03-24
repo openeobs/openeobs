@@ -95,6 +95,35 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             .format(self._name)
         )
 
+    def get_submission_response_data(self):
+        triggered_tasks = self.get_triggered_tasks()
+        response_data = {
+            'related_tasks': triggered_tasks, 'status': 1
+        }
+        return response_data
+
+    def get_triggered_tasks(self):
+        activity_model = self.env['nh.activity']
+        api_model = self.env['nh.clinical.api']
+
+        last_obs_activity = self.get_last_obs_activity(self.patient_id.id)
+        if not last_obs_activity:
+            return []
+        triggered_tasks = activity_model.search(
+            [('creator_id', '=', last_obs_activity.id)]
+        )
+
+        def open_accessible_non_obs(activity):
+            access = api_model.check_activity_access(activity.id)
+            is_not_ob = \
+                'nh.clinical.patient.observation' not in activity.data_model
+            is_open = activity.state not in ['completed', 'cancelled']
+            return access and is_open and is_not_ob
+
+        triggered_tasks = triggered_tasks.filtered(open_accessible_non_obs)
+        triggered_tasks_dict_list = triggered_tasks.read()
+        return triggered_tasks_dict_list
+
     def _is_partial(self, cr, uid, ids, field, args, context=None):
         """
         Determine if the observations with the passed IDs are partial or not.
@@ -184,6 +213,11 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         Odoo writing incorrect ``0`` values and then calls
         :meth:`create<openerp.models.Model.create>`.
 
+        Passing a field key with a falsey value will cause that value to be
+        excluded from the partial calculation due to the logic used, so don't
+        pass keys at all for fields that have not been submitted, even if they
+        are using falsey values.
+
         :returns: ``nh_clinical_patient_observation`` id.
         :rtype: int
         """
@@ -262,6 +296,10 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         of ``0`` (as Odoo interprets every numeric value as ``0`` when
         it finds ``null`` in the database) and fixes the return value
         accordingly.
+
+        Rounds all floats to n decimal places, where n is the number specified
+        in the digits tuple that is an attribute of the field definition on
+        the model.
 
         :returns: dictionary with the read values
         :rtype: dict
@@ -368,15 +406,36 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         return field_value
 
     @api.multi
-    def get_formatted_obs(self):
+    def get_formatted_obs(self, replace_zeros=False):
         """
         Get a dictionary of observation data formatted for display.
 
         :return:
         :rtype: dict
         """
-        observations = self.read_labels()
-        return observations
+        obs_dict_list = self.read_labels()
+        for obs_dict in obs_dict_list:
+            self._replace_falsey_values(obs_dict, replace_zeros=replace_zeros)
+        return obs_dict_list
+
+    @staticmethod
+    def _replace_falsey_values(obs_dict, replace_falses=True,
+                               replace_zeros=False):
+        """
+        Replaces falsey values with `None`, to represent a null value.
+        This is necessary because null values in the database are replaced with
+        falsey values by Odoo.
+
+        :param obs_dict:
+        :param replace_falses:
+        :param replace_zeros:
+        :return:
+        """
+        for key, value in obs_dict.items():
+            if replace_falses and value is False:
+                obs_dict[key] = None
+            if replace_zeros and value == 0:
+                obs_dict[key] = None
 
     def get_activity_location_id(self, cr, uid, activity_id, context=None):
         """
@@ -566,7 +625,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         return self.get_open_obs_activity(spell_id).data_ref
 
     def get_last_obs_activity(self, cr, uid, patient_id, context=None):
-        """ Get the activity for the last full observation made for the given
+        """ Get the activity for the last observation made for the given
         patient_id.
 
         :param cr:
@@ -631,130 +690,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :rtype: str
         """
         return None
-
-
-class NhClinicalPatientObservation_height(orm.Model):
-    """
-    Represents the action of measuring a
-    :class:`patient<base.nh_clinical_patient>` height.
-    """
-    _name = 'nh.clinical.patient.observation.height'
-    _inherit = ['nh.clinical.patient.observation']
-    _required = ['height']
-    _num_fields = ['height']
-    _description = "Height"
-    _columns = {
-        'height': fields.float('Height', digits=(1, 2)),
-    }
-    _form_description = [
-        {
-            'name': 'height',
-            'type': 'float',
-            'label': 'Height (m)',
-            'min': 0.1,
-            'max': 3.0,
-            'digits': [1, 1],
-            'initially_hidden': False
-        }
-    ]
-
-
-class nh_clinical_patient_observation_weight(orm.Model):
-    """
-    Represents the action of measuring a
-    :class:`patient<base.nh_clinical_patient>` weight.
-    """
-    _name = 'nh.clinical.patient.observation.weight'
-    _inherit = ['nh.clinical.patient.observation']
-    _required = ['weight']
-    _num_fields = ['weight']
-    _description = "Weight"
-    _columns = {
-        'weight': fields.float('Weight', digits=(3, 1)),
-    }
-    _POLICY = {
-        'schedule': [[6, 0]]
-    }
-    _form_description = [
-        {
-            'name': 'weight',
-            'type': 'float',
-            'label': 'Weight (Kg)',
-            'min': 35.0,
-            'max': 330.0,
-            'digits': [3, 1],
-            'initially_hidden': False
-        }
-    ]
-
-    def schedule(self, cr, uid, activity_id, date_scheduled=None,
-                 context=None):
-        """
-        If a specific ``date_scheduled`` parameter is not specified.
-        The `_POLICY['schedule']` dictionary value will be used to find
-        the closest time to the current time from the ones specified
-        (0 to 23 hours)
-
-        Then it will call :meth:`schedule<activity.nh_activity.schedule>`
-
-        :returns: ``True``
-        :rtype: bool
-        """
-        if not date_scheduled:
-            hour = td(hours=1)
-            schedule_times = []
-            for s in self._POLICY['schedule']:
-                schedule_times.append(
-                    dt.now().replace(hour=s[0], minute=s[1],
-                                     second=0, microsecond=0))
-            date_schedule = dt.now().replace(
-                minute=0, second=0, microsecond=0) + td(hours=2)
-            utctimes = [fields.datetime.utc_timestamp(
-                cr, uid, t, context=context) for t in schedule_times]
-            while all([date_schedule.hour != date_schedule.strptime(
-                    ut, DTF).hour for ut in utctimes]):
-                date_schedule += hour
-            date_scheduled = date_schedule.strftime(DTF)
-        return super(nh_clinical_patient_observation_weight, self).schedule(
-            cr, uid, activity_id, date_scheduled, context=context)
-
-    def complete(self, cr, uid, activity_id, context=None):
-        """
-        Calls :meth:`complete<activity.nh_activity.complete>` and then
-        creates and schedules a new weight observation if the current
-        :mod:`monitoring<parameters.nh_clinical_patient_weight_monitoring>`
-        parameter is ``True``.
-
-        :returns: ``True``
-        :rtype: bool
-        """
-        activity_pool = self.pool['nh.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context=context)
-
-        res = super(nh_clinical_patient_observation_weight, self).complete(
-            cr, uid, activity_id, context)
-
-        activity_pool.cancel_open_activities(
-            cr, uid, activity.parent_id.id, self._name, context=context)
-
-        # create next Weight activity (schedule)
-        domain = [
-            ['data_model', '=', 'nh.clinical.patient.weight_monitoring'],
-            ['state', '=', 'completed'],
-            ['patient_id', '=', activity.data_ref.patient_id.id]
-        ]
-        weight_monitoring_ids = activity_pool.search(
-            cr, uid, domain, order="date_terminated desc", context=context)
-        monitoring_active = weight_monitoring_ids and activity_pool.browse(
-            cr, uid, weight_monitoring_ids[0], context=context).data_ref.status
-        if monitoring_active:
-            next_activity_id = self.create_activity(
-                cr, SUPERUSER_ID,
-                {'creator_id': activity_id,
-                 'parent_id': activity.parent_id.id},
-                {'patient_id': activity.data_ref.patient_id.id})
-            activity_pool.schedule(cr, uid, next_activity_id, context=context)
-        return res
 
 
 class nh_clinical_patient_observation_blood_product(orm.Model):

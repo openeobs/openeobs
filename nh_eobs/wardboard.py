@@ -328,8 +328,7 @@ class nh_clinical_wardboard(orm.Model):
     Also includes
     :class:`observation<observations.nh_clinical_patient_observation>`
     data such as
-    :class:`EWS<ews.nh_clinical_patient_observation_ews>`,
-    :class:`weight<observations.nh_clinical_patient_observation_weight>`,
+    :class:`EWS<ews.nh_clinical_patient_observation_ews>`
     etc.
     """
 
@@ -515,8 +514,6 @@ class nh_clinical_wardboard(orm.Model):
         'critical_care': fields.selection(_boolean_selection, "Critical Care"),
         'pbp_monitoring': fields.selection(
             _boolean_selection, "Postural Blood Pressure Monitoring"),
-        'weight_monitoring': fields.selection(
-            _boolean_selection, "Weight Monitoring"),
         'height': fields.float("Height"),
         'o2target': fields.many2one('nh.clinical.o2level', 'O2 Target'),
         'uotarget_vol': fields.integer('Target Volume'),
@@ -544,10 +541,6 @@ class nh_clinical_wardboard(orm.Model):
             _get_data_ids_multi, multi='uotarget_ids', type='many2many',
             relation='nh.clinical.patient.uotarget',
             string='Urine Output Targets'),
-        'weight_ids': fields.function(
-            _get_data_ids_multi, multi='weight_ids', type='many2many',
-            relation='nh.clinical.patient.observation.weight',
-            string='Weight Obs'),
         'blood_sugar_ids': fields.function(
             _get_data_ids_multi, multi='blood_sugar_ids', type='many2many',
             relation='nh.clinical.patient.observation.blood_sugar',
@@ -562,10 +555,6 @@ class nh_clinical_wardboard(orm.Model):
             _get_data_ids_multi, multi='pbp_monitoring_ids', type='many2many',
             relation='nh.clinical.patient.pbp_monitoring',
             string='PBP Monitoring'),
-        'weight_monitoring_ids': fields.function(
-            _get_data_ids_multi, multi='weight_monitoring_ids',
-            type='many2many', relation='nh.clinical.patient.weight_monitoring',
-            string='Weight Monitoring'),
         'palliative_care_ids': fields.function(
             _get_data_ids_multi, multi='palliative_care_ids', type='many2many',
             relation='nh.clinical.patient.palliative_care',
@@ -969,39 +958,6 @@ class nh_clinical_wardboard(orm.Model):
             'view_id': int(view_id)
         }
 
-    def wardboard_weight_chart(self, cr, uid, ids, context=None):
-        """
-        Returns an Odoo form window action for
-        :class:`wardboard<nh_clinical_wardboard>` for the view
-        ``view_wardboard_weight_chart_form``.
-
-        :param ids: records ids
-        :type ids: list
-        :returns: Odoo form window action
-        :rtype: dict
-        """
-
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-
-        model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(
-            cr, uid, [('name', '=', 'view_wardboard_weight_chart_form')],
-            context=context)
-        view_id = model_data_pool.read(
-            cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        context.update({'height': wardboard.height})
-        return {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': ids[0],
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'new',
-            'context': context,
-            'view_id': int(view_id)
-        }
-
     def wardboard_bs_chart(self, cr, uid, ids, context=None):
         """
         Returns an Odoo form window action for
@@ -1132,15 +1088,6 @@ class nh_clinical_wardboard(orm.Model):
                     'status': vals['pbp_monitoring'] == 'yes'
                 }, context=context)
                 activity_pool.complete(cr, uid, pbpm_id, context=context)
-            if 'weight_monitoring' in vals:
-                wm_pool = self.pool['nh.clinical.patient.weight_monitoring']
-                wm_id = wm_pool.create_activity(cr, SUPERUSER_ID, {
-                    'parent_id': wb.spell_activity_id.id,
-                }, {
-                    'patient_id': wb.spell_activity_id.patient_id.id,
-                    'status': vals['weight_monitoring'] == 'yes'
-                }, context=context)
-                activity_pool.complete(cr, uid, wm_id, context=context)
             if 'o2target' in vals:
                 o2target_pool = self.pool['nh.clinical.patient.o2target']
                 o2target_id = o2target_pool.create_activity(cr, SUPERUSER_ID, {
@@ -1181,22 +1128,12 @@ class nh_clinical_wardboard(orm.Model):
         wb_transfer_ranked = nh_eobs_sql.get_wb_transfer_ranked_sql()
         cr.execute("""
 
-drop view if exists wb_activity_ranked cascade;
-drop view if exists wb_ews_ranked cascade;
-drop view if exists wb_spell_ranked cascade;
-drop view if exists wb_transfer_ranked cascade;
-drop view if exists wb_discharge_ranked cascade;
-drop view if exists last_movement_users cascade;
-drop view if exists last_transfer_users cascade;
-drop view if exists last_discharge_users cascade;
-
 -- materialized views
 drop materialized view if exists ews0 cascade;
 drop materialized view if exists ews1 cascade;
 drop materialized view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
-drop materialized view if exists weight cascade;
 drop materialized view if exists pbp cascade;
 
 create or replace view
@@ -1465,17 +1402,6 @@ param as(
             on activity.ids && array[cc.activity_id]
         left join nh_activity ccactivity on ccactivity.id = cc.activity_id
         where activity.state = 'completed'
-);
-
-create materialized view
-weight as(
-    select
-        activity.spell_id,
-        weight.status
-    from wb_activity_latest activity
-    left join nh_clinical_patient_weight_monitoring weight
-        on activity.ids && array[weight.activity_id]
-    where activity.state = 'completed'
 );
 
 create materialized view

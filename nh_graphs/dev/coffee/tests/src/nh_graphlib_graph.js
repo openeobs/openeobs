@@ -256,8 +256,9 @@ NHGraph = (function(superClass) {
             return 'NA';
           }
         } else {
-          if (raw[raw.length - 1][d] !== false) {
-            return raw[raw.length - 1][d] + '' + self.options.measurement;
+          this.lastObsValue = raw[raw.length - 1][d];
+          if (this.lastObsValue !== false && this.lastObsValue !== null) {
+            return this.lastObsValue + '' + self.options.measurement;
           } else {
             return 'NA';
           }

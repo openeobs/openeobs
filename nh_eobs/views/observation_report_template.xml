@@ -210,7 +210,7 @@
                             <tr>
                                 <td class="col-xs-4">
                                     <h2>Patient</h2>
-                                    <table class="col-xs-12">
+                                    <table class="col-xs-12" id="patient_demographic">
                                         <tr>
                                             <td><strong>Hospital No:</strong></td><td>
                                             <t t-if="'other_identifier' in patient">
@@ -234,16 +234,6 @@
                                             </tr>
                                         </t>
                                         <t t-if="not patient['height']">
-                                            <tr>
-                                                <td></td><td></td>
-                                            </tr>
-                                        </t>
-                                        <t t-if="patient['weight']">
-                                            <tr>
-                                                <td><strong>Weight:</strong></td><td><t t-esc="patient['weight']"/>kg</td>
-                                            </tr>
-                                        </t>
-                                        <t t-if="not patient['weight']">
                                             <tr>
                                                 <td></td><td></td>
                                             </tr>
@@ -400,29 +390,6 @@
                             </table>
                         </t>
                     </div>
-
-                    <t t-if="weights and len(weights) > 0">
-                        <div class="col-xs-12 row">
-                            <h3>Weight Values</h3>
-                            <table class="striped col-xs-12 row">
-                                <thead>
-                                    <tr>
-                                        <th class="col-xs-3">Date</th>
-                                        <th class="col-xs-9">Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="weights" t-as="weight">
-                                        <tr>
-                                            <td class="col-xs-3"><t t-esc="weight['values']['date_terminated']"/></td>
-                                            <td class="col-xs-9"><t t-esc="weight['values']['weight']"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                            <p></p>
-                        </div>
-                    </t>
 
                     <t t-if="gcs and len(gcs) > 0">
                         <div class="col-xs-12 row">

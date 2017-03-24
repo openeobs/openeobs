@@ -37,10 +37,10 @@
 }
 
 .food_fluid_table > .nhtable thead tr th:nth-child(8){
-    width: 50px;
+    width: 100px;
 }
 .food_fluid_table > .nhtable thead tr th:nth-child(9){
-    width: 70px;
+    width: 100px;
 }
 .food_fluid_table > .nhtable tbody tr td {
     border-color: lightgray;

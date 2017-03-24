@@ -513,10 +513,6 @@ class TestAPI(SingleTransactionCase):
             cr, self.wm_uid, self.patients[0], 'ews')
         self.assertEqual(len(res), 1)
 
-        res = self.eobs_api.get_activities_for_patient(
-            cr, self.wm_uid, self.patients[0], 'weight')
-        self.assertEqual(len(res), 0)
-
     def test_25_get_activity_type(self):
         cr, uid = self.cr, self.uid
 
@@ -525,14 +521,9 @@ class TestAPI(SingleTransactionCase):
             cr, uid, 'ews'), 'nh.clinical.patient.observation.ews')
 
         # Scenario 2: get ambiguous activity type
-        self.assertIn(self.eobs_api._get_activity_type(
-            cr, uid, 'weight'), ['nh.clinical.patient.observation.weight',
-                                 'nh.clinical.patient.weight_monitoring'])
+        # Gone. Weight moved into its own module, nh_weight.
 
         # Scenario 3: get observation activity type
-        self.assertEqual(self.eobs_api._get_activity_type(
-            cr, uid, 'weight', observation=True),
-            'nh.clinical.patient.observation.weight')
 
         # Scenario 4: attempt to get activity type that does not exist
         with self.assertRaises(except_orm):
@@ -567,13 +558,10 @@ class TestAPI(SingleTransactionCase):
 
         # Scenario 4: attempt to create a new activity for a not admitted
         # patient
-        with self.assertRaises(except_orm):
-            self.eobs_api.create_activity_for_patient(
-                cr, self.nurse_uid, self.patients[2], 'weight')
+        # Gone. Weight moved into its own module, nh_weight.
 
         # Scenario 5: create a new activity
-        self.assertTrue(self.eobs_api.create_activity_for_patient(
-            cr, self.nurse_uid, self.patients[0], 'weight'))
+        # Gone. Weight moved into its own module, nh_weight.
 
     def test_27_register(self):
         cr = self.cr

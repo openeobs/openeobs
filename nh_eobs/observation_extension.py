@@ -144,16 +144,6 @@ class nh_clinical_patient_critical_care(orm.Model):
             cr, uid, activity_id, context)
 
 
-class nh_clinical_patient_weight_monitoring(orm.Model):
-    _inherit = 'nh.clinical.patient.weight_monitoring'
-
-    @refresh_materialized_views('weight')
-    def complete(self, cr, uid, activity_id, context=None):
-        return super(
-            nh_clinical_patient_weight_monitoring, self).complete(
-            cr, uid, activity_id, context)
-
-
 class nh_clinical_patient_urine_output_target(orm.Model):
     _inherit = 'nh.clinical.patient.uotarget'
 

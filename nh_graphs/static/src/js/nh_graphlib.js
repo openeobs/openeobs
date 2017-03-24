@@ -25,7 +25,7 @@ NHGraphLib = (function() {
       label_gap: 10,
       transition_duration: 1e3,
       axis_label_text_height: 10,
-      time_padding: null
+      timePadding: null
     };
     this.patient = {
       id: 0,
@@ -230,18 +230,21 @@ NHGraphLib = (function() {
       container_el = nh_graphs.select(this.el);
       this.style.dimensions.width = (container_el != null ? (ref = container_el[0]) != null ? ref[0].clientWidth : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
       this.obj = container_el.append('svg');
-      if (this.data.raw.length < 2 && !this.style.time_padding) {
-        this.style.time_padding = 100;
+      if (this.data.raw.length < 2 && !this.style.timePadding) {
+        this.oneHundredSecondsInMilliseconds = 6000000;
+        this.style.timePadding = this.oneHundredSecondsInMilliseconds;
       }
       if (this.data.raw.length > 0) {
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
-        if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
+        if (!this.style.timePadding) {
+          this.rangeInMilliseconds = end.getTime() - start.getTime();
+          this.fivePercentOfRange = this.rangeInMilliseconds * 0.05;
+          this.style.timePadding = this.fivePercentOfRange;
         }
-        start.setMinutes(start.getMinutes() - this.style.time_padding);
+        start.setTime(start.getTime() - this.style.timePadding);
         this.data.extent.start = start;
-        end.setMinutes(end.getMinutes() + this.style.time_padding);
+        end.setTime(end.getTime() + this.style.timePadding);
         this.data.extent.end = end;
         if ((ref1 = this.context) != null) {
           ref1.init(this);
@@ -1060,8 +1063,9 @@ NHGraph = (function(superClass) {
             return 'NA';
           }
         } else {
-          if (raw[raw.length - 1][d] !== false) {
-            return raw[raw.length - 1][d] + '' + self.options.measurement;
+          this.lastObsValue = raw[raw.length - 1][d];
+          if (this.lastObsValue !== false && this.lastObsValue !== null) {
+            return this.lastObsValue + '' + self.options.measurement;
           } else {
             return 'NA';
           }
