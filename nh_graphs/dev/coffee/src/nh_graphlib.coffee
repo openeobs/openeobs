@@ -29,7 +29,7 @@ class NHGraphLib
       label_gap: 10,
       transition_duration: 1e3,
       axis_label_text_height: 10,
-      time_padding: null
+      timePadding: null
     }
     # Patient defines the details of the patient
     # - ID: The patient_id from the server
@@ -281,17 +281,20 @@ class NHGraphLib
       @.style.dimensions.width = container_el?[0]?[0].clientWidth -
         (@.style.margin.left + @.style.margin.right)
       @.obj = container_el.append('svg')
-      if @.data.raw.length < 2 and not @.style.time_padding
-        @.style.time_padding = 100
+      if @.data.raw.length < 2 and not @.style.timePadding
+        @.oneHundredSecondsInMilliseconds = 6000000
+        @.style.timePadding = @.oneHundredSecondsInMilliseconds
       if @.data.raw.length > 0
         start = @.date_from_string(@.data.raw[0]['date_terminated'])
         end = \
           @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
-        if not @.style.time_padding
-          @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
-        start.setMinutes(start.getMinutes()-@.style.time_padding)
+        if not @.style.timePadding
+          @.rangeInMilliseconds = end.getTime() - start.getTime()
+          @.fivePercentOfRange = @.rangeInMilliseconds * 0.05
+          @.style.timePadding = @.fivePercentOfRange
+        start.setTime(start.getTime()-@.style.timePadding)
         @.data.extent.start = start
-        end.setMinutes(end.getMinutes()+@.style.time_padding)
+        end.setTime(end.getTime()+@.style.timePadding)
         @.data.extent.end = end
         @.context?.init(@)
         @.focus?.init(@)

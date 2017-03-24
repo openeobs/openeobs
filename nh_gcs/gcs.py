@@ -7,7 +7,7 @@ standard behaviour and policy triggers based on this worldwide standard.
 import bisect
 import logging
 
-from openerp import models, osv, SUPERUSER_ID
+from openerp import models, osv, SUPERUSER_ID, api
 from openerp.addons.nh_observations import fields as obs_fields
 
 _logger = logging.getLogger(__name__)
@@ -67,10 +67,12 @@ class nh_clinical_patient_observation_gcs(models.Model):
         case 3: 4 hour frequency
         case 4: 12 hour frequency (no clinical risk)
     """
-    _POLICY = {'ranges': [5, 9, 13, 14],
-               'case': '01234',
-               'frequencies': [30, 60, 120, 240, 720],
-               'notifications': [[], [], [], [], []]}
+    _POLICY = {
+        'ranges': [5, 9, 13, 14],
+        'case': '01234',
+        'frequencies': [30, 60, 120, 240, 720],
+        'notifications': [[], [], [], [], []]
+    }
 
     eyes = obs_fields.Selection(_eyes_selection, 'Eyes Open', required=True)
     verbal = obs_fields.Selection(_verbal_selection, 'Best Verbal Response',
@@ -78,6 +80,7 @@ class nh_clinical_patient_observation_gcs(models.Model):
     motor = obs_fields.Selection(_motor_selection, 'Best Motor Response',
                                  required=True)
 
+    @api.model
     def calculate_score(self, obs_data, return_dictionary=True):
         is_dict = isinstance(obs_data, dict)
         obs_data_dict = {

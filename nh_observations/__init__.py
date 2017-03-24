@@ -8,4 +8,3 @@ from . import notifications
 from . import observations
 from . import parameters
 from .models import *
-

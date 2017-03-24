@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
+import logging
 from datetime import datetime
 
 import openerp
@@ -13,6 +14,9 @@ from openerp.osv import fields
 from openerp.osv import osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from werkzeug import exceptions
+
+_logger = logging.getLogger(__name__)
+
 
 # Create the RouteManager and the Route objects for the tests
 route_manager = RouteManager(url_prefix='/api/v1')
@@ -323,7 +327,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, ob_pool, str,
                                              context=context)
         kw_copy = kw.copy() if kw else {}
-        test = {}
         data_timestamp = kw_copy.get('startTimestamp', None)
         data_task_id = kw_copy.get('taskId', None)
         data_device_id = kw_copy.get('device_id', None)
@@ -342,7 +345,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             if not value:
                 del kw_copy[key]
 
-        converted_data = converter(kw_copy, test)
+        converted_data = converter(kw_copy, _logger.debug)
         if data_timestamp is not None:
             converted_data['date_started'] = \
                 datetime.fromtimestamp(int(data_timestamp)).strftime(DTF)
@@ -350,29 +353,18 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             converted_data['device_id'] = data_device_id
 
         api.complete(cr, uid, int(task_id), converted_data, context)
-        triggered_ids = activity_api.search(
-            cr, uid,
-            [['creator_id', '=', int(task_id)]]
-        )
-        triggered_tasks_read = activity_api.read(cr, uid, triggered_ids, [])
-        triggered_tasks = []
-        for trig_task in triggered_tasks_read:
-            access = api.check_activity_access(cr, uid, trig_task['id'])
-            is_not_ob = observation not in trig_task['data_model']
-            is_open = trig_task['state'] not in ['completed', 'cancelled']
-            if access and is_open and is_not_ob:
-                triggered_tasks.append(trig_task)
-        partial = 'partial_reason' in kw_copy and kw_copy['partial_reason']
-        response_data = {'related_tasks': triggered_tasks, 'status': 1}
-        rel_tasks = ''
-        if len(triggered_tasks):
-            rel_tasks = 'Here are related tasks based on the observation'
+        activity = activity_api.browse(cr, uid, int(task_id))
+        obs = activity.data_ref
+
+        description = self.get_submission_message(obs)
+        response_data = obs.get_submission_response_data()
+
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
             title='Successfully Submitted{0} {1}'.format(
-                ' Partial' if partial else '',
+                ' Partial' if obs.is_partial else '',
                 ob_pool.get_description(append_observation=True)),
-            description=rel_tasks,
+            description=description,
             data=response_data)
         return request.make_response(
             response_json, headers=ResponseJSON.HEADER_CONTENT_TYPE)
@@ -382,14 +374,13 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         observation = kw.get('observation')  # TODO: add a check if is None (?)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
-        model = 'nh.clinical.patient.observation.'+observation
+        model = 'nh.clinical.patient.observation.' + observation
         converter_pool = request.registry('ir.fields.converter')
         observation_pool = request.registry(model)
-        converter = converter_pool.for_model(cr, uid,
-                                             observation_pool,
-                                             str, context=context)
+        converter = converter_pool.for_model(
+            cr, uid, observation_pool, str, context=context
+        )
         data = kw.copy() if kw else {}
-        test = {}
         section = 'patient'
         if 'startTimestamp' in data:
             del data['startTimestamp']
@@ -401,15 +392,17 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         if observation == 'ews':
             observation = 'news'
             for key, value in data.items():
-                if not value or key not in ['avpu_text',
-                                            'blood_pressure_systolic',
-                                            'body_temperature',
-                                            'indirect_oxymetry_spo2',
-                                            'oxygen_administration_flag',
-                                            'pulse_rate',
-                                            'respiration_rate']:
+                if not value or key not in [
+                    'avpu_text',
+                    'blood_pressure_systolic',
+                    'body_temperature',
+                    'indirect_oxymetry_spo2',
+                    'oxygen_administration_flag',
+                    'pulse_rate',
+                    'respiration_rate'
+                ]:
                     del data[key]
-        converted_data = converter(data, test)
+        converted_data = converter(data, _logger.debug)
 
         score_dict = api_pool.get_activity_score(
             cr, uid, model, converted_data, context=context
@@ -716,7 +709,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
         converter = converter_pool.for_model(cr, uid, observation_pool,
                                              str, context=context)
         kw_copy = kw.copy() if kw else {}
-        test = {}
         data_timestamp = kw_copy.get('startTimestamp', False)
         data_task_id = kw_copy.get('taskId', False)
         data_device_id = kw_copy.get('device_id', False)
@@ -735,52 +727,44 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             if not value:
                 del kw_copy[key]
 
-        converted_data = converter(kw_copy, test)
+        converted_data = converter(kw_copy, _logger.debug)
         if data_timestamp:
             converted_data['date_started'] = datetime.fromtimestamp(
                 int(data_timestamp)).strftime(DTF)
         if data_device_id:
             converted_data['device_id'] = data_device_id
 
+        vals_data = {}
+        if obs_model_name == 'neurological' or obs_model_name == 'gcs':
+            if 'eyes' in converted_data:
+                vals_data['eyes'] = converted_data['eyes']
+            if 'verbal' in converted_data:
+                vals_data['verbal'] = converted_data['verbal']
+            if 'motor' in converted_data:
+                vals_data['motor'] = converted_data['motor']
+        elif obs_model_name == 'food_fluid':
+            if 'passed_urine' in converted_data:
+                vals_data['passed_urine'] = converted_data['passed_urine']
+            if 'bowels_open' in converted_data:
+                vals_data['bowels_open'] = converted_data['bowels_open']
+        else:
+            vals_data = converted_data
+
         new_activity_id = api.create_activity_for_patient(
-            cr, uid, int(patient_id), obs_model_name, context=context
+            cr, uid, int(patient_id), obs_model_name, vals_data=vals_data,
+            context=context
         )
         api.complete(cr, uid, int(new_activity_id), converted_data, context)
-
-        partial = 'partial_reason' in kw_copy and kw_copy['partial_reason']
-
         new_activity = activity_api.browse(cr, uid, new_activity_id)
-        observation = new_activity.data_ref
-        description = self.get_submission_message(observation)
+        obs = new_activity.data_ref
 
-        triggered_tasks = []
-        if obs_model_name == 'ews':
-            triggered_ids = activity_api.search(
-                cr, uid,
-                [['creator_id', '=', int(new_activity_id)]]
-            )
-            triggered_tasks_read = activity_api.read(cr, uid, triggered_ids,
-                                                     [])
-            for trig_task in triggered_tasks_read:
-                access = api.check_activity_access(cr, uid, trig_task['id'])
-                is_not_ob = obs_model_name not in trig_task['data_model']
-                is_open = trig_task['state'] not in ['completed', 'cancelled']
-                if access and is_open and is_not_ob:
-                    triggered_tasks.append(trig_task)
-
-            rel_tasks = \
-                'Here are related tasks based on the observation' if len(
-                    triggered_tasks
-                ) > 0 else ''
-
-            description = rel_tasks
-
-        response_data = {'related_tasks': triggered_tasks, 'status': 1}
+        description = self.get_submission_message(obs)
+        response_data = obs.get_submission_response_data()
 
         response_json = ResponseJSON.get_json_data(
             status=ResponseJSON.STATUS_SUCCESS,
             title='Successfully Submitted{0} {1}'.format(
-                ' Partial' if partial else '',
+                ' Partial' if obs.is_partial else '',
                 observation_pool.get_description(append_observation=True)
             ),
             description=description,

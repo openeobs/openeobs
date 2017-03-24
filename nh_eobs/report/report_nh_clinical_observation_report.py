@@ -115,16 +115,17 @@ class ObservationReport(models.AbstractModel):
         # Get the script files to load
         observation_report = '/nh_eobs/static/src/js/observation_report.js'
 
-        height_weight_dict = {
-            'height': 'nh.clinical.patient.observation.height',
-            'weight': 'nh.clinical.patient.observation.weight'
+        height_dict = {
+            'height': 'nh.clinical.patient.observation.height'
         }
-        height_weight = self.get_activity_data_from_dict(
-            height_weight_dict,
-            spell_activity_id,
+
+        height = self.get_activity_data_from_dict(
+            height_dict,
+            self.spell_activity_id,
             data
         )
-        patient = self.process_patient_height_weight(patient, height_weight)
+
+        patient = self.process_patient_height(patient, height)
 
         monitoring = self.create_patient_monitoring_exception_dictionary(
             data, spell_activity_id
@@ -198,11 +199,8 @@ class ObservationReport(models.AbstractModel):
                 'nh.clinical.patient.observation.stools',
                 data.start_time, data.end_time))
 
-        weights = height_weight['weight']
-
         non_basic_obs = {
             'bristol_stools': bristol_stools,
-            'weights': weights,
             'pbps': pbps
         }
 
@@ -653,19 +651,12 @@ class ObservationReport(models.AbstractModel):
         return dict
 
     @staticmethod
-    def process_patient_height_weight(patient, height_weight):
-        heights = height_weight['height']
+    def process_patient_height(patient, height):
+        heights = height['height']
         height = False
         if len(heights) > 0:
             height = heights[-1]['values']['height']
         patient['height'] = height
-
-        # get weight observations
-        weights = height_weight['weight']
-        weight = False
-        if len(weights) > 0:
-            weight = weights[-1]['values']['weight']
-        patient['weight'] = weight
         return patient
 
     def create_patient_monitoring_exception_dictionary(self, data,

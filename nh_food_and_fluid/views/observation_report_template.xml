@@ -38,11 +38,12 @@
                 </thead>
                 <tbody>
                     <t t-foreach="observation_period['observations']" t-as="observation">
+                        <t t-set="fluid_taken" t-value="observation.get('values', {}).get('fluid_taken')"/>
                         <tr>
                             <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['recorded_concerns']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['dietary_needs']"/></td>
-                            <td class="col-xs-1"><t t-esc="observation['values']['fluid_taken']"/><t t-if="observation.get('values', {}).get('fluid_taken')">ml</t></td>
+                            <td class="col-xs-1"><t t-esc="fluid_taken"/><t t-if="isinstance(fluid_taken, int)">ml</t></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['fluid_description']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['food_taken']"/></td>
                             <td class="col-xs-1"><t t-esc="observation['values']['food_fluid_rejected']"/></td>

@@ -328,8 +328,9 @@ class NHGraph extends NHGraphLib
             return raw[raw.length-1][d]
           else return 'NA'
         else
-          if raw[raw.length-1][d] != false
-            return raw[raw.length-1][d] + '' + self.options.measurement
+          @.lastObsValue = raw[raw.length-1][d]
+          if @.lastObsValue != false and @.lastObsValue != null
+            return @.lastObsValue + '' + self.options.measurement
           else return 'NA'
       ).attr({
         'x': self.style.dimensions.width + self.style.label_text_height,

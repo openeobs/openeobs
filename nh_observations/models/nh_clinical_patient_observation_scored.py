@@ -26,17 +26,23 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         """
         for record in self:
             score = record.calculate_score(record, return_dictionary=False)
-            record.score = score
-            _logger.debug(
-                "%s activity_id=%s gcs_id=%s score: %s"
-                % (self.get_description(), self.activity_id.id, self.id, score)
-            )
+            if score:
+                record.score = score
+                _logger.debug(
+                    "%s activity_id=%s ob_id=%s score: %s"
+                    % (
+                        record.get_description(),
+                        record.activity_id.id,
+                        record.id,
+                        score)
+                )
 
     score = fields.Integer(
         compute='_get_score', string='Score', store=True
     )
 
-    def calculate_score(self, record, return_dictionary=True):
+    @api.model
+    def calculate_score(self, obs_data, return_dictionary=True):
         """
         Gets the values of the 'score fields' that contribute to the overall
         score of the observation and maps them to an integer score.
@@ -45,11 +51,11 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         the individual fields scores to get the overall score for the
         observation.
 
-        :param record: Observation field values. If an Odoo record is passed
+        :param obs_data: Observation field values. If an Odoo record is passed
         then the 'score fields' are looked up for the calculation. If a
         dictionary of field data is passed, only the fields in the dictionary
         are used.
-        :type record: record or dict
+        :type obs_data: record or dict
         :param return_dictionary: Would you like the score returned in a
         dictionary?
         :type return_dictionary: bool
@@ -57,8 +63,8 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         :rtype: dict or int
         """
         values_for_score_calculation = []
-        fields_dict = record if isinstance(record, dict) \
-            else record.get_necessary_fields_dict()
+        fields_dict = obs_data if isinstance(obs_data, dict) \
+            else obs_data.get_necessary_fields_dict()
 
         for field in fields_dict.items():
             field_name = field[0]

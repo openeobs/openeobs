@@ -550,10 +550,11 @@ describe('Background', function() {
             expect(horis.length).toBeGreaterThan(xTicks.length - 1);
         });
 
-        it("has at least one horizontal grid line per tick", function() {
+        it("has one horizontal line per tick give or take 1", function() {
             var yTicks;
             yTicks = document.querySelectorAll('.y .tick');
-            expect(vertis.length).toBeGreaterThan(yTicks.length - 1);
+            expect(vertis.length).not.toBeLessThan(yTicks.length - 1);
+            expect(vertis.length).not.toBeGreaterThan(yTicks.length + 1);
         });
 
         it("has evenly spaced horizontal grid lines", function() {

@@ -67,14 +67,6 @@ class ObservationReportHelpers(TransactionCase):
         'terminate_uid': [1, 'Test'],
     }
 
-    weight_data = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'data_ref': 'WEIGHT,1',
-        'terminate_uid': [1, 'Test'],
-    }
-
     pain_data = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -204,13 +196,6 @@ class ObservationReportHelpers(TransactionCase):
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
         'height': 1.2
-    }
-
-    weight_values = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'weight': 1.2
     }
 
     pain_values = {
@@ -403,8 +388,6 @@ class ObservationReportHelpers(TransactionCase):
         self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
         self.height_pool = \
             self.registry('nh.clinical.patient.observation.height')
-        self.weight_pool = \
-            self.registry('nh.clinical.patient.observation.weight')
         self.api_pool = self.registry('nh.eobs.api')
         self.o2level_pool = self.registry('nh.clinical.o2level')
         self.o2target_pool = self.registry('nh.clinical.patient.o2target')
@@ -467,7 +450,6 @@ class ObservationReportHelpers(TransactionCase):
             models = [
                 'nh.clinical.patient.observation.ews',
                 'nh.clinical.patient.observation.height',
-                'nh.clinical.patient.observation.weight',
                 'nh.clinical.patient.observation.pain',
                 'nh.clinical.patient.observation.blood_product',
                 'nh.clinical.patient.observation.stools',
@@ -497,7 +479,6 @@ class ObservationReportHelpers(TransactionCase):
             responses = [
                 self.ews_data,
                 self.height_data,
-                self.weight_data,
                 self.pain_data,
                 self.blood_product_data,
                 self.stools_data,
@@ -527,9 +508,6 @@ class ObservationReportHelpers(TransactionCase):
 
         def height_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.height_values)
-
-        def weight_pool_mock_read(*args, **kwargs):
-            return copy.deepcopy(self.weight_values)
 
         def pain_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.pain_values)
@@ -601,7 +579,6 @@ class ObservationReportHelpers(TransactionCase):
         self.o2target_pool._patch_method('get_last',
                                          o2target_pool_mock_get_last)
         self.height_pool._patch_method('read', height_pool_mock_read)
-        self.weight_pool._patch_method('read', weight_pool_mock_read)
         self.pain_pool._patch_method('read', pain_pool_mock_read)
         self.blood_product_pool._patch_method('read',
                                               blood_product_pool_mock_read)
@@ -639,7 +616,6 @@ class ObservationReportHelpers(TransactionCase):
         self.ews_pool._revert_method('read')
         self.o2target_pool._revert_method('get_last')
         self.height_pool._revert_method('read')
-        self.weight_pool._revert_method('read')
         self.pain_pool._revert_method('read')
         self.blood_product_pool._revert_method('read')
         self.stools_pool._revert_method('read')

@@ -142,6 +142,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 return [('id', 'in', [ews_id for ews_id in all_ids
                                       if ews_id not in partial_ews_ids])]
 
+    @api.model
     def calculate_score(self, ews_data):
         """
         Computes the score and clinical risk values based on the NEWS
@@ -235,7 +236,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 res[ews.id] = {'score': False, 'three_in_one': False,
                                'clinical_risk': 'Unknown'}
             else:
-                res[ews.id] = self.calculate_score(ews)
+                res[ews.id] = self.calculate_score(cr, uid, ews)
             _logger.debug(
                 "Observation EWS activity_id=%s ews_id=%s score: %s"
                 % (ews.activity_id.id, ews.id, res[ews.id]))
@@ -1099,3 +1100,36 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :rtype: str
         """
         return '/nh_ews/static/src/js/chart.js'
+
+    @api.multi
+    def get_submission_message(self):
+        """
+        Override of `nh.clincal.patient.observation` method.
+
+        :return:
+        """
+        if self.is_partial:
+            clinical_risk = self.clinical_risk
+            if clinical_risk == 'None':
+                clinical_risk = 'No'
+            if clinical_risk:
+                submission_message = \
+                    '<strong>At least {0} clinical risk</strong>, ' \
+                    'real risk may be higher <br>' \
+                    '<strong>At least {1} NEWS score</strong>, ' \
+                    'real NEWS score may be higher<br>' \
+                    'This Partial Observation will not update the ' \
+                    'NEWS score and clinical risk of the ' \
+                    'patient'.format(clinical_risk, self.score)
+            else:
+                submission_message = \
+                    '<strong>Clinical risk:</strong> Unknown<br>' \
+                    '<strong>NEWS Score:</strong> Unknown<br>' \
+                    'This Partial Observation will not update the ' \
+                    'NEWS score and clinical risk of the patient'
+        else:
+            triggered_tasks = self.get_triggered_tasks()
+            submission_message = \
+                'Here are related tasks based on the observation' \
+                if len(triggered_tasks) > 0 else ''
+        return submission_message

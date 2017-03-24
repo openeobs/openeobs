@@ -426,11 +426,11 @@ class TestWardboard(SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids',
-                  'weight_ids', 'blood_sugar_ids', 'mrsa_ids', 'diabetes_ids',
-                  'pbp_monitoring_ids', 'weight_monitoring_ids',
-                  'palliative_care_ids', 'post_surgery_ids',
-                  'critical_care_ids', 'pbp_ids', 'ews_ids', 'gcs_ids',
-                  'pain_ids', 'urine_output_ids', 'ews_list_ids']
+                  'blood_sugar_ids', 'mrsa_ids', 'diabetes_ids',
+                  'pbp_monitoring_ids', 'palliative_care_ids',
+                  'post_surgery_ids', 'critical_care_ids', 'pbp_ids',
+                  'ews_ids', 'gcs_ids', 'pain_ids', 'urine_output_ids',
+                  'ews_list_ids']
         res = self.wardboard_pool._get_data_ids_multi(
             cr, self.wm_uid, [self.wb_id], fields, None)
 
@@ -498,26 +498,6 @@ class TestWardboard(SingleTransactionCase):
             'view_type': 'form',
             'target': 'new',
             'context': None,
-            'view_id': view_id
-        })
-
-    def test_18_weight_chart_action(self):
-        cr, uid = self.cr, self.uid
-
-        res = self.wardboard_pool.wardboard_weight_chart(
-            cr, self.wm_uid, [self.wb_id], {})
-        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(
-            cr, uid, 'nh_eobs', 'view_wardboard_weight_chart_form')[1]
-        self.assertDictEqual(res, {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': self.wb_id,
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'new',
-            'context': {'height': wardboard.height},
             'view_id': view_id
         })
 
@@ -610,12 +590,7 @@ class TestWardboard(SingleTransactionCase):
         self.assertTrue(activity_ids)
 
         # Scenario 4: Write Weight Monitoring parameter
-        self.assertTrue(self.wardboard_pool.write(
-            cr, self.wm_uid, [self.wb_id], {'weight_monitoring': 'no'}))
-        activity_ids = self.activity_pool.search(cr, uid, [
-            ['patient_id', '=', self.patients[0]], ['state', '=', 'completed'],
-            ['data_model', '=', 'nh.clinical.patient.weight_monitoring']])
-        self.assertTrue(activity_ids)
+        # Gone. Weight was moved to it's own module, nh_weight.
 
         # Scenario 5: Write O2 Target parameter
         self.assertTrue(self.wardboard_pool.write(
