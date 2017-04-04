@@ -1,5 +1,5 @@
-from openerp.tests.common import SingleTransactionCase
 from lxml import etree
+from openerp.tests.common import SingleTransactionCase
 
 
 class TestWardboardPrintReportPermissions(SingleTransactionCase):

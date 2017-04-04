@@ -529,6 +529,35 @@ describe('Background', function() {
             expect(+label[0].getAttribute('x')).toBe(388);
             expect(yValue > 160 && yValue < 165).toBeTruthy();
         });
+
+        it("displays NA when there is a false value", function() {
+            var measure;
+            graph.options.keys = ['respiration_rate'];
+            graph.options.label = 'RR';
+            graph.options.measurement = '/min';
+            graphlib.data.raw = ews_data.empty_partial;
+            graphlib.init();
+            graphlib.draw();
+            measure = document.querySelectorAll('.background .measurement');
+            expect(measure[0].textContent).toBe('NA');
+        });
+
+        it("displays NA when there is a null value", function() {
+            var measure;
+            graph.options.keys = ['respiration_rate'];
+            graph.options.label = 'RR';
+            graph.options.measurement = '/min';
+            graphlib.data.raw = ews_data.multi_partial;
+            graphlib.init();
+            graphlib.draw();
+            measure = document.querySelectorAll('.background .measurement');
+            expect(measure[0].textContent).toBe('NA');
+        });
+
+
+        afterEach(function(){
+           graphlib.data.raw = ews_data.single_record;
+        });
     });
 
     describe("Gridlines", function() {

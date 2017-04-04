@@ -1,8 +1,8 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import logging
 
-from openerp.tests.common import SingleTransactionCase
 from openerp.osv.orm import except_orm
+from openerp.tests.common import SingleTransactionCase
 
 _logger = logging.getLogger(__name__)
 

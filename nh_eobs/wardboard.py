@@ -330,6 +330,21 @@ class nh_clinical_wardboard(orm.Model):
     data such as
     :class:`EWS<ews.nh_clinical_patient_observation_ews>`
     etc.
+
+    Wardboard overrides the init method and others to provide an implementation
+    that is backed by database views. When accessing fields on a wardboard,
+    rather than allowing Odoo's ORM to retrieve them from database tables, we
+    are using function fields that call methods that execute hand-written SQL
+    queries on database views. We ensure that the database views these methods
+    use are created when the model is first loaded and it's `init` method is
+    called.
+
+    Calling create on wardboard fails. Instead you should just browse for them
+    as if they already exist, using the spell id as the id
+    (or multiple spell ids). The id(s) used are passed to the function fields
+    to retrieve the data, so a wardboard record with the correct id simply has
+    the means to get the data you'd expect, it does not need to be formally
+    created.
     """
 
     _name = "nh.clinical.wardboard"

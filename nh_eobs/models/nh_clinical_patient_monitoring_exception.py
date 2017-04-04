@@ -18,11 +18,23 @@ class PatientMonitoringException(models.Model):
     _name = 'nh.clinical.patient_monitoring_exception'
     _inherit = ['nh.activity.data']
 
-    reason = fields.Many2one(
-        'nh.clinical.patient_monitoring_exception.reason',
-        required=True
-    )
+    reason = fields.Many2one('nh.clinical.patient_monitoring_exception.reason')
     spell = fields.Many2one('nh.clinical.spell')
+
+    def get_start_message(self):
+        return 'Started Patient Monitoring Exception'
+
+    def get_stop_message(self):
+        return 'Stopped Patient Monitoring Exception'
+
+    def start(self, activity_id):
+        return super(PatientMonitoringException, self).start(activity_id)
+
+    def complete(self, activity_id):
+        return super(PatientMonitoringException, self).complete(activity_id)
+
+    def cancel(self, activity_id):
+        return super(PatientMonitoringException, self).cancel(activity_id)
 
     def get_activities_by_spell_activity(self, spell_activity):
         """
@@ -49,7 +61,8 @@ class PatientMonitoringException(models.Model):
         :return:
         """
         activities = self.get_activities_by_spell_activity(spell_activity)
-        return activities[0] if activities else None
+        activities.ensure_one()
+        return activities
 
     def started_after_date(self, spell_activity, date):
         """

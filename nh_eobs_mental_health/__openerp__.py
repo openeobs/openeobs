@@ -1,5 +1,5 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 {
     'name': 'NH eObs Mental Health Defaults',
     'version': '0.1',
@@ -25,7 +25,7 @@
         'views/observation_report_template.xml',
         'security/ir.model.access.csv'
     ],
-    'qweb': [],
+    'qweb': ['static/src/xml/widgets.xml'],
     'application': True,
     'installable': True,
     'active': False,

@@ -6,10 +6,10 @@ from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
-class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
+class TestPatientRefusalAfterObsStop(TransactionCase):
 
     def setUp(self):
-        super(TestPatientRefusalAfterPatientMonitoringException, self).setUp()
+        super(TestPatientRefusalAfterObsStop, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_and_place_patient()
@@ -39,12 +39,12 @@ class TestPatientRefusalAfterPatientMonitoringException(TransactionCase):
 
     def test_obs_after_refusal_due_in_one_hour(self):
         reason_one = self.reason_model.create({'display_text': 'reason one'})
-        self.wardboard.start_patient_monitoring_exception(
+        self.wardboard.start_obs_stop(
             reason_one,
             self.spell_activity.data_ref.id,
             self.spell_activity_id
         )
-        self.wardboard.end_patient_monitoring_exception()
+        self.wardboard.end_obs_stop()
 
         refused_obs = \
             self.ews_model.get_open_obs_activity(self.spell_activity_id)

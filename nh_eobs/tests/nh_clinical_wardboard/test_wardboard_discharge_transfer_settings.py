@@ -1,5 +1,10 @@
-from openerp.tests.common import SingleTransactionCase
 from mock import MagicMock, patch
+from openerp.tests.common import SingleTransactionCase
+
+
+transfer = None
+discharge = None
+wardboard = None
 
 
 class TestWardboardDischargeTransferSettings(SingleTransactionCase):

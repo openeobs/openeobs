@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from openerp.models import AbstractModel
 
 
@@ -72,12 +71,12 @@ class NhClinicalTestUtils(AbstractModel):
             reason = reason_model.create({'display_text': 'reason one'})
         wardboard_model = self.env['nh.clinical.wardboard']
         self.wardboard = wardboard_model.browse(spell.id)
-        self.wardboard.start_patient_monitoring_exception(
+        self.wardboard.start_obs_stop(
             reason, spell.id, spell.activity_id.id
         )
 
     def end_pme(self):
-        self.wardboard.end_patient_monitoring_exception()
+        self.wardboard.end_obs_stop()
 
     def find_and_complete_clinical_review(self, ews_id=None):
         if not ews_id:
@@ -101,3 +100,39 @@ class NhClinicalTestUtils(AbstractModel):
         if clinical_review_freq:
             self.activity_model.sudo(self.doctor).complete(
                 clinical_review_freq.id)
+
+    def create_activity_obs_stop(self):
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
+        pme_reason_acute_ed = self.browse_ref('nh_eobs.acute_hospital_ed')
+        activity_id_obs_stop = obs_stop_model.create_activity(
+            {
+                'parent_id': self.spell_activity.id,
+                'spell_activity_id': self.spell_activity.id
+            },
+            {
+                'reason': pme_reason_acute_ed.id,
+                'spell': self.spell.id
+            }
+        )
+        activity_obs_stop = self.activity_model.browse(activity_id_obs_stop)
+        return activity_obs_stop
+
+    def create_activity_rapid_tranq(self, reason_id=None):
+        rapid_tranq_model = self.env['nh.clinical.pme.rapid_tranq']
+
+        vals_data_activity = {
+            'parent_id': self.spell_activity.id,
+            'spell_activity_id': self.spell_activity.id
+        }
+        vals_data_ref = {'spell': self.spell.id}
+        if reason_id:
+            vals_data_ref['reason'] = reason_id
+
+        activity_id_rapid_tranq = rapid_tranq_model.create_activity(
+            vals_data_activity,
+            vals_data_ref
+        )
+
+        activity_rapid_tranq = \
+            self.activity_model.browse(activity_id_rapid_tranq)
+        return activity_rapid_tranq

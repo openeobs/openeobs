@@ -4,7 +4,7 @@ from openerp.tests.common import TransactionCase
 
 class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
     """
-    Test :method:`start_patient_monitoring_exception` in
+    Test :method:`start_obs_stop` in
     :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
     """
     def setUp(self):
@@ -19,7 +19,7 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
-        self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        self.pme_model = self.env['nh.clinical.pme.obs_stop']
 
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
@@ -48,12 +48,12 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
 
         a_reason = self.reason_model.create({'display_text': 'reason one'})
 
-        self.wardboard.start_patient_monitoring_exception(
+        self.wardboard.start_obs_stop(
             a_reason, self.spell.id, self.spell_activity_id
         )
-        self.wardboard.end_patient_monitoring_exception(cancellation=True)
+        self.wardboard.end_obs_stop(cancellation=True)
 
-    def test_cancels_open_patient_monitoring_exception_activity(self):
+    def test_cancels_open_obs_stop_activity(self):
         spell_activity = self.activity_model.browse(self.spell_activity_id)
         pme_activity = \
             self.pme_model.get_activity_by_spell_activity(spell_activity)

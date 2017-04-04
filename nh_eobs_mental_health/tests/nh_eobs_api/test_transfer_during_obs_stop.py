@@ -1,13 +1,13 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestTransferDuringPatientMonitoringException(TransactionCase):
+class TestTransferDuringObsStop(TransactionCase):
     """
     Test transfers that occur whilst a patient monitoring exception is active
     on the spell.
     """
     def setUp(self):
-        super(TestTransferDuringPatientMonitoringException, self).setUp()
+        super(TestTransferDuringObsStop, self).setUp()
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_and_place_patient()
 
@@ -24,7 +24,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
 
         reason = self.pme_reason.browse(1)
         wardboard = self.wardboard_model.browse(self.spell.id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             reason, self.spell.id, self.spell_activity_id
         )
 
@@ -42,13 +42,13 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
         )
         self.assertFalse(self.spell.obs_stop, True)
 
-    def test_transfer_ends_current_patient_monitoring_exception(self):
+    def test_transfer_ends_current_obs_stop(self):
         """
         Test that when the patient is transferred that the currently open
         Patient Monitoring Exception is cancelled
         """
         domain = [
-            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
+            ('data_model', '=', 'nh.clinical.pme.obs_stop'),
             ('spell_activity_id', '=', self.spell_activity_id),
             ('state', 'not in', ['completed', 'cancelled'])
         ]
@@ -68,7 +68,7 @@ class TestTransferDuringPatientMonitoringException(TransactionCase):
             'spell_activity_id': self.spell_activity_id,
             'patient_id': self.patient.id
         })
-        self.wardboard.end_patient_monitoring_exception()
+        self.wardboard.end_obs_stop()
 
         self.api_model.transfer(
             self.hospital_number,

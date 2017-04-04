@@ -1551,4 +1551,29 @@ openerp.nh_eobs = function (instance) {
             }
         }
     })
+
+    instance.web.StaleDataExceptionHandler = instance.web.Dialog.extend(instance.web.ExceptionHandler, {
+        init: function(parent, error) {
+            this._super(parent);
+            this.error = error;
+        },
+        display: function() {
+            var self = this;
+            error = this.error;
+            error.data.message = error.data.arguments[0];
+
+            new instance.web.Dialog(this, {
+                size: 'medium',
+                title: error.data.arguments[1],
+                buttons: [
+                    {text: "Reload Page",
+                     click: function() {
+                        location.reload();
+                    }}
+                ],
+            }, QWeb.render('CrashManager.warning', {error: error})).open();
+        }
+    });
+
+    instance.web.crash_manager_registry.add('openerp.addons.nh_eobs.exceptions.StaleDataException', 'instance.web.StaleDataExceptionHandler');
 }

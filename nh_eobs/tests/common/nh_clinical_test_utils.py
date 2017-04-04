@@ -91,7 +91,6 @@ class NhClinicalTestUtils(AbstractModel):
         ward = self.ward
         other_hca = self.create_hca(ward.id)
         other_nurse = self.create_nurse(ward.id)
-        self.allocating_pool = self.env['nh.clinical.allocating']
         self.allocation_pool = self.env['nh.clinical.staff.allocation']
         wizard = self.allocation_pool.create({'ward_id': ward.id})
         wizard.submit_ward()

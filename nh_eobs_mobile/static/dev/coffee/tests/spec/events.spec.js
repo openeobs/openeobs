@@ -444,6 +444,7 @@ describe("Event Handling", function(){
                 });
                 var test = document.getElementById('test');
                 test.innerHTML = '<a href="#" class="obs">Obs</a>' +
+                '<button id="take-observation">Take Observation</button>' +
                 '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
                 '<select id="chart_select" name="chart_select">' +
                 '<option value="ews" selected="selected">NEWS</option>' +
@@ -498,7 +499,7 @@ describe("Event Handling", function(){
             });
 
             it('Captures and handles Take Observation menu button click', function(){
-                var test_button = document.getElementsByClassName('obs')[0];
+                var test_button = document.getElementById('take-observation');
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
                 test_button.dispatchEvent(click_event);

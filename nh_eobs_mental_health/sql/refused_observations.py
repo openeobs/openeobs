@@ -156,13 +156,14 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'left join ews1 on ews1.spell_activity_id = spell_activity.id '
             'LEFT JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = spell_activity.id '
-            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN last_finished_obs_stop AS obs_stop '
+            'ON obs_stop.spell_id = spell.id '
             'LEFT JOIN refused_last_ews '
             'ON refused_last_ews.spell_activity_id = spell_activity.id '
             'AND coalesce(refused_last_ews.date_terminated '
             '>= spell.move_date, TRUE) '
             'AND coalesce(refused_last_ews.date_terminated >= '
-            'pme.activity_date_terminated, TRUE) '
+            'obs_stop.activity_date_terminated, TRUE) '
         )
         sql = sql.replace(
             'end as deadline_time,',
@@ -177,19 +178,21 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'left join ews0 on ews0.spell_activity_id = activity.id '
             'LEFT JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = activity.id '
-            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN last_finished_obs_stop AS obs_stop '
+            'ON obs_stop.spell_id = spell.id '
             'LEFT JOIN refused_last_ews '
             'ON refused_last_ews.spell_activity_id = activity.id '
             'AND coalesce(refused_last_ews.date_terminated '
             '>= spell.move_date, TRUE) '
             'AND coalesce(refused_last_ews.date_terminated >= '
-            'pme.activity_date_terminated, TRUE) '
+            'obs_stop.activity_date_terminated, TRUE) '
             'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
         )
         sql = sql.replace(
             'patient.other_identifier,',
             'patient.other_identifier, '
-            'refused_last_ews.refused AS refusal_in_effect,'
+            'refused_last_ews.refused AS refusal_in_effect, '
+            'spell.rapid_tranq AS rapid_tranq, '
         )
         return sql.format(spell_ids=spell_ids)
 

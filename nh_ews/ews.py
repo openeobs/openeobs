@@ -823,7 +823,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         frequency = previous_obs_activity.data_ref.frequency
         spell_activity_id = previous_obs_activity.spell_activity_id.id
 
-        if self.patient_monitoring_exception_before_refusals(
+        if self.obs_stop_before_refusals(
                 spell_activity_id):
             case = 'Obs Restart'
         elif frequency == 15 \

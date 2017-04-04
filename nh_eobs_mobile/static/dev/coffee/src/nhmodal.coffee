@@ -21,6 +21,8 @@ class NHModal extends NHLib
     cover.setAttribute('data-action', 'close')
     if @id is 'submit_observation' or @id is 'partial_reasons'
       cover.setAttribute('data-action', 'renable')
+    if @id is 'rapid_tranq_check'
+      cover.setAttribute('data-action', 'close_reload')
     cover.setAttribute('data-target', @id)
     cover.addEventListener('click', (e) ->
       self.handle_event(e, self.handle_button_events, false)
@@ -137,6 +139,9 @@ class NHModal extends NHLib
       dialog_id.parentNode.removeChild(dialog_id)
       self.unlock_scrolling()
 
+  reloadPage: () ->
+    location.reload()
+
   # Handle events from buttons created in options array
   # Currently offers
   # - close (closes modal)
@@ -154,6 +159,9 @@ class NHModal extends NHLib
       when 'close'
         event.preventDefault()
         @close_modal(data_target)
+      when 'close_reload'
+        event.preventDefault()
+        @reloadPage()
       when 'renable'
         event.preventDefault()
         forms = document.getElementsByTagName('form')
@@ -162,6 +170,12 @@ class NHModal extends NHLib
             when element.getAttribute('type') in ['submit', 'reset'])
           for button in action_buttons
             button.removeAttribute('disabled')
+        @close_modal(data_target)
+      when 'confirm_submit'
+        event.preventDefault()
+        confirmEvent = document.createEvent "CustomEvent"
+        confirmEvent.initCustomEvent("confirm_change", false, true, false)
+        document.dispatchEvent confirmEvent
         @close_modal(data_target)
       when 'submit'
         event.preventDefault()

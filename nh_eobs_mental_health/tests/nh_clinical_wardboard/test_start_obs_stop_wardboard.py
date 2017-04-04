@@ -4,7 +4,7 @@ from openerp.tests.common import TransactionCase
 
 class TestStartPatientMonitoringException(TransactionCase):
     """
-    Test :method:`start_patient_monitoring_exception` in
+    Test :method:`start_obs_stop` in
     :class:`NHClinicalWardboard<nh_eobs_mental_health.nh_clinical_wardboard>`.
     """
     def setUp(self):
@@ -15,8 +15,6 @@ class TestStartPatientMonitoringException(TransactionCase):
         self.reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
         self.wardboard_model = self.env['nh.clinical.wardboard']
-        self.wizard_model = \
-            self.env['nh.clinical.patient_monitoring_exception.select_reason']
 
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
@@ -46,7 +44,7 @@ class TestStartPatientMonitoringException(TransactionCase):
         """
         no_reasons = []
         with self.assertRaises(ValueError):
-            self.wardboard.start_patient_monitoring_exception(
+            self.wardboard.start_obs_stop(
                 no_reasons,
                 self.spell_activity.id,
                 self.spell_activity_id
@@ -62,7 +60,7 @@ class TestStartPatientMonitoringException(TransactionCase):
         reason_two = self.reason_model.create({'display_text': 'reason two'})
         multiple_reasons = [reason_one, reason_two]
         with self.assertRaises(ValueError):
-            self.wardboard.start_patient_monitoring_exception(
+            self.wardboard.start_obs_stop(
                 multiple_reasons,
                 self.spell_activity.id,
                 self.spell_activity_id

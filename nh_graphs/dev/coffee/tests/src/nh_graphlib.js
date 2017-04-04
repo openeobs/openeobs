@@ -409,7 +409,7 @@ NHGraphLib = (function() {
       return data;
     }).enter().append('td').html(function(d) {
       var i, len, o, ref, text;
-      if (typeof d.value === 'object') {
+      if (typeof d.value === 'object' and) {
         text = '';
         ref = d.value;
         for (i = 0, len = ref.length; i < len; i++) {

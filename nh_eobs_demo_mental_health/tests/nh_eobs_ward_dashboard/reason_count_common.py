@@ -55,7 +55,7 @@ class ReasonCountCommon(TransactionCase):
         if spells_on_ward_a:
             spell = spells_on_ward_a[0]
             spell.write({'obs_stop': True})
-            pme_model = self.env['nh.clinical.patient_monitoring_exception']
+            pme_model = self.env['nh.clinical.pme.obs_stop']
             activity_id = pme_model.create_activity(
                 {},
                 {'reason': self.get_reason_id(), 'spell': spell.id}
@@ -78,7 +78,7 @@ class ReasonCountCommon(TransactionCase):
         wardboard_model = self.env['nh.clinical.wardboard']
         for spell in spells_on_ward_a:
             wardboard = wardboard_model.browse(spell.id)
-            wardboard.end_patient_monitoring_exception()
+            wardboard.end_obs_stop()
         self.returns_correct_number_of_patients(count=count)
 
     def returns_no_patients_when_no_pme(self):
@@ -91,5 +91,5 @@ class ReasonCountCommon(TransactionCase):
         wardboard_model = self.env['nh.clinical.wardboard']
         for spell in spells_on_ward_a:
             wardboard = wardboard_model.browse(spell.id)
-            wardboard.end_patient_monitoring_exception()
+            wardboard.end_obs_stop()
         self.returns_no_patients()

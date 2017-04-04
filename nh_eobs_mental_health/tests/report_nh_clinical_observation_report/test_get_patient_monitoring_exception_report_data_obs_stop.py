@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+# TODO These tests should really be in nh_eobs where the
+# patient_monitoring_exception abstract model is, but they are here testing
+# using obs stop instead because it is difficult to test with an abstract
+# model. Need a better solution.
 """
 ===========
 Terminology
@@ -55,6 +59,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
             {},
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
+        self.activity_model.start(self.spell_activity_id)
         self.spell_activity = \
             self.activity_model.browse(self.spell_activity_id)
         self.spell = self.spell_activity.data_ref
@@ -72,7 +77,7 @@ class TestMonitoringExceptionsReturned(
 
         self.pme_reason_model = \
             self.env['nh.clinical.patient_monitoring_exception.reason']
-        self.pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        self.pme_model = self.env['nh.clinical.pme.obs_stop']
         self.observation_report_model = \
             self.env['report.nh.clinical.observation_report']
 
@@ -140,41 +145,42 @@ class TestMonitoringExceptionsReturned(
         # Set start datetime to be used for report.
         self.start_date = self.now_string()
 
+        # Get records for the patient monitoring exceptions.
+        self.pme_closed = self.activity_model.browse(pme_closed_id).data_ref
+        self.pme_open = self.activity_model.browse(pme_open_id).data_ref
+        self.pme_started_long_ago = self.activity_model.browse(
+            pme_started_long_ago_id).data_ref
+        self.pme_ends_in_the_future = self.activity_model.browse(
+            pme_ends_in_the_future_id).data_ref
+        self.pme_still_open_before_start_date = self.activity_model.browse(
+            pme_still_open_before_start_date_id).data_ref
+        self.pme_cancelled_due_to_transfer_activity = \
+            self.activity_model.browse(pme_cancelled_due_to_transfer_id)
+        self.pme_cancelled_due_to_transfer = \
+            self.pme_cancelled_due_to_transfer_activity.data_ref
+        self.pme_ended_before_start_date = self.activity_model.browse(
+            pme_ended_before_start_date_id).data_ref
+
         # Progress activity lifecycle of the patient monitoring exceptions.
-        self.pme_model.start(pme_closed_id)
-        self.pme_model.complete(pme_closed_id)
-        self.pme_model.start(pme_open_id)
-        self.pme_model.start(pme_started_long_ago_id)
-        self.pme_model.complete(pme_started_long_ago_id)
-        self.pme_model.start(pme_ends_in_the_future_id)
-        self.pme_model.complete(pme_ends_in_the_future_id)
-        self.pme_model.start(pme_still_open_before_start_date_id)
-        self.pme_model.start(pme_cancelled_due_to_transfer_id)
-        self.pme_model.cancel(pme_cancelled_due_to_transfer_id)
-        self.pme_model.start(pme_ended_before_start_date_id)
-        self.pme_model.complete(pme_ended_before_start_date_id)
+        self.pme_closed.start(pme_closed_id)
+        self.pme_closed.complete(pme_closed_id)
+        self.pme_open.start(pme_open_id)
+        self.pme_started_long_ago.start(pme_started_long_ago_id)
+        self.pme_started_long_ago.complete(pme_started_long_ago_id)
+        self.pme_ends_in_the_future.start(pme_ends_in_the_future_id)
+        self.pme_ends_in_the_future.complete(pme_ends_in_the_future_id)
+        self.pme_still_open_before_start_date.start(
+            pme_still_open_before_start_date_id)
+        self.pme_cancelled_due_to_transfer.start(
+            pme_cancelled_due_to_transfer_id)
+        self.pme_cancelled_due_to_transfer.cancel(
+            pme_cancelled_due_to_transfer_id)
+        self.pme_ended_before_start_date.start(pme_ended_before_start_date_id)
+        self.pme_ended_before_start_date.complete(
+            pme_ended_before_start_date_id)
 
         # Set end datetime to be used for report.
         self.end_date = self.now_string()
-
-        # Get records for the patient monitoring exceptions.
-        self.pme_closed = self.activity_model.browse(pme_closed_id)
-        self.pme_open = self.activity_model.browse(pme_open_id)
-        self.pme_started_long_ago = self.activity_model.browse(
-            pme_started_long_ago_id
-        )
-        self.pme_ends_in_the_future = self.activity_model.browse(
-            pme_ends_in_the_future_id
-        )
-        self.pme_still_open_before_start_date = self.activity_model.browse(
-            pme_still_open_before_start_date_id
-        )
-        self.pme_cancelled_due_to_transfer = self.activity_model.browse(
-            pme_cancelled_due_to_transfer_id
-        )
-        self.pme_ended_before_start_date = self.activity_model.browse(
-            pme_ended_before_start_date_id
-        )
 
         # Modify start date and end dates.
         ages_ago = '1989-06-06 14:00:00'
@@ -189,13 +195,12 @@ class TestMonitoringExceptionsReturned(
         # Setup cancellation of patient monitoring exception due to transfer.
         cancel_reason_transfer = \
             self.browse_ref('nh_eobs.cancel_reason_transfer')
-        self.pme_cancelled_due_to_transfer.cancel_reason_id = \
+        self.pme_cancelled_due_to_transfer_activity.cancel_reason_id = \
             cancel_reason_transfer.id
 
         self.dictionary = self.observation_report_model\
             .get_patient_monitoring_exception_report_data(
-                self.spell_activity.id, self.start_date, self.end_date
-            )
+                self.spell_activity.id, self.start_date, self.end_date)
 
         self.report_entries = self.dictionary[self.ROOT_KEY]
 
@@ -276,7 +281,7 @@ class TestMonitoringExceptionsReturned(
 
         self.assertEqual(len(pme_transfer_report_entries), 1,
                          "Unexpected amount of patient monitoring excpetions "
-                         "with transfer set as reason.")
+                         "with transfer set as reason.")  # TODO typo.
 
     def test_user_set_on_transfer_report_entry(self):
         pme_ended_report_entries = self.get_restart_obs_report_entries()

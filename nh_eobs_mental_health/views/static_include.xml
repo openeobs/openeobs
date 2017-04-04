@@ -4,6 +4,7 @@
             <xpath expr="." position="inside">
                 <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/view_select_obs_stop_reason.css"/>
                 <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/acuity_board_folded_columns.css"/>
+                <link rel="stylesheet" href="/nh_eobs_mental_health/static/src/css/acuity_board_rapid_tranq_kanban.css"/>
                 <script type="text/javascript" src="/nh_eobs_mental_health/static/src/js/nh_eobs_mental_health.js"></script>
             </xpath>
         </template>

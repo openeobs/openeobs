@@ -1,0 +1,7 @@
+<templates>
+
+     <t t-name="nh_rapid_tranq_cell">
+         <strong class="rapid_tranq_string">RT</strong>
+    </t>
+
+</templates>

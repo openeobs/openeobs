@@ -427,7 +427,7 @@ class NHGraphLib
             data.push {title: t, value: v, presentation: p, class: false}
       return data
     ).enter().append('td').html((d) ->
-      if typeof d.value is 'object'
+      if typeof d.value is 'object' and d.value isnt null
         text = ''
         for o in d.value
           if o.value

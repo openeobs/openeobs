@@ -487,7 +487,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
     @api.model
-    def patient_monitoring_exception_before_refusals(self, spell_activity_id):
+    def obs_stop_before_refusals(self, spell_activity_id):
         obs_activity = self.get_open_obs_activity(spell_activity_id)
         # Latest activity may be an open obs.
         if obs_activity.state not in ['completed', 'cancelled']:
@@ -514,7 +514,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             # indeed a patient monitoring exception immediately prior to the
             # refusals.
             elif creator_activity.data_model == \
-                    'nh.clinical.patient_monitoring_exception':
+                    'nh.clinical.pme.obs_stop':
                 return True
             return False
 
