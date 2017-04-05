@@ -91,7 +91,7 @@ class TestRefusedObsCount(TransactionCase):
         """
         spell = self.spell_model.browse(1)
         spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        pme_model = self.env['nh.clinical.pme.obs_stop']
         activity_id = pme_model.create_activity(
             {},
             {'reason': 1, 'spell': spell.id}
@@ -136,7 +136,7 @@ class TestRefusedObsCount(TransactionCase):
         """
         spell = self.spell_model.browse(1)
         spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        pme_model = self.env['nh.clinical.pme.obs_stop']
         activity_id = pme_model.create_activity(
             {},
             {'reason': 1, 'spell': spell.id}
@@ -147,5 +147,5 @@ class TestRefusedObsCount(TransactionCase):
         pme_model.start(activity_id)
         wardboard_model = self.env['nh.clinical.wardboard']
         wardboard = wardboard_model.browse(spell.id)
-        wardboard.end_patient_monitoring_exception()
+        wardboard.end_obs_stop()
         self.assertEqual(self.get_refused_count(), 3)

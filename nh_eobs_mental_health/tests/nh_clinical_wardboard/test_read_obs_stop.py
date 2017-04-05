@@ -1,5 +1,6 @@
-from openerp.tests.common import SingleTransactionCase
 import __builtin__
+
+from openerp.tests.common import SingleTransactionCase
 
 
 class PatchedReadSuper(object):
@@ -23,8 +24,8 @@ class TestReadObsStop(SingleTransactionCase):
         super(TestReadObsStop, cls).setUpClass()
         cls.wardboard_model = cls.registry('nh.clinical.wardboard')
         cls.spell_model = cls.registry('nh.clinical.spell')
-        cls.pme_model = \
-            cls.registry('nh.clinical.patient_monitoring_exception')
+        cls.obs_stop_model = \
+            cls.registry('nh.clinical.pme.obs_stop')
 
         def patch_wardboard_read_super(*args, **kwargs):
             return PatchedReadSuper()
@@ -69,8 +70,8 @@ class TestReadObsStop(SingleTransactionCase):
 
         cls.spell_model._patch_method('search', patch_spell_search)
         cls.spell_model._patch_method('read', patch_spell_read)
-        cls.pme_model._patch_method('search', patch_pme_search)
-        cls.pme_model._patch_method('read', patch_pme_read)
+        cls.obs_stop_model._patch_method('search', patch_pme_search)
+        cls.obs_stop_model._patch_method('read', patch_pme_read)
 
         cls.original_super = super
 
@@ -87,8 +88,8 @@ class TestReadObsStop(SingleTransactionCase):
         __builtin__.super = cls.original_super
         cls.spell_model._revert_method('search')
         cls.spell_model._revert_method('read')
-        cls.pme_model._revert_method('search')
-        cls.pme_model._revert_method('read')
+        cls.obs_stop_model._revert_method('search')
+        cls.obs_stop_model._revert_method('read')
         super(TestReadObsStop, cls).tearDownClass()
 
     def test_next_diff_with_obs_stop(self):

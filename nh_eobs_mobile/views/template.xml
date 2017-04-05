@@ -4,7 +4,6 @@
 <openerp>
     <data>
 
-
         <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
@@ -90,28 +89,30 @@
                                 <!--</li>-->
                             </t>
                         </t>
-                        <li t-foreach="items" t-as="item">
-                            <a t-att-href="item['url']" t-att-class="item['color']+' block'">
-                                <div class="task-meta">
-                                    <div class="task-right">
-                                        <p class="aside"><t t-esc="item['deadline_time']"/></p>
-                                        <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
-                                            <p class="aside">Claim</p>
-                                        </t>
+                        <t t-foreach="items" t-as="item">
+                            <li>
+                                <a t-att-href="item['url']" t-att-class="item['color']+' block'">
+                                    <div class="task-meta">
+                                        <div class="task-right">
+                                            <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                            <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
+                                                <p class="aside">Claim</p>
+                                            </t>
+                                        </div>
+                                        <div class="task-left">
+                                            <t t-if="'notification' in item and item['notification']==True">
+                                                <i class="icon-alert"></i>
+                                            </t>
+                                            <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
+                                            <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                        </div>
                                     </div>
-                                    <div class="task-left">
-                                        <t t-if="'notification' in item and item['notification']==True">
-                                            <i class="icon-alert"></i>
-                                        </t>
-                                        <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
-                                        <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                    <div class="task-meta">
+                                        <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
                                     </div>
-                                </div>
-                                <div class="task-meta">
-                                    <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
-                                </div>
-                            </a>
-                        </li>
+                                </a>
+                            </li>
+                        </t>
                         <t t-if="followed_items">
                             <li><hr/></li>
                             <li t-foreach="followed_items" t-as="item">
@@ -356,8 +357,6 @@
             </div>
         </template>
 
-
-
         <template name="Error Screen" t-name="nh_eobs_mobile.error">
             <t t-call="nh_eobs_mobile.base">
                 <div class="content">
@@ -375,18 +374,20 @@
                     <div class="block">
                         <a class="patientInfo" href="#" id="obsButton">
                             <h3 class="name" t-att-data-id="patient['id']">
-                                <strong><t t-esc="patient['full_name']"/></strong><br/>
+                                <strong><t t-esc="patient['full_name']"/></strong>
+                            </h3>
+                            <h5 id="patient-location" class="location">
                                 <t t-if="'parent_location' in patient">
                                     <t t-esc="patient['parent_location']"/>,
                                 </t>
                                 <t t-if="'location' in patient">
                                     <t t-esc="patient['location']"/>
                                 </t>
-                            </h3>
-                            <t t-if="len(obs_list) > 0">
-                                <button class="obs big do-it">Take observation</button>
-                            </t>
+                            </h5>
                         </a>
+                        <t t-if="len(obs_list) > 0">
+                            <button id="take-observation" class="big full-width do-it">Take observation</button>
+                        </t>
                         <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>

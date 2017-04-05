@@ -1178,9 +1178,9 @@ NHMobilePatient = (function(superClass) {
     if (obsMenu) {
       obsMenu.style.display = "none";
     }
-    obs = document.getElementsByClassName("obs");
-    if (obs && obs.length > 0) {
-      return obs[0].addEventListener("click", function(e) {
+    obs = document.getElementById("take-observation");
+    if (obs) {
+      return obs.addEventListener("click", function(e) {
         return self.handle_event(e, self.showObsMenu, true);
       });
     }
@@ -1802,6 +1802,9 @@ NHModal = (function(superClass) {
     if (this.id === 'submit_observation' || this.id === 'partial_reasons') {
       cover.setAttribute('data-action', 'renable');
     }
+    if (this.id === 'rapid_tranq_check') {
+      cover.setAttribute('data-action', 'close_reload');
+    }
     cover.setAttribute('data-target', this.id);
     cover.addEventListener('click', function(e) {
       return self.handle_event(e, self.handle_button_events, false);
@@ -1919,8 +1922,12 @@ NHModal = (function(superClass) {
     }
   };
 
+  NHModal.prototype.reloadPage = function() {
+    return location.reload();
+  };
+
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, confirmEvent, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
     target_el = event.src_el;
     data_target = target_el.getAttribute('data-target');
     data_action = target_el.getAttribute('data-ajax-action');
@@ -1928,6 +1935,9 @@ NHModal = (function(superClass) {
       case 'close':
         event.preventDefault();
         return this.close_modal(data_target);
+      case 'close_reload':
+        event.preventDefault();
+        return this.reloadPage();
       case 'renable':
         event.preventDefault();
         forms = document.getElementsByTagName('form');
@@ -1950,6 +1960,12 @@ NHModal = (function(superClass) {
             button.removeAttribute('disabled');
           }
         }
+        return this.close_modal(data_target);
+      case 'confirm_submit':
+        event.preventDefault();
+        confirmEvent = document.createEvent("CustomEvent");
+        confirmEvent.initCustomEvent("confirm_change", false, true, false);
+        document.dispatchEvent(confirmEvent);
         return this.close_modal(data_target);
       case 'submit':
         event.preventDefault();

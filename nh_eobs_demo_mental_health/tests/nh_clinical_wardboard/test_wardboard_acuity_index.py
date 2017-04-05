@@ -25,7 +25,7 @@ class TestWardboardAcuityIndex(TransactionCase):
             ['obs_stop', '=', True]
         ])
         restarted_obs = activity_model.search([
-            ['data_model', '=', 'nh.clinical.patient_monitoring_exception'],
+            ['data_model', '=', 'nh.clinical.pme.obs_stop'],
             ['state', 'in', ['completed', 'cancelled']],
             ['spell_activity_id.patient_id', 'in', ward_a.patient_ids.ids]
         ])

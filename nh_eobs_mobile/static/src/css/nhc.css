@@ -501,6 +501,10 @@ p.food_fluid_period strong {
   float: left;
   text-align: left;
 }
+.location {
+  font-weight: normal;
+  font-style: italic;
+}
 /*
 
 CSS
@@ -567,7 +571,7 @@ Markup:
         <strong>Test Patient </strong><br>
         Ward A, Bed 01
       </h3>
-      <h3 class="obs button do-it">Take observation</h3>
+      <h3 class="full-width button do-it">Take observation</h3>
     </a>
   </div>
 </div>
@@ -622,20 +626,6 @@ Styleguide 1.1
 a.patientInfo {
   display: block;
   position: relative;
-}
-a.patientInfo .name {
-  width: 50%;
-}
-a.patientInfo .obs {
-  width: 40%;
-  position: absolute;
-  right: 0;
-  top: 1em;
-  text-align: right;
-  margin-top: -1px;
-}
-#obsButton {
-  margin-bottom: 2em;
 }
 span.alignright {
   float: right;
@@ -900,6 +890,9 @@ i {
   width: 100%;
   padding-left: 0%;
   padding-right: 0%;
+}
+.location {
+  margin: 0.5em 0;
 }
 /*
 
@@ -1425,6 +1418,9 @@ Markup:
 
 Styleguide 1.6
 */
+button {
+  margin: 0.5em 0;
+}
 button,
 .button,
 input[type="submit"],
@@ -1595,7 +1591,7 @@ button.full-width,
 .button.full-width,
 input[type="submit"].full-width,
 input[type="reset"].full-width {
-  width: 96%;
+  width: 100%;
   display: block;
 }
 button.rounder,
@@ -1627,7 +1623,8 @@ Styleguide 2.5
 }
 .tabs li {
   border: 1px solid #eeeeee;
-  width: 49.5% !important;
+  width: 50% !important;
+  box-sizing: border-box;
 }
 .tabs li:first-child {
   border-bottom-left-radius: 5px;
@@ -1645,6 +1642,20 @@ Styleguide 2.5
 .tabs li:last-child a {
   border-bottom-right-radius: 5px;
   border-top-right-radius: 5px;
+}
+/*
+Black Buttons With White Text
+
+.white-on-black - White text on a black background.
+*/
+button.white-on-black {
+  background-color: #252525;
+  color: white;
+}
+button.white-on-black:hover,
+button.white-on-black.disabled,
+button.white-on-black[disabled] {
+  background-color: #0c0c0c;
 }
 /*
 Form
@@ -2182,6 +2193,25 @@ Markup:
       </div>
     </a>
   </li>
+  <li class="status-alert">
+    <div class="status-flag">
+      Rapid Tranquilisation
+    </div>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient 5</strong><br>
+          <em>Bed 05, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
 </ul>
 
 Styleguide 2.2.0
@@ -2190,6 +2220,15 @@ Styleguide 2.2.0
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.tasklist li.status-alert {
+  border: 3px solid black;
+}
+.tasklist li .status-flag {
+  background-color: black;
+  color: white;
+  font-weight: bold;
+  padding: 0.2em 5%;
 }
 .tasklist li a {
   display: block;

@@ -28,7 +28,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         'height',
         'weight',
         'blood_product',
-        'blood_sugar',
         'pain',
         'urine_output',
         'bowels_open',
@@ -37,7 +36,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
         'height',
         'weight',
         'blood_product',
-        'blood_sugar',
         'ews',
         'stools',
         'gcs',
@@ -677,10 +675,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                     'name': 'NEWS',
                     'type': 'ews'
                 },
-                {
-                    'name': 'Blood Sugar',
-                    'type': 'blood_sugar'
-                }
             ]
             return active_obs_list
 
@@ -748,10 +742,6 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                     {
                         'name': 'Glasgow Coma Scale (GCS)',
                         'type': 'gcs'
-                    },
-                    {
-                        'name': 'Blood Sugar',
-                        'type': 'blood_sugar'
                     }
                 ],
                 'notification_count': 1,

@@ -122,6 +122,10 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
+  NHGraph.prototype.validValue = function(value) {
+    return value !== false && value !== null && typeof value !== 'undefined';
+  };
+
   NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
     if (ranged) {
@@ -247,18 +251,19 @@ NHGraph = (function(superClass) {
         'class': 'label'
       });
       this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
-        var raw;
+        var raw, value;
         raw = self.parent_obj.parent_obj.data.raw;
         if (i !== self.options.keys.length - 1) {
-          if (raw[raw.length - 1][d] !== false) {
+          value = raw[raw.length - 1][d];
+          if (self.validValue(value)) {
             return raw[raw.length - 1][d];
           } else {
             return 'NA';
           }
         } else {
-          this.lastObsValue = raw[raw.length - 1][d];
-          if (this.lastObsValue !== false && this.lastObsValue !== null) {
-            return this.lastObsValue + '' + self.options.measurement;
+          value = raw[raw.length - 1][d];
+          if (self.validValue(value)) {
+            return raw[raw.length - 1][d] + '' + self.options.measurement;
           } else {
             return 'NA';
           }
@@ -361,7 +366,9 @@ NHGraph = (function(superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
-          if (d.none_values === "[]" && d[self.options.keys[0]]) {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         }).x(function(d) {
@@ -373,7 +380,9 @@ NHGraph = (function(superClass) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
         self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values === "[]" && d[self.options.keys[0]]) {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
@@ -386,16 +395,18 @@ NHGraph = (function(superClass) {
           return self.hide_popup();
         });
         self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          var key, none_vals, partial, partial_type, plot_partial;
+          var hasValue, key, none_vals, partial, partial_type, plot_partial, value;
           none_vals = d.none_values;
           key = self.options.keys[0];
           plot_partial = self.options.plot_partial;
           partial_type = self.parent_obj.parent_obj.options.partial_type;
           partial = plot_partial && partial_type === 'dot';
-          if (plot_partial && partial_type === 'character' && d[key] !== false) {
+          value = d[key];
+          hasValue = self.validValue(value);
+          if (plot_partial && partial_type === 'character' && hasValue) {
             partial = true;
           }
-          if (none_vals !== "[]" && d[key] !== false && partial) {
+          if (none_vals !== "[]" && hasValue && partial) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
@@ -550,17 +561,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[0];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -587,17 +600,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[1];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -624,14 +639,16 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var bottom, keys_valid, none_vals, partial, partial_type, plot_partial, top;
+            var bottom, bottomHasValue, keys_valid, none_vals, partial, partial_type, plot_partial, top, topHasValue;
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             top = d[self.options.keys[0]];
             bottom = d[self.options.keys[1]];
             none_vals = d.none_values;
-            keys_valid = top !== false && bottom !== false;
+            topHasValue = top !== false && top !== null;
+            bottomHasValue = bottom !== false && bottom !== null;
+            keys_valid = topHasValue && bottomHasValue;
             if (plot_partial && partial_type === 'character' && keys_valid) {
               partial = true;
             }

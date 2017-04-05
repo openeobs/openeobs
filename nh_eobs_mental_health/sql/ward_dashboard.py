@@ -10,21 +10,21 @@ class WardDashboardSQL(orm.AbstractModel):
         SELECT
         ward_locations.ward_id AS location_id,
         count(spell.patient_id),
-        pme.reason
+        obs_stop.reason
         FROM nh_clinical_spell AS spell
         LEFT JOIN nh_clinical_location AS location
         ON spell.location_id = location.id
         AND location.usage = 'bed'
         LEFT JOIN wdb_ward_locations AS ward_locations
         ON location.id = ward_locations.id
-        LEFT JOIN nh_clinical_patient_monitoring_exception AS pme
-        ON spell.id = pme.spell
+        LEFT JOIN nh_clinical_pme_obs_stop AS obs_stop
+        ON spell.id = obs_stop.spell
         LEFT JOIN nh_activity AS activity
-        ON pme.activity_id = activity.id
+        ON obs_stop.activity_id = activity.id
         AND activity.state = 'started'
-        WHERE pme.reason IS NOT NULL
+        WHERE obs_stop.reason IS NOT NULL
         AND activity.state IS NOT NULL
-        GROUP BY ward_locations.ward_id, pme.reason"""
+        GROUP BY ward_locations.ward_id, obs_stop.reason"""
 
     ward_dashboard_reason_count_skeleton = """
         select * from wdb_reasons where reason = {reason}"""
@@ -110,8 +110,8 @@ class WardDashboardSQL(orm.AbstractModel):
           ON refused.spell_id = spell.id
           LEFT JOIN nh_activity as spell_activity
           ON spell.activity_id = spell_activity.id
-          LEFT JOIN last_finished_pme as pme
-          ON pme.spell_id = spell.id
+          LEFT JOIN last_finished_obs_stop as obs_stop
+          ON obs_stop.spell_id = spell.id
           LEFT JOIN wdb_transfer_ranked AS transfer
           ON transfer.spell_id = spell.id
           AND transfer.rank = 1
@@ -124,8 +124,8 @@ class WardDashboardSQL(orm.AbstractModel):
           -- whole expression to evaluate to null which is falsey and
           -- therefore fails the where clause, returning nothing.
           -- This is why the 'OR foo IS NULL' is necessary.
-          AND (pme.activity_date_terminated <= acts.date_terminated
-          OR pme.activity_date_terminated IS NULL)
+          AND (obs_stop.activity_date_terminated <= acts.date_terminated
+          OR obs_stop.activity_date_terminated IS NULL)
           AND (spell.obs_stop = 'f'
           OR spell.obs_stop IS NULL)
           AND (transfer.date_terminated <= acts.date_terminated
@@ -196,7 +196,7 @@ class WardDashboardSQL(orm.AbstractModel):
         WHERE location.usage = 'ward'
         """
 
-    last_finished_pme_for_spell_skeleton = """
+    last_finished_obs_stop_for_spell_skeleton = """
         SELECT
         activity.id AS id,
         spell.activity_id AS spell_activity_id,
@@ -206,7 +206,7 @@ class WardDashboardSQL(orm.AbstractModel):
         FROM nh_clinical_spell AS spell
         JOIN (
           SELECT DISTINCT ON (spell_activity_id) * FROM nh_activity
-          WHERE data_model = 'nh.clinical.patient_monitoring_exception'
+          WHERE data_model = 'nh.clinical.pme.obs_stop'
           AND state = ANY('{cancelled, completed}')
           ORDER BY spell_activity_id, date_terminated DESC
         ) AS activity
@@ -223,12 +223,13 @@ class WardDashboardSQL(orm.AbstractModel):
         return self.wardboard_skeleton.replace(
             'spell.move_date,',
             'spell.move_date, '
+            'spell.rapid_tranq AS rapid_tranq, '
             'CASE '
             'WHEN spell.obs_stop = \'t\' THEN \'ObsStop\' '
             'WHEN '
             '( '
             'SELECT activity_date_terminated '
-            'FROM last_finished_pme '
+            'FROM last_finished_obs_stop '
             'WHERE spell_id = spell.id '
             ') >= ( '
             'SELECT ews_acts.date_terminated '
@@ -269,5 +270,5 @@ class WardDashboardSQL(orm.AbstractModel):
     def get_ward_dashboard(self):
         return self.ward_dashboard_skeleton
 
-    def get_last_finished_pme(self):
-        return self.last_finished_pme_for_spell_skeleton
+    def get_last_finished_obs_stop(self):
+        return self.last_finished_obs_stop_for_spell_skeleton

@@ -175,7 +175,6 @@ class ObservationReport(models.AbstractModel):
 
         basic_obs_dict = {
             'gcs': 'nh.clinical.patient.observation.gcs',
-            'bs': 'nh.clinical.patient.observation.blood_sugar',
             'pains': 'nh.clinical.patient.observation.pain',
             'blood_products': 'nh.clinical.patient.observation.blood_product'
         }
@@ -681,7 +680,8 @@ class ObservationReport(models.AbstractModel):
 
         new_style_patient_monitoring_exceptions = \
             self.get_patient_monitoring_exception_report_data(
-                spell_activity_id, data.start_time, data.end_time
+                spell_activity_id,
+                start_date=data.start_time, end_date=data.end_time
             )
 
         patient_monitoring_exception_dictionary = helpers.merge_dicts(
@@ -691,18 +691,21 @@ class ObservationReport(models.AbstractModel):
 
         return patient_monitoring_exception_dictionary
 
-    def get_patient_monitoring_exception_report_data(self,
-                                                     spell_activity_id,
-                                                     start_date=None,
-                                                     end_date=None):
+    def get_patient_monitoring_exception_report_data(
+            self, spell_activity_id, start_date=None, end_date=None):
         """
-        Returns a dictionary containing data for 'new style' patient monitoring
-        exceptions. These are patient monitoring exceptions which are records
-        of the :class:<nh_eobs.models.PatientMonitoringException> model.
+        Returns a dictionary with a 'patient_monitoring_exception_history'
+        key which contains a list of dictionaries containing data for
+        'new style' patient monitoring exceptions. These are patient
+        monitoring exceptions which are records of the
+        :class:<nh_eobs.models.PatientMonitoringException> model.
 
         The data returned is meant for use on the observation report, it is
         not a full representation of the record, just a few fields that
         are ready to be mapped directly onto the report.
+
+        The 'patient_monitoring_exception_history' list is sorted
+        chronologically.
 
         :param spell_activity_id:
         :type spell_activity_id: int
@@ -714,24 +717,27 @@ class ObservationReport(models.AbstractModel):
         :rtype: dict
         """
         pme_activity_ids = \
-            self.get_monitoring_exception_activity_ids_for_report(
-                spell_activity_id, start_date, end_date
-            )
+            self.get_patient_monitoring_exception_activity_ids(
+                spell_activity_id, start_date, end_date)
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
-                pme_activity_ids, start_date, end_date
-            )
+                pme_activity_ids, start_date, end_date)
 
-        dictionary = {
-            'patient_monitoring_exception_history': report_data
-        }
+        def extract_datetime_for_compare(item):
+            datetime_str = item['date']
+            date_time = datetime.strptime(datetime_str, dtf)
+            return date_time
+        report_data = sorted(report_data, key=extract_datetime_for_compare)
+
+        for pme_event in report_data:
+            self.convert_specified_dates_to_context_dates(pme_event, 'date')
+
+        dictionary = {'patient_monitoring_exception_history': report_data}
         return dictionary
 
-    def get_monitoring_exception_activity_ids_for_report(self,
-                                                         spell_activity_id,
-                                                         start_date=None,
-                                                         end_date=None):
+    def get_patient_monitoring_exception_activity_ids(
+            self, spell_activity_id, start_date=None, end_date=None):
         """
         Returns a list of ids for all activities whose information should be
         included in the report. Exactly what entries should be created for
@@ -748,16 +754,16 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
-        domain = self.build_monitoring_exception_domain(spell_activity_id,
-                                                        start_date, end_date)
+        domain = self.build_monitoring_exception_domain(
+            spell_activity_id, start_date, end_date)
         activity_ids = activity_model.search(cr, uid, domain)
         if not isinstance(activity_ids, list):
             activity_ids = [activity_ids]
         return activity_ids
 
     @classmethod
-    def build_monitoring_exception_domain(cls, spell_activity_id,
-                                          start_date=None, end_date=None):
+    def build_monitoring_exception_domain(
+            cls, spell_activity_id, start_date=None, end_date=None):
         """
         Contained in the domain is all the business logic for deciding whether
         an activity may need to included on the report in some way.
@@ -771,11 +777,9 @@ class ObservationReport(models.AbstractModel):
         :param end_date:
         :return:
         """
-        model = 'nh.clinical.patient_monitoring_exception'
-
         base_domain = [
             ('parent_id', '=', spell_activity_id),
-            ('data_model', '=', model),
+            ('data_model', 'ilike', 'nh.clinical.pme%'),
         ]
         include_all_parameters = [
             ('state', 'in', ['started', 'completed', 'cancelled'])
@@ -854,22 +858,24 @@ class ObservationReport(models.AbstractModel):
 
         report_entries = []
         # Get report entry for start of patient monitoring exception.
-        if self.include_stop_obs_entry(activity, start_date, end_date):
-            stop_obs_report_entry = \
-                self.get_report_entry_dictionary(pme_activity_id)
-            report_entries.append(stop_obs_report_entry)
+        if self.include_pme_started_entry(activity, start_date, end_date):
+            pme_started_entry = \
+                self.get_report_entry_dictionary(pme_activity_id,
+                                                 pme_started=True)
+            report_entries.append(pme_started_entry)
 
         # Get report entry for end of patient monitoring exception if it is not
         # still open.
-        if self.include_restart_obs_entry(activity, start_date, end_date):
-            restart_obs_report_entry = \
+        if self.include_pme_completed_entry(activity, start_date, end_date):
+            pme_completed_entry = \
                 self.get_report_entry_dictionary(pme_activity_id,
-                                                 restart_obs=True)
-            report_entries.append(restart_obs_report_entry)
+                                                 pme_started=False)
+            report_entries.append(pme_completed_entry)
 
         return report_entries
 
-    def include_stop_obs_entry(self, activity, start_date=None, end_date=None):
+    def include_pme_started_entry(self, activity,
+                                  start_date=None, end_date=None):
         """
         Encapsulates the logic for deciding if a 'Stop Observations' entry
         should be included on the report for the passed activity dictionary.
@@ -901,8 +907,8 @@ class ObservationReport(models.AbstractModel):
             raise ValueError("A KeyError was raised because the activity did "
                              "not have the expected keys.", e)
 
-    def include_restart_obs_entry(self, activity,
-                                  start_date=None, end_date=None):
+    def include_pme_completed_entry(self, activity,
+                                    start_date=None, end_date=None):
         """
         Encapsulates the logic for deciding if a 'Restart Observations' entry
         should be included on the report for the passed activity dictionary.
@@ -979,47 +985,51 @@ class ObservationReport(models.AbstractModel):
 
         return True
 
-    def get_report_entry_dictionary(self, pme_activity_id,
-                                    restart_obs=False):
+    def get_report_entry_dictionary(
+            self, pme_activity_id, pme_started=True):
         """
         Creates a dictionary that contains the data that will be used to
         populate the report for a single entry concerning a
         patient monitoring exception activity.
 
         Contains various bits of logic to return different values depending on
-        whether it has been instructed to create a 'Stop Observations' entry or
-        a 'Restart Observations' entry, or if the patient monitoring exception
-        activity was cancelled due to a transfer.
+        whether the PME has been started, stopped, or cancelled.
 
         :param pme_activity_id:
         :type pme_activity_id: int
-        :param restart_obs:
-        :type restart_obs: bool
+        :param pme_started:
+        :type pme_started: bool
         :return:
         :rtype: dict
         """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
-        pme_model = \
-            self.pool['nh.clinical.patient_monitoring_exception']
         cancel_reason_model = self.pool['nh.cancel.reason']
-        users_model = self.pool['res.users']
+        user_model = self.pool['res.users']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
         if isinstance(activity, list):
             activity = activity[0]
+        data_ref_model = activity['data_model']
+        data_ref_model = \
+            self.pool[data_ref_model]
 
-        self.convert_activity_dates_to_context_dates(activity)
+        start_pme = data_ref_model.get_start_message()
+        stop_pme = data_ref_model.get_stop_message()
+
+        if isinstance(activity, list):
+            activity = activity[0]
 
         pme_id = self._get_data_ref_id(activity)
-        pme = pme_model.read(cr, uid, pme_id)
+        pme = data_ref_model.read(cr, uid, pme_id)
 
-        date = activity['date_started'] if not restart_obs \
+        date = activity['date_started'] if pme_started \
             else activity['date_terminated']
-        status = 'Stop Observations' if not restart_obs \
-            else 'Restart Observations'
+        status = start_pme if pme_started \
+            else stop_pme
+        uid_field = 'create_uid' if pme_started else 'terminate_uid'
 
-        if restart_obs and activity['cancel_reason_id']:
+        if not pme_started and activity['cancel_reason_id']:
             cancel_reason_id = \
                 self._get_id_from_tuple(activity['cancel_reason_id'])
             cancel_reason = \
@@ -1028,13 +1038,16 @@ class ObservationReport(models.AbstractModel):
                 user = 'Transfer'
                 reason = 'Transfer'
         else:
-            user_id = activity['create_uid']
+            user_id = activity[uid_field]
             user_id = self._get_id_from_tuple(user_id)
-            user_dict = users_model.read(cr, uid, user_id, fields=['name'])
+            user_dict = user_model.read(cr, uid, user_id, fields=['name'])
+            if isinstance(user_dict, list):
+                user_dict = user_dict[0]
             user = user_dict['name']
 
             # pme['reason'] is a tuple: (id, display_name)
-            reason = pme['reason'][1] if not restart_obs else None
+            reason = pme['reason'][1] if pme['reason'] and pme_started \
+                else None
 
         return {
             'date': date,
@@ -1065,23 +1078,23 @@ class ObservationReport(models.AbstractModel):
         :return:
         :rtype: No return, just side effects.
         """
-        cr, uid = self._cr, self._uid
-        date_started = False
-        date_terminated = False
+        date_started = None
+        date_terminated = None
         if 'date_started' in activity and activity['date_started']:
             date_started = activity['date_started']
-        if 'date_terminated' in activity \
-                and activity['date_terminated']:
+        if 'date_terminated' in activity and activity['date_terminated']:
             date_terminated = activity['date_terminated']
         if date_started:
-            date_started = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(date_started, dtf),
-                self.pretty_date_format
-            )
-            activity['date_started'] = date_started
+            self.convert_specified_dates_to_context_dates(activity,
+                                                          'date_started')
         if date_terminated:
-            date_terminated = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(date_terminated, dtf),
-                self.pretty_date_format
-            )
-            activity['date_terminated'] = date_terminated
+            self.convert_specified_dates_to_context_dates(activity,
+                                                          'date_terminated')
+
+    def convert_specified_dates_to_context_dates(self, dictionary, key):
+        cr, uid = self._cr, self._uid
+        date_time = dictionary[key]
+        datetime_obj = datetime.strptime(date_time, dtf)
+        new_date_time = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime_obj, self.pretty_date_format)
+        dictionary[key] = new_date_time

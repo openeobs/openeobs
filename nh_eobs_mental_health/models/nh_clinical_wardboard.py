@@ -1,10 +1,9 @@
 import copy
-from datetime import datetime, timedelta
 
 from openerp import api
-from openerp.addons.nh_eobs import helpers
-from openerp.osv import orm, osv, fields
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from openerp.addons.nh_eobs import helpers, exceptions
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.osv import orm, fields
 
 
 class NHClinicalWardboard(orm.Model):
@@ -28,6 +27,24 @@ class NHClinicalWardboard(orm.Model):
         flags = spell_model.read(cr, uid, ids, ['obs_stop'], context=context)
         return dict([(rec.get('id'), rec.get('obs_stop')) for rec in flags])
 
+    def _get_rapid_tranq_from_spell(
+            self, cr, uid, ids, field_name, arg, context=None):
+        """
+        Function field to return rapid_tranq from spell
+
+        :param cr: Odoo cursor
+        :param uid: User ID of user doing operation
+        :param ids: Ids to read
+        :param field_name: name of field
+        :param arg: arguments
+        :param context: Odoo context
+        :return: rapid_tranq flag from spell
+        """
+        spell_model = self.pool['nh.clinical.spell']
+        flags = spell_model.read(
+            cr, uid, ids, ['rapid_tranq'], context=context)
+        return dict([(rec.get('id'), rec.get('rapid_tranq')) for rec in flags])
+
     acuity_selection = [
         ('NoScore', 'New Pt / Obs Restart'),
         ('High', 'High Risk'),
@@ -40,24 +57,23 @@ class NHClinicalWardboard(orm.Model):
 
     _columns = {
         'obs_stop': fields.function(_get_obs_stop_from_spell, type='boolean'),
-        'acuity_index': fields.text('Index on Acuity Board')
+        'acuity_index': fields.text('Index on Acuity Board'),
+        'rapid_tranq': fields.function(
+            _get_rapid_tranq_from_spell, type='boolean', store=True)
     }
 
     @api.multi
     def toggle_obs_stop(self):
         """
         Handle button press on 'Stop Observations'/'Restore Observation' button
-        :param cr: Odoo cursor
-        :param uid: User doing the action
-        :param ids: IDs of wardboard
-        :param context: Odoo context
+
         :return: True
         """
         spell = self.spell_activity_id.data_ref
         if not spell.id:
             raise ValueError('No spell found for patient')
         if spell.obs_stop:
-            self.end_patient_monitoring_exception()
+            self.end_obs_stop()
         else:
             return self.prompt_user_for_obs_stop_reason()
 
@@ -86,8 +102,8 @@ class NHClinicalWardboard(orm.Model):
         )[1]
 
         # Very important, data is needed later in
-        # nh.clinical.patient_monitoring_exception's
-        # create_patient_monitoring_exception() method.
+        # nh.clinical.patient_monitoring_exception.select_reason's
+        # start_patient_monitoring_exception() method.
         self = self.with_context(
             spell_id=self.spell_activity_id.data_ref.id,
             spell_activity_id=self.spell_activity_id.id
@@ -107,8 +123,7 @@ class NHClinicalWardboard(orm.Model):
 
     @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
-    def start_patient_monitoring_exception(self, reasons, spell_id,
-                                           spell_activity_id):
+    def start_obs_stop(self, reasons, spell_id, spell_activity_id):
         """
         Creates a new patient monitoring exception with the passed reason.
 
@@ -132,95 +147,84 @@ class NHClinicalWardboard(orm.Model):
                 "exception."
             )
 
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
         selected_reason_id = reasons[0].id
-        activity_id = pme_model.create_activity(
-            {'parent_id': spell_activity_id},
-            {'reason': selected_reason_id, 'spell': spell_id}
+        activity_id = obs_stop_model.create_activity(
+            {
+                'parent_id': spell_activity_id
+            },
+            {
+                'reason': selected_reason_id,
+                'spell': spell_id
+            }
         )
         activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell_activity_id
-        pme_model.start(activity_id)
-
-        cancel_reason_pme = \
-            self.env['ir.model.data'].get_object(
-                'nh_eobs', 'cancel_reason_patient_monitoring_exception'
-            )
-
-        cancel_open_ews = self.cancel_open_ews(spell_activity_id,
-                                               cancel_reason_pme.id)
-
-        if not cancel_open_ews:
-            raise osv.except_osv(
-                'Error', 'There was an issue cancelling '
-                         'all open NEWS activities'
-            )
-
-        self.set_obs_stop_flag(spell_id, True)
+        activity = activity_model.browse(activity_id)
+        # last_finished_obs_stop view returns nothing without this.
+        activity.spell_activity_id = spell_activity_id
+        obs_stop = activity.data_ref
+        obs_stop.start(activity_id)
 
     @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
-    def end_patient_monitoring_exception(self, cancellation=False):
+    def end_obs_stop(self, cancellation=False):
         """
         Completes the patient monitoring exception activity and toggles the
         'obs stop' flag on the spell to False as there are no longer any
         patient monitoring exceptions in effect.
         """
-        activity_model = self.env['nh.activity']
-        activity_pool = self.pool['nh.activity']
-        ir_model_data_model = self.env['ir.model.data']
-
-        spell_id = self.spell_activity_id.data_ref.id
-        patient_monitoring_exception_activity = activity_model.search([
-            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
-            ('spell_activity_id', '=', self.spell_activity_id.id),
-            ('state', 'not in', ['completed', 'cancelled'])
-        ])
-        if len(patient_monitoring_exception_activity) > 1:
-            raise ValueError(
-                "Only one monitoring exception per patient is expected, there "
-                "is no way to know which monitoring exception the toggle "
-                "intends to end."
-            )
-
-        patient_monitoring_exception_activity_id = \
-            patient_monitoring_exception_activity.id
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
+        spell_activity = self.spell_activity_id
+        activities = \
+            obs_stop_model.get_activities_by_spell_activity(spell_activity)
+        activity = activities[-1]
+        obs_stop = activity.data_ref
 
         if cancellation:
-            cancel_reason = ir_model_data_model.get_object(
-                'nh_eobs', 'cancel_reason_transfer'
-            )
-            activity_pool.cancel_with_reason(
-                self.env.cr, self.env.uid,
-                patient_monitoring_exception_activity.id,
-                cancel_reason.id
-            )
+            obs_stop.cancel(activity.id)
         else:
-            activity_pool.complete(
-                self.env.cr, self.env.uid,
-                patient_monitoring_exception_activity_id
-            )
+            obs_stop.complete(activity.id)
 
-        self.set_obs_stop_flag(spell_id, False)
-        self.create_new_ews(patient_monitoring_exception_activity_id)
+    @api.multi
+    def set_rapid_tranq(self, value):
+        """
+        Set the `rapid_tranq` field of the patient's spell to the passed value.
 
-    def set_obs_stop_flag(self, cr, uid, spell_id, value, context=None):
+        :param value: The new value for the `rapid_tranq` field.
+        :rtype: bool or dict
+        :return:
         """
-        Toggle the obs_stop flag on the spell object
-        :param cr: Odoo cursor
-        :param uid: User doing the action
-        :param spell_id: spell to toggle
-        :param context: context
-        :return: True
-        """
-        spell_model = self.pool['nh.clinical.spell']
-        return spell_model.write(cr, uid, spell_id, {'obs_stop': value})
+        if isinstance(value, dict):
+            value = value.get('value')  # Context passed from Odoo view.
+        if value is None:
+            raise ValueError("No value argument passed to be set on the rapid "
+                             "tranq field.")
+        if not isinstance(value, bool):
+            raise TypeError("Value is not a boolean.")
+
+        rapid_tranq_model = self.env['nh.clinical.pme.rapid_tranq']
+        spell_activity = self.spell_activity_id
+        spell = spell_activity.data_ref
+
+        check_response = rapid_tranq_model.check_set_rapid_tranq(
+            value, spell)
+
+        if check_response['status'] == ResponseJSON.STATUS_SUCCESS:
+            # Will create a rapid tranq record.
+            rapid_tranq_model.toggle_rapid_tranq(spell_activity)
+
+        elif check_response['status'] == ResponseJSON.STATUS_FAIL:
+            raise exceptions.StaleDataException(check_response['description'],
+                                                check_response['title'])
+        else:
+            raise ValueError("Unexpected status returned from set rapid tranq "
+                             "check.")
 
     def spell_has_open_escalation_tasks(self, cr, uid, spell_activity_id,
                                         context=None):
         """
-        Check to see if spell has any open escalation tasks
+        Check to see if spell has any open escalation tasks.
+
         :param cr: Odoo cursor
         :param uid: User carrying out operation
         :param spell_activity_id: IDs of the spell
@@ -235,52 +239,6 @@ class NHClinicalWardboard(orm.Model):
         ]
         return any(activity_model.search(
             cr, uid, escalation_task_domain, context=context))
-
-    @api.multi
-    def create_new_ews(self, ended_patient_monitoring_exception_id):
-        """
-        Create a new EWS task an hour in the future. Used when patient is
-        take off obs_stop.
-
-        :return: ID of created EWS
-        """
-        ews_model = self.env['nh.clinical.patient.observation.ews']
-        activity_model = self.env['nh.activity']
-        api_model = self.env['nh.clinical.api']
-
-        new_ews_id = ews_model.create_activity(
-            {'parent_id': self.spell_activity_id.id,
-             'creator_id': ended_patient_monitoring_exception_id},
-            {'patient_id': self.patient_id.id}
-        )
-        one_hour_time = datetime.now() + timedelta(hours=1)
-        one_hour_time_str = one_hour_time.strftime(DTF)
-
-        self.force_v7_api(activity_model)
-
-        activity_model.schedule(self.env.cr, self.env.uid, new_ews_id,
-                                date_scheduled=one_hour_time_str)
-        api_model.change_activity_frequency(
-            self.patient_id.id, 'nh.clinical.patient.observation.ews', 60)
-        return new_ews_id
-
-    @api.model
-    def cancel_open_ews(self, spell_activity_id, cancel_reason_id=None):
-        """
-        Cancel all open EWS observations
-        :param cr: Odoo cursor
-        :param uid: User carrying out the operation
-        :param spell_activity_id: ID of the spell activity
-        :param context: Odoo context
-        :return: True is successful, False if not
-        """
-        # Cancel all open obs
-        activity_model = self.env['nh.activity']
-        return activity_model.cancel_open_activities(
-            spell_activity_id,
-            model='nh.clinical.patient.observation.ews',
-            cancel_reason_id=cancel_reason_id
-        )
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):
@@ -331,40 +289,28 @@ class NHClinicalWardboard(orm.Model):
             ], context=context)
             if spell_id:
                 spell_id = spell_id[0]
-                spell = spell_model.read(cr, user, spell_id, ['obs_stop'],
-                                         context=context)
+                spell = spell_model.read(
+                    cr, user, spell_id, ['obs_stop', 'rapid_tranq'],
+                    context=context)
                 if spell.get('obs_stop'):
-                    pme_model = self.pool[
-                        'nh.clinical.patient_monitoring_exception']
-                    obs_stops = pme_model.search(cr, user, [
+                    obs_stop_model = self.pool['nh.clinical.pme.obs_stop']
+                    obs_stops = obs_stop_model.search(cr, user, [
                         ['spell', '=', spell_id]
                     ], context=context)
                     if obs_stops:
                         obs_stop = obs_stops[0]
-                        reason = pme_model.read(
+                        reason = obs_stop_model.read(
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
+                elif 'rapid_tranq' in spell:
+                    rec['rapid_tranq'] = spell.get('rapid_tranq')
                 elif rec.get('acuity_index') == 'Refused':
                     rec['frequency'] = 'Refused - {0}'.format(rec['frequency'])
                     rec['next_diff'] = 'Refused - {0}'.format(rec['next_diff'])
         if was_single_record:
             return res[0]
         return res
-
-    # TODO Refactor the activity method decorator and remove this method.
-    @classmethod
-    def force_v7_api(cls, obj):
-        """
-        Trick Odoo into thinking this is a 7.0 ORM API style method before
-        the `complete` method is called on the activity. I believe there may
-        be a problem in the decorator that is used on all activity data methods
-        which specifically looks for all args.
-        :param obj:
-        :return:
-        """
-        if '_ids' in obj.__dict__:
-            obj.__dict__.pop('_ids')
 
     # Acuity Board grouping
     @api.model
@@ -390,8 +336,8 @@ class NHClinicalWardboard(orm.Model):
 
     def init(self, cr):
         """
-        Override the init function to add the new get_last_finished_pme SQL
-        view
+        Override the init function to add the new get_last_finished_obs_stop
+        SQL view.
 
         :param cr: Odoo Cursor
         """
@@ -400,11 +346,11 @@ class NHClinicalWardboard(orm.Model):
         dt_period = \
             settings_pool.get_setting(cr, 1, 'discharge_transfer_period')
         cr.execute("""
-        CREATE OR REPLACE VIEW last_finished_pme AS ({last_pme});
+        CREATE OR REPLACE VIEW last_finished_obs_stop AS ({last_obs_stop});
         CREATE OR REPLACE VIEW ews_activities AS ({ews_activities});
         CREATE OR REPLACE VIEW refused_ews_activities AS ({refused_ews});
         """.format(
-            last_pme=nh_eobs_sql.get_last_finished_pme(),
+            last_obs_stop=nh_eobs_sql.get_last_finished_obs_stop(),
             ews_activities=nh_eobs_sql.get_ews_activities(),
             refused_ews=nh_eobs_sql.get_refused_ews_activities()
         ))

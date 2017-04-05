@@ -487,7 +487,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     # TODO These check the last activity which should always be refused.
     # May be able to pass an activity id and work back from there.
     @api.model
-    def patient_monitoring_exception_before_refusals(self, spell_activity_id):
+    def obs_stop_before_refusals(self, spell_activity_id):
         obs_activity = self.get_open_obs_activity(spell_activity_id)
         # Latest activity may be an open obs.
         if obs_activity.state not in ['completed', 'cancelled']:
@@ -514,7 +514,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             # indeed a patient monitoring exception immediately prior to the
             # refusals.
             elif creator_activity.data_model == \
-                    'nh.clinical.patient_monitoring_exception':
+                    'nh.clinical.pme.obs_stop':
                 return True
             return False
 
@@ -730,32 +730,6 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
             'type': 'selection',
             'selection': _blood_product_values,
             'label': 'Blood Product',
-            'initially_hidden': False
-        }
-    ]
-
-
-class nh_clinical_patient_observation_blood_sugar(orm.Model):
-    """
-    Represents the action of measuring a
-    :class:`patient<base.nh_clinical_patient>` blood sugar concentration.
-    """
-    _name = 'nh.clinical.patient.observation.blood_sugar'
-    _inherit = ['nh.clinical.patient.observation']
-    _required = ['blood_sugar']
-    _num_fields = ['blood_sugar']
-    _description = "Blood Sugar"
-    _columns = {
-        'blood_sugar': fields.float('Blood Sugar', digits=(2, 1)),
-    }
-    _form_description = [
-        {
-            'name': 'blood_sugar',
-            'type': 'float',
-            'label': 'Blood Sugar (mmol/L)',
-            'min': 1.0,
-            'max': 99.9,
-            'digits': [2, 1],
             'initially_hidden': False
         }
     ]

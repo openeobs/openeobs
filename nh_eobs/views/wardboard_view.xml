@@ -229,7 +229,6 @@
                         <!--<button name="wardboard_prescribe" string="Prescribe" type="object" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>-->
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                     </header>
                     <sheet>
                         <field name="patient_id" readonly="1" invisible="1"/>
@@ -279,20 +278,6 @@
                                     <field name="height" string="Height (m)" readonly="1"/>
                                     <field name="mrsa"/>
                                     <field name="diabetes"/>
-                                </group>
-                                <group string="Blood Sugar">
-                                    <field name="blood_sugar_ids" class="nhc_obs" readonly="1" nolabel="1">
-                                        <tree>
-                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
-                                            <field name="terminate_uid"/>
-                                            <field name="blood_sugar"/>
-                                        </tree>
-                                        <form>
-                                            <field name="blood_sugar"/>
-                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
-                                            <field name="terminate_uid"/>
-                                        </form>
-                                    </field>
                                 </group>
                                 <group string="Postural Blood Pressure">
                                     <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
@@ -395,18 +380,6 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Prescribe Form View" version="7.0" create="0">
                     <field name="nhs_number" widget="nh_prescribe"/>
-                </form>
-            </field>
-        </record>
-
-        <record model="ir.ui.view" id="view_wardboard_bs_chart_form">
-            <field name="name">Wardboard Blood Sugar Chart Form View</field>
-            <field name="model">nh.clinical.wardboard</field>
-            <field name="arch" type="xml">
-                <form string="Wardboard Blood Sugar Chart Form View" version="7.0" create="0">
-                    <sheet>
-                        <field name="blood_sugar_ids" widget="nh_bschart"/>
-                    </sheet>
                 </form>
             </field>
         </record>
@@ -579,7 +552,6 @@
                         <button type="action" name="%(action_nhc_print_observation_report)d" string="Print Report" groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_chart" string="NEWS Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                         <button name="wardboard_ews" string="NEWS List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
-                        <button name="wardboard_bs_chart" string="Blood Sugar Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
                     </header>
                     <sheet>
                         <field name="patient_id" readonly="1" invisible="1"/>
@@ -630,20 +602,7 @@
                                     <field name="mrsa" readonly="1"/>
                                     <field name="diabetes" readonly="1"/>
                                 </group>
-                                <group string="Blood Sugar">
-                                    <field name="blood_sugar_ids" class="nhc_obs" readonly="1" nolabel="1">
-                                        <tree>
-                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
-                                            <field name="terminate_uid"/>
-                                            <field name="blood_sugar"/>
-                                        </tree>
-                                        <form>
-                                            <field name="blood_sugar"/>
-                                            <field name="date_terminated" string="Date" widget="nhc_datetime"/>
-                                            <field name="terminate_uid"/>
-                                        </form>
-                                    </field>
-                                </group>
+
                                 <group string="Postural Blood Pressure">
                                     <field name="pbp_ids" class="nhc_pbp nhc_obs_list" readonly="1" nolabel="1">
                                         <tree>

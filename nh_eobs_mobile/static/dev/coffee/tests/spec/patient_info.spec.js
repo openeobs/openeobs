@@ -41,7 +41,7 @@ describe('Patient Information Functionality', function(){
             var cover = covers[i];
             cover.parentNode.removeChild(cover);
         }
-        mobile.urls.base_url = 'http://localhost:9876/mobile/';
+        mobile.urls.base_url = 'http://localhost:8069/mobile/';
     });
 
     it('Has a function for getting patient information from the server using a patient id', function(){
@@ -396,8 +396,8 @@ describe('Patient Information Functionality', function(){
             window.drawNeuroTable = function(){ return null; };
             var test = document.getElementById('test');
             test.innerHTML = '<a class="patientInfo" href="#" id="obsButton">' +
-                '<h3 class="name"><strong>Test Patient</strong></h3>' +
-                '<h3 class="obs">Obs</h3></a>' +
+                '<h3 class="name"><strong>Test Patient</strong></h3></a>' +
+                '<button id="take-observation">Take Observation</button>' +
                 '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
                 '<select name="chart_select" id="chart_select">' +
                 '<option value="ews" selected="selected">NEWS</option>' +
@@ -847,7 +847,7 @@ describe('Patient Information Functionality', function(){
                 return promise;
             });
             nhpatient = new NHMobilePatient();
-            var testButton = document.getElementsByClassName('obs')[0];
+            var testButton = document.getElementById('take-observation');
             var clickEvent = document.createEvent('CustomEvent');
             clickEvent.initCustomEvent('click', false, true, false);
             testButton.dispatchEvent(clickEvent);

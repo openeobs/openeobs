@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nh_graphlib_table.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nh_graphlib_table.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHTable provides a table presentation of data which like a graph can be
+changed via brushing</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-next">istanbul ignore next</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHTable</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHGraphLib</span></span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Properties of the table</p>
+<ul>
+<li>Range: is the X axis of table (i.e. like a graph’s x axis based on time)</li>
+<li>Keys: An array keys to draw a table for (i.e. the columns)</li>
+<li>Obj: the table object in D3</li>
+<li>Header Row: The D3 object for the header row</li>
+<li>Data Rows: The D3 object for the table rows containing the data</li>
+<li>Title: String for the title</li>
+<li>Title Object: The D3 object containing the title</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  constructor: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    @range = <span class="hljs-literal">null</span>
+    @keys = <span class="hljs-keyword">new</span> Array()
+    @obj = <span class="hljs-literal">null</span>
+    @header_row = <span class="hljs-literal">null</span>
+    @data_rows = <span class="hljs-literal">null</span>
+    @title = <span class="hljs-literal">null</span>
+    @title_obj = <span class="hljs-literal">null</span>
+    @data = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Setup the the table, which involves:</p>
+<ol>
+<li>Get the parent object (NHFocus) to render the table into</li>
+<li>If table has a title add it</li>
+<li>Setup table object and append to DOM</li>
+<li>Setup the range</li>
+<li>Setup the header row and render the column titles</li>
+<li>Append the tbody element to the DOM ready for drawing</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    @.parent_obj = parent_obj
+    @data = @.parent_obj.parent_obj.data.raw.concat()
+    @data.reverse()
+    <span class="hljs-keyword">if</span> @.title?
+      @.title_obj = nh_graphs.select(@.parent_obj.parent_obj.el)
+      .append(<span class="hljs-string">'h3'</span>).html(@.title)
+    @.obj = nh_graphs.select(parent_obj.parent_obj.el).append(<span class="hljs-string">'table'</span>)
+    @.obj.attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'nhtable'</span>)
+    @.range =  [parent_obj.axes.x.min, parent_obj.axes.x.max]
+    header = [<span class="hljs-string">'Date'</span>]
+    <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> @.keys
+      header.push(key[<span class="hljs-string">'title'</span>])
+    @.header_row = @.obj.append(<span class="hljs-string">'thead'</span>).append(<span class="hljs-string">'tr'</span>)
+    @.header_row.selectAll(<span class="hljs-string">'th'</span>).data(header).enter()
+    .append(<span class="hljs-string">'th'</span>).text(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span> <span class="hljs-keyword">return</span> d)
+    @.data_rows = @.obj.append(<span class="hljs-string">'tbody'</span>)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Draw the table’s data rows which involves:</p>
+<ol>
+<li>Select all the tr elements in the tbody (should be none)</li>
+<li>For each key to be drawn see if it’s within the range and return the
+ranged subset</li>
+<li>For each key in subset attend a tr with the data for that key</li>
+<li>For each entry select all td and append a td with the value as it’s
+inner HTML value</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    self = @
+    keys = [<span class="hljs-string">'date_terminated'</span>]
+    <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.keys
+      keys.push(key[<span class="hljs-string">'key'</span>])
+    self.data_rows.selectAll(<span class="hljs-string">'tr'</span>)
+    .data(<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+      data_map = self.data.map(<span class="hljs-function"><span class="hljs-params">(row)</span> -&gt;</span>
+        <span class="hljs-keyword">if</span>(self.date_from_string(row[<span class="hljs-string">'date_terminated'</span>]) &gt;= self.range[<span class="hljs-number">0</span>] <span class="hljs-keyword">and</span> \
+        self.date_from_string(row[<span class="hljs-string">'date_terminated'</span>]) &lt;= self.range[<span class="hljs-number">1</span>])
+          <span class="hljs-keyword">return</span> keys.map(<span class="hljs-function"><span class="hljs-params">(column)</span> -&gt;</span>
+            <span class="hljs-keyword">return</span> {column: column, value: row[column]}
+          )
+      )
+      data_to_use = (data <span class="hljs-keyword">for</span> data <span class="hljs-keyword">in</span> data_map <span class="hljs-keyword">when</span> data?)
+      <span class="hljs-keyword">return</span> data_to_use
+    )
+    .enter()
+    .append(<span class="hljs-string">'tr'</span>)
+    .selectAll(<span class="hljs-string">'td'</span>)
+    .data(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> d
+    )
+    .enter()
+    .append(<span class="hljs-string">'td'</span>)
+    .html(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      data = d.value
+      <span class="hljs-keyword">if</span> d.column <span class="hljs-keyword">is</span> <span class="hljs-string">'date_terminated'</span>
+        data = self.date_to_string( \
+          self.date_from_string(data), <span class="hljs-literal">false</span>)
+        date_rotate = data.split(<span class="hljs-string">' '</span>)
+        <span class="hljs-keyword">if</span> date_rotate.length <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
+          data = date_rotate[<span class="hljs-number">0</span>]
+        data = date_rotate[<span class="hljs-number">1</span>] + <span class="hljs-string">' '</span> + date_rotate[<span class="hljs-number">0</span>]
+      data)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Draw the table’s data rows which involves:</p>
+<ol>
+<li>Remove all the existing tr elements</li>
+<li>Select all the tr elements in the tbody (should be none)</li>
+<li>For each key to be drawn see if it’s within the range and return the
+ranged subset</li>
+<li>For each key in subset append a tr with the data for that key</li>
+<li>For each entry select all td and append a td with the value as it’s
+inner HTML value</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  redraw: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    self = @
+    keys = [<span class="hljs-string">'date_terminated'</span>]
+    <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.keys
+      keys.push(key[<span class="hljs-string">'key'</span>])
+    self.data_rows.selectAll(<span class="hljs-string">'tr'</span>).remove()
+    self.data_rows.selectAll(<span class="hljs-string">'tr'</span>)
+    .data(<span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+      data_map = self.data.map(<span class="hljs-function"><span class="hljs-params">(row)</span> -&gt;</span>
+        <span class="hljs-keyword">if</span>(self.date_from_string(row[<span class="hljs-string">'date_terminated'</span>]) &gt;= self.range[<span class="hljs-number">0</span>] <span class="hljs-keyword">and</span> \
+        self.date_from_string(row[<span class="hljs-string">'date_terminated'</span>]) &lt;= self.range[<span class="hljs-number">1</span>])
+          <span class="hljs-keyword">return</span> keys.map(<span class="hljs-function"><span class="hljs-params">(column)</span> -&gt;</span>
+            <span class="hljs-keyword">return</span> {column: column, value: row[column]}
+          )
+      )
+      data_to_use = (data <span class="hljs-keyword">for</span> data <span class="hljs-keyword">in</span> data_map <span class="hljs-keyword">when</span> data?)
+      <span class="hljs-keyword">return</span> data_to_use
+    )
+    .enter()
+    .append(<span class="hljs-string">'tr'</span>)
+    .selectAll(<span class="hljs-string">'td'</span>)
+    .data(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> d
+    )
+    .enter()
+    .append(<span class="hljs-string">'td'</span>)
+    .html(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      data = d.value
+      <span class="hljs-keyword">if</span> d.column <span class="hljs-keyword">is</span> <span class="hljs-string">'date_terminated'</span>
+        data = self.date_to_string( \
+          self.date_from_string(data), <span class="hljs-literal">false</span>)
+        date_rotate = data.split(<span class="hljs-string">' '</span>)
+        <span class="hljs-keyword">if</span> date_rotate.length <span class="hljs-keyword">is</span> <span class="hljs-number">1</span>
+          data = date_rotate[<span class="hljs-number">0</span>]
+        data = date_rotate[<span class="hljs-number">1</span>] + <span class="hljs-string">' '</span> + date_rotate[<span class="hljs-number">0</span>]
+      data)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-if">istanbul ignore if</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>.NH.NHTable = NHTable</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

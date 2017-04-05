@@ -444,10 +444,6 @@ class TestAPI(SingleTransactionCase):
                 'name': 'Blood Product'
             },
             {
-                'type': 'blood_sugar',
-                'name': 'Blood Sugar'
-            },
-            {
                 'type': 'stools',
                 'name': 'Bristol Stool Scale'
             },

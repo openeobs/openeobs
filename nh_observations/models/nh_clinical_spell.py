@@ -8,7 +8,7 @@ class NHClinicalSpell(models.Model):
     _inherit = 'nh.clinical.spell'
 
     @api.multi
-    def patient_monitoring_exception_in_effect(self):
+    def obs_stop_in_effect(self):
         """
         Checks if a patient monitoring exception is currently in effect for
         this spell.
@@ -17,7 +17,7 @@ class NHClinicalSpell(models.Model):
         :rtype: bool
         """
         domain = [
-            ('data_model', '=', 'nh.clinical.patient_monitoring_exception'),
+            ('data_model', '=', 'nh.clinical.pme.obs_stop'),
             ('state', 'not in', ['completed', 'cancelled']),
             ('spell_activity_id', '=', self.activity_id.id)
         ]

@@ -2,6 +2,7 @@
 from openerp.osv import orm, fields
 from openerp import SUPERUSER_ID
 
+
 class nh_clinical_patient_weight_monitoring(orm.Model):
     """
     Represents the action of setting the

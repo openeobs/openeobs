@@ -330,6 +330,21 @@ class nh_clinical_wardboard(orm.Model):
     data such as
     :class:`EWS<ews.nh_clinical_patient_observation_ews>`
     etc.
+
+    Wardboard overrides the init method and others to provide an implementation
+    that is backed by database views. When accessing fields on a wardboard,
+    rather than allowing Odoo's ORM to retrieve them from database tables, we
+    are using function fields that call methods that execute hand-written SQL
+    queries on database views. We ensure that the database views these methods
+    use are created when the model is first loaded and it's `init` method is
+    called.
+
+    Calling create on wardboard fails. Instead you should just browse for them
+    as if they already exist, using the spell id as the id
+    (or multiple spell ids). The id(s) used are passed to the function fields
+    to retrieve the data, so a wardboard record with the correct id simply has
+    the means to get the data you'd expect, it does not need to be formally
+    created.
     """
 
     _name = "nh.clinical.wardboard"
@@ -541,10 +556,6 @@ class nh_clinical_wardboard(orm.Model):
             _get_data_ids_multi, multi='uotarget_ids', type='many2many',
             relation='nh.clinical.patient.uotarget',
             string='Urine Output Targets'),
-        'blood_sugar_ids': fields.function(
-            _get_data_ids_multi, multi='blood_sugar_ids', type='many2many',
-            relation='nh.clinical.patient.observation.blood_sugar',
-            string='Blood Sugar Obs'),
         'mrsa_ids': fields.function(
             _get_data_ids_multi, multi='mrsa_ids', type='many2many',
             relation='nh.clinical.patient.mrsa', string='MRSA'),
@@ -943,38 +954,6 @@ class nh_clinical_wardboard(orm.Model):
         model_data_pool = self.pool['ir.model.data']
         model_data_ids = model_data_pool.search(
             cr, uid, [('name', '=', 'view_wardboard_chart_form')],
-            context=context)
-        view_id = model_data_pool.read(
-            cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        return {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': ids[0],
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'new',
-            'context': context,
-            'view_id': int(view_id)
-        }
-
-    def wardboard_bs_chart(self, cr, uid, ids, context=None):
-        """
-        Returns an Odoo form window action for
-        :class:`wardboard<nh_clinical_wardboard>` for the view
-        ``view_wardboard_bs_chart_form``.
-
-        :param ids: records ids
-        :type ids: list
-        :returns: Odoo form window action
-        :rtype: dict
-        """
-
-        wardboard = self.browse(cr, uid, ids[0], context=context)
-
-        model_data_pool = self.pool['ir.model.data']
-        model_data_ids = model_data_pool.search(
-            cr, uid, [('name', '=', 'view_wardboard_bs_chart_form')],
             context=context)
         view_id = model_data_pool.read(
             cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']

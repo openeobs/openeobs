@@ -1,9 +1,14 @@
 from datetime import datetime
-
-from bs4 import BeautifulSoup
 from openerp.osv import fields
-
+from openerp.tools import find_in_path
 from . import observation_report_helpers as helpers
+import logging
+_logger = logging.getLogger(__name__)
+try:
+    from bs4 import BeautifulSoup
+    BS4_PATH = find_in_path('bs4')
+except (ImportError, IOError) as err:
+    _logger.debug(err)
 
 
 class TestObservationTableRendering(helpers.ObservationReportHelpers):
@@ -450,43 +455,6 @@ class TestObservationTableRendering(helpers.ObservationReportHelpers):
         self.assertEqual(verbal_column.text,
                          '%s' % self.gcs_values['verbal'],
                          'Incorrect verbal table column')
-
-    def test_13_blood_sugar_table_structure(self):
-        """
-        Test that the blood sugar table is rendering correctly
-        """
-        beautiful_report = self.get_bs_report(self.DEFAULT_FULL_DATA)
-        header = beautiful_report.select('h3')[4]
-        table = header.findNext('table')
-        table_headers = table.select('th')
-        table_columns = table.select('td')
-        self.assertEqual(len(table_headers),
-                         2,
-                         'Incorrect number of table headers')
-        self.assertEqual(len(table_columns),
-                         2,
-                         'Incorrect number of table columns')
-        date_header = table_headers[0]
-        bs_header = table_headers[1]
-        date_column = table_columns[0]
-        bs_column = table_columns[1]
-        self.assertEqual(date_header.text,
-                         'Date',
-                         'Incorrect date table header')
-        date_term = self.blood_sugar_values['date_terminated']
-        test_date_term = fields.datetime.context_timestamp(
-            self.cr, self.uid,
-            datetime.strptime(date_term, self.odoo_date_format))\
-            .strftime(self.pretty_date_format)
-        self.assertEqual(date_column.text,
-                         test_date_term,
-                         'Incorrect date table column')
-        self.assertEqual(bs_header.text,
-                         'Blood Sugar (mmol/L)',
-                         'Incorrect blood sugar table header')
-        self.assertEqual(bs_column.text,
-                         '%s' % self.blood_sugar_values['blood_sugar'],
-                         'Incorrect blood sugar table column')
 
     def test_14_pain_table_structure(self):
         """
