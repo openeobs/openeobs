@@ -54,16 +54,6 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
             cr, uid, activity_id, context)
 
 
-class nh_clinical_patient_observation_blood_sugar(orm.Model):
-    _inherit = 'nh.clinical.patient.observation.blood_sugar'
-
-    @refresh_materialized_views('param')
-    def complete(self, cr, uid, activity_id, context=None):
-        return super(
-            nh_clinical_patient_observation_blood_sugar, self).complete(
-            cr, uid, activity_id, context)
-
-
 class nh_clinical_patient_observation_pain(orm.Model):
     _inherit = 'nh.clinical.patient.observation.pain'
 

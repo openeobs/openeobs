@@ -1,0 +1,10 @@
+<openerp>
+    <data>
+        <template id="assets_backend" name="blood glucose assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/nh_blood_glucose/static/src/js/chart.js"></script>
+                <script type="text/javascript" src="/nh_blood_glucose/static/src/js/desktop.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

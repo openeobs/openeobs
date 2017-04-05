@@ -1,0 +1,1632 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>PhantomJS 1.9.7 (Windows 8 0.0.0)</title>
+<style>
+body { background-color: #eeeeee; padding: 0; margin: 5px; overflow-y: scroll; }
+#HTMLReporter h1 { font-size: 12px; font-weight: normal; text-align: right; margin: 10px 0 10px 0 !important; }
+#HTMLReporter { font-size: 11px; font-family: Monaco, "Lucida Console", monospace; line-height: 14px; color: #333333; }
+#HTMLReporter a { text-decoration: none; }
+#HTMLReporter a:hover { text-decoration: underline; }
+#HTMLReporter p, #HTMLReporter h1, #HTMLReporter h2, #HTMLReporter h3, #HTMLReporter h4, #HTMLReporter h5, #HTMLReporter h6 { margin: 0; line-height: 14px; }
+#HTMLReporter .banner, #HTMLReporter .symbolSummary, #HTMLReporter .summary, #HTMLReporter .resultMessage, #HTMLReporter .specDetail .description, #HTMLReporter .alert .bar, #HTMLReporter .stackTrace { padding-left: 9px; padding-right: 9px; }
+
+#HTMLReporter #jasmine_content { position: fixed; right: 100%; }
+#HTMLReporter .version { color: #aaaaaa; }
+#HTMLReporter .banner { margin-top: 14px; }
+#HTMLReporter .duration { color: #aaaaaa; float: right; }
+#HTMLReporter .exceptions { color: #fff; float: right; margin-top: 5px; margin-right: 5px; }
+#HTMLReporter .bar { line-height: 28px; font-size: 14px; display: block; color: #eee; }
+#HTMLReporter .runningAlert { background-color: #666666; }
+#HTMLReporter .skippedAlert { background-color: #aaaaaa; }
+#HTMLReporter .skippedAlert:first-child { background-color: #333333; }
+#HTMLReporter .skippedAlert:hover { text-decoration: none; color: white; text-decoration: underline; }
+#HTMLReporter .passingAlert { background-color: #a6b779; }
+#HTMLReporter .passingAlert:first-child { background-color: #5e7d00; }
+#HTMLReporter .failingAlert { background-color: #cf867e; }
+#HTMLReporter .failingAlert:first-child { background-color: #b03911; }
+#HTMLReporter .results { margin-top: 14px; }
+#HTMLReporter #details { display: none; }
+#HTMLReporter .resultsMenu { color: #999; background-color: #fff; }
+
+#HTMLReporter .summaryMenuItem { font-weight: normal; text-decoration: none; margin-right: 5px; color: #333; }
+#HTMLReporter .detailsMenuItem { font-weight: normal; text-decoration: none; margin-left: 5px; color: #999; }
+
+#HTMLReporter.showDetails .summaryMenuItem { color: #999; }
+#HTMLReporter.showDetails .detailsMenuItem { color: #333; }
+#HTMLReporter.showDetails .summaryMenuItem:hover { text-decoration: underline; }
+#HTMLReporter             .detailsMenuItem:hover { text-decoration: underline; }
+
+
+#HTMLReporter.showDetails .summary { display: none; }
+#HTMLReporter.showDetails #details { display: block; }
+#HTMLReporter .summary { margin-top: 14px; margin-bottom: 40px; }
+#HTMLReporter .summary .suite .suite, #HTMLReporter .summary .specSummary { margin-left: 14px; }
+#HTMLReporter .summary .specSummary.passed { color: #5e7d00; }
+#HTMLReporter .summary .specSummary.failed { color: #b03911; }
+#HTMLReporter .summary .specSummary.skipped { color: #ba9d37; }
+#HTMLReporter .description + .suite { margin-top: 0; }
+#HTMLReporter .suite { margin-top: 14px; }
+#HTMLReporter .suite a { color: #333333; }
+#HTMLReporter #details .specDetail { margin-bottom: 28px; }
+#HTMLReporter #details .specDetail .description { display: block; color: white; background-color: #b03911; }
+#HTMLReporter .resultMessage { padding-top: 14px; color: #333333; }
+#HTMLReporter .resultMessage span.result { display: block; }
+#HTMLReporter .stackTrace { margin: 5px 0 0 0; max-height: 224px; overflow: auto; 
+    line-height: 18px; color: #666666; border: 1px solid #ddd; background: white; white-space: pre; }
+
+
+.fold-buttons { float: right; }
+.fold-buttons a { color: #fff; font-size: 12px; }
+.fold-buttons { display: none } 
+#HTMLReporter .br { margin-top: 8px; }
+#HTMLReporter .section-starter { font-size: 14px; line-height: 18px }
+#HTMLReporter .summary-section { 
+  cursor: -webkit-zoom-out; cursor: -moz-zoom-out; cursor: zoom-out; 
+  background: #fafafa; 
+  padding: 10px; 
+  border-bottom: #eaeaea 1px solid; }
+#HTMLReporter .summary-section.folded { 
+  cursor: -webkit-zoom-in; cursor: -moz-zoom-in; cursor: zoom-in; 
+  padding-bottom: 8px;
+}
+#HTMLReporter .summary-section.folded div { display: none }
+#HTMLReporter .summary-section.folded div.section-starter { display: block }
+/*#HTMLReporter .summary-section:hover { background: #e9e9e9; }*/
+#HTMLReporter .summary-section:hover { background: #f5f5f5; }
+#HTMLReporter .summary-section-totals { 
+  font-size: 11px;
+  display: none; 
+  margin-left: 11px; 
+  overflow: hidden; 
+  position: relative;
+  top: -1px; 
+}
+#HTMLReporter .summary-section.folded .summary-section-totals { display: inline; }
+#HTMLReporter .summary-section-total { color: #fff; vertical-align: baseline; padding: 1px 8px; }
+#HTMLReporter .summary-section-total.passed { background: #5e7d00;  }
+#HTMLReporter .summary-section-total.failed { background: #b03911;  }
+#HTMLReporter .summary-section-total.skipped { background: #ba9d37;  }
+
+#HTMLReporter { font-size: 12px; line-height: 18px; } /*larget font-size*/
+
+</style>
+</head>
+
+<body id="HTMLReporter" class="html-reporter">
+<h1>Tested in PhantomJS 1.9.7 (Windows 8 0.0.0) on Wed Mar 29 2017</h1>
+
+<div class="alert">
+
+
+
+  
+  <span class="passingAlert bar"><span class="fold-buttons"><a href="#" onclick="fold();">Fold</a> | 
+  <a href="#" onclick="unfold();">Unfold</a></span>253 specs, 0 failed, 0 pending</span>
+  
+
+
+</div>
+<div class="results">
+  <div class="summary">
+  
+  
+  
+  
+  
+    <div class="suite passed">
+      <span class="description">Axes NHGraphLib, NHContext, NHFocus, NHGraph axes properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib has properties for setting the axis label height</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext has axes property that holds information for X and Y axes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHFocus has axes property that holds information for X and Y axes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraph has axes property that holds information for X and Y axes</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraph has styling properties for X and Y axes</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes Structure</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Creates a DOM structure for the axis which is easy to understand</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes X-Axis Visibility</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is visible by default</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">can be hidden</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes X-Axis Scale</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Adds time padding of 6000000 to the scale when plotting a single data point and no time padding defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Adds time padding of 3 minutes to the scale when plotting a single data point and time padding of 180,000 is defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Adds time padding of 5% of the total time range when plotting multiple data points and no time padding defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Adds time padding of 3 minutes to the scale when plotting multiple data points when time padding of 180000 is defined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes X-Axis Ticks</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has sensible amount</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">are evenly spaced</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes X-Axis Ticks Labels</span>
+    
+      <div class="specSummary passed">
+      <span class="description">use default size if no size defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">use defined size if provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">have sensible text values for day / date/ time</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes Y-Axis Visibility</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is visible by default</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">can be hidden</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes Y-Axis Scale</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Uses min/max values set in graph.axes.y object</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Axes Y-Axis Steps</span>
+    
+      <div class="specSummary passed">
+      <span class="description">changes tick label format as defined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Structure</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has one background group</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">containing one normal rect</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">and 3 range rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..one green rect</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..one amber rect</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..one red rect</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a label</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a measurement</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has at least 3 vertical grid lines</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has at least 3 horizontal grid lines</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Object properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib_Graph has properties for normal ranges</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib_Graph has properties for score ranges</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Data Normal range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">draws range height 0 if data out of expected range</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">draw range height 0 if data invalid</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Data Score range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">handles no background data being provided</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Normal Range Single normal range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">renders only one normal rect inside nhgraph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">spans full width of graph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is the expected height</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is positioned correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Normal Range No normal range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">renders normal rect with height 0</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Score Range One range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">renders only one green rect inside nhgraph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">spans full width of graph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is the expected height</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is positioned correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Score Range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">handles no abnormal ranges</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Score Range Multiple score ranges</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates the right number of rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">creates the right size rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">positions each rect correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Ranges Score Range Multiple score ranges Redraw</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates the right number of rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">creates the right size rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">positions each rect correctly</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Labels</span>
+    
+      <div class="specSummary passed">
+      <span class="description">displays the correct label when provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays the correct units when provided</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays nothing when no label specified</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays multiple measurements when more than one key specified</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays the label next to the graph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays NA when there is a false value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">displays NA when there is a null value</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Background Gridlines</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has at least one vertical grid line per tick</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has one horizontal line per tick give or take 1</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has evenly spaced horizontal grid lines</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has evenly spaced vertical grid lines</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib has properties for data range covered</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib has pointer to context object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib has pointer to focus object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext has graph object property</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext has pointer to parent nhgraphlib object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext has brush object property</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Methods nhcontext.init()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">errors if called before parent object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is called when parent object init() is called</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds title if defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't add title if not defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds single context group element with class of nhcontext</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">uses offsets of parent object and title height to position g correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">uses offsets of parent object to position g correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calculates dimensions for nhcontext and applies to g</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets up x axis based on parent (nhgraphlib) extent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">initialises context graph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds brush-container element to graph</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds x brush element within brush container</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Methods NHFocus.init()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">errors if called before parent object</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Methods draw()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">draws the context graph assigned to object</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Methods handle_brush()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has a handle_brush method to update focus and controls</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is called on 'mousedown'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is called on 'touchstart'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls focus.redraw with context min/max when brush extent is zero</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Methods handle_brush() Mobile Inputs</span>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start time input with new time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end time input with new time</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Context Mobile Inputs</span>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.init() adds event listeners to inputs if present</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Conversion</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Has a function for String to Date Conversion</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Has a function for Date to String Conversion</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">Has a function for single to double digit date element conversion</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Conversion String to Date Conversion</span>
+    
+      <div class="specSummary passed">
+      <span class="description">converts Odoo Format (YYYY-MM-DD HH:MM:SS) date string to date object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">throws an error when unable to convert invalid date string to date object</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Conversion Date to String Conversion</span>
+    
+      <div class="specSummary passed">
+      <span class="description">converts date object to Graph Format (day DD/MM/YY HH:MM) string</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">throws error when converting Invalid Date to to Odoo Format (YYYY-MM-DD HH:MM:SS) string</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Conversion Single to Double Digit date element Conversion</span>
+    
+      <div class="specSummary passed">
+      <span class="description">converts single digit date element to double digit with leading zero</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">does not prepend a zero to double digit date elements</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib_Graph has properties for data</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib_Graph has properties for data styles</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles</span>
+    
+      <div class="specSummary passed">
+      <span class="description">throws error if no style defined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Linear Single observation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates a single circle element</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..that has class of 'point'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..which is the right size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..and close to the expected position</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Linear Multiple observations Circles</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates a circle for each data point</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..which is the right size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..and close to it's expected positions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Linear Multiple observations Path/s</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates expected number of path elements</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a class of 'path'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a clip path to prevent overflow</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">starts and finishes at data points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Linear Incomplete observations</span>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't create empty data points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Stepped Single observation</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates a single circle element</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..that has class of 'point'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..which is the right size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..and close to the expected position</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Stepped Multiple observations Circles</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates a circle for each data point</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..which is the right size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">..and close to it's expected positions</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Stepped Multiple observations Path/s</span>
+    
+      <div class="specSummary passed">
+      <span class="description">creates single path element</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a class of 'path'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has a clip path to prevent overflow</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Stepped Incomplete observations</span>
+    
+      <div class="specSummary passed">
+      <span class="description">plots empty data points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Range</span>
+    
+      <div class="specSummary passed">
+      <span class="description">throws error if 2 keys are not defined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Range Single Record</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has a single range bar made of 3 rects</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has bar caps that are the defined size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has an extent that is the correct size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is positioned correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has the correct clip-path attribute</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Range Multiple Records</span>
+    
+      <div class="specSummary passed">
+      <span class="description">has the correct number of range bars</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has correct sized bar caps</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has an extent that is the correct size</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is positioned correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">has the correct clip-path attribute</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Data Styles Range Incomplete Record</span>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't create empty data points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events Dependencies</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Function has bind method available</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events add_listeners</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called by NHGraphLib.init()</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">stores handler functions in options.handler object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">wraps handle_resize in debounce when underscore available</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't break if _ not available</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds rangify event listeners</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events NHGraphLib.redraw_resize</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called on resize event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">checks whether element exists using is_alive method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls NHContext.handle_resize if is_alive</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't call NHContext.handle_resize if not alive</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events rangify_graphs()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called when rangify checkbox is clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is toggles options.ranged true / false in sync with box</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">is toggles options.ranged true / false in sync with box</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls graph.rangify_graph on all graphs if is_alive()</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't call rangify_graph if not is_alive()</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events remove_listeners()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called by is_alive() when object not in DOM</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">removes rangify event listener</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Events is_alive()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">returns true if baseURI is set</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">returns false if baseURI is not set</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls remove_listeners if object is not alive</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Pop-Ups Methods</span>
+    
+      <div class="specSummary passed">
+      <span class="description">nh-graphlib_graph has pop-up methods</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">show popup works as expected</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">hide popup works as expected</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Pop-Ups Event listeners Linear / Stepped Points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">mouse over event calls show_popup method on all points</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">mouse out event calls hide_popup method on all points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Pop-Ups Event listeners Linear / Stepped Empty Points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">mouse over event calls show_popup method on all empty points</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">mouse out event calls hide_popup method on all empty points</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Pop-Ups Event listeners Range Bars</span>
+    
+      <div class="specSummary passed">
+      <span class="description">mouseover event calls show_popup method on all range elements</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">mouseout event calls hide_popup method on all range elements</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rangify Properties</span>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph has ranged_extent property</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph initialises range_extent with correct range</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph has rangify method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib has link to rangify checkbox element</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rangify Ranged Default</span>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph initialises rangified if ranged option true</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph initialises not ranged if option false</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">nhgraphlib.graph has rangified extent even if no data present - EOBS-830</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rangify Events Check</span>
+    
+      <div class="specSummary passed">
+      <span class="description">calls rangify method on all graphs when checkbox clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw method on all graphs</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">switches axes to ranged min/max</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Rangify Events Uncheck</span>
+    
+      <div class="specSummary passed">
+      <span class="description">calls rangify method on all graphs when checkbox clicked</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw method on all graphs</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">switches axes back to initial min/max on all graphs</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Data Point Styling Context refused observation data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the data point with a 'R' symbol</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Data Point Styling Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the data point with a white circle with black border</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Data Point Styling Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the data point with a 'R' symbol</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Data Point Styling Ranged Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the ranged caps and extent with white fills and black borders</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Data Point Styling Ranged Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the data point with a 'R' symbol</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Ranged Y-Axis positioning Context refused observation data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Ranged Y-Axis positioning Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point at the value's position on the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Ranged Y-Axis positioning Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Ranged Y-Axis positioning Ranged Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the ranged caps and extent at the value's position on the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Ranged Y-Axis positioning Ranged Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Unranged Y-Axis positioning Context refused observation data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Unranged Y-Axis positioning Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point at the value's position on the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Unranged Y-Axis positioning Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Unranged Y-Axis positioning Ranged Focus refused observation with value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Draws the ranged caps and extent at the value's position on the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Refused observation visualisation Unranged Y-Axis positioning Ranged Focus refused observation without value data points</span>
+    
+      <div class="specSummary passed">
+      <span class="description">Puts the data point in the middle of the Y-Axis</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Methods</span>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib has redraw_resize method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext has handle_resize method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHFocus has handle_resize method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraph has resize_graph method</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Event listeners</span>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraphLib.handle_resize() fires on 'resize' event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHContext.handle_resize() fires on 'resize' event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHFocus.handle_resize() fires on 'resize' event</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">NHGraph.resize_graph() fires on 'resize' event</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize NHGraphLib.redraw_resize()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets style.dimensions.width to element width - margins</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets SVG object's width to style.dimensions.width</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">triggers NHContext.handle_resize() via 'context_resize' event</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize NHContext.handle_resize()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets style.dimensions.width to element width - margins</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets SVG object's width to style.dimensions.width</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets axes.x.scale.range (max) to new width</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">dispatches 'focus_resize' event and triggers focus.handle_resize()</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets the context graph x-axis range correctly</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">triggers context graph redraw</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize NHFocus.handle_resize()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets style.dimensions.width to parent object - padding + margin</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets the object width to style.dimensions.width</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets the x axis range to the new width if scale exists</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw with correct extent</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize NHFocus.redraw()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets graph x-axis scale domain to new extent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets graph x-axis ticks to correct value</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets graph x-axis range to new extent</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw on all graphs in array</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize NHGraph.resize_graph()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets style.dimensions.width to parent object width - padding / margins</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets object width to dimensions.width</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets x-axis scale range if defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls own redraw method</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Mobile (is_mob) is_landscape()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">returns true if screen orientation is landscape</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">returns true if screen orientation is landscape</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Mobile (is_mob) NHContext.handle_resize() Portrait</span>
+    
+      <div class="specSummary passed">
+      <span class="description">adjusts x-axis min to max minus 1 day</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start time input with new time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end time input with new time</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Mobile (is_mob) NHContext.handle_resize() Landscape</span>
+    
+      <div class="specSummary passed">
+      <span class="description">adjusts x-axis min to max minus 5 days</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates start time input with new time</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end date input with new date</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">updates end time input with new time</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Mobile (is_mob) NHFocus.handle_resize() Landscape</span>
+    
+      <div class="specSummary passed">
+      <span class="description">sets focus graphs x-axis min to max minus 5 days</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw with x-axis min to x-axis max minus 5 days</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Resize Mobile (is_mob) NHFocus.handle_resize() Portrait</span>
+    
+      <div class="specSummary passed">
+      <span class="description">calls redraw with x-axis min to max minus 1 day</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Table Title</span>
+    
+      <div class="specSummary passed">
+      <span class="description">doesn't add title if not defined</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">adds title if defined</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Table NHTable Methods init()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called by parent (NHGraphLib) init method</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets parent_obj property to parent NHFocus object</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">appends table element to NHGraphLib.el with class of 'nhtable'</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">sets range to parent object x-axis min/max</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">appends header row (thead) with correct titles</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">appends tbody element to table element</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Table NHTable Methods draw()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called by NHGraphlib.draw()</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">appends the expected number of rows for defined range</span>
+      </div>
+    
+    </div>
+  
+    <div class="suite passed">
+      <span class="description">Table NHTable Methods redraw()</span>
+    
+      <div class="specSummary passed">
+      <span class="description">is called by focus.redraw()</span>
+      </div>
+    
+      <div class="specSummary passed">
+      <span class="description">appends the expected number of rows </span>
+      </div>
+    
+    </div>
+  
+  
+</div>
+
+<div id="details">
+  
+</div>
+
+<script>
+
+var folded = false;
+
+document.body.onkeypress = function (e) {
+  if (!e || !e.keyCode) return;
+  switch (e.keyCode) {
+    case 102: toggleFold(); break;
+    case 49: showSummary(); break;
+    
+  }
+};
+
+function showSummary() { document.body.className = "html-reporter showSummary"; }
+function showFailures() { document.body.className = "html-reporter showDetails"; }
+
+function toggleSection(el) {
+  el.className = el.className === 'summary-section' ? 'summary-section folded' : 'summary-section';
+}
+
+function toggleFold() { (folded) ? unfold() : fold(); }
+function fold() {
+  var els = document.querySelectorAll('.summary-section');
+  for (var i = 0; i < els.length; i++) {
+    els[i].className = 'summary-section folded';
+  }
+  folded = true;
+}
+function unfold() {
+  var els = document.querySelectorAll('.summary-section');
+  for (var i = 0; i < els.length; i++) {
+    els[i].className = 'summary-section';
+  }
+  folded = false;
+}
+
+</script>
+
+
+</body>
+</html>
+

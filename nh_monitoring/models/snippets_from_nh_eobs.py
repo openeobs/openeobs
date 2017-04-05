@@ -51,9 +51,11 @@
 
 # <group string="Weight">
 #     <field name="weight_monitoring" string="Active"/>
-#     <field name="weight_monitoring_ids" colspan="2" readonly="True" nolabel="1">
+#     <field name="weight_monitoring_ids"
+#  colspan="2" readonly="True" nolabel="1">
 #         <tree>
-#             <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+#             <field name="date_terminated" string="Date"
+# widget="nhc_datetime"/>
 #             <field name="value" string="Value"/>
 #             <field name="terminate_uid"/>
 #         </tree>

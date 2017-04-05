@@ -40,10 +40,6 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
                 'name': 'Blood Product'
             },
             {
-                'type': 'blood_sugar',
-                'name': 'Blood Sugar'
-            },
-            {
                 'type': 'stools',
                 'name': 'Bristol Stool Scale'
             },

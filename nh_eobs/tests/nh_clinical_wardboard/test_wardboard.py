@@ -426,7 +426,7 @@ class TestWardboard(SingleTransactionCase):
         cr, uid = self.cr, self.uid
 
         fields = ['spell_ids', 'move_ids', 'o2target_ids', 'uotarget_ids',
-                  'blood_sugar_ids', 'mrsa_ids', 'diabetes_ids',
+                  'mrsa_ids', 'diabetes_ids',
                   'pbp_monitoring_ids', 'palliative_care_ids',
                   'post_surgery_ids', 'critical_care_ids', 'pbp_ids',
                   'ews_ids', 'gcs_ids', 'pain_ids', 'urine_output_ids',
@@ -489,26 +489,6 @@ class TestWardboard(SingleTransactionCase):
         wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
         view_id = self.model_data.get_object_reference(
             cr, uid, 'nh_eobs', 'view_wardboard_chart_form')[1]
-        self.assertDictEqual(res, {
-            'name': wardboard.full_name,
-            'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.wardboard',
-            'res_id': self.wb_id,
-            'view_mode': 'form',
-            'view_type': 'form',
-            'target': 'new',
-            'context': None,
-            'view_id': view_id
-        })
-
-    def test_19_blood_sugar_chart_action(self):
-        cr, uid = self.cr, self.uid
-
-        res = self.wardboard_pool.wardboard_bs_chart(
-            cr, self.wm_uid, [self.wb_id])
-        wardboard = self.wardboard_pool.browse(cr, uid, self.wb_id)
-        view_id = self.model_data.get_object_reference(
-            cr, uid, 'nh_eobs', 'view_wardboard_bs_chart_form')[1]
         self.assertDictEqual(res, {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',

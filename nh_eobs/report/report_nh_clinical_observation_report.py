@@ -175,7 +175,6 @@ class ObservationReport(models.AbstractModel):
 
         basic_obs_dict = {
             'gcs': 'nh.clinical.patient.observation.gcs',
-            'bs': 'nh.clinical.patient.observation.blood_sugar',
             'pains': 'nh.clinical.patient.observation.pain',
             'blood_products': 'nh.clinical.patient.observation.blood_product'
         }

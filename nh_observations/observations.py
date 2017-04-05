@@ -735,32 +735,6 @@ class nh_clinical_patient_observation_blood_product(orm.Model):
     ]
 
 
-class nh_clinical_patient_observation_blood_sugar(orm.Model):
-    """
-    Represents the action of measuring a
-    :class:`patient<base.nh_clinical_patient>` blood sugar concentration.
-    """
-    _name = 'nh.clinical.patient.observation.blood_sugar'
-    _inherit = ['nh.clinical.patient.observation']
-    _required = ['blood_sugar']
-    _num_fields = ['blood_sugar']
-    _description = "Blood Sugar"
-    _columns = {
-        'blood_sugar': fields.float('Blood Sugar', digits=(2, 1)),
-    }
-    _form_description = [
-        {
-            'name': 'blood_sugar',
-            'type': 'float',
-            'label': 'Blood Sugar (mmol/L)',
-            'min': 1.0,
-            'max': 99.9,
-            'digits': [2, 1],
-            'initially_hidden': False
-        }
-    ]
-
-
 class nh_clinical_patient_observation_pain(orm.Model):
     """
     Represents the action of subjectively measuring a

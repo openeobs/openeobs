@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nh_graphlib_graph.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nh_graphlib_graph.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>Add min ability to Array class to find smallest value in Array</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-next">istanbul ignore next</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>Array::min=<span class="hljs-function">-&gt;</span>
+  Math.min.apply(<span class="hljs-literal">null</span>, <span class="hljs-keyword">this</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>NHGraph provides a graphic view of data which can be manipulated via a brush
+or other method that changes the range of the axis</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHGraph</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHGraphLib</span></span>
+  constructor: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>X &amp; Y axis for the graph and the object that holds them</p>
+<ul>
+<li>Scale: The D3 scale used for the axis</li>
+<li>Axis: The D3 axis used for the the axis</li>
+<li>Min &amp; Max: The extent of the axis</li>
+<li>Obj: The object that holds the axis</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @axes = {
+      x: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>,
+        obj: <span class="hljs-literal">null</span>
+      }
+      y: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>,
+        obj: <span class="hljs-literal">null</span>,
+        ranged_extent: <span class="hljs-literal">null</span>
+      }
+      obj: <span class="hljs-literal">null</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Style for the graph</p>
+<ul>
+<li>Dimensions: The height and width of the graph</li>
+<li>Margin: The offset from the parent focus / context</li>
+<li>Padding: The offset internally</li>
+<li>Axis: the size and visibility of X &amp; Y axis objects</li>
+<li>Data Style: The style of the graph can be one of:<ul>
+<li>Stepped: A line graph with stepping on the line</li>
+<li>Linear: A line graph with a linear line between points</li>
+<li>Range: Used for plotting a range on a graph will draw a rect between
+the points passed over and put caps on the ends for easier reading</li>
+<li>Star: Not implemented</li>
+<li>Pie: Not implemented</li>
+<li>Sparkline: Not implemented</li>
+</ul>
+</li>
+<li>Norm Style: The method used to display the normal range of a graph can
+be one of:<ul>
+<li>Rect: A rectangle that shows a range</li>
+<li>Line: A line that shows a value considered to be normal</li>
+</ul>
+</li>
+<li>Axis Label Font Size: Font size for the x axis label</li>
+<li>Axis Label Line Height: The line height for the x axis label</li>
+<li>Axis label height: text height of the axis labels</li>
+<li>Axis label padding: The amount of padding applied between each label</li>
+<li>Label text height: Font size of the labels used on graphs</li>
+<li>Label width: The width designated for graph labels, this stops the graph
+from overlapping the label</li>
+<li>Range Cap: The dimensions for the caps on the ranged graph</li>
+<li>Range Width: The width of the rectangle used for ranged graphs</li>
+<li>Range Padding: The padding applied to ranged graphs so the values don’t
+fall of the chart</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @style = {
+      dimensions: {
+        height: <span class="hljs-number">200</span>,
+        width: <span class="hljs-number">0</span>,
+      },
+      margin: {
+        top:<span class="hljs-number">0</span>,
+        right:<span class="hljs-number">0</span>,
+        bottom:<span class="hljs-number">0</span>,
+        left: <span class="hljs-number">0</span>,
+      },
+      padding: {
+        top:<span class="hljs-number">0</span>,
+        right:<span class="hljs-number">0</span>,
+        bottom: <span class="hljs-number">0</span>,
+        left: <span class="hljs-number">0</span>
+      },
+      axis: {
+        step: <span class="hljs-number">0</span>,
+        x: {
+          hide: <span class="hljs-literal">false</span>,
+          size: <span class="hljs-literal">null</span>
+        },
+        y: {
+          hide: <span class="hljs-literal">false</span>
+          size: <span class="hljs-literal">null</span>
+        }
+      }
+      data_style: <span class="hljs-string">''</span>,
+      norm_style: <span class="hljs-string">''</span>,
+      axis_label_font_size: <span class="hljs-number">12</span>,
+      axis_label_line_height: <span class="hljs-number">1.2</span>,
+      axis_label_text_height: <span class="hljs-number">10</span>,
+      axis_label_text_padding: <span class="hljs-number">50</span>,
+      label_text_height: <span class="hljs-number">18</span>,
+      label_width: <span class="hljs-number">100</span>,
+      range: {
+        cap: {
+          height: <span class="hljs-number">2</span>,
+          width: <span class="hljs-number">9</span>
+        }
+        width: <span class="hljs-number">2</span>
+      },
+      range_padding: <span class="hljs-number">1</span>,
+      pointRadius: <span class="hljs-number">3</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Options</p>
+<ul>
+<li>Keys: The keys from the dataset to plot. Normal a single item for
+stepped/linear graphs, two for ranged</li>
+<li>Label: The name for the graph</li>
+<li>Measurement: The measurement of the dataset</li>
+<li>Normal: The normal range of the dataset and the difference between the
+two values</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @options = {
+      keys: <span class="hljs-keyword">new</span> Array(),
+      plot_partial: <span class="hljs-literal">true</span>,
+      label: <span class="hljs-literal">null</span>,
+      measurement: <span class="hljs-string">''</span>,
+      normal: {
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>,
+        diff: <span class="hljs-number">0</span>
+      }
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>Drawables; each graph has three layers; background, area &amp; data</p>
+<ul>
+<li>Area: Used by Step / Linear graphs to store the line</li>
+<li>Graph: Used to store the D3 object for the graph</li>
+<li>Data: Used to store the data points</li>
+<li>Initial values: Stores the initial range so can reset from ranged graph</li>
+<li>Ranged valued: Stores the ranged range so can switch to it</li>
+<li>Background: Stores the background layer<ul>
+<li>Obj: D3 object for background layer</li>
+<li>Data: The data used to plot the background rectangles<ul>
+<li>[{“class”: “green”,s: 1, e: 4},{“class”: “amber”,s: 4,e: 6}]</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Brush: Stores the brush if the graph is associated with a NHContext</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @drawables = {
+      area: <span class="hljs-literal">null</span>,
+      graph_object: <span class="hljs-literal">null</span>,
+      data: <span class="hljs-literal">null</span>,
+      initial_values: <span class="hljs-literal">null</span>,
+      ranged_values: <span class="hljs-literal">null</span>,
+      background: {
+        obj: <span class="hljs-literal">null</span>,
+        data: <span class="hljs-literal">null</span>
+      },
+      brush: <span class="hljs-literal">null</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Stores D3 for graph</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @obj = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Link to parent NHContext or NHFocus object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @parent_obj = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Show popup at x,y position with string and remove hidden class</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  show_popup: <span class="hljs-function"><span class="hljs-params">(string, x, y)</span> -&gt;</span>
+    cp = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'chart_popup'</span>)
+    cp.innerHTML = string
+    cp.style.top = y+<span class="hljs-string">'px'</span>
+    cp.style.left = x+<span class="hljs-string">'px'</span>
+    cp.classList.remove(<span class="hljs-string">'hidden'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>Add hidden class to popup</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  hide_popup: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span>
+    cp = <span class="hljs-built_in">document</span>.getElementById(<span class="hljs-string">'chart_popup'</span>)
+    cp.classList.add(<span class="hljs-string">'hidden'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Handles rangify input event which changes the Y Axis to it’s ranged scale
+or to initial scale</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  rangify_graph: <span class="hljs-function"><span class="hljs-params">(self, ranged)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> ranged
+      d0 = self.axes.y.ranged_extent[<span class="hljs-number">0</span>]-self.style.range_padding
+      d1 = self.axes.y.ranged_extent[<span class="hljs-number">1</span>]+self.style.range_padding
+      self.axes.y.scale.domain([(<span class="hljs-keyword">if</span> d0 &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">then</span> d0 <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>), d1])
+    <span class="hljs-keyword">else</span>
+      self.axes.y.scale.domain([self.axes.y.min, self.axes.y.max])
+    self.redraw(self.parent_obj)
+    self.axes.y.obj.selectAll(<span class="hljs-string">'.tick line'</span>).filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">if</span> self.style.axis.step &lt; <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (d % <span class="hljs-number">1</span> <span class="hljs-keyword">is</span> <span class="hljs-number">0</span>)
+          <span class="hljs-keyword">return</span> d
+    ).attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'y-minor-tick'</span>)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Handle window resize event</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  resize_graph: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+      ((self.parent_obj.style.padding.left +
+      self.parent_obj.style.padding.right) + (self.style.margin.left +
+      self.style.margin.right)) - @.style.label_width
+    self.obj.attr(<span class="hljs-string">'width'</span>, self.style.dimensions.width)
+    self.axes.x.scale?.range()[<span class="hljs-number">1</span>] = self.style.dimensions.width
+    self.redraw(self.parent_obj)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Setup graph which involves:</p>
+<ol>
+<li>Append a new group to the parent NHFocus or NHContext</li>
+<li>Set the width and offsets for the graph</li>
+<li>Add groups for the drawable layers</li>
+<li>Setup X Axis</li>
+<li>Append X Axis if not set to hidden</li>
+<li>Process X Axis labels to add line breaks</li>
+<li>Amend height of graph with X Axis height</li>
+<li>Append the clip path so only draws data that is within range</li>
+<li>Set up Y Axis</li>
+<li>Set up labels for graph (name, measurement)</li>
+<li>Add graph resize event listener</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    @.parent_obj = parent_obj
+    @.obj = parent_obj.obj.append(<span class="hljs-string">'g'</span>)
+    @.obj.attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'nhgraph'</span>)
+    @.style.dimensions.width = parent_obj.style.dimensions.width -
+      ((parent_obj.style.padding.left + parent_obj.style.padding.right) +
+      (@.style.margin.left + @.style.margin.right)) - @.style.label_width
+    @.obj.attr(<span class="hljs-string">'width'</span>, @.style.dimensions.width)
+    left_offset = (parent_obj.style.padding.left + @.style.margin.left)
+    top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)
+    @.drawables.background.obj = @.obj.append(<span class="hljs-string">'g'</span>).attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'background'</span>)
+    @.axes.obj = @.obj.append(<span class="hljs-string">'g'</span>).attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'axes'</span>)
+    @.drawables.data = @.obj.append(<span class="hljs-string">'g'</span>).attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'data'</span>)
+
+    @.axes.x.min = parent_obj.axes.x.min
+    @.axes.x.max = parent_obj.axes.x.max
+    @.axes.x.scale = nh_graphs.time.scale()
+    .domain([@.axes.x.min, @.axes.x.max]).range([left_offset,
+      @.style.dimensions.width])
+
+    @.axes.x.axis = nh_graphs.svg.axis().scale(@.axes.x.scale).orient(<span class="hljs-string">"top"</span>)
+    .ticks((@.style.dimensions.width/<span class="hljs-number">100</span>))
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> @.style.axis.x.hide
+      @.axes.x.obj = @.axes.obj.append(<span class="hljs-string">"g"</span>).attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"x axis"</span>)
+      .call(@.axes.x.axis)
+
+      line_self = @
+      tick_font_size = line_self.style.axis_label_font_size
+      tick_line_height = line_self.style.axis_label_line_height
+      adjusted_line = \
+        Math.round(((tick_font_size * tick_line_height) * <span class="hljs-number">10</span>) / <span class="hljs-number">10</span>)
+      @.axes.obj.selectAll(<span class="hljs-string">".x.axis g text"</span>).each( <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        el = nh_graphs.select(@)
+        words = line_self.date_to_string(d).split(<span class="hljs-string">" "</span>)
+        el.text(<span class="hljs-string">""</span>)
+        <span class="hljs-keyword">for</span> word, i <span class="hljs-keyword">in</span> words
+          tspan = el.append(<span class="hljs-string">"tspan"</span>).text(word)
+          tspan.attr(<span class="hljs-string">"style"</span>, <span class="hljs-string">"font-size: "</span> + tick_font_size + <span class="hljs-string">"px;"</span>)
+          <span class="hljs-keyword">if</span> i &gt; <span class="hljs-number">0</span>
+            tspan.attr(<span class="hljs-string">"x"</span>, <span class="hljs-number">0</span>).attr(<span class="hljs-string">"dy"</span>, adjusted_line)
+        top_lines = ((words.length - <span class="hljs-number">1</span>) * adjusted_line) + tick_font_size
+        el.attr(<span class="hljs-string">"y"</span>, <span class="hljs-string">"-"</span> + Math.round((top_lines * <span class="hljs-number">10</span>) / <span class="hljs-number">10</span>))
+      )
+      @.style.axis.x.size = @.axes.x.obj[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>].getBBox()
+      @.style.dimensions.height -= @.style.axis.x.size.height
+    @.obj.attr(<span class="hljs-string">'height'</span>, @.style.dimensions.height)
+
+    @.obj.append(<span class="hljs-string">"defs"</span>).append(<span class="hljs-string">"clipPath"</span>).attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"clip"</span>)
+    .attr(<span class="hljs-string">'id'</span>, @.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span>).append(<span class="hljs-string">"rect"</span>)
+    .attr(<span class="hljs-string">"width"</span>,  @.style.dimensions.width)
+    .attr(<span class="hljs-string">"height"</span>, @.style.dimensions.height + <span class="hljs-number">3</span>)
+    .attr(<span class="hljs-string">"y"</span>, top_offset).attr(<span class="hljs-string">"x"</span>, left_offset)
+
+    self = @
+
+    <span class="hljs-keyword">if</span> self.options.keys.length&gt;<span class="hljs-number">1</span>
+      values = []
+      <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+        <span class="hljs-keyword">for</span> ob <span class="hljs-keyword">in</span> self.parent_obj.parent_obj.data.raw</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <h1 id="push-null-if-false-so-that-extent-doesn-t-count-it-as-a-value">Push null if false so that extent doesn’t count it as a value</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">if</span> <span class="hljs-keyword">typeof</span> ob[key] == <span class="hljs-string">'number'</span>
+            values.push(ob[key])
+          <span class="hljs-keyword">else</span> values.push(<span class="hljs-literal">null</span>)
+      @.axes.y.ranged_extent = nh_graphs.extent(values.concat.apply([], values))
+    <span class="hljs-keyword">else</span>
+      @.axes.y.ranged_extent = \
+      nh_graphs.extent(self.parent_obj.parent_obj.data.raw, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> d[self.options.keys[<span class="hljs-number">0</span>]] == <span class="hljs-string">'number'</span>)
+          <span class="hljs-keyword">return</span> d[self.options.keys[<span class="hljs-number">0</span>]]
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>
+      )
+    ranged_extent = @.axes.y.ranged_extent
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> ranged_extent[<span class="hljs-number">0</span>] <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> ranged_extent[<span class="hljs-number">1</span>]
+      @.axes.y.ranged_extent = [
+        @.axes.y.min + self.style.range_padding,
+        @.axes.y.max - self.style.range_padding
+      ]</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Create ranged and not ranged scaled</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    d0 = self.axes.y.ranged_extent[<span class="hljs-number">0</span>] - self.style.range_padding
+    d1 = self.axes.y.ranged_extent[<span class="hljs-number">1</span>] + self.style.range_padding
+    dom = [(<span class="hljs-keyword">if</span> d0 &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">then</span> d0 <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>), d1]
+    scaleRanged = nh_graphs.scale.linear()
+    .domain(dom)
+    .range([top_offset + @style.dimensions.height, top_offset])
+    scaleNot = nh_graphs.scale.linear()
+    .domain([self.axes.y.min, self.axes.y.max])
+    .range([top_offset + @style.dimensions.height, top_offset])</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Use ranged scale if NHGraphlib.options.ranged is true</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">this</span>.parent_obj.parent_obj.options.ranged
+      @.axes.y.scale = scaleRanged
+    <span class="hljs-keyword">else</span>
+      @.axes.y.scale = scaleNot
+
+    @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient(<span class="hljs-string">'left'</span>)
+    .tickFormat(<span class="hljs-keyword">if</span> @.style.axis.step &gt; <span class="hljs-number">0</span> <span class="hljs-keyword">then</span> \
+      nh_graphs.format(<span class="hljs-string">",."</span> + @.style.axis.step + <span class="hljs-string">"f"</span>) <span class="hljs-keyword">else</span> \
+      nh_graphs.format(<span class="hljs-string">"d"</span>)).tickSubdivide(@.style.axis.step)
+    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> @.style.axis.y.hide
+      @.axes.y.obj = @.axes.obj.append(<span class="hljs-string">'g'</span>).attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'y axis'</span>)
+      .call(@.axes.y.axis)
+      @.style.axis.y.size = @.axes.y.obj[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>].getBBox()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Label positioning uses non-ranged scale</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> @.options.label?
+      y_label = scaleNot(@.axes.y.min) -
+        (@.style.label_text_height * (@.options.keys.length + <span class="hljs-number">1</span>))
+      @.drawables.background.obj.append(<span class="hljs-string">'text'</span>).text(@.options.label).attr({
+        <span class="hljs-string">'x'</span>: @.style.dimensions.width + @.style.label_text_height,
+        <span class="hljs-string">'y'</span>: y_label,
+        <span class="hljs-string">'class'</span>: <span class="hljs-string">'label'</span>
+      })
+
+      @.drawables.background.obj.selectAll(<span class="hljs-string">'text.measurement'</span>)
+      .data(@.options.keys).enter().append(<span class="hljs-string">'text'</span>).text(<span class="hljs-function"><span class="hljs-params">(d, i)</span> -&gt;</span>
+        raw = self.parent_obj.parent_obj.data.raw
+        <span class="hljs-keyword">if</span> i <span class="hljs-keyword">isnt</span> self.options.keys.length<span class="hljs-number">-1</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <h1 id="used-in-case-of-partial-observation">Used in case of partial observation</h1>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">if</span> raw[raw.length<span class="hljs-number">-1</span>][d] != <span class="hljs-literal">false</span>
+            <span class="hljs-keyword">return</span> raw[raw.length<span class="hljs-number">-1</span>][d]
+          <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-string">'NA'</span>
+        <span class="hljs-keyword">else</span>
+          <span class="hljs-keyword">if</span> raw[raw.length<span class="hljs-number">-1</span>][d] != <span class="hljs-literal">false</span>
+            <span class="hljs-keyword">return</span> raw[raw.length<span class="hljs-number">-1</span>][d] + <span class="hljs-string">''</span> + self.options.measurement
+          <span class="hljs-keyword">else</span> <span class="hljs-keyword">return</span> <span class="hljs-string">'NA'</span>
+      ).attr({
+        <span class="hljs-string">'x'</span>: self.style.dimensions.width + self.style.label_text_height,
+        <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d, i)</span> -&gt;</span>
+          scaleNot(self.axes.y.min) -
+            (self.style.label_text_height * (self.options.keys.length - i))
+        ,<span class="hljs-string">'class'</span>: <span class="hljs-string">'measurement'</span>
+      })</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>Check normal range background data validity</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    (<span class="hljs-function"><span class="hljs-params">(self)</span> -&gt;</span>
+      valid = <span class="hljs-literal">true</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Check if both have been defined</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> self.options.normal.min? <span class="hljs-keyword">and</span> self.options.normal.max?
+        min = self.options.normal.min
+        max = self.options.normal.max</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Get axis min / max values</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        yMin = self.axes.y.min
+        yMax = self.axes.y.max</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>Throw error if either value is NaN</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> isNaN(min) <span class="hljs-keyword">or</span> isNaN(max)
+          valid = <span class="hljs-literal">false</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Check values are valid</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">else</span>
+          <span class="hljs-keyword">if</span> min &gt; yMax <span class="hljs-keyword">or</span> min &lt; yMin <span class="hljs-keyword">or</span> min &gt; max <span class="hljs-keyword">then</span> valid = <span class="hljs-literal">false</span>
+          <span class="hljs-keyword">if</span> max &lt; yMin <span class="hljs-keyword">or</span> max &gt; yMax <span class="hljs-keyword">or</span> max &lt; min <span class="hljs-keyword">then</span> valid = <span class="hljs-literal">false</span>
+      <span class="hljs-keyword">else</span>
+        valid = <span class="hljs-literal">false</span>
+
+      <span class="hljs-keyword">if</span> !valid
+        <span class="hljs-built_in">console</span>.log <span class="hljs-string">'Invalid normal range defined'</span>
+
+        self.options.normal.min = <span class="hljs-number">0</span>
+        self.options.normal.max = <span class="hljs-number">0</span>
+    )(@)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Draw graph which involves:</p>
+<ol>
+<li>Drawing Background objects<ol>
+<li>Drawing background.data ranges</li>
+<li>Drawing Normal range</li>
+<li>Drawing Vertical grid</li>
+<li>Drawing Horizontal grid</li>
+</ol>
+</li>
+<li>Drawing Area</li>
+<li>Drawing Data</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    self = @
+    <span class="hljs-keyword">if</span> self.drawables.background.data?
+      <span class="hljs-keyword">for</span> background_object <span class="hljs-keyword">in</span> self.drawables.background.data
+        self.drawables.background.obj.selectAll(<span class="hljs-string">".range"</span>)
+        .data(self.drawables.background.data).enter().append(<span class="hljs-string">"rect"</span>).attr({
+          <span class="hljs-string">"class"</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            <span class="hljs-keyword">return</span> d.class + <span class="hljs-string">' range'</span>
+          ,
+          x: self.axes.x.scale(self.axes.x.scale.domain()[<span class="hljs-number">0</span>]),
+          y: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            <span class="hljs-keyword">return</span> self.axes.y.scale(d.e) - <span class="hljs-number">1</span>
+          ,
+          width: self.style.dimensions.width,
+          <span class="hljs-string">"clip-path"</span>: <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>,
+          height: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            <span class="hljs-keyword">return</span> self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - <span class="hljs-number">1</span>)
+        })
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.normal'</span>)
+    .data([self.options.normal]).enter().append(<span class="hljs-string">"rect"</span>)
+    .attr({
+      <span class="hljs-string">'class'</span>: <span class="hljs-string">'normal'</span>
+      <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d.max)
+      ,
+      <span class="hljs-string">'x'</span>: self.axes.x.scale(self.axes.x.scale.domain()[<span class="hljs-number">0</span>]),
+      <span class="hljs-string">'width'</span>: self.style.dimensions.width,
+      <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span>+<span class="hljs-string">')'</span>,
+      <span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+    })
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">".grid.vertical"</span>)
+    .data(self.axes.x.scale.ticks()).enter().append(<span class="hljs-string">"line"</span>).attr({
+      <span class="hljs-string">"class"</span>: <span class="hljs-string">"vertical grid"</span>,
+      x1: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.x.scale(d)
+      ,
+      x2: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.x.scale(d)
+      ,
+      y1: self.axes.y.scale.range()[<span class="hljs-number">1</span>],
+      y2: self.axes.y.scale.range()[<span class="hljs-number">0</span>],
+    })
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">".grid.horizontal"</span>)
+    .data(self.axes.y.scale.ticks()).enter().append(<span class="hljs-string">"line"</span>).attr({
+      <span class="hljs-string">"class"</span>: <span class="hljs-string">"horizontal grid"</span>,
+      x1: self.axes.x.scale(self.axes.x.scale.domain()[<span class="hljs-number">0</span>]),
+      x2: self.axes.x.scale(self.axes.x.scale.domain()[<span class="hljs-number">1</span>]),
+      y1: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d)
+      ,
+      y2: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d)
+      ,
+    })
+
+    <span class="hljs-keyword">switch</span> self.style.data_style</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Draw a stepped or linear graph, which involves:</p>
+<ol>
+<li>Plot the line using the iterpolate style of choice<ol>
+<li>If inconsistent values due then break the line</li>
+</ol>
+</li>
+<li>Append and draw the line using the plotted points</li>
+<li>For each point in the line append a circle which event listeners for
+mouseover and mouseout to control the tool tips</li>
+<li>For each empty point (normally used for partial observations) append
+a circle with class ‘empty_point’</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">when</span> <span class="hljs-string">'stepped'</span>, <span class="hljs-string">'linear'</span> <span class="hljs-keyword">then</span> (
+        self.drawables.area = nh_graphs.svg.line()
+        .interpolate(<span class="hljs-keyword">if</span> self.style.data_style <span class="hljs-keyword">is</span> \
+          <span class="hljs-string">'stepped'</span> <span class="hljs-keyword">then</span> <span class="hljs-string">"step-after"</span> <span class="hljs-keyword">else</span> <span class="hljs-string">"linear"</span>)
+        .defined(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">if</span> d.none_values <span class="hljs-keyword">is</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[self.options.keys[<span class="hljs-number">0</span>]]
+            <span class="hljs-keyword">return</span> d
+        )
+        .x(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        )
+        .y(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+
+        <span class="hljs-keyword">if</span> self.parent_obj.parent_obj.data.raw.length &gt; <span class="hljs-number">1</span>
+          self.drawables.data.append(<span class="hljs-string">"path"</span>)
+          .datum(self.parent_obj.parent_obj.data.raw)
+          .attr(<span class="hljs-string">"d"</span>, self.drawables.area)
+          .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+          .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"path"</span>)
+
+        self.drawables.data.selectAll(<span class="hljs-string">".point"</span>)
+        .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">if</span> d.none_values <span class="hljs-keyword">is</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[self.options.keys[<span class="hljs-number">0</span>]]
+            <span class="hljs-keyword">return</span> d
+          )
+        )
+        .enter().append(<span class="hljs-string">"circle"</span>).attr(<span class="hljs-string">"cx"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr(<span class="hljs-string">"cy"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        ).attr(<span class="hljs-string">"r"</span>, self.style.pointRadius).attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"point"</span>)
+        .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.show_popup(d[self.options.keys[<span class="hljs-number">0</span>]],event.pageX,event.pageY)
+        )
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.hide_popup()
+        )
+        self.drawables.data.selectAll(<span class="hljs-string">".empty_point"</span>)
+        .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          none_vals = d.none_values
+          key = self.options.keys[<span class="hljs-number">0</span>]
+          plot_partial = self.options.plot_partial
+          partial_type = self.parent_obj.parent_obj.options.partial_type
+          partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'dot'</span>
+          <span class="hljs-keyword">if</span> plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span>
+            partial = <span class="hljs-literal">true</span>
+          <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> partial
+            <span class="hljs-keyword">return</span> d
+          )
+        )
+        .enter().append(<span class="hljs-string">"circle"</span>)
+        .attr(<span class="hljs-string">"cx"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        )
+        .attr(<span class="hljs-string">"cy"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+        .attr(<span class="hljs-string">"r"</span>, self.style.pointRadius)
+        .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"empty_point"</span>)
+        .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.show_popup(<span class="hljs-string">'Partial observation: '</span> + d[self.options.keys[<span class="hljs-number">0</span>]],
+            event.pageX,
+            event.pageY)
+        )
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.hide_popup()
+        )
+
+        self.drawables.data.selectAll(<span class="hljs-string">".partial_point"</span>)
+        .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          none_vals = d.none_values
+          key = self.options.keys[<span class="hljs-number">0</span>]
+          plot_partial = self.options.plot_partial
+          partial_type = self.parent_obj.parent_obj.options.partial_type
+          partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span>
+          refused = self.parent_obj.parent_obj.options.refused
+          refused_ob = refused <span class="hljs-keyword">and</span> d.partial_reason <span class="hljs-keyword">is</span> <span class="hljs-string">'refused'</span>
+          <span class="hljs-keyword">if</span> refused_ob
+            partial = <span class="hljs-literal">false</span>
+          <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> d[key] <span class="hljs-keyword">and</span> partial
+            <span class="hljs-keyword">return</span> d
+          )
+        )
+        .enter().append(<span class="hljs-string">"text"</span>)
+        .attr(<span class="hljs-string">"x"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        )
+        .attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+        .text(<span class="hljs-string">'P'</span>)
+        .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"partial_point"</span>)
+        .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.show_popup(<span class="hljs-string">'Partial observation'</span>,
+            event.pageX,
+            event.pageY)
+        )
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.hide_popup()
+        )
+
+        self.drawables.data.selectAll(<span class="hljs-string">".refused_point"</span>)
+        .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          none_vals = d.none_values
+          key = self.options.keys[<span class="hljs-number">0</span>]
+          refused = self.parent_obj.parent_obj.options.refused
+          refused_ob = refused <span class="hljs-keyword">and</span> d.partial_reason <span class="hljs-keyword">is</span> <span class="hljs-string">'refused'</span>
+          <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">is</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> refused_ob
+            <span class="hljs-keyword">return</span> d
+          )
+        )
+        .enter().append(<span class="hljs-string">"text"</span>)
+        .attr(<span class="hljs-string">"x"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        )
+        .attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+        .text(<span class="hljs-string">'R'</span>)
+        .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"refused_point"</span>)
+        .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.show_popup(<span class="hljs-string">'Refused observation'</span>,
+            event.pageX,
+            event.pageY)
+        )
+        .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          self.hide_popup()
+        )
+      )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Draw a ranged graph, which involves:</p>
+<ol>
+<li>Check that given two keys otherwise can’t draw graph properly</li>
+<li>Draw the top caps of the range using the dimensions and offsets
+defined in the style and add mouseover and mouseout event listeners for
+popups</li>
+<li>Draw the bottom caps for the range using the dimensions and offsets
+defined in the style and add mouseover and mouseout event listeners for
+popups</li>
+<li>Draw the rectangle for the range using the dimension in the style and
+add mouseover and mouseout event listeners for popups</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">when</span> <span class="hljs-string">'range'</span> <span class="hljs-keyword">then</span> (
+        <span class="hljs-keyword">if</span> self.options.keys.length <span class="hljs-keyword">is</span> <span class="hljs-number">2</span>
+          self.drawables.data.selectAll(<span class="hljs-string">".range.top"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            <span class="hljs-keyword">if</span> d.none_values <span class="hljs-keyword">is</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[self.options.keys[<span class="hljs-number">0</span>]]
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+            ,
+            <span class="hljs-string">'height'</span>: self.style.range.cap.height,
+            <span class="hljs-string">'width'</span>: self.style.range.cap.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range top'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          })
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">''</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,event.pageX,event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+
+          self.drawables.data.selectAll(<span class="hljs-string">".range.bottom"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            <span class="hljs-keyword">if</span> d.none_values <span class="hljs-keyword">is</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[self.options.keys[<span class="hljs-number">1</span>]]
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+            ,
+            <span class="hljs-string">'height'</span>: self.style.range.cap.height,
+            <span class="hljs-string">'width'</span>: self.style.range.cap.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range bottom'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          }).<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">''</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,event.pageX,event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(<span class="hljs-string">".range.extent"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            top = d[self.options.keys[<span class="hljs-number">0</span>]]
+            bottom = d[self.options.keys[<span class="hljs-number">1</span>]]
+            <span class="hljs-keyword">if</span> d.none_values <span class="hljs-keyword">is</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> top <span class="hljs-keyword">and</span> bottom
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+            ,
+            <span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]]) -
+                self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'width'</span>: self.style.range.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range extent'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          }).<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">''</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,event.pageX,event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(<span class="hljs-string">".range.top.empty_point"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            none_vals = d.none_values
+            key = self.options.keys[<span class="hljs-number">0</span>]
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'dot'</span>
+            character_plot = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span>
+            <span class="hljs-keyword">if</span> character_plot <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span>
+              partial = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> partial
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+            ,
+            <span class="hljs-string">'height'</span>: self.style.range.cap.height,
+            <span class="hljs-string">'width'</span>: self.style.range.cap.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range top empty_point'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          })
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">'Partial Observation:&lt;br&gt;'</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,
+              event.pageX,
+              event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+
+          self.drawables.data.selectAll(<span class="hljs-string">".range.bottom.empty_point"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            none_vals = d.none_values
+            key = self.options.keys[<span class="hljs-number">1</span>]
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'dot'</span>
+            character_plot = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span>
+            <span class="hljs-keyword">if</span> character_plot <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span>
+              partial = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> partial
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> \
+                self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+                (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+            ,
+            <span class="hljs-string">'height'</span>: self.style.range.cap.height,
+            <span class="hljs-string">'width'</span>: self.style.range.cap.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range bottom empty_point'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          }).<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">'Partial Observation:&lt;br&gt;'</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,
+              event.pageX,
+              event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(<span class="hljs-string">".range.extent.empty_point"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'dot'</span>
+            top = d[self.options.keys[<span class="hljs-number">0</span>]]
+            bottom = d[self.options.keys[<span class="hljs-number">1</span>]]
+            none_vals = d.none_values
+            keys_valid = top <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> bottom <span class="hljs-keyword">isnt</span> <span class="hljs-literal">false</span>
+            <span class="hljs-keyword">if</span> plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span> <span class="hljs-keyword">and</span> keys_valid
+              partial = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> keys_valid <span class="hljs-keyword">and</span> partial
+              <span class="hljs-keyword">return</span> d
+            )
+          ).enter()
+          .append(<span class="hljs-string">"rect"</span>)
+          .attr({
+            <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'x'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              <span class="hljs-keyword">return</span> self.axes.x.scale(
+                self.date_from_string(d.date_terminated))
+            ,
+            <span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+              self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]]) -
+                self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+            ,
+            <span class="hljs-string">'width'</span>: self.style.range.width,
+            <span class="hljs-string">'class'</span>: <span class="hljs-string">'range extent empty_point'</span>,
+            <span class="hljs-string">'clip-path'</span>: <span class="hljs-string">'url(#'</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">')'</span>
+          }).<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            string_to_use = <span class="hljs-string">'Partial Observation&lt;br&gt;'</span>
+            <span class="hljs-keyword">for</span> key <span class="hljs-keyword">in</span> self.options.keys
+              string_to_use += key.replace(<span class="hljs-regexp">/_/g</span>, <span class="hljs-string">' '</span>) + <span class="hljs-string">': '</span> + d[key] + <span class="hljs-string">'&lt;br&gt;'</span>
+            self.show_popup(<span class="hljs-string">'&lt;p&gt;'</span>+string_to_use+<span class="hljs-string">'&lt;/p&gt;'</span>,
+              event.pageX,
+              event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(<span class="hljs-string">".partial_point"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            none_vals = d.none_values
+            key = self.options.keys[<span class="hljs-number">0</span>]
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial <span class="hljs-keyword">and</span> partial_type <span class="hljs-keyword">is</span> <span class="hljs-string">'character'</span>
+            refused = self.parent_obj.parent_obj.options.refused
+            refused_ob = refused <span class="hljs-keyword">and</span> d.partial_reason <span class="hljs-keyword">is</span> <span class="hljs-string">'refused'</span>
+            <span class="hljs-keyword">if</span> refused_ob
+              partial = <span class="hljs-literal">false</span>
+            <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> d[key] <span class="hljs-keyword">and</span> partial
+              <span class="hljs-keyword">return</span> d
+            )
+          )
+          .enter().append(<span class="hljs-string">"text"</span>)
+          .attr(<span class="hljs-string">"x"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            point_x = self.date_from_string(d.date_terminated)
+            <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+          )
+          .attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+            domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+            point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+            <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+          )
+          .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+          .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+          .text(<span class="hljs-string">'P'</span>)
+          .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"partial_point"</span>)
+          .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.show_popup(<span class="hljs-string">'Partial observation'</span>,
+              event.pageX,
+              event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+          self.drawables.data.selectAll(<span class="hljs-string">".refused_point"</span>)
+          .data(self.parent_obj.parent_obj.data.raw.filter(<span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            none_vals = d.none_values
+            key = self.options.keys[<span class="hljs-number">0</span>]
+            refused = self.parent_obj.parent_obj.options.refused
+            refused_ob = refused <span class="hljs-keyword">and</span> d.partial_reason <span class="hljs-keyword">is</span> <span class="hljs-string">'refused'</span>
+            <span class="hljs-keyword">if</span> none_vals <span class="hljs-keyword">isnt</span> <span class="hljs-string">"[]"</span> <span class="hljs-keyword">and</span> d[key] <span class="hljs-keyword">is</span> <span class="hljs-literal">false</span> <span class="hljs-keyword">and</span> refused_ob
+              <span class="hljs-keyword">return</span> d
+            )
+          )
+          .enter().append(<span class="hljs-string">"text"</span>)
+          .attr(<span class="hljs-string">"x"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            point_x = self.date_from_string(d.date_terminated)
+            <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+          )
+          .attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+            domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+            point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+            <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+          )
+          .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+          .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+          .text(<span class="hljs-string">'R'</span>)
+          .attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"refused_point"</span>)
+          .attr(<span class="hljs-string">"clip-path"</span>, <span class="hljs-string">"url(#"</span>+ self.options.keys.join(<span class="hljs-string">'-'</span>)+<span class="hljs-string">'-clip'</span> +<span class="hljs-string">")"</span>)
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseover'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.show_popup(<span class="hljs-string">'Refused observation'</span>,
+              event.pageX,
+              event.pageY)
+          )
+          .<span class="hljs-literal">on</span>(<span class="hljs-string">'mouseout'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+            self.hide_popup()
+          )
+        <span class="hljs-keyword">else</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Throw error if given incorrect number of keys to plot</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>          <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'Cannot plot ranged graph with '</span> +
+            self.options.keys.length + <span class="hljs-string">' data point(s)'</span>)
+     )
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'star'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'star'</span>)
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'pie'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'pie'</span>)
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'sparkline'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'sparkline'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>Throw an error if graph style isn’t defined</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'no graph style defined'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>Redraw graph data on changes from NHFocus or NHContext, which involves:</p>
+<ol>
+<li>Redrawing Axis</li>
+<li>Reformatting the X Axis tick labels</li>
+<li>Redrawing the background layer ranges with the new Axis scales</li>
+<li>Redrawing the normal ranges with the new Axis scales</li>
+<li>Redrawing the Vertical Grid</li>
+<li>Redrawing the Horizontal Grid</li>
+<li>Redrawing the clip path so it hides everything properly</li>
+<li>Redrawing the data</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  redraw: <span class="hljs-function"><span class="hljs-params">(parent_obj)</span> =&gt;</span>
+    self = @
+    self.axes.obj.select(<span class="hljs-string">'.x.axis'</span>).call(self.axes.x.axis)
+    self.axes.obj.select(<span class="hljs-string">'.y.axis'</span>).call(self.axes.y.axis)
+    tick_font_size = self.style.axis_label_font_size
+    tick_line_height = self.style.axis_label_line_height
+    adjusted_line = tick_font_size * tick_line_height
+    @.axes.obj.selectAll(<span class="hljs-string">".x.axis g text"</span>).each( <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      el = nh_graphs.select(@)
+      words = self.date_to_string(d).split(<span class="hljs-string">" "</span>)
+      el.text(<span class="hljs-string">""</span>)
+      <span class="hljs-keyword">for</span> word, i <span class="hljs-keyword">in</span> words
+        tspan = el.append(<span class="hljs-string">"tspan"</span>).text(word)
+        tspan.attr(<span class="hljs-string">"style"</span>, <span class="hljs-string">"font-size: "</span> + tick_font_size + <span class="hljs-string">"px;"</span>)
+        <span class="hljs-keyword">if</span> i &gt; <span class="hljs-number">0</span>
+          tspan.attr(<span class="hljs-string">"x"</span>, <span class="hljs-number">0</span>).attr(<span class="hljs-string">"dy"</span>, adjusted_line)
+      top_lines = ((words.length - <span class="hljs-number">1</span>) * adjusted_line) + tick_font_size
+      el.attr(<span class="hljs-string">"y"</span>, <span class="hljs-string">"-"</span> + Math.round((top_lines * <span class="hljs-number">10</span>) / <span class="hljs-number">10</span>))
+    )
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.range'</span>)
+    .attr(<span class="hljs-string">'width'</span>, self.axes.x.scale.range()[<span class="hljs-number">1</span>])
+    .attr(<span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.y.scale(d.e) - <span class="hljs-number">1</span>
+    ).attr(<span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.y.scale(d.s) - (self.axes.y.scale(d.e) - <span class="hljs-number">1</span>)
+    )
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.normal'</span>)
+    .attr({
+      <span class="hljs-string">'width'</span>: self.axes.x.scale.range()[<span class="hljs-number">1</span>],
+      <span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d.max)
+      <span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+        <span class="hljs-keyword">return</span> self.axes.y.scale(d.min) - (self.axes.y.scale(d.max))
+    })
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.label'</span>)
+    .attr(<span class="hljs-string">'x'</span>: self.axes.x.scale.range()[<span class="hljs-number">1</span>] + self.style.label_text_height)
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.measurement'</span>)
+    .attr(<span class="hljs-string">'x'</span>: self.axes.x.scale.range()[<span class="hljs-number">1</span>] + self.style.label_text_height)
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">".grid.vertical"</span>)
+    .data(self.axes.x.scale.ticks())
+    .attr(<span class="hljs-string">'x1'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.x.scale(d)
+    ).attr(<span class="hljs-string">'x2'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.x.scale(d)
+    )
+
+    self.drawables.background.obj.selectAll(<span class="hljs-string">'.grid.horizontal'</span>)
+    .data(self.axes.y.scale.ticks())
+    .attr(<span class="hljs-string">'x2'</span>, self.axes.x.scale.range()[<span class="hljs-number">1</span>])
+    .attr(<span class="hljs-string">'y1'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.y.scale(d)
+    )
+    .attr(<span class="hljs-string">'y2'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+      <span class="hljs-keyword">return</span> self.axes.y.scale(d)
+    )
+    self.obj.selectAll(<span class="hljs-string">'.clip'</span>).selectAll(<span class="hljs-string">'rect'</span>)
+    .attr(<span class="hljs-string">'width'</span>, self.axes.x.scale.range()[<span class="hljs-number">1</span>])
+
+    <span class="hljs-keyword">switch</span> self.style.data_style</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Redraw the line and points of the stepped and linear graphs with the
+new scales</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">when</span> <span class="hljs-string">'stepped'</span>, <span class="hljs-string">'linear'</span> <span class="hljs-keyword">then</span> (
+        self.drawables.data.selectAll(<span class="hljs-string">'.path'</span>).attr(<span class="hljs-string">"d"</span>, self.drawables.area)
+        self.drawables.data.selectAll(<span class="hljs-string">'.point'</span>).attr(<span class="hljs-string">'cx'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr(<span class="hljs-string">'cy'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+        self.drawables.data.selectAll(<span class="hljs-string">'.empty_point'</span>).attr(<span class="hljs-string">'cx'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr(<span class="hljs-string">"cy"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+        self.drawables.data.selectAll(<span class="hljs-string">'.partial_point'</span>)
+        .attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        ).attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+
+        self.drawables.data.selectAll(<span class="hljs-string">'.refused_point'</span>)
+        .attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        ).attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+      )</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Redraw the range caps and extent with the new scales</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">when</span> <span class="hljs-string">'range'</span> <span class="hljs-keyword">then</span> (
+        self.drawables.data.selectAll(<span class="hljs-string">'.range.top'</span>).attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+            (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+        ).attr(<span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+
+        self.drawables.data.selectAll(<span class="hljs-string">'.range.bottom'</span>).attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated)) -
+            (self.style.range.cap.width/<span class="hljs-number">2</span>)+<span class="hljs-number">1</span>
+        ).attr(<span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]])
+        )
+
+        self.drawables.data.selectAll(<span class="hljs-string">'.range.extent'</span>).attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.x.scale(self.date_from_string(d.date_terminated))
+        ).attr(<span class="hljs-string">'y'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        ).attr(<span class="hljs-string">'height'</span>: <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          <span class="hljs-keyword">return</span> self.axes.y.scale(d[self.options.keys[<span class="hljs-number">1</span>]]) -
+            self.axes.y.scale(d[self.options.keys[<span class="hljs-number">0</span>]])
+        )
+        self.drawables.data.selectAll(<span class="hljs-string">'.partial_point'</span>)
+        .attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        ).attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+        self.drawables.data.selectAll(<span class="hljs-string">'.refused_point'</span>)
+        .attr(<span class="hljs-string">'x'</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          point_x = self.date_from_string(d.date_terminated)
+          <span class="hljs-keyword">return</span> self.axes.x.scale(point_x)
+        ).attr(<span class="hljs-string">"y"</span>, <span class="hljs-function"><span class="hljs-params">(d)</span> -&gt;</span>
+          domainEnd = self.axes.y.scale.domain()[<span class="hljs-number">1</span>]
+          domainStart = self.axes.y.scale.domain()[<span class="hljs-number">0</span>]
+          point_y = (((domainEnd - domainStart)/<span class="hljs-number">2</span>) + domainStart)
+          <span class="hljs-keyword">return</span> self.axes.y.scale(point_y)
+        )
+        .attr(<span class="hljs-string">'dx'</span>, <span class="hljs-string">'-4px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 8px wide</span>
+        .attr(<span class="hljs-string">'dy'</span>, <span class="hljs-string">'5px'</span>)  <span class="hljs-comment"># font-size is 10px so R is 10px high</span>
+      )
+
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'star'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'star'</span>)
+
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'pie'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'pie'</span>)
+
+      <span class="hljs-keyword">when</span> <span class="hljs-string">'sparkline'</span> <span class="hljs-keyword">then</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'sparkline'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>If no graph style defined throw an error</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">else</span> <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'no graph style defined'</span>)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-if">istanbul ignore if</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>.NH.NHGraph = NHGraph</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

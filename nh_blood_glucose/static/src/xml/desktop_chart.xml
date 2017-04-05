@@ -1,0 +1,5 @@
+<templates>
+    <div t-name="nh_blood_glucose_chart" class="nh_blood_glucose_chart">
+        <div id="blood_glucose_chart" class="chart"></div>
+    </div>
+</templates>
