@@ -441,7 +441,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'fields': ['device_id'],
                     'condition': [
                         ['oxygen_administration_flag', '==', 'True']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['device_id', 'flow_rate', 'concentration',
@@ -449,7 +450,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
                                'niv_epap'],
                     'condition': [
                         ['oxygen_administration_flag', '!=', 'True']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
         },
@@ -462,32 +464,38 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['flow_rate', 'concentration'],
                     'condition': [['device_id', '!=', '']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['flow_rate', 'concentration'],
                     'condition': [['device_id', '==', '']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 },
                 {
                     'fields': ['cpap_peep'],
                     'condition': [['device_id', '==', 44]],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['cpap_peep'],
                     'condition': [['device_id', '!=', 44]],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
                     'condition': [['device_id', '==', 45]],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
                     'condition': [['device_id', '!=', 45]],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
             'initially_hidden': True
@@ -504,12 +512,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['concentration'],
                     'condition': [['flow_rate', '!=', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['concentration'],
                     'condition': [['flow_rate', '==', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ]
         },
@@ -524,12 +534,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['flow_rate'],
                     'condition': [['concentration', '!=', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['flow_rate'],
                     'condition': [['concentration', '==', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ]
         },

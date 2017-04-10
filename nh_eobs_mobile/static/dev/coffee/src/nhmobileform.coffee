@@ -31,7 +31,12 @@ class NHMobileForm extends NHMobile
                 )
 #                input.addEventListener('change', self.trigger_actions)
               when 'submit' then input.addEventListener('click', (e) ->
-                form_elements = (element for element in @form.elements \
+                form = document.getElementsByTagName('form')?[0]
+                errored_els = (el for el in form.elements \
+                  when el.classList.contains('error'))
+                for inp in errored_els
+                  self.reset_input_errors(inp)
+                form_elements = (element for element in form.elements \
                   when not element.classList.contains('exclude'))
                 for el in form_elements
                   change_event = document.createEvent('CustomEvent')
@@ -132,9 +137,9 @@ class NHMobileForm extends NHMobile
       input.value
     @reset_input_errors(input)
     if typeof(value) isnt 'undefined' and value isnt ''
-      if input_type is 'number' and not isNaN(value)
+      if input_type is 'number'
         @validate_number_input(input)
-        if input.getAttribute('data-validation')
+        if input.getAttribute('data-validation') and not isNaN(value)
           criterias = eval(input.getAttribute('data-validation'))
           for criteria in criterias
             crit_target = criteria['condition']['target']
@@ -186,6 +191,9 @@ class NHMobileForm extends NHMobile
       if value > max
         @.add_input_errors(input, 'Input too high')
         return
+    else
+      if input.getAttribute('data-required').toLowerCase() is 'true'
+        @.add_input_errors(input, 'Missing value')
   
   # Certain inputs will affect other inputs, this function takes the JSON string
   # in the input's data-onchange attribute and does the appropriate action
@@ -214,15 +222,14 @@ class NHMobileForm extends NHMobile
       # TODO: needs a refactor if passing over a select value that is string
       # this blows up
       for action in actions
+        type = action['type']
         for condition in action['condition']
-          if condition[0] not in ['True', 'False'] and
-          typeof condition[0] is 'string'
-            condition[0] = 'document.getElementById("'+condition[0]+'").value'
-          if condition[2] not in ['True', 'False'] and
-          typeof condition[2] is 'string' and condition[2] isnt ''
-            condition[2] = 'document.getElementById("'+condition[2]+'").value'
-          if condition[2] in ['True', 'False', '']
-            condition[2] = "'"+condition[2]+"'"
+          condition[0] = 'document.getElementById("'+condition[0]+'").value'
+          condition[2] = switch
+            when type is 'value' then "'"+condition[2]+"'"
+            when type is 'field' then \
+              'document.getElementById("'+condition[2]+'").value'
+            else "'"+condition[2]+"'"
         mode = ' && '
         conditions = []
         for condition in action['condition']
@@ -234,18 +241,26 @@ class NHMobileForm extends NHMobile
         conditions = conditions.join(mode)
         # TODO: doesn't work with comparative number inputs i.e. a > b
         if eval(conditions)
-          if action['action'] is 'hide'
-            for field in action['fields']
+          actionToTrigger = action['action']
+          fieldsToAffect = action['fields']
+          if actionToTrigger is 'hide'
+            for field in fieldsToAffect
               @.hide_triggered_elements(field)
-          if action['action'] is 'show'
-            for field in action['fields']
+          if actionToTrigger is 'show'
+            for field in fieldsToAffect
               @.show_triggered_elements(field)
-          if action['action'] is 'disable'
-            for field in action['fields']
+          if actionToTrigger is 'disable'
+            for field in fieldsToAffect
               @.disable_triggered_elements(field)
-          if action['action'] is 'enable'
-            for field in action['fields']
+          if actionToTrigger is 'enable'
+            for field in fieldsToAffect
               @.enable_triggered_elements(field)
+          if actionToTrigger is 'require'
+            for field in fieldsToAffect
+              @.require_triggered_elements(field)
+          if actionToTrigger is 'unrequire'
+            for field in fieldsToAffect
+              @.unrequire_triggered_elements(field)
     return
    
   submit: (event) =>
@@ -508,6 +523,16 @@ class NHMobileForm extends NHMobile
     inp.setAttribute('data-necessary', 'true')
     inp.disabled = false
 
+  require_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.remove('exclude')
+    inp.setAttribute('data-required', 'true')
+
+  unrequire_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.add('exclude')
+    inp.setAttribute('data-required', 'false')
+
   process_partial_submit: (event, self) ->
     form_elements = (element for element in self.form.elements when not
       element.classList.contains('exclude'))
@@ -542,7 +567,7 @@ class NHMobileForm extends NHMobile
   findParentWithClass: (el, className) ->
     while el.parentNode
       el = el.parentNode
-      if className in el.classList
+      if el and className in el.classList
         return el
     return null
 

@@ -26,7 +26,8 @@ class TestGetReportData(TransactionCase):
         self.report_wizard.spell_id = self.spell.id
 
         test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, datetime.now() - timedelta(days=1)
+            fluid_taken=100,
+            completion_datetime=datetime.now() - timedelta(days=1)
         )
         self.report_data = \
             self.report_model.get_report_data(self.report_wizard)

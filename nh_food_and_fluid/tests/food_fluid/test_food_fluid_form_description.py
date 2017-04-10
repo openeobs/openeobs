@@ -59,7 +59,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         self.assertEqual(entry.get('name'), 'fluid_taken')
         self.assertEqual(entry.get('type'), 'integer')
         self.assertEqual(entry.get('necessary'), 'false')
-        self.assertEqual(entry.get('min'), 0)
+        self.assertEqual(entry.get('min'), 1)
         self.assertEqual(entry.get('max'), 5000)
         self.assertEqual(
             entry.get('label'), 'Fluid Taken (ml) - Include IV / NG')
@@ -116,7 +116,8 @@ class TestFoodFluidFormDescription(TransactionCase):
         """
         entry = self.form_desc[6]
         options = [
-            'Yes',
+            'Yes (Measured)',
+            'Yes (Not Measured)',
             'No',
             'Unknown'
         ]
@@ -141,7 +142,7 @@ class TestFoodFluidFormDescription(TransactionCase):
         - Type 6
         - Type 7
         """
-        entry = self.form_desc[7]
+        entry = self.form_desc[8]
         options = [
             'No',
             'Unknown',

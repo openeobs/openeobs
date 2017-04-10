@@ -757,6 +757,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'validate').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'submit_observation');
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                // spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
@@ -871,6 +872,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
@@ -998,6 +1000,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
@@ -1074,6 +1077,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'cancel_notification').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
@@ -1190,6 +1194,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'process_post_score_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHModal.prototype, 'close_modal').and.callThrough();
@@ -1489,6 +1494,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'submit_observation').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'cancel_notification').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
                     var url= NHMobileForm.prototype.process_request.calls.mostRecent().args[1];
@@ -1687,6 +1693,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callThrough();
@@ -1756,6 +1763,7 @@ describe('Data Entry Functionality', function(){
                 spyOn(NHMobileForm.prototype, 'display_partial_reasons').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_partial_submit').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 spyOn(NHModal.prototype, 'handle_button_events').and.callThrough();
                 spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function() {
@@ -1892,13 +1900,29 @@ describe('Data Entry Functionality', function(){
 
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
-                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'show\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', 2]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', 1]]}, {\'action\': \'hide\', \'fields\': [\'affected_element\', \'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'\']]}]" data-required="false" data-necessary="true">' +
+                    '<select name="origin_element" id="origin_element" data-onchange="[' +
+                    '{\'action\': \'show\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', 2]], \'type\': \'value\'}, ' +
+                    '{\'action\': \'hide\', \'fields\': [\'affected_element\'], \'condition\': [[\'origin_element\', \'==\', 1]], \'type\': \'value\'}, ' +
+                    '{\'action\': \'hide\', \'fields\': [\'affected_element\', \'hidden_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'\']], \'type\': \'value\'}]" '+
+                    'data-required="false" data-necessary="true">' +
                     '<option value="">Default</option>' +
                     '<option value="1">Hide</option>' +
                     '<option value="2">Show</option>' +
                     '</select>' +
-                    '<div id="parent_affected_element"><input type="number" id="affected_element" data-required="false" data-necessary="true"></div>' +
-                    '<div id="parent_hidden_affected_element" style="display: none;"><input type="number" id="hidden_affected_element" class="exclude" data-required="false" data-necessary="false"></div>' +
+                    '<div id="parent_affected_element">' +
+                    '<input type="number" id="affected_element" data-required="false" data-necessary="true">' +
+                    '</div>' +
+                    '<div id="parent_hidden_affected_element" style="display: none;">' +
+                    '<input type="number" id="hidden_affected_element" class="exclude" data-required="false" data-necessary="false">' +
+                    '</div>' +
+                    '<div id="parent_field_changer">' +
+                    '<input type="number" id="field_changer" data-required="false" data-necessary="true" data-onchange="[' +
+                    '{\'action\': \'show\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'field_changer\', \'==\', \'field_to_compare\']], \'type\': \'field\'},' +
+                    '{\'action\': \'hide\', \'fields\': [\'hidden_affected_element\'], \'condition\': [[\'field_changer\', \'!=\', \'field_to_compare\']], \'type\': \'field\'}]">' +
+                    '</div>' +
+                    '<div id="parent_field_to_compare" style="display: none;">' +
+                    '<input type="number" id="field_to_compare" class="exclude" data-required="false" data-necessary="false" value="666">' +
+                    '</div>' +
                     '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                     '</form>';
                 mobile = new NHMobileForm();
@@ -1914,66 +1938,131 @@ describe('Data Entry Functionality', function(){
                 mobile = null;
             });
 
-            it('Hides the input mentioned in the data-onchange attribute when the hide condition is met', function(){
-                var origin_element = document.getElementById('origin_element');
-                var parent_element = document.getElementById('parent_affected_element');
-                var element = document.getElementById('affected_element');
-                expect(parent_element.style.display).not.toBe('none');
-                expect(element.classList.contains('exclude')).not.toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('true');
-                origin_element.value = 1;
-                var changeEvent = document.createEvent('CustomEvent');
-                changeEvent.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(changeEvent);
-                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
-                expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
-                expect(NHMobileForm.prototype.hide_triggered_elements.calls.mostRecent().args[0]).toBe('affected_element');
-                expect(parent_element.style.display).toBe('none');
-                expect(element.classList.contains('exclude')).toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('false');
+            describe('Value Based Triggered Actions', function(){
+                it('Hides the input mentioned in the data-onchange attribute when the hide condition is met', function(){
+                    var origin_element = document.getElementById('origin_element');
+                    var parent_element = document.getElementById('parent_affected_element');
+                    var element = document.getElementById('affected_element');
+                    expect(parent_element.style.display).not.toBe('none');
+                    expect(element.classList.contains('exclude')).not.toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                    origin_element.value = 1;
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements.calls.mostRecent().args[0]).toBe('affected_element');
+                    expect(parent_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                });
+
+                it('Hides input mentioned in the data-onchange attribute when the hide condition is met (no value set)', function(){
+                    var origin_element = document.getElementById('origin_element');
+                    var parent_element = document.getElementById('parent_affected_element');
+                    var element = document.getElementById('affected_element');
+                    var parent_hidden_element = document.getElementById('parent_hidden_affected_element');
+                    var hidden_element = document.getElementById('hidden_affected_element');
+                    expect(parent_element.style.display).not.toBe('none');
+                    expect(parent_hidden_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).not.toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                    expect(hidden_element.classList.contains('exclude')).toBe(true);
+                    origin_element.value = '';
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
+                    expect(parent_element.style.display).toBe('none');
+                    expect(parent_hidden_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(hidden_element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                });
+
+                it('Shows the input mentioned in the data-onchange attribute when the show condition is met', function(){
+                    var origin_element = document.getElementById('origin_element');
+                    var parent_element = document.getElementById('parent_hidden_affected_element');
+                    var element = document.getElementById('hidden_affected_element');
+                    expect(parent_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                    origin_element.value = 2;
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.show_triggered_elements).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.show_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
+                    expect(parent_element.style.display).not.toBe('none');
+                    expect(element.classList.contains('exclude')).not.toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                });
             });
 
-            it('Hides input mentioned in the data-onchange attribute when the hide condition is met (no value set)', function(){
-                var origin_element = document.getElementById('origin_element');
-                var parent_element = document.getElementById('parent_affected_element');
-                var element = document.getElementById('affected_element');
-                var parent_hidden_element = document.getElementById('parent_hidden_affected_element');
-                var hidden_element = document.getElementById('hidden_affected_element');
-                expect(parent_element.style.display).not.toBe('none');
-                expect(parent_hidden_element.style.display).toBe('none');
-                expect(element.classList.contains('exclude')).not.toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('true');
-                expect(hidden_element.classList.contains('exclude')).toBe(true);
-                origin_element.value = '';
-                var changeEvent = document.createEvent('CustomEvent');
-                changeEvent.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(changeEvent);
-                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
-                expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
-                expect(parent_element.style.display).toBe('none');
-                expect(parent_hidden_element.style.display).toBe('none');
-                expect(element.classList.contains('exclude')).toBe(true);
-                expect(hidden_element.classList.contains('exclude')).toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('false');
-            });
-
-            it('Shows the input mentioned in the data-onchange attribute when the show condition is met', function(){
-                var origin_element = document.getElementById('origin_element');
-                var parent_element = document.getElementById('parent_hidden_affected_element');
-                var element = document.getElementById('hidden_affected_element');
-                expect(parent_element.style.display).toBe('none');
-                expect(element.classList.contains('exclude')).toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('false');
-                origin_element.value = 2;
-                var changeEvent = document.createEvent('CustomEvent');
-                changeEvent.initCustomEvent('change', false, true, false);
-                origin_element.dispatchEvent(changeEvent);
-                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
-                expect(NHMobileForm.prototype.show_triggered_elements).toHaveBeenCalled();
-                expect(NHMobileForm.prototype.show_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
-                expect(parent_element.style.display).not.toBe('none');
-                expect(element.classList.contains('exclude')).not.toBe(true);
-                expect(element.getAttribute('data-necessary')).toBe('true');
+            describe('Field Comparison Based Triggered Actions', function(){
+                it('Shows the input mentioned in the data-onchange attribute when the show condition is met', function(){
+                    var origin_element = document.getElementById('field_changer');
+                    var parent_element = document.getElementById('parent_hidden_affected_element');
+                    var element = document.getElementById('hidden_affected_element');
+                    expect(parent_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                    origin_element.value = 666;
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.show_triggered_elements).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.show_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
+                    expect(parent_element.style.display).not.toBe('none');
+                    expect(element.classList.contains('exclude')).not.toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                });
+                it('Hides the input mentioned in the data-onchange attribute when the hide condition is met', function(){
+                    var origin_element = document.getElementById('field_changer');
+                    var parent_element = document.getElementById('parent_hidden_affected_element');
+                    var element = document.getElementById('hidden_affected_element');
+                    parent_element.style.display = 'block';
+                    element.classList.remove('exclude');
+                    element.setAttribute('data-necessary', 'true');
+                    expect(parent_element.style.display).toBe('block');
+                    expect(element.classList.contains('exclude')).toBe(false);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                    origin_element.value = 2;
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
+                    expect(parent_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                });
+                it('Hides the input mentioned in the data-onchange attribute when the hide condition is met - no value set', function(){
+                    var origin_element = document.getElementById('field_changer');
+                    var parent_element = document.getElementById('parent_hidden_affected_element');
+                    var element = document.getElementById('hidden_affected_element');
+                    parent_element.style.display = 'block';
+                    element.classList.remove('exclude');
+                    element.setAttribute('data-necessary', 'true');
+                    expect(parent_element.style.display).toBe('block');
+                    expect(element.classList.contains('exclude')).toBe(false);
+                    expect(element.getAttribute('data-necessary')).toBe('true');
+                    origin_element.value = null;
+                    var changeEvent = document.createEvent('CustomEvent');
+                    changeEvent.initCustomEvent('change', false, true, false);
+                    origin_element.dispatchEvent(changeEvent);
+                    expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements).toHaveBeenCalled();
+                    expect(NHMobileForm.prototype.hide_triggered_elements.calls.mostRecent().args[0]).toBe('hidden_affected_element');
+                    expect(parent_element.style.display).toBe('none');
+                    expect(element.classList.contains('exclude')).toBe(true);
+                    expect(element.getAttribute('data-necessary')).toBe('false');
+                });
             });
         });
 
@@ -2071,6 +2160,103 @@ describe('Data Entry Functionality', function(){
                 expect(element.classList.contains('exclude')).not.toBe(true);
                 expect(element.disabled).not.toBe(true);
                 expect(element.getAttribute('data-necessary')).toBe('true');
+            });
+        });
+
+        describe('Making elements mandatory or not mandatory based on triggered actions', function(){
+            var mobile;
+             beforeEach(function(){
+                spyOn(NHMobileForm.prototype, 'submit');
+                spyOn(NHMobileForm.prototype, 'handle_timeout');
+                spyOn(NHMobileForm.prototype, 'trigger_actions').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'require_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'unrequire_triggered_elements').and.callThrough();
+                spyOn(NHMobileForm.prototype, 'validate');
+                spyOn(NHMobileForm.prototype, 'process_request').and.callFake(function(){
+                    var promise = new Promise();
+                    var empty = new NHMobileData({
+                               status: 'success',
+                               title: '',
+                               description: '',
+                               data: {}
+                           })
+                     promise.complete(empty);
+                    return promise;
+                });
+                var test = document.getElementById('test');
+                test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
+                    '<select name="origin_element" id="origin_element" data-onchange="[{\'action\': \'require\', \'fields\': [\'unrequired_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'True\']]}, {\'action\': \'unrequire\', \'fields\': [\'affected_element\', \'unrequired_affected_element\'], \'condition\': [[\'origin_element\', \'==\', \'False\']]}]" data-required="true" data-necessary="true">' +
+                    '<option value="">Default</option>' +
+                    '<option value="False">Unrequire</option>' +
+                    '<option value="True">Require</option>' +
+                    '</select>' +
+                    '<input type="number" id="affected_element" data-required="true" data-necessary="true">' +
+                    '<input type="number" id="unrequired_affected_element" class="exclude" data-required="false" data-necessary="false">' +
+                    '<input type="number" id="value_change" data-onchange="[{\'action\': \'unrequire\', \'fields\': [\'origin_element\'], \'condition\': [[\'value_change\', \'!=\', \'affected_element\']], \'type\': \'field\'}]" data-required="false" data-necessary="true">'+
+                    '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                    '</form>';
+                mobile = new NHMobileForm();
+            });
+
+            afterEach(function(){
+               cleanUp();
+                mobile = null;
+            });
+
+            it('The input mentioned in the data-onchange attribute is no longer mandatory when the unrequire condition is met', function(){
+                var origin_element = document.getElementById('origin_element');
+                var element = document.getElementById('affected_element');
+                expect(element.classList.contains('exclude')).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
+                expect(element.getAttribute('data-required')).toBe('true');
+                origin_element.value = "False";
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.unrequire_triggered_elements).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.unrequire_triggered_elements.calls.mostRecent().args[0]).toBe('unrequired_affected_element');
+                expect(element.classList.contains('exclude')).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('true');
+                expect(element.getAttribute('data-required')).toBe('false');
+            });
+
+            it('The input mentioned in the data-onchange attribute is not longer mandatory when the unrequire condition is met (comparative value)', function(){
+                var origin_element = document.getElementById('origin_element');
+                var element = document.getElementById('affected_element');
+                var value_change = document.getElementById('value_change');
+                element.value = 666;
+                value_change.value = 1337;
+                expect(origin_element.classList.contains('exclude')).not.toBe(true);
+                expect(origin_element.getAttribute('data-necessary')).toBe('true');
+                expect(origin_element.getAttribute('data-required')).toBe('true');
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                value_change.dispatchEvent(changeEvent);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.unrequire_triggered_elements).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.unrequire_triggered_elements.calls.mostRecent().args[0]).toBe('origin_element');
+                expect(origin_element.classList.contains('exclude')).toBe(true);
+                expect(origin_element.getAttribute('data-necessary')).toBe('true');
+                expect(origin_element.getAttribute('data-required')).toBe('false');
+            });
+
+            it('The input mentioned in the data-onchange attribute is required when the require condition is met', function(){
+                var origin_element = document.getElementById('origin_element');
+                var element = document.getElementById('unrequired_affected_element');
+                expect(element.classList.contains('exclude')).toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
+                expect(element.getAttribute('data-required')).toBe('false');
+                origin_element.value = "True";
+                var changeEvent = document.createEvent('CustomEvent');
+                changeEvent.initCustomEvent('change', false, true, false);
+                origin_element.dispatchEvent(changeEvent);
+                expect(NHMobileForm.prototype.trigger_actions).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.require_triggered_elements).toHaveBeenCalled();
+                expect(NHMobileForm.prototype.require_triggered_elements.calls.mostRecent().args[0]).toBe('unrequired_affected_element');
+                expect(element.classList.contains('exclude')).not.toBe(true);
+                expect(element.getAttribute('data-necessary')).toBe('false');
+                expect(element.getAttribute('data-required')).toBe('true');
             });
         });
 

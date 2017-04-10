@@ -32,9 +32,6 @@ class NhClinicalObservationReport(models.Model):
             food_and_fluid_model.format_period_datetimes(
                 food_and_fluid_report_data
             )
-            self._remove_total_fluid_intake_and_score_from_current_period(
-                food_and_fluid_report_data
-            )
         else:
             food_and_fluid_report_data = []
 
@@ -50,14 +47,3 @@ class NhClinicalObservationReport(models.Model):
         food_and_fluid_model.format_many_2_many_fields(obs_list,
                                                        ['recorded_concerns',
                                                         'dietary_needs'])
-
-    @staticmethod
-    def _remove_total_fluid_intake_and_score_from_current_period(
-            food_and_fluid_report_data
-    ):
-        current_period = [period for period in food_and_fluid_report_data
-                          if period.get('current_period')]
-        if len(current_period) > 0:
-            current_period = current_period[0]
-            current_period['total_fluid_intake'] = None
-            current_period['score'] = None

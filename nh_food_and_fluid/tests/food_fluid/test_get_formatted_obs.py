@@ -22,7 +22,8 @@ class TestGetFormattedObs(TransactionCase):
 
         obs_activity_id = \
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                100, datetime.now()
+                fluid_taken=100, fluid_output=100,
+                completion_datetime=datetime.now()
             )
         obs_activity = self.activity_model.browse(obs_activity_id)
         obs = obs_activity.data_ref
@@ -49,3 +50,14 @@ class TestGetFormattedObs(TransactionCase):
         period_start_datetimes = [period['period_start_datetime'] for period in
                                   self.formatted_obs]
         self.parse_datetime_string_list(period_start_datetimes)
+
+    def test_fluid_output_in_brackets_after_passed_urine(self):
+        all_obs_lists = [dictionary['observations'] for dictionary
+                         in self.formatted_obs]
+        all_obs = []
+        for obs_list in all_obs_lists:
+            all_obs.extend(obs_list)
+        passed_urine_values = [obs['passed_urine'] for obs in all_obs]
+
+        for passed_urine_value in passed_urine_values:
+            self.assertEqual(passed_urine_value, 'Yes (100ml)')
