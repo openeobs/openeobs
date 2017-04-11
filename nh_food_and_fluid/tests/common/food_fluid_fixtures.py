@@ -6,6 +6,6 @@ SAMPLE_DATA = {
     'fluid_description': 'Bailey\'s from a shoe',
     'food_taken': 'Help! I\'ve swallowed The Little Book of Calm',
     'food_fluid_rejected': False,
-    'passed_urine': 'yes',
+    'passed_urine': 'measured',
     'bowels_open': 'type_7'
 }

@@ -365,6 +365,7 @@ NHGraphLib = (function() {
         obj = raw_data[i];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
+          fix_val = void 0;
           if (obj.hasOwnProperty(key)) {
             fix_val = obj[key];
             if (fix_val === false) {
@@ -373,14 +374,14 @@ NHGraphLib = (function() {
             if (fix_val === true) {
               fix_val = 'Yes';
             }
-            if (d['title']) {
-              data.push({
-                title: d['title'],
-                value: fix_val,
-                presentation: d['presentation'],
-                "class": obj["class"]
-              });
-            }
+          }
+          if (d['title']) {
+            data.push({
+              title: d['title'],
+              value: fix_val,
+              presentation: d['presentation'],
+              "class": obj["class"]
+            });
           }
         } else {
           t = d['title'];
@@ -409,7 +410,7 @@ NHGraphLib = (function() {
       return data;
     }).enter().append('td').html(function(d) {
       var i, len, o, ref, text;
-      if (typeof d.value === 'object' and) {
+      if (typeof d.value === 'object' && d.value !== null) {
         text = '';
         ref = d.value;
         for (i = 0, len = ref.length; i < len; i++) {

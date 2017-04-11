@@ -8,11 +8,12 @@ class NhClinicalTestUtils(models.AbstractModel):
     _inherit = 'nh.clinical.test_utils'
 
     def create_and_complete_food_and_fluid_obs_activity(
-            self, fluid_taken=None, completion_datetime=None, patient_id=None
-    ):
+            self, fluid_taken=None, fluid_output=None,
+            completion_datetime=None, patient_id=None):
         activity_model = self.env['nh.activity']
         obs_food_and_fluid_activity_id = \
-            self.create_food_and_fluid_obs_activity(fluid_taken, patient_id)
+            self.create_food_and_fluid_obs_activity(fluid_taken, fluid_output,
+                                                    patient_id)
 
         activity_model.submit(obs_food_and_fluid_activity_id, {})
         activity_model.complete(obs_food_and_fluid_activity_id)
@@ -23,7 +24,7 @@ class NhClinicalTestUtils(models.AbstractModel):
         return obs_food_and_fluid_activity_id
 
     def create_food_and_fluid_obs_activity(self, fluid_taken=None,
-                                           patient_id=None):
+                                           fluid_output=None, patient_id=None):
         if not patient_id and not hasattr(self, 'patient'):
             raise ValueError("No patient ID available for obs creation.")
         if not patient_id:
@@ -40,6 +41,8 @@ class NhClinicalTestUtils(models.AbstractModel):
         }
         if fluid_taken:
             obs_data['fluid_taken'] = fluid_taken
+        if fluid_output:
+            obs_data['fluid_output'] = fluid_output
 
         food_and_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']

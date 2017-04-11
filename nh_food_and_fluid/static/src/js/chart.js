@@ -22,7 +22,8 @@ function setUpCurrentPeriod(obs){
         tableContainer.innerHTML =
             "<p class=\"food_fluid_period\"><strong>Current Period:</strong>" +
             currentPeriod["period_start_datetime"] + " - " + currentPeriod["period_end_datetime"] + "</p>" +
-            "<p class=\"food_fluid_period\"><strong>Fluid Intake for current period:</strong>" + currentPeriod["total_fluid_intake"] + "ml</p>" +
+            "<p class=\"food_fluid_period\"><strong>Fluid Intake for current period:</strong>" + currentPeriod["total_fluid_intake"] + "</p>" +
+            "<p class=\"food_fluid_period\"><strong>Fluid Balance for current period:</strong>" + currentPeriod["fluid_balance"] + "</p>"+
             "<p class=\"food_fluid_period\"><strong>Fluid Intake score for current period:</strong>" + currentPeriod["score"] + "</p>";
     }
     tableContainer.innerHTML += "<button data-type=\"iframe\" " +
@@ -54,13 +55,14 @@ function processFoodFluidData(periods){
         period["period_title"] = "24 Hour Period <br>" + period["period_start_datetime"] + " - " + period["period_end_datetime"];
         for (var j = 0; j < obs.length; j++) {
             var ob = obs[j];
-            ob["fluid_taken"] += "ml";
             ob["class"] = "";
             if(j === 0){
                 if(!period["current_period"]){
-                    ob["score"] = period["score"] + "(" + period["total_fluid_intake"] + "ml)";
+                    ob["score"] = period["score"] + "(" + period["total_fluid_intake"] + ")";
+                    ob["fluid_balance"] = period["fluid_balance"];
                 }else{
                     ob["score"] = "";
+                    ob["fluid_balance"] = "";
                 }
                 ob["class"] += "nested-first ";
             }else{
@@ -130,6 +132,10 @@ var fluidTableDescription = {
             keys: ["score"]
         },
         {
+            title: "Fluid Balance",
+            keys: ["fluid_balance"]
+        },
+        {
             title: "Completed By",
             keys: ["completed_by"]
         }
@@ -163,17 +169,16 @@ function drawFood_fluidTable(settings, serverData){
                 }
                 return a;
             }).reduce(function(a, b){
-                if(b.key !== 'score'){
+                if(b.key !== 'score' && b.key !== 'fluid_balance'){
                     a.push(b);
                 }
                 return a;
             }, []);
-            table.title = period.period_start_datetime + " - " + period.period_end_datetime + "       Total Fluid Intake: "
+            table.title = period.period_start_datetime + " - " + period.period_end_datetime + " ";
             if(period["current_period"]){
-                table.title +=  "      Score: ";
-            }else {
-                table.title += period.total_fluid_intake + "ml      Score: " + period.score;
+                table.title +=  "- Active";
             }
+            table.title += "<br>Total Fluid Intake: " + period.total_fluid_intake + "      Score: " + period.score + "         Fluid Balance: " + period.fluid_balance;
             tableFocus.tables.push(table);
             tableElement.focus = tableFocus;
             tableElement.data.raw = period.observations.reverse();

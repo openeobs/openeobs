@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from openerp import models, api
 from openerp.addons.nh_observations import fields as obs_fields
+from openerp.addons.nh_odoo_fixes import validate
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
@@ -16,7 +17,8 @@ class NHClinicalFoodAndFluid(models.Model):
     _description = 'Food and Fluid'
 
     _passed_urine_options = [
-        ('yes', 'Yes'),
+        ('measured', 'Yes (Measured)'),
+        ('not_measured', 'Yes (Not Measured)'),
         ('no', 'No'),
         ('unknown', 'Unknown')
     ]
@@ -54,6 +56,16 @@ class NHClinicalFoodAndFluid(models.Model):
                                         required=True)
     bowels_open = obs_fields.Selection(_bowels_open_options, 'Bowels Open',
                                        required=True)
+    fluid_output = obs_fields.Integer('Fluid Output (ml)', necessary=False)
+
+    @api.constrains('fluid_output')
+    def _in_min_max_range(self):
+        form_description = self.get_form_description(None)
+        fluid_output_field = [field for field in form_description
+                              if field['name'] == 'fluid_output'][0]
+        validate.in_min_max_range(fluid_output_field['min'],
+                                  fluid_output_field['max'],
+                                  self.fluid_output)
 
     @classmethod
     def get_description(cls, append_observation=True):
@@ -122,7 +134,7 @@ class NHClinicalFoodAndFluid(models.Model):
         {
             'name': 'fluid_taken',
             'type': 'integer',
-            'min': 0,
+            'min': 1,
             'max': 5000,
             'label': 'Fluid Taken (ml) - Include IV / NG',
             'initially_hidden': False,
@@ -162,7 +174,46 @@ class NHClinicalFoodAndFluid(models.Model):
             'selection': _passed_urine_options,
             'initially_hidden': False,
             'required': True,
-            'necessary': 'true'
+            'necessary': 'true',
+            'on_change': [
+                {
+                    'fields': ['fluid_output'],
+                    'condition': [
+                        ['passed_urine', '==', 'measured']],
+                    'action': 'show',
+                    'type': 'value'
+                },
+                {
+                    'fields': ['fluid_output'],
+                    'condition': [
+                        ['passed_urine', '==', 'measured']],
+                    'action': 'require',
+                    'type': 'value'
+                },
+                {
+                    'fields': ['fluid_output'],
+                    'condition': [
+                        ['passed_urine', '!=', 'measured']],
+                    'action': 'hide',
+                    'type': 'value'
+                },
+                {
+                    'fields': ['fluid_output'],
+                    'condition': [
+                        ['passed_urine', '!=', 'measured']],
+                    'action': 'unrequire',
+                    'type': 'value'
+                }
+            ],
+        },
+        {
+            'name': 'fluid_output',
+            'type': 'integer',
+            'label': 'Fluid Output (ml)',
+            'min': 1,
+            'max': 999,
+            'initially_hidden': True,
+            'necessary': False
         },
         {
             'name': 'bowels_open',
@@ -197,6 +248,102 @@ class NHClinicalFoodAndFluid(models.Model):
         :return: Total fluid intake.
         :rtype: int
         """
+        f_and_f_obs_activities = self.get_obs_activities_for_period(
+            spell_activity_id, date_time)
+        fluid_intake_total = \
+            self._calculate_total_fluid_intake_from_obs_activities(
+                f_and_f_obs_activities)
+        return fluid_intake_total
+
+    @staticmethod
+    def _calculate_total_fluid_intake_from_obs_activities(obs_activities):
+        """
+        Calculates total fluid intake from all the passed obs activities.
+        It is assumed that the caller has narrowed the list of obs activities
+        down to the time period they want to investigate.
+
+        If no obs activities are passed then `0` is returned because the
+        assumption is that all fluid intake is controlled, and so if no
+        measurements are taken, it is because no fluid was given to the
+        patient, and having to constantly record the fact that a patient wasn't
+        given any fluid would be silly.
+
+        :param obs_activities:
+        :type obs_activities: List of records.
+        :return:
+        """
+        fluid_intake_values = [activity.data_ref.fluid_taken for activity
+                               in obs_activities]
+        # Sum of empty list will return 0.
+        fluid_intake_total = sum(fluid_intake_values)
+        return fluid_intake_total
+
+    @staticmethod
+    def _calculate_total_fluid_output_from_obs_activities(obs_activities):
+        """
+        Calculates total fluid output from all the passed obs activities.
+        It is assumed that the caller has narrowed the list of obs activities
+        down to the time period they want to investigate.
+
+        If no obs activities are passed then None is returned because fluid
+        output is not controlled by clinical staff, and so in the absence of
+        any fluid output measurements there is no confidence about the
+        quantity of fluid output, and `None` is more appropriate than `0`.
+
+        :param obs_activities:
+        :type obs_activities: List of records.
+        :return:
+        """
+        fluid_output_values = [activity.data_ref.fluid_output for activity
+                               in obs_activities]
+        if not any(fluid_output_values):
+            return None
+        fluid_output_total = sum(fluid_output_values)
+        return fluid_output_total
+
+    @staticmethod
+    def calculate_period_score(fluid_intake_total):
+        if fluid_intake_total <= 600:
+            score = 3
+        elif 600 < fluid_intake_total < 1200:
+            score = 2
+        elif 1200 <= fluid_intake_total < 1500:
+            score = 1
+        elif fluid_intake_total >= 1500:
+            score = 0
+        return score
+
+    def calculate_fluid_balance(self, spell_activity_id, date_time):
+        f_and_f_obs_activities = self.get_obs_activities_for_period(
+            spell_activity_id, date_time)
+
+        fluid_intake_total = \
+            self._calculate_total_fluid_intake_from_obs_activities(
+                f_and_f_obs_activities)
+
+        fluid_output_total = \
+            self._calculate_total_fluid_output_from_obs_activities(
+                f_and_f_obs_activities)
+
+        # If no intake or output measurements, return 0.
+        if fluid_intake_total is 0 and fluid_output_total is None:
+            # See docstrings of _calculate* methods for explanation of why
+            # fluid intake is 0 and fluid output is None.
+            return None
+        if fluid_output_total is None:
+            fluid_output_total = 0
+
+        fluid_balance = fluid_intake_total - fluid_output_total
+        return fluid_balance
+
+    @staticmethod
+    def format_fluid_balance_for_frontend(fluid_balance):
+        if fluid_balance is None:
+            return '-'
+        else:
+            return '{}ml'.format(fluid_balance)
+
+    def get_obs_activities_for_period(self, spell_activity_id, date_time):
         activity_model = self.env['nh.activity']
         period_domain = self.get_period_domain(date_time)
         domain = [
@@ -204,13 +351,8 @@ class NHClinicalFoodAndFluid(models.Model):
             ('spell_activity_id', '=', spell_activity_id)
         ]
         domain.extend(period_domain)
-
         f_and_f_obs_activities = activity_model.search(domain)
-        fluid_intake_values = [activity.data_ref.fluid_taken for activity
-                               in f_and_f_obs_activities]
-
-        fluid_intake_total = sum(fluid_intake_values)
-        return fluid_intake_total
+        return f_and_f_obs_activities
 
     def get_period_domain(self, date_time):
         """
@@ -325,11 +467,18 @@ class NHClinicalFoodAndFluid(models.Model):
                 period_start_datetime, two_character_year=True
             )
 
+        spell_activity_id = obs_activity.spell_activity_id.id
+        fluid_balance = self.calculate_fluid_balance(
+            spell_activity_id, observation_completion_datetime)
+        fluid_balance = self.format_fluid_balance_for_frontend(fluid_balance)
+
         message = 'The patient has had {fluid_intake_total}ml of fluid in ' \
                   'the current 24 hour period (starting on ' \
-                  '{period_start_datetime}).'
+                  '{period_start_datetime}).' \
+                  '<br/>Current Fluid Balance: {fluid_balance}'
         message = message.format(fluid_intake_total=fluid_intake_total,
-                                 period_start_datetime=period_start_datetime)
+                                 period_start_datetime=period_start_datetime,
+                                 fluid_balance=fluid_balance)
         return message
 
     def get_all_completed_food_and_fluid_observation_activities(
@@ -343,18 +492,6 @@ class NHClinicalFoodAndFluid(models.Model):
         obs_activities = activity_model.search(domain,
                                                order='date_terminated asc')
         return obs_activities
-
-    @staticmethod
-    def calculate_period_score(total_fluid_intake):
-        if total_fluid_intake <= 600:
-            score = 3
-        elif 600 < total_fluid_intake < 1200:
-            score = 2
-        elif 1200 <= total_fluid_intake < 1500:
-            score = 1
-        elif total_fluid_intake >= 1500:
-            score = 0
-        return score
 
     @api.multi
     def get_formatted_obs(self):
@@ -370,7 +507,7 @@ class NHClinicalFoodAndFluid(models.Model):
         patient_id = self[0].patient_id.id
         obs = self.read_obs_for_patient(patient_id)
         self.convert_field_values_to_labels(obs)
-        periods = self.get_period_dictionaries(obs)
+        periods = self.get_period_dictionaries(obs, include_units=True)
         self.format_period_datetimes(periods)
         return periods
 
@@ -422,15 +559,16 @@ class NHClinicalFoodAndFluid(models.Model):
                 period_start_datetime_current = period_start_datetime
                 period_dictionary = \
                     self._create_new_period_dictionary(
-                        obs, spell_activity_id, include_units=include_units
+                        obs, spell_activity_id
                     )
                 period_dictionaries.append(period_dictionary)
-                period_obs = \
-                    period_dictionaries[-1]['observations']
+                period_obs = period_dictionaries[-1]['observations']
             # If this observation is in a period we've already come across
             # then add it.
             period_obs.append(obs)
 
+        if include_units:
+            self._add_units_to_period_dictionaries(period_dictionaries)
         return period_dictionaries
 
     def _create_new_period_dictionary(self, obs, spell_activity_id,
@@ -450,32 +588,68 @@ class NHClinicalFoodAndFluid(models.Model):
             self.env['nh.clinical.patient.observation.food_fluid']
         period = {}
 
+        # Set period start and end datetimes.
         date_terminated = obs['date_terminated']
         period['period_start_datetime'] = \
             food_and_fluid_model.get_period_start_datetime(date_terminated)
         period['period_end_datetime'] = \
             food_and_fluid_model.get_period_end_datetime(date_terminated)
+
+        # Set fluid intake.
         total_fluid_intake = \
             food_and_fluid_model.calculate_total_fluid_intake(
                 spell_activity_id, date_terminated
             )
-        score = \
-            food_and_fluid_model.calculate_period_score(total_fluid_intake)
-
         if include_units:
             total_fluid_intake = "{}ml".format(total_fluid_intake)
-
         period['total_fluid_intake'] = total_fluid_intake
+
+        # Set fluid balance.
+        fluid_balance = self.calculate_fluid_balance(spell_activity_id,
+                                                     date_terminated)
+        if include_units:
+            fluid_balance = \
+                self.format_fluid_balance_for_frontend(fluid_balance)
+        period['fluid_balance'] = fluid_balance
+
+        # Set score.
+        score = \
+            food_and_fluid_model.calculate_period_score(total_fluid_intake)
         period['score'] = score
+
         period['observations'] = []
 
+        # Set current period.
         period_end_datetime = datetime.strptime(
             period['period_end_datetime'], DTF
         )
-        # If current period.
         if datetime.now() < period_end_datetime:
             period['current_period'] = True
         return period
+
+    def _add_units_to_period_dictionaries(self, period_dictionaries):
+        for period in period_dictionaries:
+            period['total_fluid_intake'] = self._add_ml(
+                period['total_fluid_intake'])
+
+            if period['fluid_balance'] is None:
+                period['fluid_balance'] = '-'
+            else:
+                period['fluid_balance'] = self._add_ml(period['fluid_balance'])
+
+            for obs in period['observations']:
+                if 'values' in obs:
+                    obs = obs['values']  # Handles report style dict.
+                obs['fluid_taken'] = self._add_ml(obs['fluid_taken'])
+
+                yes_measured = self._fields['passed_urine'].selection[0][1]
+                if obs['passed_urine'] == yes_measured:
+                    obs['passed_urine'] = 'Yes ({}ml)'.format(
+                        obs['fluid_output'])
+
+    @staticmethod
+    def _add_ml(obj):
+        return '{}ml'.format(obj)
 
     def format_period_datetimes(self, periods):
         """

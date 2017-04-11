@@ -46,21 +46,38 @@ NHMobileForm = (function(superClass) {
               });
             case 'submit':
               return input.addEventListener('click', function(e) {
-                var change_event, el, element, form_elements, j, len1;
-                form_elements = (function() {
-                  var j, len1, ref1, results;
-                  ref1 = this.form.elements;
+                var change_event, el, element, errored_els, form, form_elements, inp, j, k, len1, len2, ref1;
+                form = (ref1 = document.getElementsByTagName('form')) != null ? ref1[0] : void 0;
+                errored_els = (function() {
+                  var j, len1, ref2, results;
+                  ref2 = form.elements;
                   results = [];
-                  for (j = 0, len1 = ref1.length; j < len1; j++) {
-                    element = ref1[j];
+                  for (j = 0, len1 = ref2.length; j < len1; j++) {
+                    el = ref2[j];
+                    if (el.classList.contains('error')) {
+                      results.push(el);
+                    }
+                  }
+                  return results;
+                })();
+                for (j = 0, len1 = errored_els.length; j < len1; j++) {
+                  inp = errored_els[j];
+                  self.reset_input_errors(inp);
+                }
+                form_elements = (function() {
+                  var k, len2, ref2, results;
+                  ref2 = form.elements;
+                  results = [];
+                  for (k = 0, len2 = ref2.length; k < len2; k++) {
+                    element = ref2[k];
                     if (!element.classList.contains('exclude')) {
                       results.push(element);
                     }
                   }
                   return results;
-                }).call(this);
-                for (j = 0, len1 = form_elements.length; j < len1; j++) {
-                  el = form_elements[j];
+                })();
+                for (k = 0, len2 = form_elements.length; k < len2; k++) {
+                  el = form_elements[k];
                   change_event = document.createEvent('CustomEvent');
                   change_event.initCustomEvent('change', false, true, false);
                   el.dispatchEvent(change_event);
@@ -163,9 +180,9 @@ NHMobileForm = (function(superClass) {
     value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
     if (typeof value !== 'undefined' && value !== '') {
-      if (input_type === 'number' && !isNaN(value)) {
+      if (input_type === 'number') {
         this.validate_number_input(input);
-        if (input.getAttribute('data-validation')) {
+        if (input.getAttribute('data-validation') && !isNaN(value)) {
           criterias = eval(input.getAttribute('data-validation'));
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
@@ -226,11 +243,15 @@ NHMobileForm = (function(superClass) {
       if (value > max) {
         this.add_input_errors(input, 'Input too high');
       }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        return this.add_input_errors(input, 'Missing value');
+      }
     }
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
-    var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, len8, m, mode, n, o, p, q, ref, ref1, ref10, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, type, value;
+    var action, actionToTrigger, actions, condition, conditions, el, field, fieldsToAffect, i, input, j, k, l, len, len1, len10, len2, len3, len4, len5, len6, len7, len8, len9, m, mode, n, o, p, q, r, ref, ref1, ref2, ref3, s, type, value;
     this.reset_form_timeout(this);
     input = event.src_el;
     value = input.value;
@@ -264,24 +285,27 @@ NHMobileForm = (function(superClass) {
       actions = eval(input.getAttribute('data-onchange'));
       for (k = 0, len2 = actions.length; k < len2; k++) {
         action = actions[k];
+        type = action['type'];
         ref2 = action['condition'];
         for (l = 0, len3 = ref2.length; l < len3; l++) {
           condition = ref2[l];
-          if (((ref3 = condition[0]) !== 'True' && ref3 !== 'False') && typeof condition[0] === 'string') {
-            condition[0] = 'document.getElementById("' + condition[0] + '").value';
-          }
-          if (((ref4 = condition[2]) !== 'True' && ref4 !== 'False') && typeof condition[2] === 'string' && condition[2] !== '') {
-            condition[2] = 'document.getElementById("' + condition[2] + '").value';
-          }
-          if ((ref5 = condition[2]) === 'True' || ref5 === 'False' || ref5 === '') {
-            condition[2] = "'" + condition[2] + "'";
-          }
+          condition[0] = 'document.getElementById("' + condition[0] + '").value';
+          condition[2] = (function() {
+            switch (false) {
+              case type !== 'value':
+                return "'" + condition[2] + "'";
+              case type !== 'field':
+                return 'document.getElementById("' + condition[2] + '").value';
+              default:
+                return "'" + condition[2] + "'";
+            }
+          })();
         }
         mode = ' && ';
         conditions = [];
-        ref6 = action['condition'];
-        for (m = 0, len4 = ref6.length; m < len4; m++) {
-          condition = ref6[m];
+        ref3 = action['condition'];
+        for (m = 0, len4 = ref3.length; m < len4; m++) {
+          condition = ref3[m];
 
           /* istanbul ignore else */
           if (typeof condition === 'object') {
@@ -292,32 +316,42 @@ NHMobileForm = (function(superClass) {
         }
         conditions = conditions.join(mode);
         if (eval(conditions)) {
-          if (action['action'] === 'hide') {
-            ref7 = action['fields'];
-            for (n = 0, len5 = ref7.length; n < len5; n++) {
-              field = ref7[n];
+          actionToTrigger = action['action'];
+          fieldsToAffect = action['fields'];
+          if (actionToTrigger === 'hide') {
+            for (n = 0, len5 = fieldsToAffect.length; n < len5; n++) {
+              field = fieldsToAffect[n];
               this.hide_triggered_elements(field);
             }
           }
-          if (action['action'] === 'show') {
-            ref8 = action['fields'];
-            for (o = 0, len6 = ref8.length; o < len6; o++) {
-              field = ref8[o];
+          if (actionToTrigger === 'show') {
+            for (o = 0, len6 = fieldsToAffect.length; o < len6; o++) {
+              field = fieldsToAffect[o];
               this.show_triggered_elements(field);
             }
           }
-          if (action['action'] === 'disable') {
-            ref9 = action['fields'];
-            for (p = 0, len7 = ref9.length; p < len7; p++) {
-              field = ref9[p];
+          if (actionToTrigger === 'disable') {
+            for (p = 0, len7 = fieldsToAffect.length; p < len7; p++) {
+              field = fieldsToAffect[p];
               this.disable_triggered_elements(field);
             }
           }
-          if (action['action'] === 'enable') {
-            ref10 = action['fields'];
-            for (q = 0, len8 = ref10.length; q < len8; q++) {
-              field = ref10[q];
+          if (actionToTrigger === 'enable') {
+            for (q = 0, len8 = fieldsToAffect.length; q < len8; q++) {
+              field = fieldsToAffect[q];
               this.enable_triggered_elements(field);
+            }
+          }
+          if (actionToTrigger === 'require') {
+            for (r = 0, len9 = fieldsToAffect.length; r < len9; r++) {
+              field = fieldsToAffect[r];
+              this.require_triggered_elements(field);
+            }
+          }
+          if (actionToTrigger === 'unrequire') {
+            for (s = 0, len10 = fieldsToAffect.length; s < len10; s++) {
+              field = fieldsToAffect[s];
+              this.unrequire_triggered_elements(field);
             }
           }
         }
@@ -672,6 +706,20 @@ NHMobileForm = (function(superClass) {
     return inp.disabled = false;
   };
 
+  NHMobileForm.prototype.require_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.remove('exclude');
+    return inp.setAttribute('data-required', 'true');
+  };
+
+  NHMobileForm.prototype.unrequire_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.add('exclude');
+    return inp.setAttribute('data-required', 'false');
+  };
+
   NHMobileForm.prototype.process_partial_submit = function(event, self) {
     var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
     form_elements = (function() {
@@ -731,7 +779,7 @@ NHMobileForm = (function(superClass) {
   NHMobileForm.prototype.findParentWithClass = function(el, className) {
     while (el.parentNode) {
       el = el.parentNode;
-      if (indexOf.call(el.classList, className) >= 0) {
+      if (el && indexOf.call(el.classList, className) >= 0) {
         return el;
       }
     }

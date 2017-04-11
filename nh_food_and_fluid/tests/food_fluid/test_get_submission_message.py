@@ -16,11 +16,12 @@ class TestGetSubmissionMessage(TransactionCase):
         self.test_utils.copy_instance_variables(self)
 
         self.fluid_taken = 100
+        self.fluid_output = 120
 
-    def call_test(self):
+    def call_test(self, fluid_output=None):
         obs_activity_id = \
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                self.fluid_taken
+                fluid_taken=self.fluid_taken, fluid_output=self.fluid_output
             )
         self.obs_activity = self.activity_model.browse(obs_activity_id)
         self.obs = self.obs_activity.data_ref
@@ -67,6 +68,34 @@ class TestGetSubmissionMessage(TransactionCase):
             )
         self.assertEqual(period_start_datetime_expected,
                          period_start_datetime_actual)
+
+    def test_message_contains_int_fluid_balance_when_fluid_output(self):
+        """Message contains the fluid balance."""
+        self.call_test()
+
+        message = self.obs.get_submission_message()
+        regex = re.compile(r'Current Fluid Balance: (.+)')
+        match = regex.search(message)
+        self.assertTrue(match)
+
+        actual = match.group(0)
+        expected = '-20ml'
+        self.assertEqual(expected, actual)
+
+    def test_message_contains_int_fluid_balance_when_fluid_output(self):
+        """Message contains the fluid balance."""
+        self.fluid_taken = 0
+        self.fluid_output = None
+        self.call_test()
+
+        message = self.obs.get_submission_message()
+        regex = re.compile(r'Current Fluid Balance: (.+)')
+        match = regex.search(message)
+        self.assertTrue(match)
+
+        actual = match.group(1)
+        expected = '-'
+        self.assertEqual(expected, actual)
 
     def test_open_obs_raises_value_error(self):
         obs_activity_id = \

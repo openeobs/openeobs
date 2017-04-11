@@ -145,12 +145,14 @@ class nh_clinical_notification_frequency(orm.Model):
                 {
                     'fields': ['submitButton'],
                     'condition': [['frequency', '==', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['submitButton'],
                     'condition': [['frequency', '!=', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ],
         }

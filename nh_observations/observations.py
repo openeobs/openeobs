@@ -342,9 +342,8 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :return:
         :rtype: dict
         """
-        domain = [
-            ('patient_id', '=', patient_id)
-        ]
+        domain = [('patient_id', '=', patient_id)]
+        # TODO date_terminated is not a valid field on observation?
         obs = self.search_read(domain, order='date_terminated desc, id desc')
         return obs
 
