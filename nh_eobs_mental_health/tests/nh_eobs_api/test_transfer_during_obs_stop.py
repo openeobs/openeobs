@@ -77,7 +77,14 @@ class TestTransferDuringObsStop(TransactionCase):
                 'location': 'WB'
             }
         )
-        self.test_utils_model.place_patient()
+        new_placement = self.activity_model.search([
+            ['data_model', '=', 'nh.clinical.patient.placement'],
+            ['state', 'not in', ['completed', 'cancelled']],
+            ['parent_id', '=', self.spell_activity_id]
+        ])
+        self.test_utils_model.place_patient(
+            placement_id=new_placement.id
+        )
 
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
