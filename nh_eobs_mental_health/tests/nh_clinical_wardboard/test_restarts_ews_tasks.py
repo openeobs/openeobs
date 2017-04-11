@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tests.common import TransactionCase
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestRestartsEWSTasks(TransactionCase):
@@ -48,7 +48,7 @@ class TestRestartsEWSTasks(TransactionCase):
             ('spell_activity_id', '=', self.wardboard.spell_activity_id.id)
         ]
         ews_activities_before = len(self.activity_model.search(domain))
-        self.wardboard.create_new_ews()
+        self.wardboard.create_new_ews(None)
         ews_activities_after = len(self.activity_model.search(domain))
         self.assertTrue(ews_activities_before + 1, ews_activities_after)
 
@@ -58,7 +58,7 @@ class TestRestartsEWSTasks(TransactionCase):
         """
         time_before_ews_creation = datetime.now()
         expected_time_due = time_before_ews_creation + timedelta(hours=1)
-        new_ews_id = self.wardboard.create_new_ews()
+        new_ews_id = self.wardboard.create_new_ews(None)
         actual_time_due_str = \
             self.activity_model.browse(new_ews_id).date_scheduled
         actual_time_due = datetime.strptime(actual_time_due_str, DTF)

@@ -24,9 +24,9 @@ class PatientMonitoringException(models.Model):
     )
     spell = fields.Many2one('nh.clinical.spell')
 
-    def get_activity_by_spell_activity(self, spell_activity):
+    def get_activities_by_spell_activity(self, spell_activity):
         """
-        Get a patient monitoring exception activity from the passed spell
+        Get all patient monitoring exception activities from the passed spell
         activity.
 
         :param spell_activity:
@@ -37,7 +37,37 @@ class PatientMonitoringException(models.Model):
             ('parent_id', '=', spell_activity.id),
             ('data_model', '=', self._name)
         ]
-        return activity_model.search(domain)[0]
+        activities = activity_model.search(domain)
+        return activities
+
+    def get_activity_by_spell_activity(self, spell_activity):
+        """
+        Get a patient monitoring exception activity from the passed spell
+        activity.
+
+        :param spell_activity:
+        :return:
+        """
+        activities = self.get_activities_by_spell_activity(spell_activity)
+        return activities[0] if activities else None
+
+    def started_after_date(self, spell_activity, date):
+        """
+        Check if any patient monitoring exceptions have been started since the
+        passed date.
+
+        :param spell_activity:
+        :param date:
+        :return:
+        """
+        pme_activities = self.get_activities_by_spell_activity(spell_activity)
+        pme_activities_started = \
+            [activity for activity in pme_activities
+             if activity.state not in ['new', 'scheduled']]
+        pme_activities_started_after_date = \
+            [activity for activity in pme_activities_started
+             if activity.date_started >= date]
+        return len(pme_activities_started_after_date) > 0
 
 
 class PatientMonitoringExceptionReason(models.Model):

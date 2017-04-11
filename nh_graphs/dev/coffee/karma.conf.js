@@ -1,6 +1,6 @@
 module.exports = function(config) {
     config.set({
-        basePath: '',
+        basePath: '.',
 
         files: [
             'tests/src/*.js',
@@ -14,7 +14,7 @@ module.exports = function(config) {
         hostname: 'localhost',
         port: 9876,
 
-        reporters: ['nyan', 'coverage'],
+        reporters: ['nyan', 'coverage', 'html'],
 
         preprocessors: {
             'tests/src/*.js': ['coverage']
@@ -47,6 +47,10 @@ module.exports = function(config) {
         coverageReporter: {
           type : 'html',
           dir : 'coverage/'
+        },
+
+        htmlReporter: {
+            outputDir: 'jasmine_specs'
         }
     })
 }

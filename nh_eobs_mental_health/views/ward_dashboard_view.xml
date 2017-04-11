@@ -29,6 +29,12 @@
                         Acute ED: <span><field name="acute_hospital_ed_count"/></span>
                     </div>
                 </xpath>
+                <!-- The XPath below matches on index 4 because you have to take into account the divs already added above. -->
+                <xpath expr="//kanban/templates/t/div/div/div[@class='oe_kanban_footer_left'][4]" position="after">
+                    <div class="oe_kanban_footer_left" style="margin-top:5px;">
+                        Refusing Obs: <span><field name="refused_obs_count"/></span>
+                    </div>
+                </xpath>
             </field>
         </record>
     </data>

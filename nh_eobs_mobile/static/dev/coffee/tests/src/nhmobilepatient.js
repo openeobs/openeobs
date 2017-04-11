@@ -7,8 +7,11 @@ var NHMobilePatient,
 NHMobilePatient = (function(superClass) {
   extend(NHMobilePatient, superClass);
 
-  function NHMobilePatient() {
+  function NHMobilePatient(refused) {
     var data_id, i, len, obs, obs_menu, self, tab, table_view, tabs, tabs_el;
+    if (refused == null) {
+      refused = false;
+    }
     self = this;
     NHMobilePatient.__super__.constructor.call(this);
     obs_menu = document.getElementById('obsMenu');
@@ -34,6 +37,7 @@ NHMobilePatient = (function(superClass) {
       });
     }
     data_id = document.getElementById('graph-content').getAttribute('data-id');
+    self.refused = refused;
     Promise.when(this.call_resource(this.urls['ajax_get_patient_obs'](data_id))).then(function(raw_data) {
       var data, server_data;
       server_data = raw_data[0];
@@ -240,7 +244,7 @@ NHMobilePatient = (function(superClass) {
       ];
       score_graph = new window.NH.NHGraph();
       score_graph.options.keys = ['score'];
-      score_graph.options.plot_partial = false;
+      score_graph.options.plot_partial = true;
       score_graph.style.dimensions.height = 200;
       score_graph.style.data_style = 'stepped';
       score_graph.axes.y.min = 0;
@@ -294,6 +298,7 @@ NHMobilePatient = (function(superClass) {
       svg.options.controls.time.start = document.getElementById('start_time');
       svg.options.controls.time.end = document.getElementById('end_time');
       svg.options.controls.rangify = document.getElementById('rangify');
+      svg.options.refused = self.refused;
       svg.table.element = '#table';
       svg.table.keys = [
         {
@@ -353,6 +358,9 @@ NHMobilePatient = (function(superClass) {
       ];
       for (i = 0, len = obs.length; i < len; i++) {
         ob = obs[i];
+        if (ob.partial_reason === 'refused' && self.refused) {
+          ob.score = false;
+        }
         ob.oxygen_administration_device = 'No';
         if (ob.oxygen_administration_flag) {
           ob.oxygen_administration_device = 'Yes';

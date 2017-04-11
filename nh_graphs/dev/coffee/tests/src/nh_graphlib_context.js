@@ -1,27 +1,11 @@
 
 /* istanbul ignore next */
 var NHContext,
-    bind = function (fn, me) {
-      return function () {
-        return fn.apply(me, arguments);
-      };
-    },
-    extend = function (child, parent) {
-      for (var key in parent) {
-        if (hasProp.call(parent, key)) child[key] = parent[key];
-      }
-      function ctor() {
-        this.constructor = child;
-      }
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty;
 
-      ctor.prototype = parent.prototype;
-      child.prototype = new ctor();
-      child.__super__ = parent.prototype;
-      return child;
-    },
-    hasProp = {}.hasOwnProperty;
-
-NHContext = (function (superClass) {
+NHContext = (function(superClass) {
   extend(NHContext, superClass);
 
   function NHContext() {
@@ -69,7 +53,7 @@ NHContext = (function (superClass) {
     self = this;
   }
 
-  NHContext.prototype.handle_resize = function (self, parent_svg, event) {
+  NHContext.prototype.handle_resize = function(self, parent_svg, event) {
     var d, new_date, ref, ref1, ref2, ref3, ref4;
     if (!event.handled) {
       self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
@@ -110,7 +94,7 @@ NHContext = (function (superClass) {
     }
   };
 
-  NHContext.prototype.handle_brush = function (self, context) {
+  NHContext.prototype.handle_brush = function(self, context) {
     var new_extent_end, new_extent_start, ref, ref1, ref2, ref3;
     new_extent_start = nh_graphs.event.target.extent()[0];
     new_extent_end = nh_graphs.event.target.extent()[1];
@@ -133,7 +117,7 @@ NHContext = (function (superClass) {
     return (ref3 = self.parent_obj.options.controls.time.end) != null ? ref3.value = self.leading_zero(new_extent_end.getHours()) + ':' + self.leading_zero(new_extent_end.getMinutes()) : void 0;
   };
 
-  NHContext.prototype.init = function (parent_svg) {
+  NHContext.prototype.init = function(parent_svg) {
     var left_offset, self;
     if (parent_svg != null) {
       this.parent_obj = parent_svg;
@@ -162,7 +146,7 @@ NHContext = (function (superClass) {
       parent_svg.style.dimensions.height += this.style.dimensions.height + (this.style.margin.top + this.style.margin.bottom);
       this.graph.drawables.brush = this.graph.obj.append('g').attr('class', 'brush-container');
       self = this;
-      this.brush = nh_graphs.svg.brush().x(this.graph.axes.x.scale).on("brush", function (context) {
+      this.brush = nh_graphs.svg.brush().x(this.graph.axes.x.scale).on("brush", function(context) {
         if (context == null) {
           context = self;
         }
@@ -175,7 +159,7 @@ NHContext = (function (superClass) {
     }
   };
 
-  NHContext.prototype.draw = function (parent_svg) {
+  NHContext.prototype.draw = function(parent_svg) {
     this.graph.draw(this);
   };
 

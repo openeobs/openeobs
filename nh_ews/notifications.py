@@ -56,7 +56,7 @@ class nh_clinical_notification_medical_team(orm.Model):
     _name = 'nh.clinical.notification.medical_team'
     _inherit = ['nh.clinical.notification']
     _description = 'Inform Medical Team?'
-    _notifications = [{'model': 'doctor_assessment', 'groups': ['nurse']}]
+    _notifications = [{'model': 'doctor_assessment', 'groups': ['doctor']}]
 
     def complete(self, cr, uid, activity_id, context=None):
         """
@@ -77,7 +77,7 @@ class nh_clinical_notification_medical_team(orm.Model):
             'creator_id': activity_id,
             'patient_id': activity.data_ref.patient_id.id,
             'model': activity.creator_id.data_ref._name,
-            'group': 'nurse'
+            'group': 'doctor'
         }, context=context)
         return super(nh_clinical_notification_medical_team, self).complete(
             cr, uid, activity_id, context=context)

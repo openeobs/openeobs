@@ -111,7 +111,7 @@
                                                                              ('is_available','=',True),
                                                                              ('id','!=',bed_src_location_id)]"
                                no_open="1" no_create_edit="1" widget="many2one"
-                               required="1"/>
+                               required="1" options="{'no_create': True}"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
@@ -504,7 +504,14 @@
                                             n/a
                                         </t>
                                     </div>
-                                    <li>Time to next observation: <field name="next_diff"/></li>
+                                    <li>Time to next observation:
+                                        <t t-if="record.next_diff.raw_value &amp;&amp; record.next_diff.raw_value.indexOf('overdue: ') &gt; -1">
+                                            <strong><field name="next_diff"/></strong>
+                                        </t>
+                                        <t t-if="record.next_diff.raw_value &amp;&amp; record.next_diff.raw_value.indexOf('overdue: ') &lt; 0">
+                                            <field name="next_diff"/>
+                                        </t>
+                                    </li>
                                     <t t-if="record.hospital_number.raw_value != ''">
                                         <div>Hospital Number: <field name="hospital_number"/></div>
                                     </t>

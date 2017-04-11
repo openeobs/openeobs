@@ -1,18 +1,19 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from openerp.addons.nh_eobs_api.routing import Route
-from openerp.addons.nh_eobs_api.routing import RouteManager
-from openerp.addons.nh_eobs_api.routing import ResponseJSON
-from openerp.modules.module import get_module_path
-from unittest import skip
-from random import choice as random_choice
-from openerp import http
-from openerp.tests import DB as DB_NAME
-from openerp.tools import config
-import jinja2
 import json
 import logging
+from random import choice as random_choice
+from unittest import skip
+
+import jinja2
 import openerp.tests
 import requests
+from openerp import http
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.addons.nh_eobs_api.routing import Route
+from openerp.addons.nh_eobs_api.routing import RouteManager
+from openerp.modules.module import get_module_path
+from openerp.tests import DB as DB_NAME
+from openerp.tools import config
 
 test_logger = logging.getLogger(__name__)
 
@@ -691,11 +692,7 @@ class TestResponseJSON(openerp.tests.SingleTransactionCase):
             self.response_json.STATUS_ERROR
         )
 
-######################
-# ROUTING SYSTEM TESTS
-######################
 
-# Define server's routing constants to be used for the routing tests
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = "{0}".format(config['xmlrpc_port'])

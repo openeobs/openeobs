@@ -1,9 +1,10 @@
-from openerp.osv import orm, osv, fields
+import copy
 from datetime import datetime, timedelta
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+
 from openerp import api
 from openerp.addons.nh_eobs import helpers
-import copy
+from openerp.osv import orm, osv, fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class NHClinicalWardboard(orm.Model):
@@ -16,7 +17,7 @@ class NHClinicalWardboard(orm.Model):
         """
         Function field to return obs_stop flag from spell
         :param cr: Odoo cursor
-        :param uid: User ID of user doing operatoin
+        :param uid: User ID of user doing operation
         :param ids: Ids to read
         :param field_name: name of field
         :param arg: arguments
@@ -33,7 +34,8 @@ class NHClinicalWardboard(orm.Model):
         ('Medium', 'Medium Risk'),
         ('Low', 'Low Risk'),
         ('None', 'No Risk'),
-        ('ObsStop', 'Obs Stop')
+        ('ObsStop', 'Obs Stop'),
+        ('Refused', 'Refused')
     ]
 
     _columns = {
@@ -201,7 +203,7 @@ class NHClinicalWardboard(orm.Model):
             )
 
         self.set_obs_stop_flag(spell_id, False)
-        self.create_new_ews()
+        self.create_new_ews(patient_monitoring_exception_activity_id)
 
     def set_obs_stop_flag(self, cr, uid, spell_id, value, context=None):
         """
@@ -235,10 +237,11 @@ class NHClinicalWardboard(orm.Model):
             cr, uid, escalation_task_domain, context=context))
 
     @api.multi
-    def create_new_ews(self):
+    def create_new_ews(self, ended_patient_monitoring_exception_id):
         """
         Create a new EWS task an hour in the future. Used when patient is
-        take off obs_stop
+        take off obs_stop.
+
         :return: ID of created EWS
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
@@ -246,8 +249,10 @@ class NHClinicalWardboard(orm.Model):
         api_model = self.env['nh.clinical.api']
 
         new_ews_id = ews_model.create_activity(
-            {'parent_id': self.spell_activity_id.id},
-            {'patient_id': self.patient_id.id})
+            {'parent_id': self.spell_activity_id.id,
+             'creator_id': ended_patient_monitoring_exception_id},
+            {'patient_id': self.patient_id.id}
+        )
         one_hour_time = datetime.now() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 
@@ -340,6 +345,9 @@ class NHClinicalWardboard(orm.Model):
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
+                elif rec.get('acuity_index') == 'Refused':
+                    rec['frequency'] = 'Refused - {0}'.format(rec['frequency'])
+                    rec['next_diff'] = 'Refused - {0}'.format(rec['next_diff'])
         if was_single_record:
             return res[0]
         return res
@@ -373,7 +381,7 @@ class NHClinicalWardboard(orm.Model):
         :returns: Tuple of groups and folded states
         """
         group_list = copy.deepcopy(self.acuity_selection)
-        fold_dict = {group[0]: False for group in group_list}
+        fold_dict = {group[0]: group[0] not in ids for group in group_list}
         return group_list, fold_dict
 
     _group_by_full = {
@@ -387,8 +395,25 @@ class NHClinicalWardboard(orm.Model):
 
         :param cr: Odoo Cursor
         """
+        settings_pool = self.pool['nh.clinical.settings']
         nh_eobs_sql = self.pool['nh.clinical.sql']
+        dt_period = \
+            settings_pool.get_setting(cr, 1, 'discharge_transfer_period')
         cr.execute("""
         CREATE OR REPLACE VIEW last_finished_pme AS ({last_pme});
-        """.format(last_pme=nh_eobs_sql.get_last_finished_pme()))
+        CREATE OR REPLACE VIEW ews_activities AS ({ews_activities});
+        CREATE OR REPLACE VIEW refused_ews_activities AS ({refused_ews});
+        """.format(
+            last_pme=nh_eobs_sql.get_last_finished_pme(),
+            ews_activities=nh_eobs_sql.get_ews_activities(),
+            refused_ews=nh_eobs_sql.get_refused_ews_activities()
+        ))
         super(NHClinicalWardboard, self).init(cr)
+        cr.execute("""
+        CREATE OR REPLACE VIEW refused_last_ews AS ({refused_last_ews});
+        CREATE OR REPLACE VIEW nh_clinical_wardboard AS ({refused_wardboard});
+        """.format(
+            refused_last_ews=nh_eobs_sql.get_refused_last_ews(),
+            refused_wardboard=nh_eobs_sql.get_refused_wardboard(
+                '{0}d'.format(dt_period))
+        ))

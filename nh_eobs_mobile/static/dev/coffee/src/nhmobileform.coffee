@@ -343,11 +343,24 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('submit_success', server_data.title ,
           task_list, buttons, 0, body)
       else if server_data.status is 'success' and data.status is 4
-        btn = '<a href="'+self.urls['task_list']().url+
+        triggered_tasks = ''
+        buttons = ['<a href="'+self.urls['task_list']().url+
           '" data-action="confirm" data-target="cancel_success">'+
-          'Go to My Tasks</a>'
+          'Go to My Tasks</a>']
+        if data.related_tasks.length is 1
+          triggered_tasks = '<p>' + data.related_tasks[0].summary + '</p>'
+          rt_url = self.urls['single_task'](data.related_tasks[0].id).url
+          buttons.push('<a href="'+rt_url+'">Confirm</a>')
+        else if data.related_tasks.length > 1
+          tasks = ''
+          for task in data.related_tasks
+            st_url = self.urls['single_task'](task.id).url
+            tasks += '<li><a href="'+st_url+'">'+task.summary+'</a></li>'
+          triggered_tasks = '<ul class="menu">'+tasks+'</ul>'
+        pos = '<p>' + server_data.desc + '</p>'
+        task_list = if triggered_tasks then triggered_tasks else pos
         new window.NH.NHModal('cancel_success', server_data.title,
-          '<p>' + server_data.desc + '</p>', [btn], 0, self.form)
+          task_list, buttons, 0, self.form)
       else
         action_buttons = (element for element in self.form.elements \
           when element.getAttribute('type') in ['submit', 'reset'])

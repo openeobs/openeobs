@@ -43,7 +43,8 @@ class nh_clinical_overdue(orm.Model):
     }
 
     def init(self, cr):
-
+        # TODO: EOBS-695: Refactor Overdue Tasks to use groups that can access
+        # activity instead of looking at activity data model
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
@@ -145,7 +146,8 @@ class nh_clinical_doctor_activities(orm.Model):
     }
 
     def init(self, cr):
-
+        # TODO EOBS-682: Refactor Doctor Tasks SQL to show tasks assigned to
+        # doctors on ward
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (

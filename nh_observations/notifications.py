@@ -9,10 +9,11 @@ it refers to was done.
 The abstract definition of a notification from which all other
 notifications inherit is also included here.
 """
-from openerp.osv import orm, fields
-from openerp.addons.nh_observations import frequencies
-from openerp import api
 import logging
+
+from openerp import api, exceptions
+from openerp.addons.nh_observations import frequencies
+from openerp.osv import orm, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -63,32 +64,6 @@ class nh_clinical_notification(orm.AbstractModel):
         """
         return True
 
-    def get_child_activity(self, activity_model, activity, data_model):
-        """
-        Generator to return the child activity of the specified data model.
-        The inputs use the Odoo v8 API record sets
-
-        :param activity_model: Instance of nh.activity environment
-        :param activity: Activity instance to get child of
-        :param data_model: data_model child activity should be
-        :return: Record of child activity
-        """
-        next_activity = activity_model.search([
-            ['data_model', '=', data_model],
-            ['creator_id', '=', activity.id]
-        ])
-        finished_activity = activity.state in ['completed', 'cancelled']
-        if not activity.data_ref.is_partial and finished_activity:
-            yield activity
-            raise StopIteration()
-        elif not next_activity:
-            yield activity
-            raise StopIteration()
-        else:
-            yield next_activity
-            self.get_child_activity(
-                activity_model, next_activity.id, data_model)
-
 
 class nh_clinical_notification_hca(orm.Model):
     """
@@ -122,25 +97,39 @@ class nh_clinical_notification_frequency(orm.Model):
     }
     _notifications = []
 
+    @api.constrains('observation')
+    def _check_valid_observation_model_name(self):
+        if 'nh.clinical.patient.observation' not in self.observation:
+            raise exceptions.ValidationError(
+                "Observation field assigned an invalid observation model name."
+            )
+
     def complete(self, cr, uid, activity_id, context=None):
         activity_pool = self.pool['nh.activity']
-        review_frequency = activity_pool.browse(
-            cr, uid, activity_id, context=context)
+        activity_review_frequency = activity_pool.browse(
+            cr, uid, activity_id, context=context
+        )
+        spell_activity_id = activity_review_frequency.spell_activity_id.id
+        observation_model_name = activity_review_frequency.data_ref.observation
         domain = [
-            ('patient_id', '=', review_frequency.data_ref.patient_id.id),
-            ('data_model', '=', review_frequency.data_ref.observation),
+            ('spell_activity_id', '=', spell_activity_id),
+            ('data_model', '=', observation_model_name),
             ('state', 'not in', ['completed', 'cancelled'])
         ]
         obs_ids = activity_pool.search(
             cr, uid, domain, order='create_date desc, id desc',
+            context=context
+        )
+        if not obs_ids:
+            message = "Review frequency task tried to adjust the frequency " \
+                      "of the currently open obs but no open obs were found."
+            raise ValueError(message)
+        obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
+        obs_pool = self.pool[activity_review_frequency.data_ref.observation]
+        obs_pool.write(
+            cr, uid, obs.data_ref.id,
+            {'frequency': activity_review_frequency.data_ref.frequency},
             context=context)
-        if obs_ids:
-            obs = activity_pool.browse(cr, uid, obs_ids[0], context=context)
-            obs_pool = self.pool[review_frequency.data_ref.observation]
-            obs_pool.write(
-                cr, uid, obs.data_ref.id,
-                {'frequency': review_frequency.data_ref.frequency},
-                context=context)
         return super(nh_clinical_notification_frequency, self).complete(
             cr, uid, activity_id, context=context)
 
@@ -167,6 +156,13 @@ class nh_clinical_notification_frequency(orm.Model):
     ]
 
     def set_form_description_frequencies(self, available_frequencies):
+        """
+        Sets frequencies that appear in the tasks dropdown in the GUI.
+
+        :param available_frequencies: a list of integers
+        :type available_frequencies: list
+        :return:
+        """
         frequency = [field for field in self._form_description if
                      field['name'] == 'frequency'][0]
         frequency['selection'] = available_frequencies

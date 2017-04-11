@@ -7,3 +7,5 @@ from . import test_restarts_ews_tasks
 from . import test_start_patient_monitoring_exception
 from . import test_toggle_obs_stop
 from . import test_toggle_obs_stop_flag
+from . import test_read_refused
+from . import test_acuity_index

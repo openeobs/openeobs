@@ -3,12 +3,13 @@
 Defines the core methods for `Open eObs` in the taking of
 :class:`patient<base.nh_clinical_patient>` observations.
 """
-from openerp.osv import orm, osv
+import logging
 from datetime import datetime as dt, timedelta as td
+
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
-from openerp import SUPERUSER_ID
-import logging
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class nh_eobs_api(orm.AbstractModel):
     eObs.
     """
 
+    # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
     _active_observations = [
         {
@@ -262,94 +264,10 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: list
         """
         activity_pool = self.pool['nh.activity']
+        sql_pool = self.pool['nh.clinical.sql']
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
-        sql = """
-        select distinct activity.id,
-            activity.summary,
-            patient.id as patient_id,
-            ews1.clinical_risk,
-            case
-                when activity.date_scheduled is not null then
-                activity.date_scheduled::text
-                when activity.create_date is not null then
-                activity.create_date::text
-                else ''
-            end as deadline,
-            case
-                when activity.date_scheduled is not null then
-                  case when greatest(
-                    now() at time zone 'UTC', activity.date_scheduled) !=
-                    activity.date_scheduled
-                    then 'overdue: '
-                  else '' end ||
-                  case when extract(days from (greatest(
-                    now() at time zone 'UTC', activity.date_scheduled) -
-                    least(now() at time zone 'UTC',
-                    activity.date_scheduled))) > 0
-                    then extract(days from (greatest(
-                      now() at time zone 'UTC', activity.date_scheduled) -
-                      least(now() at time zone 'UTC', activity.date_scheduled)
-                      )) || ' day(s) '
-                  else '' end ||
-                  to_char(justify_hours(greatest(now() at time zone 'UTC',
-                  activity.date_scheduled) - least(now() at time zone 'UTC',
-                  activity.date_scheduled)), 'HH24:MI') || ' hours'
-                when activity.create_date is not null then
-                  case when greatest(now() at time zone 'UTC',
-                    activity.create_date) != activity.create_date then
-                    'overdue: '
-                  else '' end ||
-                  case when extract(days from (greatest(now() at time zone
-                    'UTC', activity.create_date) - least(now() at time zone
-                    'UTC', activity.create_date))) > 0
-                    then extract(days from (greatest(now() at time zone 'UTC',
-                      activity.create_date) - least(now() at time zone 'UTC',
-                      activity.create_date))) || ' day(s) '
-                  else '' end ||
-                  to_char(justify_hours(greatest(now() at time zone 'UTC',
-                  activity.create_date) - least(now() at time zone 'UTC',
-                  activity.create_date)), 'HH24:MI') || ' hours'
-                else to_char((interval '0s'), 'HH24:MI') || ' hours'
-            end as deadline_time,
-            coalesce(patient.family_name, '') || ', ' ||
-              coalesce(patient.given_name, '') || ' ' ||
-              coalesce(patient.middle_names,'') as full_name,
-            location.name as location,
-            location_parent.name as parent_location,
-            case
-                when ews1.score is not null then ews1.score::text
-                else ''
-            end as ews_score,
-            case
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) = 0 then 'same'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) > 0 then 'up'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) < 0 then 'down'
-                when ews1.id is null and ews2.id is null then 'none'
-                when ews1.id is not null and ews2.id is null then 'first'
-                when ews1.id is null and ews2.id is not null then 'no latest'
-            end as ews_trend,
-            case
-                when position('notification' in activity.data_model)::bool
-                  then true
-                else false
-            end as notification
-        from nh_activity activity
-        inner join nh_activity spell on spell.id = activity.parent_id
-        inner join nh_clinical_patient patient
-          on patient.id = activity.patient_id
-        inner join nh_clinical_location location
-          on location.id = spell.location_id
-        inner join nh_clinical_location location_parent
-          on location_parent.id = location.parent_id
-        left join ews1 on ews1.spell_activity_id = spell.id
-        left join ews2 on ews2.spell_activity_id = spell.id
-        where activity.id in (%s) and spell.state = 'started'
-        order by deadline asc, activity.id desc
-        """ % activity_ids_sql
+        sql = sql_pool.get_collect_activities_sql(activity_ids_sql)
         activity_values = []
         if activity_ids:
             cr.execute(sql)
@@ -727,86 +645,19 @@ class nh_eobs_api(orm.AbstractModel):
 
     def collect_patients(self, cr, uid, domain, context=None):
         """
-        Collect patients for a given domain and return SQL output
-        :param cr: odoo cursor
+        Collect patients for a given domain and return SQL output.
+
+        :param cr: Odoo cursor
         :param uid: user ID for user doing operation
         :param domain: search domain to use
-        :param context: ODoo context
+        :param context: Odoo context
         :return: list of dicts
         """
         activity_pool = self.pool['nh.activity']
+        sql_model = self.pool['nh.clinical.sql']
         spell_ids = activity_pool.search(cr, uid, domain, context=context)
         spell_ids_sql = ','.join(map(str, spell_ids))
-        sql = """
-        select distinct activity.id,
-            patient.id,
-            patient.dob,
-            patient.gender,
-            patient.sex,
-            patient.other_identifier,
-            case char_length(patient.patient_identifier) = 10
-                when true then substring(patient.patient_identifier from 1
-                  for 3) || ' ' || substring(patient.patient_identifier from 4
-                  for 3) || ' ' || substring(patient.patient_identifier from 7
-                  for 4)
-                else patient.patient_identifier
-            end as patient_identifier,
-            coalesce(patient.family_name, '') || ', ' ||
-              coalesce(patient.given_name, '') || ' ' ||
-              coalesce(patient.middle_names,'') as full_name,
-            case
-                when ews0.date_scheduled is not null then
-                  case when greatest(now() at time zone 'UTC',
-                    ews0.date_scheduled) != ews0.date_scheduled
-                    then 'overdue: ' else '' end ||
-                  case when extract(days from (greatest(now() at time zone
-                    'UTC', ews0.date_scheduled) - least(now() at time zone
-                    'UTC', ews0.date_scheduled))) > 0
-                    then extract(days from (greatest(now() at time zone 'UTC',
-                      ews0.date_scheduled) - least(now() at time zone 'UTC',
-                      ews0.date_scheduled))) || ' day(s) '
-                    else '' end ||
-                  to_char(justify_hours(greatest(now() at time zone 'UTC',
-                    ews0.date_scheduled) - least(now() at time zone 'UTC',
-                    ews0.date_scheduled)), 'HH24:MI') || ' hours'
-                else to_char((interval '0s'), 'HH24:MI') || ' hours'
-            end as next_ews_time,
-            location.name as location,
-            location_parent.name as parent_location,
-            case
-                when ews1.score is not null then ews1.score::text
-                else ''
-            end as ews_score,
-            ews1.clinical_risk,
-            case
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) = 0 then 'same'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) > 0 then 'up'
-                when ews1.id is not null and ews2.id is not null and
-                  (ews1.score - ews2.score) < 0 then 'down'
-                when ews1.id is null and ews2.id is null then 'none'
-                when ews1.id is not null and ews2.id is null then 'first'
-                when ews1.id is null and ews2.id is not null then 'no latest'
-            end as ews_trend,
-            case
-                when ews0.frequency is not null then ews0.frequency
-                else 0
-            end as frequency
-        from nh_activity activity
-        inner join nh_clinical_patient patient
-          on patient.id = activity.patient_id
-        inner join nh_clinical_location location
-          on location.id = activity.location_id
-        inner join nh_clinical_location location_parent
-          on location_parent.id = location.parent_id
-        left join ews1 on ews1.spell_activity_id = activity.id
-        left join ews2 on ews2.spell_activity_id = activity.id
-        left join ews0 on ews0.spell_activity_id = activity.id
-        where activity.state = 'started' and activity.data_model =
-          'nh.clinical.spell' and activity.id in (%s)
-        order by location
-        """ % spell_ids_sql
+        sql = sql_model.get_collect_patients_sql(spell_ids_sql)
         patient_values = []
         if spell_ids:
             cr.execute(sql)
@@ -951,14 +802,14 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].update(
             cr, uid, patient_id, data, context=context)
 
-    def register(self, cr, uid, patient_id, data, context=None):
+    def register(self, cr, uid, hospital_number, data, context=None):
         """
         Wraps :meth:`register()<api.nh_clinical_api.register>`,
         register a :class:`patient<base.nh_clinical_patient>` in the
         system.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the following
             about the patient: ``patient_identifier``, ``family_name``,
             ``given_name``, ``middle_names``, ``dob``, ``gender``,
@@ -969,7 +820,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         return self.pool['nh.clinical.api'].register(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
     def admit(self, cr, uid, hospital_number, data, context=None):
         """
@@ -1079,15 +930,15 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].merge(
             cr, uid, patient_id, data, context=context)
 
-    def transfer(self, cr, uid, patient_id, data, context=None):
+    def transfer(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`transfer()<api.nh_clinical_api.transfer>`, transferring
         a :class:`patient<base.nh_clinical_patient>` to a
         :class:`location<base.nh_clinical_location>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the key
             ``location``
         :returns: ``True``
@@ -1095,7 +946,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         res = self.pool['nh.clinical.api'].transfer(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
         return res
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):

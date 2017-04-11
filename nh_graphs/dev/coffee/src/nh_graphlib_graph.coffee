@@ -276,7 +276,12 @@ class NHGraph extends NHGraphLib
           return d[self.options.keys[0]]
         else return null
       )
-
+    ranged_extent = @.axes.y.ranged_extent
+    if not ranged_extent[0] and not ranged_extent[1]
+      @.axes.y.ranged_extent = [
+        @.axes.y.min + self.style.range_padding,
+        @.axes.y.max - self.style.range_padding
+      ]
     # Create ranged and not ranged scaled
     d0 = self.axes.y.ranged_extent[0] - self.style.range_padding
     d1 = self.axes.y.ranged_extent[1] + self.style.range_padding
@@ -484,7 +489,11 @@ class NHGraph extends NHGraphLib
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
           none_vals = d.none_values
           key = self.options.keys[0]
-          partial = self.options.plot_partial
+          plot_partial = self.options.plot_partial
+          partial_type = self.parent_obj.parent_obj.options.partial_type
+          partial = plot_partial and partial_type is 'dot'
+          if plot_partial and partial_type is 'character' and d[key] isnt false
+            partial = true
           if none_vals isnt "[]" and d[key] isnt false and partial
             return d
           )
@@ -501,6 +510,81 @@ class NHGraph extends NHGraphLib
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
           self.show_popup('Partial observation: ' + d[self.options.keys[0]],
+            event.pageX,
+            event.pageY)
+        )
+        .on('mouseout', (d) ->
+          self.hide_popup()
+        )
+
+        self.drawables.data.selectAll(".partial_point")
+        .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+          none_vals = d.none_values
+          key = self.options.keys[0]
+          plot_partial = self.options.plot_partial
+          partial_type = self.parent_obj.parent_obj.options.partial_type
+          partial = plot_partial and partial_type is 'character'
+          refused = self.parent_obj.parent_obj.options.refused
+          refused_ob = refused and d.partial_reason is 'refused'
+          if refused_ob
+            partial = false
+          if none_vals isnt "[]" and not d[key] and partial
+            return d
+          )
+        )
+        .enter().append("text")
+        .attr("x", (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        )
+        .attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
+        .text('P')
+        .attr("class", "partial_point")
+        .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+        .on('mouseover', (d) ->
+          self.show_popup('Partial observation',
+            event.pageX,
+            event.pageY)
+        )
+        .on('mouseout', (d) ->
+          self.hide_popup()
+        )
+
+        self.drawables.data.selectAll(".refused_point")
+        .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+          none_vals = d.none_values
+          key = self.options.keys[0]
+          refused = self.parent_obj.parent_obj.options.refused
+          refused_ob = refused and d.partial_reason is 'refused'
+          if none_vals isnt "[]" and d[key] is false and refused_ob
+            return d
+          )
+        )
+        .enter().append("text")
+        .attr("x", (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        )
+        .attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
+        .text('R')
+        .attr("class", "refused_point")
+        .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+        .on('mouseover', (d) ->
+          self.show_popup('Refused observation',
             event.pageX,
             event.pageY)
         )
@@ -619,7 +703,12 @@ class NHGraph extends NHGraphLib
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
             none_vals = d.none_values
             key = self.options.keys[0]
-            partial = self.options.plot_partial
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial and partial_type is 'dot'
+            character_plot = plot_partial and partial_type is 'character'
+            if character_plot and d[key] isnt false
+              partial = true
             if none_vals isnt "[]" and d[key] isnt false and partial
               return d
             )
@@ -656,7 +745,12 @@ class NHGraph extends NHGraphLib
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
             none_vals = d.none_values
             key = self.options.keys[1]
-            partial = self.options.plot_partial
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial and partial_type is 'dot'
+            character_plot = plot_partial and partial_type is 'character'
+            if character_plot and d[key] isnt false
+              partial = true
             if none_vals isnt "[]" and d[key] isnt false and partial
               return d
             )
@@ -689,11 +783,15 @@ class NHGraph extends NHGraphLib
 
           self.drawables.data.selectAll(".range.extent.empty_point")
           .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-            partial = self.options.plot_partial
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial and partial_type is 'dot'
             top = d[self.options.keys[0]]
             bottom = d[self.options.keys[1]]
             none_vals = d.none_values
             keys_valid = top isnt false and bottom isnt false
+            if plot_partial and partial_type is 'character' and keys_valid
+              partial = true
             if none_vals isnt "[]" and keys_valid and partial
               return d
             )
@@ -719,6 +817,80 @@ class NHGraph extends NHGraphLib
             for key in self.options.keys
               string_to_use += key.replace(/_/g, ' ') + ': ' + d[key] + '<br>'
             self.show_popup('<p>'+string_to_use+'</p>',
+              event.pageX,
+              event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
+
+          self.drawables.data.selectAll(".partial_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            none_vals = d.none_values
+            key = self.options.keys[0]
+            plot_partial = self.options.plot_partial
+            partial_type = self.parent_obj.parent_obj.options.partial_type
+            partial = plot_partial and partial_type is 'character'
+            refused = self.parent_obj.parent_obj.options.refused
+            refused_ob = refused and d.partial_reason is 'refused'
+            if refused_ob
+              partial = false
+            if none_vals isnt "[]" and not d[key] and partial
+              return d
+            )
+          )
+          .enter().append("text")
+          .attr("x", (d) ->
+            point_x = self.date_from_string(d.date_terminated)
+            return self.axes.x.scale(point_x)
+          )
+          .attr("y", (d) ->
+            domainEnd = self.axes.y.scale.domain()[1]
+            domainStart = self.axes.y.scale.domain()[0]
+            point_y = (((domainEnd - domainStart)/2) + domainStart)
+            return self.axes.y.scale(point_y)
+          )
+          .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+          .attr('dy', '5px')  # font-size is 10px so R is 10px high
+          .text('P')
+          .attr("class", "partial_point")
+          .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+          .on('mouseover', (d) ->
+            self.show_popup('Partial observation',
+              event.pageX,
+              event.pageY)
+          )
+          .on('mouseout', (d) ->
+            self.hide_popup()
+          )
+          self.drawables.data.selectAll(".refused_point")
+          .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
+            none_vals = d.none_values
+            key = self.options.keys[0]
+            refused = self.parent_obj.parent_obj.options.refused
+            refused_ob = refused and d.partial_reason is 'refused'
+            if none_vals isnt "[]" and d[key] is false and refused_ob
+              return d
+            )
+          )
+          .enter().append("text")
+          .attr("x", (d) ->
+            point_x = self.date_from_string(d.date_terminated)
+            return self.axes.x.scale(point_x)
+          )
+          .attr("y", (d) ->
+            domainStart = self.axes.y.scale.domain()[0]
+            domainEnd = self.axes.y.scale.domain()[1]
+            point_y = (((domainEnd - domainStart)/2) + domainStart)
+            return self.axes.y.scale(point_y)
+          )
+          .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+          .attr('dy', '5px')  # font-size is 10px so R is 10px high
+          .text('R')
+          .attr("class", "refused_point")
+          .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
+          .on('mouseover', (d) ->
+            self.show_popup('Refused observation',
               event.pageX,
               event.pageY)
           )
@@ -822,6 +994,31 @@ class NHGraph extends NHGraphLib
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.partial_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
+
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
       # Redraw the range caps and extent with the new scales
       when 'range' then (
@@ -847,6 +1044,30 @@ class NHGraph extends NHGraphLib
           return self.axes.y.scale(d[self.options.keys[1]]) -
             self.axes.y.scale(d[self.options.keys[0]])
         )
+        self.drawables.data.selectAll('.partial_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
+        self.drawables.data.selectAll('.refused_point')
+        .attr('x', (d) ->
+          point_x = self.date_from_string(d.date_terminated)
+          return self.axes.x.scale(point_x)
+        ).attr("y", (d) ->
+          domainEnd = self.axes.y.scale.domain()[1]
+          domainStart = self.axes.y.scale.domain()[0]
+          point_y = (((domainEnd - domainStart)/2) + domainStart)
+          return self.axes.y.scale(point_y)
+        )
+        .attr('dx', '-4px')  # font-size is 10px so R is 8px wide
+        .attr('dy', '5px')  # font-size is 10px so R is 10px high
       )
 
       when 'star' then console.log('star')

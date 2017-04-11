@@ -4,7 +4,7 @@
 ### istanbul ignore next ###
 class NHMobilePatient extends NHMobile
 
-  constructor: () ->
+  constructor: (refused = false, partial_type = 'dot') ->
     self = @
     super()
     # find the obs menu on page
@@ -29,6 +29,9 @@ class NHMobilePatient extends NHMobile
       )
 
     data_id = document.getElementById('graph-content').getAttribute('data-id')
+
+    self.refused = refused
+    self.partial_type = partial_type
 
     Promise.when(@call_resource(@.urls['ajax_get_patient_obs'](data_id)))
       .then (raw_data) ->
@@ -171,7 +174,7 @@ class NHMobilePatient extends NHMobile
 
       score_graph = new window.NH.NHGraph()
       score_graph.options.keys = ['score']
-      score_graph.options.plot_partial = false
+      score_graph.options.plot_partial = true
       score_graph.style.dimensions.height = 200
       score_graph.style.data_style = 'stepped'
       score_graph.axes.y.min = 0
@@ -208,6 +211,8 @@ class NHMobilePatient extends NHMobile
       svg.options.controls.time.start = document.getElementById('start_time')
       svg.options.controls.time.end = document.getElementById('end_time')
       svg.options.controls.rangify = document.getElementById('rangify')
+      svg.options.refused = self.refused
+      svg.options.partial_type = self.partial_type
       svg.table.element = '#table'
       svg.table.keys = [
         {
@@ -282,6 +287,9 @@ class NHMobilePatient extends NHMobile
       ]
 
       for ob in obs
+        if ob.is_partial
+          ob.score = false
+
         ob.oxygen_administration_device = 'No'
         if ob.oxygen_administration_flag
           ob.oxygen_administration_device = 'Yes'

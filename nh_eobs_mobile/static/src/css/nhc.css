@@ -1622,7 +1622,9 @@ circle.point{
     stroke: black;
     stroke-width: 1px;
 }
-
+text.refused_point, text.partial_point{
+    font-size: 10px;
+}
 body.no-scroll{
   overflow: hidden;
   height: 100%;

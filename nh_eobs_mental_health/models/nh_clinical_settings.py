@@ -83,3 +83,32 @@ class NHEobsMentalHealthConfig(osv.TransientModel):
             'activity_period': wizard.activity_period,
             'manually_set': True
         }, context=context)
+
+    def refresh_discharge_transfer_views(self, cr, interval, context=None):
+        """
+        Refresh nh_clinical_wardboard with refused join
+
+        :param cr: Odoo cursor
+        :param interval: Interval for discharge / transfer view
+        :param context: Odoo context
+        :return: execution of SQL Statement
+        """
+        nh_eobs_sql = self.pool.get('nh.clinical.sql')
+        discharge = \
+            nh_eobs_sql.get_last_discharge_users('{0}d'.format(interval))
+        transfer = \
+            nh_eobs_sql.get_last_transfer_users('{0}d'.format(interval))
+        wardboard = \
+            nh_eobs_sql.get_refused_wardboard('{0}d'.format(interval))
+        return cr.execute(
+            """
+            create or replace view
+            last_discharge_users as({last_discharge_users});
+            create or replace view
+            last_transfer_users as({last_transfer_users});
+            create or replace view
+            nh_clinical_wardboard as({wardboard});
+            """.format(last_discharge_users=discharge,
+                       last_transfer_users=transfer,
+                       wardboard=wardboard)
+        )

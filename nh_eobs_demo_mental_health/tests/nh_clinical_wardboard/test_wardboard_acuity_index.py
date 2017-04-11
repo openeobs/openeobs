@@ -17,6 +17,7 @@ class TestWardboardAcuityIndex(TransactionCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         spell_model = self.env['nh.clinical.spell']
         activity_model = self.env['nh.activity']
+        self.refused_spell = 23
         ward_a = location_model.search([['code', '=', 'A']])[0]
         obs_stop_spells = spell_model.search([
             ['patient_id', 'in', ward_a.patient_ids.ids],
@@ -35,7 +36,8 @@ class TestWardboardAcuityIndex(TransactionCase):
             ['patient_id', 'in', ward_a.patient_ids.ids],
             ['location_id.usage', '=', 'bed'],
             ['obs_stop', '=', False],
-            ['id', 'not in', restarted_obs_spells]
+            ['id', 'not in', restarted_obs_spells],
+            ['id', '!=', self.refused_spell]
         ])
 
         self.obs_stop_spells = obs_stop_spells.ids
@@ -65,3 +67,11 @@ class TestWardboardAcuityIndex(TransactionCase):
         for spell in self.clinical_risk_spells:
             wardboard = self.wardboard_model.browse(spell)
             self.assertEqual(wardboard.acuity_index, wardboard.clinical_risk)
+
+    def test_wardboard_acuity_index_refused(self):
+        """
+        Test that the spell with the refused status has the correct
+        acuity_index
+        """
+        wardboard = self.wardboard_model.browse(self.refused_spell)
+        self.assertEqual(wardboard.acuity_index, 'Refused')
