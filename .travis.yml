@@ -1,11 +1,17 @@
 language: python
 sudo: false
+notifications:
+  slack:
+    rooms:
+      - secure: rWh65O2PuQdO9EEBfE2qb29j1d10WDI2kI/TOZL8r9yqHFWMApH/e4mbKJCmx47/TG3EJYg+oAPXqqmBwmUsMijzKtZ+DxUH+JHeqK5OFb5WqAuvmeUXykBDbLtOXMBwgUT3KAjjD9ZrpfsNVbzWF6qbQsk1AVAjuH8UDPbJEERDtg8LfWS7xx4dOgj1lMyW/Ws4p41E6zlpPqmem3jABAMdj0Jw226s/p2w69R1xVC5evPHJbqalsPbnkLQGbxl+TzKRbo/TrDFeKHDN2lL8k3+1UJeq+fl04jT8Rlai02MhOFR4qrFD2H1bKh2YdBXikao33gHb+tM+QHK6MPAVzX5G3z2ZNBs4j9Q8rS/pVmDAtDfL+LLwa522nt20pbuU4e9NWWvFye2GjNM9nOm4GfRksAGvoQinIeD7On/qrgbcSf7kQaOVFkP+Zk0WTRWptsTVg5w4o4IFv8O1aj1XzExUO1D9C7cyuRngqmngFkG6yFkCHycE5d+1MW1Y53+ECcJcN7A2MSer4y3crGdtF3ijiE4ZQDwJEGslDrVeCn+bjdsLxcenB3qKYB2d2sOHwvqLshpXvkCXQq+BWYQxjF+qg1KcQVYmI8tBUlHSlwZrs+AVnVDDFKeYOpbZPXLH62NZt/q2v+0aekSvcOwpB5xd8M+mR64tnawtssdQZ8=
+  on_success: change
+  on_failure: always
 cache:
   apt: true
   directories:
   - "$HOME/.cache/pip"
 python:
-- "2.7"
+- '2.7'
 addons:
   apt:
     sources:
@@ -18,7 +24,7 @@ addons:
     - python-yaml
     - sshpass
     - wkhtmltopdf
-  postgresql: "9.3"
+  postgresql: '9.3'
 env:
   global:
   - VERSION="8.0" RUN_PIPELINE="0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0"  PYLINT_PR_CONFIG_FILE="travis_run_pylint.cfg"
@@ -81,7 +87,7 @@ after_script:
   done
 - echo "</testsuites>" >> test_report.xml
 
-- echo "Test result is ${TRAVIS_TEST_RESULT}" 
+- echo "Test result is ${TRAVIS_TEST_RESULT}"
 - echo "Pipeline status is ${RUN_PIPELINE}"
 - printf '{"branch":"%s","commit":"%s","pull_request":"%s","repository":{"name":"%s"}}' "$TRAVIS_BRANCH" "$TRAVIS_COMMIT" "$TRAVIS_PULL_REQUEST" "$TRAVIS_REPO_SLUG" > json.file
 - pwd
