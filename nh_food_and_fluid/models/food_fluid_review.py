@@ -30,6 +30,26 @@ class FoodAndFluidReview(models.Model):
         return current_datetime
 
     @api.model
+    def get_localised_time(self):
+        """
+        Get the localised time for datetime.now()
+        """
+        current_time = self.get_current_time()
+        return fields.datetime.context_timestamp(
+            self._cr, self._uid, current_time)
+
+    @api.model
+    def get_review_task_summary(self):
+        """
+        Get the summary for the review task
+        :return: string for summary
+        :rtype: str
+        """
+        localised_time = self.get_localised_time()
+        return self._description.format(
+            datetime.strftime(localised_time, '%-I%p').lower())
+
+    @api.model
     def should_trigger_review(self):
         """
         Take the current localised time for the user and figure out if the
@@ -37,9 +57,7 @@ class FoodAndFluidReview(models.Model):
         :return: True if correct localised time
         :rtype: bool
         """
-        current_time = self.get_current_time()
-        localised_time = fields.datetime.context_timestamp(
-            self._cr, self._uid, current_time)
+        localised_time = self.get_localised_time()
         if localised_time.hour in self.trigger_times:
             return True
         return False
@@ -60,3 +78,27 @@ class FoodAndFluidReview(models.Model):
         obs_for_period = food_fluid_model.get_obs_activities_for_period(
             spell_activity_id, current_time)
         return any(obs_for_period)
+
+    @api.model
+    def trigger_review_tasks_for_active_periods(self):
+        """
+        Method to trigger F&F review tasks for any active periods in the system
+        Called by Scheduled Action every hour
+        """
+        is_time_to_trigger_review = self.should_trigger_review()
+        if is_time_to_trigger_review:
+            activity_model = self.env['nh.activity']
+            spell_activities = activity_model.search(
+                [
+                    ['data_model', '=', 'nh.clinical.spell'],
+                    ['state', 'not in', ['completed', 'cancelled']]
+                ]
+            )
+            for spell_activity in spell_activities:
+                if self.active_food_fluid_period(spell_activity.id):
+                    self.create_activity({
+                        'parent_id': spell_activity.id,
+                        'spell_activity_id': spell_activity.id,
+                        'patient_id': spell_activity.patient_id.id,
+                        'summary': self.get_review_task_summary()
+                    }, {})
