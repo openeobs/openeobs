@@ -314,6 +314,15 @@ class NHClinicalFoodAndFluid(models.Model):
         return score
 
     def calculate_fluid_balance(self, spell_activity_id, date_time):
+        """
+        Calculates the fluid balance for supplied date_time (which is an Odoo
+        string representation of a datetime)
+        :param spell_activity_id: ID of the patient's spell activity
+        :param date_time: Odoo string representation of a datetime
+        :type date_time: str
+        :return: Fluid Balance
+        :rtype: int
+        """
         f_and_f_obs_activities = self.get_obs_activities_for_period(
             spell_activity_id, date_time)
 
@@ -344,6 +353,15 @@ class NHClinicalFoodAndFluid(models.Model):
             return '{}ml'.format(fluid_balance)
 
     def get_obs_activities_for_period(self, spell_activity_id, date_time):
+        """
+        Get a list of food and fluid observation activities for the date_time
+        passed in
+        :param spell_activity_id: ID of the patient's spell activity
+        :param date_time: Odoo string representation of a date_time
+        :type date_time: str
+        :return: list of food and fluid observation activities
+        :rtype: list
+        """
         activity_model = self.env['nh.activity']
         period_domain = self.get_period_domain(date_time)
         domain = [
