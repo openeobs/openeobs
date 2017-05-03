@@ -12,7 +12,10 @@ class TestTriggerReviewTask(TransactionCase):
         super(TestTriggerReviewTask, self).setUp()
         self.review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
+        self.food_fluid_model = \
+            self.env['nh.clinical.patient.observation.food_fluid']
         self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.dateutils_model = self.env['datetime_utils']
         self.user_model = self.env['res.users']
         self.test_utils_model.admit_and_place_patient()
         self.test_utils_model.copy_instance_variables(self)
@@ -38,19 +41,19 @@ class TestTriggerReviewTask(TransactionCase):
             obj = args[0]
             return obj._context.get('correct_time', False)
 
-        self.review_model._patch_method(
+        self.food_fluid_model._patch_method(
             'active_food_fluid_period', patch_active_food_fluid_period)
         self.review_model._patch_method(
             'should_trigger_review', patch_should_trigger_review
         )
-        self.review_model._patch_method(
+        self.dateutils_model._patch_method(
             'get_current_time', patch_get_current_time
         )
 
     def tearDown(self):
-        self.review_model._revert_method('active_food_fluid_period')
+        self.food_fluid_model._revert_method('active_food_fluid_period')
         self.review_model._revert_method('should_trigger_review')
-        self.review_model._revert_method('get_current_time')
+        self.dateutils_model._revert_method('get_current_time')
         super(TestTriggerReviewTask, self).tearDown()
 
     def get_open_reviews(self):

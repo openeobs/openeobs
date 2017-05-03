@@ -14,6 +14,7 @@ class TestReviewPermissions(TransactionCase):
     def setUp(self):
         super(TestReviewPermissions, self).setUp()
         self.test_util_model = self.env['nh.clinical.test_utils']
+        self.dateutils_model = self.env['datetime_utils']
         self.review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
         self.eobs_api_model = self.env['nh.eobs.api']
@@ -39,21 +40,21 @@ class TestReviewPermissions(TransactionCase):
                 return '1988-01-12 15:00:00'
             else:
                 return datetime(1988, 1, 12, 15, 0, 0)
-        self.review_model._patch_method(
+        self.dateutils_model._patch_method(
             'get_current_time', patch_get_current_time)
 
         def patch_get_localised_time(*args, **kwargs):
             return datetime(1988, 1, 12, 15, 0, 0)
 
-        self.review_model._patch_method(
+        self.dateutils_model._patch_method(
             'get_localised_time', patch_get_localised_time
         )
 
         self.review_model.schedule_review(self.spell_activity)
 
     def tearDown(self):
-        self.review_model._revert_method('get_current_time')
-        self.review_model._revert_method('get_localised_time')
+        self.dateutils_model._revert_method('get_current_time')
+        self.dateutils_model._revert_method('get_localised_time')
         super(TestReviewPermissions, self).tearDown()
 
     def test_hca_sees_task(self):

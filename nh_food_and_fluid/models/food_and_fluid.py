@@ -691,3 +691,21 @@ class NHClinicalFoodAndFluid(models.Model):
             )
             period['period_end_datetime'] = \
                 period_end_datetime.strftime(datetime_format)
+
+    @api.model
+    def active_food_fluid_period(self, spell_activity_id):
+        """
+        Check to see if any food and fluid observations have been submitted in
+        this period
+        :param spell_activity_id: ID of patient's spell activity
+        :return: True if food and fluid observation have been submitted in the
+        current period
+        :rtype: bool
+        """
+        dateutils_model = self.env['datetime_utils']
+        current_time = dateutils_model.get_current_time(as_string=True)
+        food_fluid_model = \
+            self.env['nh.clinical.patient.observation.food_fluid']
+        obs_for_period = food_fluid_model.get_obs_activities_for_period(
+            spell_activity_id, current_time)
+        return any(obs_for_period)

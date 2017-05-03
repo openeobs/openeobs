@@ -15,6 +15,7 @@ class TestLocalisedTriggerTime(TransactionCase):
         users_model = self.env['res.users']
         self.review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
+        self.dateutils_model = self.env['datetime_utils']
         self.gmt_user = users_model.create({
             'login': uuid.uuid4(),
             'password': 'pass',
@@ -39,11 +40,11 @@ class TestLocalisedTriggerTime(TransactionCase):
             hours = obj._context.get('hours', 6)
             return datetime(1988, 1, 12, hours, 0, 0, 0)
 
-        self.review_model._patch_method(
+        self.dateutils_model._patch_method(
             'get_current_time', patch_get_current_time)
 
     def tearDown(self):
-        self.review_model._revert_method('get_current_time')
+        self.dateutils_model._revert_method('get_current_time')
         super(TestLocalisedTriggerTime, self).tearDown()
 
     def test_gmt_timezone(self):
