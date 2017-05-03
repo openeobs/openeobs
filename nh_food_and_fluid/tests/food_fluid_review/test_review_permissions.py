@@ -42,10 +42,18 @@ class TestReviewPermissions(TransactionCase):
         self.review_model._patch_method(
             'get_current_time', patch_get_current_time)
 
+        def patch_get_localised_time(*args, **kwargs):
+            return datetime(1988, 1, 12, 15, 0, 0)
+
+        self.review_model._patch_method(
+            'get_localised_time', patch_get_localised_time
+        )
+
         self.review_model.schedule_review(self.spell_activity)
 
     def tearDown(self):
         self.review_model._revert_method('get_current_time')
+        self.review_model._revert_method('get_localised_time')
         super(TestReviewPermissions, self).tearDown()
 
     def test_hca_sees_task(self):
