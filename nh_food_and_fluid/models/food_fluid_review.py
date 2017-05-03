@@ -79,9 +79,19 @@ class FoodAndFluidReview(models.Model):
         )
         for spell_activity in spell_activities:
             if self.active_food_fluid_period(spell_activity.id):
-                self.create_activity({
-                    'parent_id': spell_activity.id,
-                    'spell_activity_id': spell_activity.id,
-                    'patient_id': spell_activity.patient_id.id,
-                    'summary': self.get_review_task_summary()
-                }, {})
+                self.schedule_review(spell_activity)
+
+    def schedule_review(self, spell_activity):
+        """
+        Create the activity for the Food and Fluid Review Task
+        :param spell_activity: Activity for patient's spell
+        :return: activity ID
+        """
+        return self.create_activity({
+            'parent_id': spell_activity.id,
+            'spell_activity_id': spell_activity.id,
+            'patient_id': spell_activity.patient_id.id,
+            'summary': self.get_review_task_summary(),
+            'location_id': spell_activity.location_id.id,
+            'date_scheduled': self.get_current_time(as_string=True)
+        }, {})
