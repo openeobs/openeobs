@@ -22,10 +22,6 @@ class TestTriggerReviewTask(TransactionCase):
             obj = args[0]
             return obj._context.get('active_period', False)
 
-        def patch_should_trigger_review(*args, **kwargs):
-            obj = args[0]
-            return obj._context.get('correct_time', False)
-
         def patch_get_current_time(*args, **kwargs):
             obj = args[0]
             hours = obj._context.get('hours', 15)
@@ -36,14 +32,11 @@ class TestTriggerReviewTask(TransactionCase):
         self.review_model._patch_method(
             'active_food_fluid_period', patch_active_food_fluid_period)
         self.review_model._patch_method(
-            'should_trigger_review', patch_should_trigger_review)
-        self.review_model._patch_method(
             'get_current_time', patch_get_current_time
         )
 
     def tearDown(self):
         self.review_model._revert_method('active_food_fluid_period')
-        self.review_model._revert_method('should_trigger_review')
         self.review_model._revert_method('get_current_time')
         super(TestTriggerReviewTask, self).tearDown()
 
@@ -70,52 +63,26 @@ class TestTriggerReviewTask(TransactionCase):
         reviews = self.get_open_reviews()
         return len(reviews.ids)
 
-    def test_not_active_correct_time(self):
+    def test_not_active(self):
         """
-        Test that task is not created when F&F period is not active but
-        is the correct time
+        Test that task is not created when F&F period is not active
         """
         initial_count = self.get_number_of_open_reviews()
-        ctx = self.env.context.copy()
-        ctx.update({'correct_time': True})
-        self.review_model.sudo(self.nurse).with_context(ctx)\
+        self.review_model.sudo(self.nurse)\
             .trigger_review_tasks_for_active_periods()
         self.assertEqual(initial_count, self.get_number_of_open_reviews())
 
-    def test_active_correct_time(self):
+    def test_active(self):
         """
-        Test that task is created when F&F period is active and is the correct
-        time
-        """
-        initial_count = self.get_number_of_open_reviews()
-        ctx = self.env.context.copy()
-        ctx.update({'correct_time': True, 'active_period': True})
-        self.review_model.sudo(self.nurse).with_context(ctx) \
-            .trigger_review_tasks_for_active_periods()
-        self.assertEqual(
-            (initial_count + 1), self.get_number_of_open_reviews())
-
-    def test_not_active_incorrect_time(self):
-        """
-        Test that task is not created when F&F is not active and is not the
-        correct time
-        """
-        initial_count = self.get_number_of_open_reviews()
-        self.review_model.sudo(self.nurse) \
-            .trigger_review_tasks_for_active_periods()
-        self.assertEqual(initial_count, self.get_number_of_open_reviews())
-
-    def test_active_incorrect_time(self):
-        """
-        Test that task is not created when F&F is active but is not the correct
-        time
+        Test that task is created when F&F period is active
         """
         initial_count = self.get_number_of_open_reviews()
         ctx = self.env.context.copy()
         ctx.update({'active_period': True})
         self.review_model.sudo(self.nurse).with_context(ctx) \
             .trigger_review_tasks_for_active_periods()
-        self.assertEqual(initial_count, self.get_number_of_open_reviews())
+        self.assertEqual(
+            (initial_count + 1), self.get_number_of_open_reviews())
 
     def test_3pm_task_name(self):
         """
@@ -124,7 +91,6 @@ class TestTriggerReviewTask(TransactionCase):
         ctx = self.env.context.copy()
         ctx.update(
             {
-                'correct_time': True,
                 'active_period': True,
                 'hours': 15
             }
@@ -141,7 +107,6 @@ class TestTriggerReviewTask(TransactionCase):
         ctx = self.env.context.copy()
         ctx.update(
             {
-                'correct_time': True,
                 'active_period': True,
                 'hours': 6
             }
