@@ -14,6 +14,8 @@ class FoodAndFluidReview(models.Model):
 
     _description = 'F&F - {} Fluid Intake Review'
 
+    trigger_times = [15, 6]
+
     @staticmethod
     def get_current_time(as_string=False):
         """
@@ -35,6 +37,19 @@ class FoodAndFluidReview(models.Model):
         current_time = self.get_current_time()
         return fields.datetime.context_timestamp(
             self._cr, self._uid, current_time)
+
+    @api.model
+    def should_trigger_review(self):
+        """
+        Take the current localised time for the user and figure out if the
+        review task should be triggered
+        :return: True if correct localised time
+        :rtype: bool
+        """
+        localised_time = self.get_localised_time()
+        if localised_time.hour in self.trigger_times:
+            return True
+        return False
 
     @api.model
     def get_review_task_summary(self):
@@ -70,16 +85,18 @@ class FoodAndFluidReview(models.Model):
         Method to trigger F&F review tasks for any active periods in the system
         Called by Scheduled Action every hour
         """
-        activity_model = self.env['nh.activity']
-        spell_activities = activity_model.search(
-            [
-                ['data_model', '=', 'nh.clinical.spell'],
-                ['state', 'not in', ['completed', 'cancelled']]
-            ]
-        )
-        for spell_activity in spell_activities:
-            if self.active_food_fluid_period(spell_activity.id):
-                self.schedule_review(spell_activity)
+        is_time_to_trigger_review = self.should_trigger_review()
+        if is_time_to_trigger_review:
+            activity_model = self.env['nh.activity']
+            spell_activities = activity_model.search(
+                [
+                    ['data_model', '=', 'nh.clinical.spell'],
+                    ['state', 'not in', ['completed', 'cancelled']]
+                ]
+            )
+            for spell_activity in spell_activities:
+                if self.active_food_fluid_period(spell_activity.id):
+                    self.schedule_review(spell_activity)
 
     def schedule_review(self, spell_activity):
         """

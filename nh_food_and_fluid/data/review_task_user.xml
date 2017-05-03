@@ -1,0 +1,20 @@
+<openerp>
+    <data noupdate="1">
+
+        <record id="group_nhc_food_fluid_review_creators" model="res.groups">
+            <field name="name">NH Clinical Food and Fluid Review Creators</field>
+            <field name="category_id" ref="nh_clinical.module_category_nhc"/>
+            <field name="implied_ids" eval="[(6, False, [ref('nh_clinical.group_nhc_base')])]"/>
+        </record>
+
+        <record model="res.users" id="food_fluid_review_creator">
+            <field name="name">Food and Fluid Review Creating User</field>
+            <field name="login">food_fluid_review_creator</field>
+            <field name="tz">Europe/London</field>
+            <field eval="[(4, ref('group_nhc_food_fluid_review_creators'))]" name="groups_id" />
+            <field eval="[(4, ref('nh_clinical.nhc_location_default_pos'))]" name="pos_ids" />
+        </record>
+
+
+    </data>
+</openerp>

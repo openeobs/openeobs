@@ -1,0 +1,16 @@
+<openerp>
+    <data noupdate="1">
+        <record forcecreate="True" id="ir_cron_food_fluid_review_task" model="ir.cron">
+            <field name="name">Trigger Food and Fluid Review Task</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field eval="True" name="doall" />
+            <field name="nextcall" eval="time.strftime('%Y-%m-%d %H:00:00')"/>
+            <field name="model">nh.clinical.notification.food_fluid_review</field>
+            <field name="function">trigger_review_tasks_for_active_periods</field>
+            <field name="user_id" ref="food_fluid_review_creator"/>
+            <field name="args">()</field>
+        </record>
+    </data>
+</openerp>
