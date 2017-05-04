@@ -313,12 +313,13 @@ describe("Event Handling", function(){
                 spyOn(NHMobileForm.prototype, 'trigger_actions');
                 spyOn(NHMobileForm.prototype, 'show_reference');
                 spyOn(NHMobileForm.prototype, 'get_patient_info');
+                spyOn(NHMobileForm.prototype, 'reset_input_errors');
                 spyOn(NHModal.prototype, 'create_dialog').and.callThrough();
                 var test = document.getElementById('test');
                 test.innerHTML = '<form action="test" method="POST" data-type="test" task-id="0" patient-id="3" id="obsForm" data-source="task" ajax-action="test" ajax-args="test,0">' +
-                        '<input type="submit" value="Test Submit" id="submit">' +
-                        '<input type="reset" value="Test Reset" id="reset">' +
-                        '<input type="radio" value="test_radio" id="radio">' +
+                        '<div id="submit_parent" class="block"><input type="submit" value="Test Submit" id="submit"></div>' +
+                        '<div id="reset_parent" class="block"><input type="reset" value="Test Reset" id="reset"></div>' +
+                        '<div id="radio_parent" class="block"><input type="radio" value="test_radio" id="radio"></div>' +
                         '<button id="reference">Test Button</button>' +
                         '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
                         '</form>'
@@ -444,6 +445,7 @@ describe("Event Handling", function(){
                 });
                 var test = document.getElementById('test');
                 test.innerHTML = '<a href="#" class="obs">Obs</a>' +
+                '<button id="take-observation">Take Observation</button>' +
                 '<ul id="obsMenu"><li><a>Obs one</a></li><li><a>Obs two</a></li></ul>' +
                 '<select id="chart_select" name="chart_select">' +
                 '<option value="ews" selected="selected">NEWS</option>' +
@@ -498,7 +500,7 @@ describe("Event Handling", function(){
             });
 
             it('Captures and handles Take Observation menu button click', function(){
-                var test_button = document.getElementsByClassName('obs')[0];
+                var test_button = document.getElementById('take-observation');
                 var click_event = document.createEvent('CustomEvent');
                 click_event.initCustomEvent('click', false, true, false);
                 test_button.dispatchEvent(click_event);

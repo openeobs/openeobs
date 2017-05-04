@@ -7,10 +7,16 @@ class TestPlacement(TransactionCase):
     def setUp(self):
         super(TestPlacement, self).setUp()
         self.test_utils_model = self.env['nh.clinical.test_utils']
-        self.test_utils_model.admit_patient()
+        self.test_utils_model.create_locations()
+        self.test_utils_model.create_users()
+        self.test_utils_model.create_patient()
+        self.spell = self.test_utils_model.admit_patient()
+        self.test_utils_model.placement = \
+            self.test_utils_model.create_placement()
         self.hospital_number = self.test_utils_model.hospital_number
-
-        self.spell_activity_id = self.test_utils_model.spell_activity_id
+        self.spell_activity_id = self.spell.activity_id.id
+        # TODO: Rename variable as it is a spell not an activity.
+        self.spell_activity = self.spell.activity_id
         self.domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
             ('spell_activity_id', '=', self.spell_activity_id),
@@ -50,8 +56,17 @@ class TestPlacement(TransactionCase):
         # self.assertEqual(first_obs_after_placement.state, 'cancelled')
         # TODO Uncomment line above when EOBS-690 has been completed.
 
+        new_placement = self.activity_model.search([
+            ['data_model', '=', 'nh.clinical.patient.placement'],
+            ['state', 'not in', ['completed', 'cancelled']],
+            ['parent_id', '=', self.spell_activity_id]
+        ])
+
         # Place patient again on new ward.
-        self.test_utils_model.place_patient()
+        self.test_utils_model.place_patient(
+            placement_id=new_placement.id,
+            location_id=self.test_utils_model.other_bed.id
+        )
 
         open_obs_activities = self.activity_model.search(self.domain)
         self.assertEqual(len(open_obs_activities), 1)

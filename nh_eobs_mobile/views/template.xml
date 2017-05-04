@@ -4,7 +4,6 @@
 <openerp>
     <data>
 
-
         <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
@@ -358,8 +357,6 @@
             </div>
         </template>
 
-
-
         <template name="Error Screen" t-name="nh_eobs_mobile.error">
             <t t-call="nh_eobs_mobile.base">
                 <div class="content">
@@ -377,18 +374,20 @@
                     <div class="block">
                         <a class="patientInfo" href="#" id="obsButton">
                             <h3 class="name" t-att-data-id="patient['id']">
-                                <strong><t t-esc="patient['full_name']"/></strong><br/>
+                                <strong><t t-esc="patient['full_name']"/></strong>
+                            </h3>
+                            <h5 id="patient-location" class="location">
                                 <t t-if="'parent_location' in patient">
                                     <t t-esc="patient['parent_location']"/>,
                                 </t>
                                 <t t-if="'location' in patient">
                                     <t t-esc="patient['location']"/>
                                 </t>
-                            </h3>
-                            <t t-if="len(obs_list) > 0">
-                                <button class="obs big do-it">Take observation</button>
-                            </t>
+                            </h5>
                         </a>
+                        <t t-if="len(obs_list) > 0">
+                            <button id="take-observation" class="big full-width do-it">Take observation</button>
+                        </t>
                         <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>

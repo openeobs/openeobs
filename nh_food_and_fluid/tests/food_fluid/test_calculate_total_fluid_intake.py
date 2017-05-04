@@ -32,10 +32,10 @@ class TestCalculateTotalFluidIntake(TransactionCase):
         this_period = datetime.now()
         last_period = datetime.now() - timedelta(days=1)
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, last_period
+            fluid_taken=100, completion_datetime=last_period
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, last_period
+            fluid_taken=100, completion_datetime=last_period
         )
 
         self.call_test(this_period, 0)
@@ -47,10 +47,10 @@ class TestCalculateTotalFluidIntake(TransactionCase):
         """
         now = datetime.now()
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now
+            fluid_taken=100, completion_datetime=now
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now
+            fluid_taken=100, completion_datetime=now
         )
 
         self.call_test(now, 200)
@@ -63,16 +63,16 @@ class TestCalculateTotalFluidIntake(TransactionCase):
         now = datetime.now()
         last_period = datetime.now() - timedelta(days=1)
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now
+            fluid_taken=100, completion_datetime=now
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now
+            fluid_taken=100, completion_datetime=now
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, last_period
+            fluid_taken=100, completion_datetime=last_period
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, last_period
+            fluid_taken=100, completion_datetime=last_period
         )
 
         self.call_test(now, 200)
@@ -90,10 +90,12 @@ class TestCalculateTotalFluidIntake(TransactionCase):
             year=2017, month=01, day=31, hour=6, second=59, microsecond=999999
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, twelve_hours_before_next_period
+            fluid_taken=100,
+            completion_datetime=twelve_hours_before_next_period
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, one_microsecond_before_next_period
+            fluid_taken=100,
+            completion_datetime=one_microsecond_before_next_period
         )
 
         self.call_test(twelve_hours_before_next_period, 200)
@@ -111,10 +113,11 @@ class TestCalculateTotalFluidIntake(TransactionCase):
             year=2017, month=01, day=31, hour=7, second=0, microsecond=0
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, twelve_hours_before_next_period
+            fluid_taken=100,
+            completion_datetime=twelve_hours_before_next_period
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, exactly_seven_am
+            fluid_taken=100, completion_datetime=exactly_seven_am
         )
 
         self.call_test(twelve_hours_before_next_period, 100)
@@ -132,7 +135,8 @@ class TestCalculateTotalFluidIntake(TransactionCase):
         # Calculating total fluid taken for the below observation will involve
         # the period 'overflowing' into the next month.
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, twelve_hours_before_next_period
+            fluid_taken=100,
+            completion_datetime=twelve_hours_before_next_period
         )
 
         self.call_test(twelve_hours_before_next_period, 100)
@@ -170,10 +174,10 @@ class TestCalculateTotalFluidIntake(TransactionCase):
         patient_two_id = self.test_utils.patient.id
 
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now, patient_id=patient_one_id
+            fluid_taken=100, completion_datetime=now, patient_id=patient_one_id
         )
         self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-            100, now, patient_id=patient_two_id
+            fluid_taken=100, completion_datetime=now, patient_id=patient_two_id
         )
 
         self.call_test(now, 100,

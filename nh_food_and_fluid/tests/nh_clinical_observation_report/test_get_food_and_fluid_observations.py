@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import re
 from datetime import datetime, timedelta
 
+import re
 from openerp.tests.common import TransactionCase
 
 
@@ -47,10 +47,10 @@ class TestGetFoodAndFluidObservations(TransactionCase):
             completion_datetime = self.period_first_datetime \
                 - timedelta(days=i)
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                100, completion_datetime
+                fluid_taken=100, completion_datetime=completion_datetime
             )
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                100, completion_datetime
+                fluid_taken=100, completion_datetime=completion_datetime
             )
 
         self.food_and_fluid_report_data = \
@@ -91,28 +91,7 @@ class TestGetFoodAndFluidObservations(TransactionCase):
                                   self.food_and_fluid_report_data]
         self.parse_datetime_string_list(period_start_datetimes)
 
-    def test_active_period_has_no_total_fluid_intake_value(self):
-        """
-        If the current period appears on the reports, it has no value for the
-        total fluid intake.
-        """
-        self.call_test(period_first_datetime=datetime.now())
-
-        period_start_datetime = \
-            self.food_and_fluid_model.get_period_start_datetime(
-                self.period_first_datetime
-            )
-        period_start_datetime = \
-            self.datetime_utils.convert_datetime_str_to_known_format(
-                period_start_datetime, self.report_model.pretty_date_format
-            )
-        active_period = \
-            [period for period in self.food_and_fluid_report_data
-             if period['period_start_datetime'] == period_start_datetime][0]
-
-        self.assertIsNone(active_period['total_fluid_intake'])
-
-    def test_non_active_periods_have_total_fluid_intake_value(self):
+    def test_periods_have_total_fluid_intake_value(self):
         """
         Periods which are not the currently active one all have an integer
         for their total fluid intake value.

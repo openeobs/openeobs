@@ -1,6 +1,32 @@
 openerp.nh_eobs_mental_health = function (instance) {
+
+    var QWeb = instance.web.qweb;
     //Kanban view visual customizations (coloured backgrounds for the patient
     //board columns). Manages the refresh timer for the Kanban board too.
+    instance.nh_eobs_mental_health.RapidTranqWidget = instance.web.list.Column.extend({
+        _format: function (rowData, options) {
+            if (rowData.rapid_tranq.value === true) {
+                return QWeb.render('nh_rapid_tranq_cell', {
+                    'widget': this,
+                    'prefix': instance.session.prefix
+                });
+            } else {
+                return '';
+            }
+        }
+    });
+    instance.web.list.columns.add('field.nh_rapid_tranq', 'instance.nh_eobs_mental_health.RapidTranqWidget');
+
+    instance.web.ListView.include({
+        style_for: function(record){
+            var style = this._super(record);
+            if(record.attributes.rapid_tranq === true){
+                style += ' border-top: 1px solid black; border-bottom: 1px solid black;';
+            }
+            return style;
+        }
+    });
+
     instance.nh_eobs.KanbanView.include({
 
         // Add clinical_risk classes to kanban columns for colour coding

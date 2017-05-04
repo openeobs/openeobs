@@ -25,7 +25,7 @@ NHGraphLib = (function() {
       label_gap: 10,
       transition_duration: 1e3,
       axis_label_text_height: 10,
-      time_padding: null
+      timePadding: null
     };
     this.patient = {
       id: 0,
@@ -230,18 +230,21 @@ NHGraphLib = (function() {
       container_el = nh_graphs.select(this.el);
       this.style.dimensions.width = (container_el != null ? (ref = container_el[0]) != null ? ref[0].clientWidth : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
       this.obj = container_el.append('svg');
-      if (this.data.raw.length < 2 && !this.style.time_padding) {
-        this.style.time_padding = 100;
+      if (this.data.raw.length < 2 && !this.style.timePadding) {
+        this.oneHundredSecondsInMilliseconds = 6000000;
+        this.style.timePadding = this.oneHundredSecondsInMilliseconds;
       }
       if (this.data.raw.length > 0) {
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
-        if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
+        if (!this.style.timePadding) {
+          this.rangeInMilliseconds = end.getTime() - start.getTime();
+          this.fivePercentOfRange = this.rangeInMilliseconds * 0.05;
+          this.style.timePadding = this.fivePercentOfRange;
         }
-        start.setMinutes(start.getMinutes() - this.style.time_padding);
+        start.setTime(start.getTime() - this.style.timePadding);
         this.data.extent.start = start;
-        end.setMinutes(end.getMinutes() + this.style.time_padding);
+        end.setTime(end.getTime() + this.style.timePadding);
         this.data.extent.end = end;
         if ((ref1 = this.context) != null) {
           ref1.init(this);
@@ -362,6 +365,7 @@ NHGraphLib = (function() {
         obj = raw_data[i];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
+          fix_val = void 0;
           if (obj.hasOwnProperty(key)) {
             fix_val = obj[key];
             if (fix_val === false) {
@@ -370,14 +374,14 @@ NHGraphLib = (function() {
             if (fix_val === true) {
               fix_val = 'Yes';
             }
-            if (d['title']) {
-              data.push({
-                title: d['title'],
-                value: fix_val,
-                presentation: d['presentation'],
-                "class": obj["class"]
-              });
-            }
+          }
+          if (d['title']) {
+            data.push({
+              title: d['title'],
+              value: fix_val,
+              presentation: d['presentation'],
+              "class": obj["class"]
+            });
           }
         } else {
           t = d['title'];
@@ -406,7 +410,7 @@ NHGraphLib = (function() {
       return data;
     }).enter().append('td').html(function(d) {
       var i, len, o, ref, text;
-      if (typeof d.value === 'object') {
+      if (typeof d.value === 'object' && d.value !== null) {
         text = '';
         ref = d.value;
         for (i = 0, len = ref.length; i < len; i++) {
@@ -926,6 +930,10 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
+  NHGraph.prototype.validValue = function(value) {
+    return value !== false && value !== null && typeof value !== 'undefined';
+  };
+
   NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
     if (ranged) {
@@ -1051,16 +1059,18 @@ NHGraph = (function(superClass) {
         'class': 'label'
       });
       this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
-        var raw;
+        var raw, value;
         raw = self.parent_obj.parent_obj.data.raw;
         if (i !== self.options.keys.length - 1) {
-          if (raw[raw.length - 1][d] !== false) {
+          value = raw[raw.length - 1][d];
+          if (self.validValue(value)) {
             return raw[raw.length - 1][d];
           } else {
             return 'NA';
           }
         } else {
-          if (raw[raw.length - 1][d] !== false) {
+          value = raw[raw.length - 1][d];
+          if (self.validValue(value)) {
             return raw[raw.length - 1][d] + '' + self.options.measurement;
           } else {
             return 'NA';
@@ -1164,7 +1174,9 @@ NHGraph = (function(superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
-          if (d.none_values === "[]" && d[self.options.keys[0]]) {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         }).x(function(d) {
@@ -1176,7 +1188,9 @@ NHGraph = (function(superClass) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
         self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values === "[]" && d[self.options.keys[0]]) {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
@@ -1189,16 +1203,18 @@ NHGraph = (function(superClass) {
           return self.hide_popup();
         });
         self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          var key, none_vals, partial, partial_type, plot_partial;
+          var hasValue, key, none_vals, partial, partial_type, plot_partial, value;
           none_vals = d.none_values;
           key = self.options.keys[0];
           plot_partial = self.options.plot_partial;
           partial_type = self.parent_obj.parent_obj.options.partial_type;
           partial = plot_partial && partial_type === 'dot';
-          if (plot_partial && partial_type === 'character' && d[key] !== false) {
+          value = d[key];
+          hasValue = self.validValue(value);
+          if (plot_partial && partial_type === 'character' && hasValue) {
             partial = true;
           }
-          if (none_vals !== "[]" && d[key] !== false && partial) {
+          if (none_vals !== "[]" && hasValue && partial) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
@@ -1353,17 +1369,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[0];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1390,17 +1408,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[1];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1427,14 +1447,16 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var bottom, keys_valid, none_vals, partial, partial_type, plot_partial, top;
+            var bottom, bottomHasValue, keys_valid, none_vals, partial, partial_type, plot_partial, top, topHasValue;
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             top = d[self.options.keys[0]];
             bottom = d[self.options.keys[1]];
             none_vals = d.none_values;
-            keys_valid = top !== false && bottom !== false;
+            topHasValue = top !== false && top !== null;
+            bottomHasValue = bottom !== false && bottom !== null;
+            keys_valid = topHasValue && bottomHasValue;
             if (plot_partial && partial_type === 'character' && keys_valid) {
               partial = true;
             }

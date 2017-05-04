@@ -24,7 +24,7 @@ class NhClinicalTestUtils(AbstractModel):
         activity_model = self.env['nh.activity']
 
         if not patient_id:
-            patient_id = self.patient_id
+            patient_id = self.patient.id
         if not data_model:
             data_model = 'nh.clinical.patient.observation.ews'
         if not user_id:

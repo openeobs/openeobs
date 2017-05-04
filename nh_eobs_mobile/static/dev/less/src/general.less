@@ -64,7 +64,7 @@ Markup:
         <strong>Test Patient </strong><br>
         Ward A, Bed 01
       </h3>
-      <h3 class="obs button do-it">Take observation</h3>
+      <h3 class="full-width button do-it">Take observation</h3>
     </a>
   </div>
 </div>
@@ -122,29 +122,9 @@ Styleguide 1.1
 }
 
 // Patient Info Screen
-a.patientInfo{
+a.patientInfo {
   display: block;
   position: relative;
-  .name{
-    width: 50%;
-  }
-  .obs{
-    width: 40%;
-    position: absolute;
-    right: 0;
-    top: 1em;
-    text-align: right;
-    //padding: 0.3em 2%;
-    //border-radius: 5px;
-    //color: #ffffff;
-    //text-shadow: 0px 1px 0px #666666;
-    //background-color: @action-colour;
-    margin-top: -1px;
-  }
-}
-
-#obsButton{
-  margin-bottom: 2em;
 }
 
 span.alignright{
@@ -395,6 +375,9 @@ i{
   }
 }
 
+.location{
+  margin: 0.5em 0;
+}
 
 /*
 

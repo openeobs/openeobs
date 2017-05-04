@@ -33,10 +33,10 @@ class NHMobilePatient extends NHMobile
     obsMenu = document.getElementById("obsMenu")
     if obsMenu
       obsMenu.style.display = "none"
-    obs = document.getElementsByClassName("obs")
+    obs = document.getElementById("take-observation")
     ### istanbul ignore else ###
-    if obs and obs.length > 0
-      obs[0].addEventListener("click", (e) ->
+    if obs
+      obs.addEventListener("click", (e) ->
         self.handle_event(e, self.showObsMenu, true)
       )
 

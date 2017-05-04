@@ -17,7 +17,7 @@ class TestFoodFluidColumns(TransactionCase):
             'fluid_description': 'A print of the black stuff - Bovril',
             'food_taken': 'A slice of fried gold',
             'food_fluid_rejected': 'I can\'t believe you\'ve done this',
-            'passed_urine': 'yes',
+            'passed_urine': 'measured',
             'bowels_open': 'type_1'
         })
 

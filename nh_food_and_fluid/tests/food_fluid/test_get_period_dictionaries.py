@@ -40,10 +40,12 @@ class TestGetPeriodDictionaries(TransactionCase):
             completion_datetime = self.period_first_datetime \
                 - timedelta(days=i)
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                100, completion_datetime
+                fluid_taken=100, fluid_output=100,
+                completion_datetime=completion_datetime
             )
             self.test_utils.create_and_complete_food_and_fluid_obs_activity(
-                100, completion_datetime
+                fluid_taken=100, fluid_output=100,
+                completion_datetime=completion_datetime
             )
 
         obs = self.food_and_fluid_model.read_obs_for_patient(self.patient.id)
@@ -108,3 +110,8 @@ class TestGetPeriodDictionaries(TransactionCase):
 
         self.assertEqual(len(period_start_datetimes_set),
                          len(period_start_datetimes))
+
+    def test_fluid_balance_key_exists(self):
+        self.call_test()
+        for period_dictionary in self.period_dictionaries:
+            self.assertTrue('fluid_balance' in period_dictionary)

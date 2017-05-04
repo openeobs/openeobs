@@ -23,6 +23,18 @@ gulp.task('compile', function(){
 	.pipe(gulp.dest('../../src/js'))
 });
 
+gulp.task('pycharm_test', function(){
+	gulp.src([
+		'../../../../nh_eobs_mobile/static/dev/coffee/src/*.coffee',
+		'src/*.coffee'
+	])
+	.pipe(coffeelint())
+	.pipe(coffeelint.reporter())
+	.pipe(coffee({bare: true}))
+	.pipe(gulp.dest('tests/src'));
+});
+
+
 gulp.task('docs', function(){
 	gulp.src(['src/*.coffee'])
 	.pipe(deleteLines({
@@ -32,6 +44,6 @@ gulp.task('docs', function(){
 		}))
 	.pipe(docco())
 	.pipe(gulp.dest('docs'))
-})
+});
 
 gulp.task('default', ['compile']);

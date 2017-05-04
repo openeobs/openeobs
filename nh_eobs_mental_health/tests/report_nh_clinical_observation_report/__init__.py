@@ -1,8 +1,13 @@
 from . import test_get_clinical_review_column_data
 from . import test_get_first_refusal_column_data
+from . import test_get_monitoring_exception_activity_ids
+from . import test_get_patient_monitoring_exception_report_data
+from . import test_get_patient_monitoring_exception_report_data_obs_stop
+from . import test_get_patient_monitoring_exception_report_data_rapid_tranq
 from . import test_get_refusal_episodes
 from . import test_get_refusal_episodes_clinical_review
 from . import test_get_refusal_episodes_clinical_review_freq
 from . import test_get_refusal_events_data
 from . import test_get_refusals_until_news_obs_taken_column_data
 from . import test_get_report_data
+

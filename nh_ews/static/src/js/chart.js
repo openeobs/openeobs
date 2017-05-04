@@ -47,6 +47,10 @@ function processSpo2(ob){
     return ob;
 }
 
+function convertValue(value, valueToChange, substituteValue){
+    return value === valueToChange ? substituteValue : value;
+}
+
 function processEwsData(obs){
     for (var i = 0; i < obs.length; i++) {
         var ob = obs[i];
@@ -56,6 +60,13 @@ function processEwsData(obs){
         ob = processOxygenAdministrationDevice(ob);
         ob = processInspiredOxygen(ob);
         ob = processSpo2(ob);
+        ob["table_respiration_rate"] = convertValue(ob["respiration_rate"], null, "");
+        ob["table_indirect_oxymetry_spo2"] = convertValue(ob["indirect_oxymetry_spo2"], null, "");
+        ob["table_body_temperature"] = convertValue(ob["body_temperature"], null, "");
+        ob["table_blood_pressure_systolic"] = convertValue(ob["blood_pressure_systolic"], null, "");
+        ob["table_blood_pressure_diastolic"] = convertValue(ob["blood_pressure_diastolic"], null, "");
+        ob["table_pulse_rate"] = convertValue(ob["pulse_rate"], null, "");
+        ob["table_avpu"] = convertValue(ob["avpu"], null, "");
     }
     return obs;
 }
@@ -222,31 +233,31 @@ function drawEwsTable(settings, serverData){
             },
             {
                 title: "Respiration Rate",
-                keys: ["respiration_rate"]
+                keys: ["table_respiration_rate"]
             },
             {
                 title: "O2 Saturation",
-                keys: ["indirect_oxymetry_spo2"]
+                keys: ["table_indirect_oxymetry_spo2"]
             },
             {
                 title: "Body Temperature",
-                keys: ["body_temperature"]
+                keys: ["table_body_temperature"]
             },
             {
                 title: "Blood Pressure Systolic",
-                keys: ["blood_pressure_systolic"]
+                keys: ["table_blood_pressure_systolic"]
             },
             {
                 title: "Blood Pressure Diastolic",
-                keys: ["blood_pressure_diastolic"]
+                keys: ["table_blood_pressure_diastolic"]
             },
             {
                 title: "Pulse Rate",
-                keys: ["pulse_rate"]
+                keys: ["table_pulse_rate"]
             },
             {
                 title: "AVPU",
-                keys: ["avpu_text"]
+                keys: ["table_avpu_text"]
             },
             {
                 title: "Patient on Supplemental O2",

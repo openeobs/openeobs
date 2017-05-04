@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nh_graphlib_context.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nh_graphlib_context.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHContext provides a context graph for modifying the focus graphs via a brush
+or input boxes</p>
+<h2 id="istanbul-ignore-next">istanbul ignore next</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHContext</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">NHGraphLib</span></span>
+  constructor: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Style defines the styling of the main SVG block:</p>
+<ul>
+<li>Margin: The offset of the SVG</li>
+<li>Padding: The internal offset of elements drawn within the SVG</li>
+<li>Dimensions: The required height and width of the SVG</li>
+<li>Title Height: The height of the title used above context graph</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @style = {
+      margin: {
+        top: <span class="hljs-number">50</span>,
+        left: <span class="hljs-number">0</span>,
+        right: <span class="hljs-number">0</span>,
+        bottom: <span class="hljs-number">20</span>
+      },
+      padding: {
+        top: <span class="hljs-number">0</span>,
+        left: <span class="hljs-number">0</span>,
+        right: <span class="hljs-number">0</span>,
+        bottom: <span class="hljs-number">0</span>
+      },
+      dimensions: {
+        height: <span class="hljs-number">0</span>,
+        width: <span class="hljs-number">0</span>
+      },
+      title_height: <span class="hljs-number">80</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>The graph that the context is associated with</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @graph = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>The X &amp; Y axes used with the graph</p>
+<ul>
+<li>Scale: The scale that the axis is drawn to</li>
+<li>Axis: The D3 axis object</li>
+<li>Min &amp; Max: The start and end of the scale</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @axes = {
+      x: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>
+      },
+      y: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>
+      }
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>The parent SVG object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @parent_obj = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>The brush object used for selecting a subset of data points in the context</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @brush = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>The string for the title and the object it creates</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @title = <span class="hljs-literal">null</span>
+    @title_obj = <span class="hljs-literal">null</span>
+    self = @</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Handle resize events and update focus and controls</p>
+<ol>
+<li>update width of context</li>
+<li>Update range extent to new width</li>
+<li>fire of the focus resize event</li>
+<li>If mobile check rotation and use this update the scale and update the
+control inputs</li>
+<li>Update the range and ticks for the X axis</li>
+<li>Redraw the graph</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  handle_resize: <span class="hljs-function"><span class="hljs-params">(self, parent_svg, event)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> !event.handled
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+            ((self.parent_obj.style.padding.left +
+            self.parent_obj.style.padding.right) +
+            (self.style.margin.left + self.style.margin.right))
+      self.obj.attr(<span class="hljs-string">'width'</span>, self.style.dimensions.width)
+      self.axes.x.scale?.range()[<span class="hljs-number">1</span>] = self.style.dimensions.width
+      self.graph.resize_graph(self.graph, event)
+      self.parent_obj.focus.handle_resize(
+        self.parent_obj.focus,
+        event
+      )
+      <span class="hljs-keyword">if</span> self.parent_obj.options.mobile.is_mob
+        new_date = <span class="hljs-keyword">new</span> Date(self.axes.x.max)
+        <span class="hljs-keyword">if</span> self.parent_obj.is_landscape()
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.landscape
+          new_date.setDate(d)
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+        <span class="hljs-keyword">else</span>
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.portrait
+          new_date.setDate(d)
+          self.graph.axes.x.scale.domain([new_date, self.axes.x.max])
+
+        self.parent_obj.options.controls.date.start?.value = \
+          new_date.getFullYear() + <span class="hljs-string">'-'</span> +
+          self.leading_zero(new_date.getMonth()+<span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+          self.leading_zero(new_date.getDate())
+        self.parent_obj.options.controls.date.end?.value = \
+          self.axes.x.max.getFullYear() + <span class="hljs-string">'-'</span> +
+          self.leading_zero(self.axes.x.max.getMonth()+<span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+          self.leading_zero(self.axes.x.max.getDate())
+        self.parent_obj.options.controls.time.start?.value = \
+          self.leading_zero(new_date.getHours()) + <span class="hljs-string">':'</span> +
+          self.leading_zero(new_date.getMinutes())
+        self.parent_obj.options.controls.time.end?.value = \
+          self.leading_zero(self.axes.x.max.getHours()) + <span class="hljs-string">':'</span> +
+          self.leading_zero(self.axes.x.max.getMinutes())
+
+      self.graph.axes.x.scale.range([<span class="hljs-number">0</span>, self.style.dimensions.width -
+        self.graph.style.label_width])
+      self.graph.axes.x.axis.ticks((self.style.dimensions.width/<span class="hljs-number">100</span>))
+      self.graph.redraw(@)
+
+      event.handled = <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Handle brush events and update focus and controls</p>
+<ol>
+<li>Get new extent from brush</li>
+<li>Check the extent of the brush if the extent is zero difference then reset
+the extent to the normal extent</li>
+<li>Update the controls with the next values for the extent</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  handle_brush: <span class="hljs-function"><span class="hljs-params">(self, context)</span> -&gt;</span>
+    new_extent_start = nh_graphs.event.target.extent()[<span class="hljs-number">0</span>]
+    new_extent_end = nh_graphs.event.target.extent()[<span class="hljs-number">1</span>]
+    <span class="hljs-keyword">if</span> new_extent_start.getTime() <span class="hljs-keyword">is</span> new_extent_end.getTime()
+      new_extent_start = context.axes.x.min
+      new_extent_end = context.axes.x.max
+      context.parent_obj.focus.redraw([context.axes.x.min,
+        context.axes.x.max])
+    <span class="hljs-keyword">else</span>
+      context.parent_obj.focus.redraw(nh_graphs.event.target.extent())
+
+    self.parent_obj.options.controls.date.start?.value = \
+      new_extent_start.getFullYear() + <span class="hljs-string">'-'</span> +
+      self.leading_zero(new_extent_start.getMonth()+<span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+      self.leading_zero(new_extent_start.getDate())
+    self.parent_obj.options.controls.date.end?.value =  \
+      new_extent_end.getFullYear() + <span class="hljs-string">'-'</span> +
+      self.leading_zero(new_extent_end.getMonth()+<span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> +
+      self.leading_zero(new_extent_end.getDate())
+    self.parent_obj.options.controls.time.start?.value = \
+      self.leading_zero(new_extent_start.getHours()) + <span class="hljs-string">':'</span> +
+        self.leading_zero(new_extent_start.getMinutes())
+    self.parent_obj.options.controls.time.end?.value = \
+      self.leading_zero(new_extent_end.getHours()) + <span class="hljs-string">':'</span> +
+        self.leading_zero(new_extent_end.getMinutes())</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Setup the context object, this involves:</p>
+<ol>
+<li>Setup up the parent SVG object</li>
+<li>Setting up the left offset for the axis labels</li>
+<li>Add title if needed</li>
+<li>Add the context group to the SVG and position it properly</li>
+<li>Setup the axis based on the axis of the parent SVG object</li>
+<li>Initialise the graph associated with the context</li>
+<li>Show/Hide the axis if needed</li>
+<li>Setup the brush object and event listener</li>
+<li>Setup the values on the control inputs</li>
+<li>Add the brush to the SVG</li>
+<li>Setup the resize event listener</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="hljs-function"><span class="hljs-params">(parent_svg)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> parent_svg?
+      @.parent_obj = parent_svg
+      left_offset = parent_svg.style.padding.left + @.style.margin.left
+      <span class="hljs-keyword">if</span> @.title?
+        @.title_obj = parent_svg.obj.append(<span class="hljs-string">'text'</span>).text(@.title)
+        .attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'title'</span>).attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate(0,'</span>+
+          (parent_svg.style.padding.top + @.style.margin.top)+<span class="hljs-string">')'</span>)
+      @.obj = parent_svg.obj.append(<span class="hljs-string">'g'</span>)
+      @.obj.attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'nhcontext'</span>)
+      <span class="hljs-keyword">if</span> @.title?
+        @.obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate('</span>+left_offset+<span class="hljs-string">','</span>+
+          (parent_svg.style.padding.top + @.style.margin.top +
+          @.style.title_height)+<span class="hljs-string">')'</span>)
+      <span class="hljs-keyword">else</span>
+        @.obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate('</span>+left_offset+<span class="hljs-string">','</span>+
+          (parent_svg.style.padding.top + @.style.margin.top)+<span class="hljs-string">')'</span>)
+
+      @.style.dimensions.width = parent_svg.style.dimensions.width -
+        ((parent_svg.style.padding.left + parent_svg.style.padding.right) +
+        (@.style.margin.left + @.style.margin.right))
+      @.obj.attr(<span class="hljs-string">'width'</span>, @.style.dimensions.width)
+      @.axes.x.min = parent_svg.data.extent.start
+      @.axes.x.max = parent_svg.data.extent.end
+      @.axes.x.scale = nh_graphs.time.scale()
+      .domain([@.axes.x.min, @.axes.x.max])
+      .range([left_offset, @.style.dimensions.width])
+
+
+      @.graph.init(@)
+      <span class="hljs-keyword">if</span> @.title? <span class="hljs-keyword">and</span> <span class="hljs-keyword">not</span> @.graph.style.axis.x.hide
+        @.style.dimensions.height += @.graph.style.dimensions.height +
+          (@.graph.style.axis.x.size.height*<span class="hljs-number">2</span>) + @.style.title_height
+      <span class="hljs-keyword">else</span>
+        @.style.dimensions.height += @.graph.style.dimensions.height
+      parent_svg.style.dimensions.height += @.style.dimensions.height +
+        (@.style.margin.top + @.style.margin.bottom)
+
+      @.graph.drawables.brush = @.graph.obj.append(<span class="hljs-string">'g'</span>).attr(<span class="hljs-string">'class'</span>,
+        <span class="hljs-string">'brush-container'</span>)
+      self = @
+      @.brush = nh_graphs.svg.brush().x(@.graph.axes.x.scale)
+      .<span class="hljs-literal">on</span>(<span class="hljs-string">"brush"</span>, <span class="hljs-function"><span class="hljs-params">(context=self)</span> -&gt;</span>
+        self.handle_brush(self, context)
+      )
+      @.graph.drawables.brush.append(<span class="hljs-string">"g"</span>).attr(<span class="hljs-string">"class"</span>, <span class="hljs-string">"x brush"</span>)
+      .call(@.brush).selectAll(<span class="hljs-string">"rect"</span>).attr(<span class="hljs-string">"y"</span>, <span class="hljs-number">0</span>)
+      .attr(<span class="hljs-string">"height"</span>, @.graph.style.dimensions.height)
+      self = @
+      <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>If no parent SVG object then it either doesn’t exist or the context has
+been initialised before the SVG has been</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">else</span>
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'Context init being called before SVG initialised'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Draw the graph assigned to the context</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw: <span class="hljs-function"><span class="hljs-params">(parent_svg)</span> -&gt;</span>
+    @.graph.draw(@)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-if">istanbul ignore if</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>.NH.NHContext = NHContext</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

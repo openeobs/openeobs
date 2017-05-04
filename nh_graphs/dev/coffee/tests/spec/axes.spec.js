@@ -203,12 +203,12 @@ describe('Axes', function() {
     });
 
     describe('Scale', function() {
-      it('Adds time padding of 100 to the scale when plotting a single data point and no time padding defined', function() {
+      it('Adds time padding of 6000000 to the scale when plotting a single data point and no time padding defined', function() {
         var data_point, end, ends, start, starts, terminated;
         terminated = graphlib.data.raw[0]['date_terminated'];
         data_point = graphlib.date_from_string(terminated);
         graphlib.init();
-        expect(graphlib.style.time_padding).toBe(100);
+        expect(graphlib.style.timePadding).toBe(6000000);
         start = new Date(data_point);
         end = new Date(data_point);
         start.setMinutes(start.getMinutes() - 100);
@@ -219,13 +219,13 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
 
-      it('Adds time padding of 3 to the scale when plotting a single data point and time padding of 3 is defined', function() {
+      it('Adds time padding of 3 minutes to the scale when plotting a single data point and time padding of 180,000 is defined', function() {
         var data_point, end, ends, start, starts, terminated;
         terminated = graphlib.data.raw[0]['date_terminated'];
         data_point = graphlib.date_from_string(terminated);
-        graphlib.style.time_padding = 3;
+        graphlib.style.timePadding = 180000;
         graphlib.init();
-        expect(graphlib.style.time_padding).toBe(3);
+        expect(graphlib.style.timePadding).toBe(180000);
         start = new Date(data_point);
         end = new Date(data_point);
         start.setMinutes(start.getMinutes() - 3);
@@ -236,27 +236,29 @@ describe('Axes', function() {
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
 
-      it('Adds time padding of date difference divided by SVG width divided by 500 to the scale when plotting multiple data points and no time padding defined', function() {
+      it('Adds time padding of 5% of the total time range when plotting multiple data points and no time padding defined', function() {
         var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
         raw1 = graphlib.data.raw[0]['date_terminated'];
         raw2 = graphlib.data.raw[1]['date_terminated'];
         term1 = graphlib.date_from_string(raw1);
         term2 = graphlib.date_from_string(raw2);
-        original_extent = [term1, term2];
+        original_extent = [term1, term2]; // One hour difference.
         graphlib.init();
-        expect(graphlib.style.time_padding).toBe(14.4);
+        var fivePercentOfOneHourInMinutes = 3
+        var fivePercentOfOneHourInMilliseconds = 180000
+        expect(graphlib.style.timePadding).toBe(fivePercentOfOneHourInMilliseconds);
         start = new Date(original_extent[0]);
         end = new Date(original_extent[1]);
-        start.setMinutes(start.getMinutes() - 14.4);
-        end.setMinutes(end.getMinutes() + 14.4);
+        start.setMinutes(start.getMinutes() - fivePercentOfOneHourInMinutes);
+        end.setMinutes(end.getMinutes() + fivePercentOfOneHourInMinutes);
         starts = graphlib.date_to_string(start);
         ends = graphlib.date_to_string(end);
         expect(graphlib.date_to_string(graphlib.data.extent.start)).toBe(starts);
         expect(graphlib.date_to_string(graphlib.data.extent.end)).toBe(ends);
       });
 
-      it('Adds time padding of 3 to the scale when plotting multiple data points when time padding of 3 is defined', function() {
+      it('Adds time padding of 3 minutes to the scale when plotting multiple data points when time padding of 180000 is defined', function() {
         var end, ends, original_extent, raw1, raw2, start, starts, term1, term2;
         graphlib.data.raw = ews_data.multiple_records;
         raw1 = graphlib.data.raw[0]['date_terminated'];
@@ -264,9 +266,9 @@ describe('Axes', function() {
         term1 = graphlib.date_from_string(raw1);
         term2 = graphlib.date_from_string(raw2);
         original_extent = [term1, term2];
-        graphlib.style.time_padding = 3;
+        graphlib.style.timePadding = 180000;
         graphlib.init();
-        expect(graphlib.style.time_padding).toBe(3);
+        expect(graphlib.style.timePadding).toBe(180000);
         start = new Date(original_extent[0]);
         end = new Date(original_extent[1]);
         start.setMinutes(start.getMinutes() - 3);
@@ -302,7 +304,13 @@ describe('Axes', function() {
 
         for (var j = 0; j < x_ticks.length; j++) {
           tick = x_ticks[j];
-          xPos.push(+(tick.getAttribute('transform').substr(10, 5)));
+          var tickTransformAttribute = tick.getAttribute('transform');
+          var tickRegex = /translate\((\d+),\d+\)/;
+          var matches = tickRegex.exec(tickTransformAttribute);
+          if (matches) {
+            var xPosTick = matches[1];
+            xPos.push(parseInt(xPosTick));
+          }
         }
 
         lastGap = null;

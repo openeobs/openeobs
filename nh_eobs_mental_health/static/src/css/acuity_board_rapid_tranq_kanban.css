@@ -8,3 +8,7 @@
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
 }
+
+.oe_list_field_cell > .rapid_tranq_string{
+    color: black;
+}

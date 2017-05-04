@@ -27,13 +27,11 @@ class PatientMonitoringExceptionSelectReason(models.TransientModel):
         is limited in that it simply receives the call from the view and passes
         on the necessary data in the model to
         :method:`~models.nh_clinical_wardboard.NHClinicalWardboard
-        .start_patient_monitoring_exception` where most of the logic is
+        .start_obs_stop` where most of the logic is
         implemented.
         """
         reasons = self.reasons
         spell_id = self.env.context['spell_id']
         spell_activity_id = self.env.context['spell_activity_id']
         wardboard_model = self.env['nh.clinical.wardboard']
-        wardboard_model.start_patient_monitoring_exception(reasons,
-                                                           spell_id,
-                                                           spell_activity_id)
+        wardboard_model.start_obs_stop(reasons, spell_id, spell_activity_id)

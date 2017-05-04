@@ -166,6 +166,10 @@ class NHGraph extends NHGraphLib
     cp = document.getElementById('chart_popup')
     cp.classList.add('hidden')
 
+  validValue: (value) ->
+    return value isnt false and value isnt null and \
+        typeof(value) isnt 'undefined'
+
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, ranged) ->
@@ -324,11 +328,13 @@ class NHGraph extends NHGraphLib
         raw = self.parent_obj.parent_obj.data.raw
         if i isnt self.options.keys.length-1
           ## Used in case of partial observation
-          if raw[raw.length-1][d] != false
+          value = raw[raw.length-1][d]
+          if self.validValue(value)
             return raw[raw.length-1][d]
           else return 'NA'
         else
-          if raw[raw.length-1][d] != false
+          value = raw[raw.length-1][d]
+          if self.validValue(value)
             return raw[raw.length-1][d] + '' + self.options.measurement
           else return 'NA'
       ).attr({
@@ -451,7 +457,8 @@ class NHGraph extends NHGraphLib
         .interpolate(if self.style.data_style is \
           'stepped' then "step-after" else "linear")
         .defined((d) ->
-          if d.none_values is "[]" and d[self.options.keys[0]]
+          value = d[self.options.keys[0]]
+          if d.none_values is "[]" and self.validValue(value)
             return d
         )
         .x((d) ->
@@ -470,7 +477,8 @@ class NHGraph extends NHGraphLib
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-          if d.none_values is "[]" and d[self.options.keys[0]]
+          value = d[self.options.keys[0]]
+          if d.none_values is "[]" and self.validValue(value)
             return d
           )
         )
@@ -493,9 +501,11 @@ class NHGraph extends NHGraphLib
           plot_partial = self.options.plot_partial
           partial_type = self.parent_obj.parent_obj.options.partial_type
           partial = plot_partial and partial_type is 'dot'
-          if plot_partial and partial_type is 'character' and d[key] isnt false
+          value = d[key]
+          hasValue = self.validValue(value)
+          if plot_partial and partial_type is 'character' and hasValue
             partial = true
-          if none_vals isnt "[]" and d[key] isnt false and partial
+          if none_vals isnt "[]" and hasValue and partial
             return d
           )
         )
@@ -708,9 +718,11 @@ class NHGraph extends NHGraphLib
             partial_type = self.parent_obj.parent_obj.options.partial_type
             partial = plot_partial and partial_type is 'dot'
             character_plot = plot_partial and partial_type is 'character'
-            if character_plot and d[key] isnt false
+            value = d[key]
+            hasValue = self.validValue(value)
+            if character_plot and hasValue
               partial = true
-            if none_vals isnt "[]" and d[key] isnt false and partial
+            if none_vals isnt "[]" and hasValue and partial
               return d
             )
           ).enter()
@@ -750,9 +762,11 @@ class NHGraph extends NHGraphLib
             partial_type = self.parent_obj.parent_obj.options.partial_type
             partial = plot_partial and partial_type is 'dot'
             character_plot = plot_partial and partial_type is 'character'
-            if character_plot and d[key] isnt false
+            value = d[key]
+            hasValue = self.validValue(value)
+            if character_plot and hasValue
               partial = true
-            if none_vals isnt "[]" and d[key] isnt false and partial
+            if none_vals isnt "[]" and hasValue and partial
               return d
             )
           ).enter()
@@ -790,7 +804,9 @@ class NHGraph extends NHGraphLib
             top = d[self.options.keys[0]]
             bottom = d[self.options.keys[1]]
             none_vals = d.none_values
-            keys_valid = top isnt false and bottom isnt false
+            topHasValue = top isnt false and top isnt null
+            bottomHasValue = bottom isnt false and bottom isnt null
+            keys_valid = topHasValue and bottomHasValue
             if plot_partial and partial_type is 'character' and keys_valid
               partial = true
             if none_vals isnt "[]" and keys_valid and partial

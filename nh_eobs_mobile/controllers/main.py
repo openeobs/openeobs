@@ -510,21 +510,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form_input['step'] = 0.1 if input_type is 'float' else 1
                 form_input['type'] = 'number'
                 form_input['number'] = True
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 form_input['min'] = str(form_input['min'])
             elif form_input['type'] == 'selection':
                 form_input['selection_options'] = []
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 for option in form_input['selection']:
                     opt = dict()
                     opt['value'] = '{0}'.format(option[0])
                     opt['label'] = option[1]
                     form_input['selection_options'].append(opt)
             elif form_input['type'] == 'text':
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
             elif form_input['type'] == 'meta':
                 score = 'score' in form_input
                 input_score = form_input['score']
@@ -603,6 +603,21 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             }
         )
 
+    def process_task_list(self, cr, uid, task_list, context=None):
+        """
+        Process the task list from nh.eobs.api.get_activities
+
+        :param cr: Odoo cursor
+        :param uid: user id
+        :param task_list: list of tasks from get_activities
+        :param context: Odoo context
+        :return: list of tasks with extra processing
+        """
+        for task in task_list:
+            task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
+            task['color'] = self.calculate_ews_class(task['clinical_risk'])
+        return task_list
+
     @http.route(URLS['task_list'], type='http', auth='user')
     def get_tasks(self, *args, **kw):
         """
@@ -620,10 +635,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             context=context
         )
         # grab the patient object and get id?
-        tasks = task_api.get_activities(cr, uid, [], context=context)
-        for task in tasks:
-            task['url'] = '{0}{1}'.format(URLS['single_task'], task['id'])
-            task['color'] = self.calculate_ews_class(task['clinical_risk'])
+        tasks = self.process_task_list(
+            cr, uid, task_api.get_activities(
+                cr, uid, [], context=context),
+            context=context)
         return request.render(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
@@ -858,6 +873,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             context=context)
         obs_data_vis_list = api_pool.get_data_visualisation_resources(
             cr, uid, context=context)
+        user_group_ids = request.registry('res.users').read(
+            cr, uid, uid, ['groups_id'])
+        user_groups = request.registry('res.groups').read(
+            cr, uid, user_group_ids.get('groups_id'), ['display_name']
+        )
+        user_groups = [rec.get('display_name') for rec in user_groups]
         return request.render(
             'nh_eobs_mobile.patient',
             qcontext={
@@ -867,7 +888,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 'obs_list': obs,
                 'notification_count': len(follow_activities),
                 'username': request.session['login'],
-                'data_vis_list': obs_data_vis_list
+                'data_vis_list': obs_data_vis_list,
+                'user_groups': user_groups
             }
         )
 
@@ -921,13 +943,13 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 form_input['step'] = 0.1 if input_type is 'float' else 1
                 form_input['type'] = 'number'
                 form_input['number'] = True
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 form_input['min'] = str(form_input['min'])
             elif form_input['type'] == 'selection':
                 form_input['selection_options'] = []
-                form_input['info'] = ''
-                form_input['errors'] = ''
+                form_input['info'] = form_input.get('info', '')
+                form_input['errors'] = form_input.get('errors', '')
                 for option in form_input['selection']:
                     opt = dict()
                     opt['value'] = '{0}'.format(option[0])

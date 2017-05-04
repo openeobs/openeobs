@@ -1,5 +1,5 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 {
     'name': 'NH eObs Mental Health Defaults',
     'version': '0.1',
@@ -12,7 +12,10 @@
     'depends': [
         'nh_eobs',
         'nh_eobs_mobile',
-        'nh_food_and_fluid'
+        # TODO EOBS-1089: nh_eobs_mental_health_depends on nh_weight.
+        'nh_weight',
+        'nh_food_and_fluid',
+        'nh_blood_glucose'
     ],
     'data': [
         'data/master_data.xml',
@@ -23,7 +26,7 @@
         'views/observation_report_template.xml',
         'security/ir.model.access.csv'
     ],
-    'qweb': [],
+    'qweb': ['static/src/xml/widgets.xml'],
     'application': True,
     'installable': True,
     'active': False,

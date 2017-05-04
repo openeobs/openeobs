@@ -99,6 +99,12 @@ class Many2Many(odoo_fields.Many2many):
         )
 
 
+class Float(odoo_fields.Float):
+
+    def __init__(self, *args, **kwargs):
+        super(Float, self).__init__(*args, **kwargs)
+
+
 # Hack to reset the `MetaField.by_type` dictionary to the state it was in
 # before these class declarations were read.
 #

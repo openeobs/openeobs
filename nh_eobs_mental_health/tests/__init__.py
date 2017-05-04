@@ -1,4 +1,3 @@
-from .nh_clinical_spell import *
 from .nh_clinical_doctor_activities import *
 from .nh_clinical_notification_clinical_review import *
 from .nh_clinical_notification_clinical_review_frequency import *
@@ -6,6 +5,9 @@ from .nh_clinical_observation_report import *
 from .nh_clinical_overdue import *
 from .nh_clinical_patient_monitoring_exception import *
 from .nh_clinical_patient_observation_ews import *
+from .nh_clinical_pme_obs_stop import *
+from .nh_clinical_pme_rapid_tranq import *
+from .nh_clinical_spell import *
 from .nh_clinical_wardboard import *
 from .nh_eobs_api import *
 from .nh_eobs_mobile_mental import *

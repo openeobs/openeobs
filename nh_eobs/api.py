@@ -50,30 +50,6 @@ class nh_eobs_api(orm.AbstractModel):
                 _('Error!'), 'Activity ID not found: %s' % activity_id)
         return True
 
-    def check_activity_access(self, cr, uid, activity_id, context=None):
-        """
-        Verifies if an :class:`activity<activity.nh_activity>` is
-        assigned to a :class:`user<base.res_users>`.
-
-        :param uid: id of user to verify
-        :type uid: int
-        :param activity_id: id of activity to verify
-        :type activity_id: int
-        :returns: ``True`` if user is assigned. Otherwise ``False``
-        :rtype: bool
-        """
-        activity_pool = self.pool['nh.activity']
-        domain = [('id', '=', activity_id), '|', ('user_ids', 'in', [uid]),
-                  ('user_id', '=', uid)]
-        activity_ids = activity_pool.search(cr, uid, domain, context=context)
-        if not activity_ids:
-            return False
-        user_id = activity_pool.read(
-            cr, uid, activity_id, ['user_id'], context=context)['user_id']
-        if user_id and user_id[0] != uid:
-            return False
-        return True
-
     def _create_activity(self, cr, uid, data_model, vals_activity=None,
                          vals_data=None, context=None):
         model_pool = self.pool[data_model]
@@ -503,8 +479,11 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: dict
         """
         model_pool = self.pool[data_model]
-        return model_pool.calculate_score(data) if 'observation' in \
-                                                   data_model else False
+        if hasattr(model_pool, 'calculate_score'):
+            score = model_pool.calculate_score(cr, uid, data, context=context)
+        else:
+            score = False
+        return score
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """
@@ -1172,3 +1151,7 @@ class nh_eobs_api(orm.AbstractModel):
         return self._create_activity(
             cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)
+
+    def check_activity_access(self, *args, **kwargs):
+        api_pool = self.pool['nh.clinical.api']
+        return api_pool.check_activity_access(*args, **kwargs)

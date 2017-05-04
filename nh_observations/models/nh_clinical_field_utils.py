@@ -12,14 +12,15 @@ class FieldUtils(models.AbstractModel):
     _name = 'nh.clinical.field_utils'
 
     @classmethod
-    def is_obs_field(self, field):
+    def is_obs_field(cls, field):
         fields = (
             nh_obs_fields.Selection,
             nh_obs_fields.Text,
             nh_obs_fields.Integer,
             nh_obs_fields.One2many,
             nh_obs_fields.Many2one,
-            nh_obs_fields.Many2Many
+            nh_obs_fields.Many2Many,
+            nh_obs_fields.Float
         )
         return isinstance(field, fields)
 
