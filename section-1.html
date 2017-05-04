@@ -283,6 +283,14 @@
 							</li>
 				   </ul> -->
 			   </li>
+			   <li class="kss-submenu-item'" id="nav-section-1.7">
+				   <a href="#section-1.7"><span class="kss-name">Alert</span></a>
+				   <!-- <ul class="kss-menu-subchild">
+					   		<li class="kss-subchild-menu-item">
+								<a href="#section-1.7"><span class="kss-name">Alert</span></a>
+							</li>
+				   </ul> -->
+			   </li>
 			   <li class="kss-submenu-item backtotop">
 				   <a href="#kss-node"><span class="kss-name">Back to top</span></a>
 			   </li>
@@ -357,7 +365,7 @@
         <strong>Test Patient </strong><br>
         Ward A, Bed 01
       </h3>
-      <h3 class="obs button do-it">Take observation</h3>
+      <h3 class="full-width button do-it">Take observation</h3>
     </a>
   </div>
 </div>
@@ -405,7 +413,7 @@
         &lt;strong&gt;Test Patient &lt;/strong&gt;&lt;br&gt;
         Ward A, Bed 01
       &lt;/h3&gt;
-      &lt;h3 class=&quot;obs button do-it&quot;&gt;Take observation&lt;/h3&gt;
+      &lt;h3 class=&quot;full-width button do-it&quot;&gt;Take observation&lt;/h3&gt;
     &lt;/a&gt;
   &lt;/div&gt;
 &lt;/div&gt;
@@ -686,6 +694,52 @@
   &lt;li&gt;&lt;input type=&quot;submit&quot; disabled=&quot;disabled&quot; value=&quot;Disabled submit button&quot;&gt;&lt;/li&gt;
   &lt;li&gt;&lt;input type=&quot;reset&quot; disabled=&quot;disabled&quot; value=&quot;Disabled reset button&quot;&gt;&lt;/li&gt;
 &lt;/ul&gt;</code></pre></div>
+		 </div>
+		<div id="section-1.7" class="kss-section section">
+			<h2 class="kss-titlev styleguide">Alert</h2>
+			<p class="kss-description"><p>Styling for alerts</p>
+</p>
+			<h3 class="styleguide">Modifiers</h3>
+			<dl class="kss-modifiers">
+			   <dt>.alert</dt><dd><p>Generic alert class</p>
+</dd>
+			   <dt>.alert.error</dt><dd><p>Alert with error colourings</p>
+</dd>
+			   <dt>.alert.info</dt><dd><p>Alert with info colourings</p>
+</dd>
+			   <dt>.alert.warning</dt><dd><p>Alert with warning colourings</p>
+</dd>
+			   <dt>.alert.success</dt><dd><p>Alert with success colourings</p>
+</dd>
+			</dl>
+			<h3 class="styleguide">Example <ul class="options">
+				<li><a href="#" onclick="javascript:event.preventDefault();mobile(this, 'mobile_preview');">Launch mobile view</a></li>
+			</ul></h3>
+			<div class="example"><p class="alert error">
+  <strong>Something went wrong</strong> Oh noes!
+</p>
+<p class="alert info">
+  <strong>Just so you know</strong> Here's some contextual information
+</p>
+<p class="alert warning">
+  <strong>Could you not!?</strong> It's probably gonna result in a unexpected result
+</p>
+<p class="alert success">
+  <strong>We did it!</strong> Go us
+</p></div>
+			<h3 class="styleguide">Code</h3>
+			<div class="code"><pre><code class="html">&lt;p class=&quot;alert error&quot;&gt;
+  &lt;strong&gt;Something went wrong&lt;/strong&gt; Oh noes!
+&lt;/p&gt;
+&lt;p class=&quot;alert info&quot;&gt;
+  &lt;strong&gt;Just so you know&lt;/strong&gt; Here&#x27;s some contextual information
+&lt;/p&gt;
+&lt;p class=&quot;alert warning&quot;&gt;
+  &lt;strong&gt;Could you not!?&lt;/strong&gt; It&#x27;s probably gonna result in a unexpected result
+&lt;/p&gt;
+&lt;p class=&quot;alert success&quot;&gt;
+  &lt;strong&gt;We did it!&lt;/strong&gt; Go us
+&lt;/p&gt;</code></pre></div>
 		 </div>
 	  </div>
 	  <script src="public/jquery.js"></script>
