@@ -7,7 +7,6 @@ class FoodAndFluidReview(models.Model):
     """
     Food and Fluid Review task
     """
-
     _name = 'nh.clinical.notification.food_fluid_review'
     _inherit = 'nh.clinical.notification'
 
