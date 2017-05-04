@@ -34,6 +34,9 @@ class TestStartObsStop(TransactionCase):
 
         self.assertEqual(self.test_utils.ews_activity.state, 'cancelled')
 
+    def test_calls_cancel_food_and_fluid_review_tasks(self):
+        pass
+
     def test_pme_cancel_reason_set(self):
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),

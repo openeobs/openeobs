@@ -1,5 +1,6 @@
-from openerp import models, api
 from datetime import datetime
+
+from openerp import models, api
 
 
 class FoodAndFluidReview(models.Model):
@@ -39,6 +40,13 @@ class FoodAndFluidReview(models.Model):
         localised_time = dateutils_model.get_localised_time()
         return self._description.format(
             datetime.strftime(localised_time, '%-I%p').lower())
+
+    @api.model
+    def manage_review_tasks_for_active_periods(self):
+        pass  # Call trigger review tasks.
+
+    def cancel_review_tasks(self):
+        pass  # Call cancel with reason?
 
     @api.model
     def trigger_review_tasks_for_active_periods(self):
