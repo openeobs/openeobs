@@ -44,8 +44,16 @@ class FoodAndFluidReview(models.Model):
     def manage_review_tasks_for_active_periods(self):
         pass  # Call trigger review tasks.
 
-    def cancel_review_tasks(self):
-        pass  # Call cancel with reason?
+    def cancel_review_tasks(self, spell_activity_id, cancel_reason):
+        """
+        Cancel all open review tasks activities with the passed cancel reason.
+        :param spell_activity_id:
+        :param cancel_reason:
+        :return:
+        """
+        open_activities = self.get_open_activities_for_spell(spell_activity_id)
+        for activity in open_activities:
+            activity.cancel_with_reason(activity.id, cancel_reason.id)
 
     @api.model
     def trigger_review_tasks_for_active_periods(self):
