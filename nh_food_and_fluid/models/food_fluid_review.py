@@ -76,11 +76,17 @@ class FoodAndFluidReview(models.Model):
         :return: activity ID
         """
         dateutils_model = self.env['datetime_utils']
-        return self.create_activity({
-            'parent_id': spell_activity.id,
-            'spell_activity_id': spell_activity.id,
-            'patient_id': spell_activity.patient_id.id,
-            'summary': self.get_review_task_summary(),
-            'location_id': spell_activity.location_id.id,
-            'date_scheduled': dateutils_model.get_current_time(as_string=True)
-        }, {})
+        return self.create_activity(
+            {
+                'parent_id': spell_activity.id,
+                'spell_activity_id': spell_activity.id,
+                'patient_id': spell_activity.patient_id.id,
+                'summary': self.get_review_task_summary(),
+                'location_id': spell_activity.location_id.id,
+                'date_scheduled': dateutils_model.get_current_time(
+                    as_string=True)
+            },
+            {
+                'patient_id': spell_activity.patient_id.id
+            }
+        )
