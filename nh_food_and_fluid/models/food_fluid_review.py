@@ -1,6 +1,10 @@
+import logging
 from datetime import datetime
 
 from openerp import models, api
+
+
+_logger = logging.getLogger(__name__)
 
 
 class FoodAndFluidReview(models.Model):
@@ -42,16 +46,42 @@ class FoodAndFluidReview(models.Model):
 
     @api.model
     def manage_review_tasks_for_active_periods(self):
-        pass  # Call trigger review tasks.
+        cancel_reason = self._get_cancel_reason()
+        if cancel_reason:
+            self.cancel_review_tasks(cancel_reason)
 
-    def cancel_review_tasks(self, spell_activity_id, cancel_reason):
+        self.trigger_review_tasks_for_active_periods()
+
+    def _get_cancel_reason(self):
+        """
+        Attempt to get the appropriate reason for cancelling a food and fluid
+        review task based on the current localised time.
+
+        If the current localised time is not a valid time to be cancelling
+        food and fluid review tasks (there should be set times this occurs
+        based on the client's policy) then `None` is returned.
+        :return:
+        """
+        datetime_utils = self.env['datetime_utils']
+        now = datetime_utils.get_localised_time()
+
+        if now.hour == 6:
+            return self.env['ir.model.data'].get_object(
+                'nh_food_and_fluid', 'cancel_reason_6am_review')
+        elif now.hour == 14:
+            return self.env['ir.model.data'].get_object(
+                'nh_food_and_fluid', 'cancel_reason_not_performed')
+
+        return None
+
+    def cancel_review_tasks(self, cancel_reason):
         """
         Cancel all open review tasks activities with the passed cancel reason.
-        :param spell_activity_id:
         :param cancel_reason:
         :return:
         """
-        open_activities = self.get_open_activities_for_spell(spell_activity_id)
+        _logger.error("foo")
+        open_activities = self.get_open_activities_for_all_spells()
         for activity in open_activities:
             activity.cancel_with_reason(activity.id, cancel_reason.id)
 
