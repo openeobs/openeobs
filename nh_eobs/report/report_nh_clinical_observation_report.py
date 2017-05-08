@@ -608,14 +608,21 @@ class ObservationReport(models.AbstractModel):
         return model_data
 
     def process_report_dates(self, data, spell, base_report):
-        start_time = False
-        end_time = False
+        context_start_time = False
+        context_end_time = False
         if data.start_time:
             if isinstance(data.start_time, str):
+                context_start_time = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid,
+                    datetime.strptime(data.start_time, dtf),
+                    self.pretty_date_format, context=None)
                 start_time = datetime.strptime(data.start_time, dtf)
                 data.start_time = start_time
         if data.end_time:
             if isinstance(data.end_time, str):
+                context_end_time = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid, datetime.strptime(data.end_time, dtf),
+                    self.pretty_date_format, context=None)
                 end_time = datetime.strptime(data.end_time, dtf)
                 data.end_time = end_time
 
@@ -626,10 +633,10 @@ class ObservationReport(models.AbstractModel):
         spell_end = spell['date_terminated']
         report_start = spell_start
         report_end = base_report.time_generated
-        if start_time:
-            report_start = start_time.strftime(self.pretty_date_format)
-        if end_time:
-            report_end = end_time.strftime(self.pretty_date_format)
+        if context_start_time:
+            report_start = context_start_time
+        if context_end_time:
+            report_end = context_end_time
         else:
             if spell_end:
                 report_end = helpers.convert_db_date_to_context_date(
@@ -716,13 +723,12 @@ class ObservationReport(models.AbstractModel):
         :return:
         :rtype: dict
         """
-        pme_activity_ids = \
-            self.get_patient_monitoring_exception_activity_ids(
-                spell_activity_id, start_date, end_date)
+        pme_activity_ids = self.get_patient_monitoring_exception_activity_ids(
+            spell_activity_id, start_date, end_date)
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
-                pme_activity_ids, start_date, end_date)
+                pme_activity_ids)
 
         def extract_datetime_for_compare(item):
             datetime_str = item['date']
@@ -766,7 +772,7 @@ class ObservationReport(models.AbstractModel):
             cls, spell_activity_id, start_date=None, end_date=None):
         """
         Contained in the domain is all the business logic for deciding whether
-        an activity may need to included on the report in some way.
+        an activity may need to be included on the report in some way.
 
         The domain uses Polish Notation. You can learn how to read it
         `on Wikipedia
@@ -784,6 +790,7 @@ class ObservationReport(models.AbstractModel):
         include_all_parameters = [
             ('state', 'in', ['started', 'completed', 'cancelled'])
         ]
+        include_pme_active_throughout_report_range = start_date and end_date
         filter_on_date_parameters = [
             '|',
             ('state', '=', 'started'),
@@ -793,32 +800,39 @@ class ObservationReport(models.AbstractModel):
             '&' if start_date and end_date else None,
             ('date_started', '>=', start_date) if start_date else None,
             ('date_started', '<=', end_date) if end_date else None,
+            '|' if include_pme_active_throughout_report_range else None,
             '&' if start_date and end_date else None,
             ('date_terminated', '>=', start_date) if start_date else None,
-            ('date_terminated', '<=', end_date) if end_date else None
+            ('date_terminated', '<=', end_date) if end_date else None,
         ]
-        domain = base_domain
+        if include_pme_active_throughout_report_range:
+            pme_active_throughout_report_date_range_parameters = [
+                '&' if start_date and end_date else None,
+                ('date_started', '<=', start_date) if start_date and end_date
+                else None,
+                ('date_terminated', '>=', end_date) if start_date and end_date
+                else None
+            ]
+            filter_on_date_parameters.extend(
+                pme_active_throughout_report_date_range_parameters)
+
         if not start_date and not end_date:
-            return domain + include_all_parameters
+            return base_domain + include_all_parameters
         else:
             # Get rid of any Nones.
             filter_on_date_parameters = \
                 [parameter for parameter in filter_on_date_parameters
                  if parameter is not None]
-            return domain + filter_on_date_parameters
+            return base_domain + filter_on_date_parameters
 
     def get_monitoring_exception_report_data_from_activities(
-            self, pme_activity_ids, start_date=None, end_date=None):
+            self, pme_activity_ids):
         """
         Calls :method:<get_monitoring_exception_report_data_from_activity>
         recursively.
 
         :param pme_activity_ids:
         :type pme_activity_ids: list
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
         :return:
         :rtype: dict
         """
@@ -827,14 +841,13 @@ class ObservationReport(models.AbstractModel):
         for pme_activity_id in pme_activity_ids:
             some_more_report_entries = \
                 self.get_monitoring_exception_report_data_from_activity(
-                    pme_activity_id, start_date, end_date
-                )
+                    pme_activity_id)
             report_entries += some_more_report_entries
 
         return report_entries
 
     def get_monitoring_exception_report_data_from_activity(
-            self, pme_activity_id, start_date=None, end_date=None):
+            self, pme_activity_id):
         """
         Gets data from the activities with the passed ids and returns a
         dictionary containing just the values needed for the observation
@@ -842,10 +855,6 @@ class ObservationReport(models.AbstractModel):
 
         :param pme_activity_id:
         :type pme_activity_id: int
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
         :return:
         :rtype: dict
         """
@@ -858,77 +867,18 @@ class ObservationReport(models.AbstractModel):
 
         report_entries = []
         # Get report entry for start of patient monitoring exception.
-        if self.include_pme_started_entry(activity, start_date, end_date):
-            pme_started_entry = \
-                self.get_report_entry_dictionary(pme_activity_id,
-                                                 pme_started=True)
-            report_entries.append(pme_started_entry)
+        pme_started_entry = self.get_report_entry_dictionary(pme_activity_id,
+                                                             pme_started=True)
+        report_entries.append(pme_started_entry)
 
         # Get report entry for end of patient monitoring exception if it is not
         # still open.
-        if self.include_pme_completed_entry(activity, start_date, end_date):
-            pme_completed_entry = \
-                self.get_report_entry_dictionary(pme_activity_id,
-                                                 pme_started=False)
+        if activity['date_terminated']:
+            pme_completed_entry = self.get_report_entry_dictionary(
+                pme_activity_id, pme_started=False)
             report_entries.append(pme_completed_entry)
 
         return report_entries
-
-    def include_pme_started_entry(self, activity,
-                                  start_date=None, end_date=None):
-        """
-        Encapsulates the logic for deciding if a 'Stop Observations' entry
-        should be included on the report for the passed activity dictionary.
-
-        :param activity: dictionary as returned by :method:<read>
-        :type activity: dict
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
-        :return:
-        :rtype: bool
-        """
-        if not start_date and end_date:
-            return True
-        try:
-            if activity['state'] == 'started':
-                return True
-            if activity['date_started']:
-                if self.is_datetime_within_range(activity['date_started'],
-                                                 start_date, end_date):
-                    return True
-                if self.is_activity_date_terminated_within_date_range(
-                    activity, start_date, end_date
-                ):
-                    return True
-            return False
-        except KeyError, e:
-            raise ValueError("A KeyError was raised because the activity did "
-                             "not have the expected keys.", e)
-
-    def include_pme_completed_entry(self, activity,
-                                    start_date=None, end_date=None):
-        """
-        Encapsulates the logic for deciding if a 'Restart Observations' entry
-        should be included on the report for the passed activity dictionary.
-
-        :param activity: dictionary as returned by :method:<read>
-        :type activity: dict
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
-        :return:
-        :rtype: bool
-        """
-        if activity['date_terminated']:
-            if not start_date and end_date:
-                return True
-            return self.is_activity_date_terminated_within_date_range(
-                activity, start_date, end_date
-            )
-        return False
 
     def is_activity_date_terminated_within_date_range(self, activity,
                                                       start_date=None,
@@ -983,6 +933,35 @@ class ObservationReport(models.AbstractModel):
             if not date_time <= end_date:
                 return False
 
+        return True
+
+    @staticmethod
+    def is_date_range_within_active_pme(activity, start_date, end_date):
+        """
+        Checks to see if supplied start and end dates are within a PME event
+        :param activity: PME activity
+        :param start_date: report start date
+        :param end_date: report end date
+        :return: True if date range within activities date range, False if not
+        :rtype: bool
+        """
+        if not start_date or not end_date:
+            raise ValueError("Need both dates to test if within range.")
+
+        pme_start = activity.get('date_started')
+        pme_end = activity.get('date_terminated')
+        if not pme_start and not pme_end:
+            return False
+        if not start_date and not end_date:
+            return False
+        pme_start = datetime.strptime(pme_start, dtf)
+        pme_end = datetime.strptime(pme_end, dtf)
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, dtf)
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, dtf)
+        if not pme_start <= start_date or not pme_end >= end_date:
+                return False
         return True
 
     def get_report_entry_dictionary(

@@ -574,7 +574,7 @@ class NHGraph extends NHGraphLib
           key = self.options.keys[0]
           refused = self.parent_obj.parent_obj.options.refused
           refused_ob = refused and d.partial_reason is 'refused'
-          if none_vals isnt "[]" and d[key] is false and refused_ob
+          if none_vals isnt "[]" and !d[key] and refused_ob
             return d
           )
         )
@@ -886,7 +886,7 @@ class NHGraph extends NHGraphLib
             key = self.options.keys[0]
             refused = self.parent_obj.parent_obj.options.refused
             refused_ob = refused and d.partial_reason is 'refused'
-            if none_vals isnt "[]" and d[key] is false and refused_ob
+            if none_vals isnt "[]" and !d[key] and refused_ob
               return d
             )
           )
