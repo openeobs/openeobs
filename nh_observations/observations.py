@@ -16,6 +16,7 @@ from openerp import SUPERUSER_ID, api
 from openerp.addons.nh_observations import fields as obs_fields
 from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields, osv
+from openerp.osv.fields import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 _logger = logging.getLogger(__name__)
@@ -106,11 +107,8 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
 
-        last_obs_activity = self.get_last_obs_activity(self.patient_id.id)
-        if not last_obs_activity:
-            return []
         triggered_tasks = activity_model.search(
-            [('creator_id', '=', last_obs_activity.id)]
+            [('creator_id', '=', self.activity_id.id)]
         )
 
         def open_accessible_non_obs(activity):
@@ -405,7 +403,8 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         return field_value
 
     @api.multi
-    def get_formatted_obs(self, replace_zeros=False):
+    def get_formatted_obs(self, replace_zeros=False,
+                          convert_datetimes_to_client_timezone=False):
         """
         Get a dictionary of observation data formatted for display.
 
@@ -413,9 +412,42 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :rtype: dict
         """
         obs_dict_list = self.read_labels()
+
+        if convert_datetimes_to_client_timezone:
+            datetime_fields = ['date_terminated', 'create_date',
+                               'write_date', 'date_started']
+            self._convert_datetime_fields_to_client_timezone(
+                obs_dict_list, datetime_fields)
+
         for obs_dict in obs_dict_list:
             self._replace_falsey_values(obs_dict, replace_zeros=replace_zeros)
+
         return obs_dict_list
+
+    def _convert_datetime_fields_to_client_timezone(self, obs_dict_list,
+                                                    datetime_fields):
+        """
+        Convert datetime fields in the passed list of dictionary obs data to
+        the clients timezone.
+
+        :param obs_dict_list:
+        :param datetime_fields:
+        :return:
+        """
+        for obs in obs_dict_list:
+            for datetime_field_name in datetime_fields:
+                date_time = obs.get(datetime_field_name)
+                if date_time:
+                    obs[datetime_field_name] = \
+                        self._convert_datetime_to_client_timezone(date_time)
+
+    def _convert_datetime_to_client_timezone(self, date_time):
+        date_time = dt.strptime(date_time, DTF)
+        date_time_new = datetime.context_timestamp(
+            self.env.cr, self.env.uid, date_time,
+            context=self.env.context)
+        date_time_new_str = date_time_new.strftime(DTF)
+        return date_time_new_str
 
     @staticmethod
     def _replace_falsey_values(obs_dict, replace_falses=True,

@@ -18,7 +18,7 @@ refusal_episode_second = {
     'freq_date_terminated': None,
     'freq_state': None,
     'freq_terminate_uid': None,
-    'review_date_termninated': None,
+    'review_date_terminated': None,
     'review_state': None,
     'review_terminate_uid': None,
     'spell_activity_id': 10
@@ -29,7 +29,7 @@ refusal_episode_third = {
     'freq_date_terminated': None,
     'freq_state': None,
     'freq_terminate_uid': None,
-    'review_date_termninated': None,
+    'review_date_terminated': None,
     'review_state': None,
     'review_terminate_uid': None,
     'spell_activity_id': 10
@@ -39,6 +39,18 @@ refusal_episodes = [
     refusal_episode_second,
     refusal_episode_third
 ]
+
+refusal_episode_review_completed = {
+    'count': 1,
+    'first_refusal_date_terminated': '2017-01-03 17:51:14',
+    'freq_date_terminated': None,
+    'freq_state': None,
+    'freq_terminate_uid': None,
+    'review_date_terminated': '2017-01-03 18:51:14',
+    'review_state': 'completed',
+    'review_terminate_uid': 1,
+    'spell_activity_id': 10
+}
 
 
 def mock_get_refusal_episodes(*args, **kwargs):

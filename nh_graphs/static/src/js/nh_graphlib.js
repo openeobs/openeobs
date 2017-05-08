@@ -1262,7 +1262,7 @@ NHGraph = (function(superClass) {
           key = self.options.keys[0];
           refused = self.parent_obj.parent_obj.options.refused;
           refused_ob = refused && d.partial_reason === 'refused';
-          if (none_vals !== "[]" && d[key] === false && refused_ob) {
+          if (none_vals !== "[]" && !d[key] && refused_ob) {
             return d;
           }
         })).enter().append("text").attr("x", function(d) {
@@ -1524,7 +1524,7 @@ NHGraph = (function(superClass) {
             key = self.options.keys[0];
             refused = self.parent_obj.parent_obj.options.refused;
             refused_ob = refused && d.partial_reason === 'refused';
-            if (none_vals !== "[]" && d[key] === false && refused_ob) {
+            if (none_vals !== "[]" && !d[key] && refused_ob) {
               return d;
             }
           })).enter().append("text").attr("x", function(d) {

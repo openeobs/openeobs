@@ -223,6 +223,9 @@ class NhClinicalPatientObservationWeight(models.Model):
         return message
 
     @api.multi
-    def get_formatted_obs(self, replace_zeros=True):
+    def get_formatted_obs(self, replace_zeros=True,
+                          convert_datetimes_to_client_timezone=False):
+        convert = convert_datetimes_to_client_timezone
         return super(NhClinicalPatientObservationWeight, self)\
-            .get_formatted_obs(replace_zeros=replace_zeros)
+            .get_formatted_obs(replace_zeros=replace_zeros,
+                               convert_datetimes_to_client_timezone=convert)
