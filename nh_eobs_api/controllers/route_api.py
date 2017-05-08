@@ -10,7 +10,6 @@ from openerp.addons.nh_eobs_api.routing import Route
 from openerp.addons.nh_eobs_api.routing import RouteManager
 from openerp.http import request
 from openerp.modules.module import get_module_path
-from openerp.osv import fields
 from openerp.osv import osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from werkzeug import exceptions
@@ -648,7 +647,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
     def get_patient_obs(self, *args, **kw):
         patient_id = kw.get('patient_id')  # TODO: add a check if is None (?)
         obs_type = kw.get('obs_type')
-        cr, uid, context = request.cr, request.uid, request.context
+        cr, uid = request.cr, request.uid
         api_pool = request.registry('nh.eobs.api')
         patient_list = api_pool.get_patients(cr, uid, [int(patient_id)])
         if len(patient_list) > 0:
@@ -658,17 +657,6 @@ class NH_API(openerp.addons.web.controllers.main.Home):
                 patient_id=int(patient_id),
                 activity_type=obs_type
             )
-            date_fields = [
-                'date_terminated', 'create_date', 'write_date', 'date_started']
-            for observation in observations:
-                for field in date_fields:
-                    if not observation.get(field):
-                            continue
-                    observation[field] = \
-                        fields.datetime.context_timestamp(
-                            cr, uid,
-                            datetime.strptime(observation[field], DTF),
-                            context=context).strftime(DTF)
             observations.reverse()
             response_data = {
                 'obs': observations,
