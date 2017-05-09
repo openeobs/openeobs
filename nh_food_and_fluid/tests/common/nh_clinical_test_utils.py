@@ -50,3 +50,24 @@ class NhClinicalTestUtils(models.AbstractModel):
             activity_vals={}, data_vals=obs_data
         )
         return obs_food_and_fluid_activity_id
+
+    def create_f_and_f_review_activity(self, spell_activity=None):
+        food_and_fluid_review_model = \
+            self.env['nh.clinical.notification.food_fluid_review']
+        activity_model = self.env['nh.activity']
+
+        if spell_activity:
+            spell_activity_id = spell_activity.id
+            patient_id = spell_activity.patient_id.id
+        else:
+            spell_activity_id = self.spell_activity.id
+            patient_id = self.patient.id
+
+        f_and_f_review_activity_id = \
+            food_and_fluid_review_model.create_activity(
+                {'spell_activity_id': spell_activity_id},
+                {'patient_id': patient_id})
+        f_and_f_review_activity = activity_model.browse(
+            f_and_f_review_activity_id)
+
+        return f_and_f_review_activity

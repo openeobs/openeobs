@@ -74,14 +74,21 @@ class FoodAndFluidReview(models.Model):
 
         return None
 
-    def cancel_review_tasks(self, cancel_reason):
+    def cancel_review_tasks(self, cancel_reason, spell_activity_id=None):
         """
-        Cancel all open review tasks activities with the passed cancel reason.
+        Cancel all open review tasks activities with the passed cancel reason
+        for either one spell or all spells.
+        :param spell_activity_id:
+        :type spell_activity_id: int
         :param cancel_reason:
-        :return:
         """
-        _logger.error("foo")
-        open_activities = self.get_open_activities_for_all_spells()
+        open_activities = self.get_open_activities(
+            spell_activity_id=spell_activity_id)
+        if spell_activity_id and len(open_activities) > 1:
+            _logger.error("There should not be more than one food and fluid "
+                          "review task open at any one time. Cancelling all "
+                          "such tasks for the spell anyway to reduce manual "
+                          "cleanup but this needs to be fixed.")
         for activity in open_activities:
             activity.cancel_with_reason(activity.id, cancel_reason.id)
 

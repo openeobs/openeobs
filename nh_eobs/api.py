@@ -940,10 +940,22 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res
+
+    def get_spell_activity_id(self, hospital_number):
+        patient_model = self.env['nh.clinical.patient']
+        domain = [('other_identifier', '=', hospital_number)]
+        patient = patient_model.search(domain)
+        patient.ensure_one()
+
+        spell_model = self.env['nh.clinical.spell']
+        domain = [('patient_id', '=', patient.id)]
+        spell = spell_model.search(domain)
+        spell.ensure_one()
+
+        return spell.activity_id.id
 
     def cancel_transfer(self, cr, uid, patient_id, context=None):
         """

@@ -17,7 +17,7 @@ class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
         super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self).setUp()
         self.datetime_utils = self.env['datetime_utils']
 
-    def call_test(self, date_time=None):
+    def call_test(self, date_time=None, spell_activity_id=None):
         if not date_time:
             date_time = datetime(1989, 6, 6, 14, 0, 0)
         def mock_get_localised_time(*args, **kwargs):
@@ -32,6 +32,10 @@ class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
 
     @skip('Test does not apply in subclass.')
     def test_applies_passed_cancel_reason(self):
+        pass
+
+    @skip('Test does not apply in subclass.')
+    def test_cancels_all_review_tasks_for_spell_when_spell_activity_id(self):
         pass
 
     def test_cancel_review_tasks_when_time_is_2pm_local_time(self):
