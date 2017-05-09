@@ -14,12 +14,14 @@
         'nh_eobs'
     ],
     'data': [
+        'data/review_task_user.xml',
         'security/ir.model.access.csv',
         'data/recorded_concerns.xml',
         'data/dietary_needs.xml',
         'views/observation_report_template.xml',
         'views/acuity_board_buttons.xml',
-        'views/static_file_include.xml'
+        'views/static_file_include.xml',
+        'data/review_task_cron.xml'
     ],
     'demo': [],
     'css': [],

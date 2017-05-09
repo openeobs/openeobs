@@ -314,6 +314,15 @@ class NHClinicalFoodAndFluid(models.Model):
         return score
 
     def calculate_fluid_balance(self, spell_activity_id, date_time):
+        """
+        Calculates the fluid balance for supplied date_time (which is an Odoo
+        string representation of a datetime)
+        :param spell_activity_id: ID of the patient's spell activity
+        :param date_time: Odoo string representation of a datetime
+        :type date_time: str
+        :return: Fluid Balance
+        :rtype: int
+        """
         f_and_f_obs_activities = self.get_obs_activities_for_period(
             spell_activity_id, date_time)
 
@@ -344,6 +353,15 @@ class NHClinicalFoodAndFluid(models.Model):
             return '{}ml'.format(fluid_balance)
 
     def get_obs_activities_for_period(self, spell_activity_id, date_time):
+        """
+        Get a list of food and fluid observation activities for the date_time
+        passed in
+        :param spell_activity_id: ID of the patient's spell activity
+        :param date_time: Odoo string representation of a date_time
+        :type date_time: str
+        :return: list of food and fluid observation activities
+        :rtype: list
+        """
         activity_model = self.env['nh.activity']
         period_domain = self.get_period_domain(date_time)
         domain = [
@@ -670,3 +688,21 @@ class NHClinicalFoodAndFluid(models.Model):
             )
             period['period_end_datetime'] = \
                 period_end_datetime.strftime(datetime_format)
+
+    @api.model
+    def active_food_fluid_period(self, spell_activity_id):
+        """
+        Check to see if any food and fluid observations have been submitted in
+        this period
+        :param spell_activity_id: ID of patient's spell activity
+        :return: True if food and fluid observation have been submitted in the
+        current period
+        :rtype: bool
+        """
+        dateutils_model = self.env['datetime_utils']
+        current_time = dateutils_model.get_current_time(as_string=True)
+        food_fluid_model = \
+            self.env['nh.clinical.patient.observation.food_fluid']
+        obs_for_period = food_fluid_model.get_obs_activities_for_period(
+            spell_activity_id, current_time)
+        return any(obs_for_period)
