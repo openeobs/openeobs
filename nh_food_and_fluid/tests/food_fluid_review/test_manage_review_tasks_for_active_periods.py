@@ -7,19 +7,21 @@ from openerp.addons.nh_food_and_fluid.tests.food_fluid_review\
 
 
 class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
-    TestCancelReviewTasks):
+        TestCancelReviewTasks):
     """
     Inherits from TestCancelReviewTasks so that the same tests can be run again
     therefore asserting that the same state changes have occurred even when
     calling from a method lower down in the execution stack.
     """
     def setUp(self):
-        super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self).setUp()
+        super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self)\
+            .setUp()
         self.datetime_utils = self.env['datetime_utils']
 
     def call_test(self, date_time=None, spell_activity_id=None):
         if not date_time:
             date_time = datetime(1989, 6, 6, 14, 0, 0)
+
         def mock_get_localised_time(*args, **kwargs):
             return date_time
         self.datetime_utils._patch_method('get_localised_time',
