@@ -512,19 +512,16 @@ class NHClinicalFoodAndFluid(models.Model):
         return obs_activities
 
     @api.multi
-    def get_formatted_obs(self):
+    def get_formatted_obs(self, convert_datetimes_to_client_timezone=False):
         """
         Override of `nh.clinical.patient.observation`.
 
         :return:
         :rtype: dict
         """
-        if len(self) < 1:
-            raise ValueError("Passed recordset is empty, "
-                             "cannot get formatted obs.")
-        patient_id = self[0].patient_id.id
-        obs = self.read_obs_for_patient(patient_id)
-        self.convert_field_values_to_labels(obs)
+        convert = convert_datetimes_to_client_timezone
+        obs = super(NHClinicalFoodAndFluid, self).get_formatted_obs(
+            convert_datetimes_to_client_timezone=convert)
         periods = self.get_period_dictionaries(obs, include_units=True)
         self.format_period_datetimes(periods)
         return periods

@@ -68,9 +68,12 @@ class NHClinicalPatientObservationBloodGlucose(models.Model):
         return '/nh_blood_glucose/static/src/js/chart.js'
 
     @api.multi
-    def get_formatted_obs(self, replace_zeros=True):
+    def get_formatted_obs(self, replace_zeros=True,
+                          convert_datetimes_to_client_timezone=False):
+        convert = convert_datetimes_to_client_timezone
         return super(NHClinicalPatientObservationBloodGlucose, self)\
-            .get_formatted_obs(replace_zeros=replace_zeros)
+            .get_formatted_obs(replace_zeros=replace_zeros,
+                               convert_datetimes_to_client_timezone=convert)
 
     @refresh_materialized_views('param')
     def complete(self, cr, uid, activity_id, context=None):

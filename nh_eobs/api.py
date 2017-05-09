@@ -68,7 +68,7 @@ class nh_eobs_api(orm.AbstractModel):
 
         :param spell_id: id for the patient spell
         :type spell_id: int
-        :param activity_type: type of activity [optional]
+        :param activity_type: The part of the model name after 'observation.'
         :type activity_type: str
         :param start_date: retrieve activities only on or after this
             date. Must be provided if ``activity_type`` has also been
@@ -82,7 +82,6 @@ class nh_eobs_api(orm.AbstractModel):
             fields and values
         :rtype: list
         """
-
         spell_pool = self.pool['nh.clinical.spell']
         if not spell_pool.search(
                 cr, uid, [['id', '=', spell_id]], context=context):
@@ -114,8 +113,14 @@ class nh_eobs_api(orm.AbstractModel):
                                         "received." % type(end_date))
                 domain.append(
                     ('date_terminated', '<=', end_date.strftime(DTF)))
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+
+        order = 'date_terminated desc, id desc'
+        obs_ids = model_pool.search(cr, uid, domain, order=order,
+                                    context=context)
+        obs = model_pool.get_formatted_obs(
+            cr, uid, obs_ids, context=context,
+            convert_datetimes_to_client_timezone=True)
+        return obs
 
     def get_share_users(self, cr, uid, context=None):
         """
@@ -1050,9 +1055,7 @@ class nh_eobs_api(orm.AbstractModel):
 
     def get_activities_for_patient(
             self, cr, uid, patient_id, activity_type,
-            start_date=None, end_date=None, context=None,
-            convert_field_values_to_scores=True
-    ):
+            start_date=None, end_date=None, context=None):
         """
         Returns a list of
         :class:`activities<activity.nh_activity>` for a
@@ -1093,12 +1096,12 @@ class nh_eobs_api(orm.AbstractModel):
                   ('data_model', '!=', 'nh.clinical.spell')]
 
         obs_ids = model_pool.search(cr, uid, domain, context=context)
-        observations = []
+        obs = []
         if obs_ids:
-            observations = model_pool.get_formatted_obs(
-                cr, uid, obs_ids, context=context
-            )
-        return observations
+            obs = model_pool.get_formatted_obs(
+                cr, uid, obs_ids, context=context,
+                convert_datetimes_to_client_timezone=True)
+        return obs
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
                                     vals_activity=None, vals_data=None,
