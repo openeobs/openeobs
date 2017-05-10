@@ -157,7 +157,8 @@ class TestGetReviewData(TransactionCase):
     #         {'review_date': '1988-01-12 15:00:00'}
     #     ).schedule_review(self.spell_activity)
     #     self.api_model.transfer(
-    #         self.patient.other_identifier, {'location': self.other_ward.code})
+    #         self.patient.other_identifier,
+    #        {'location': self.other_ward.code})
     #     review_data = self.review_model.get_review_data(
     #         self.spell_activity.patient_id.id,
     #         '1988-01-12 07:00:00', 15
