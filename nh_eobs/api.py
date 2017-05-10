@@ -950,6 +950,13 @@ class nh_eobs_api(orm.AbstractModel):
         return res
 
     def get_spell_activity_id(self, hospital_number):
+        """
+        Return the spell activity ID for the patient with the given hospital
+        number. Raises an exception if more than one spell is found.
+        :param hospital_number:
+        :type hospital_number: str
+        :return:
+        """
         patient_model = self.env['nh.clinical.patient']
         domain = [('other_identifier', '=', hospital_number)]
         patient = patient_model.search(domain)

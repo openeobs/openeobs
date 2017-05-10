@@ -48,6 +48,12 @@ class NhClinicalObsStop(models.Model):
         return super_return
 
     def _cancel_open_food_and_fluid_review_tasks(self):
+        """
+        Cancels open food and fluid review tasks for the current spell.
+        The current spell is determined by looking at `self` which should be
+        an ob stop record with a poplated `spell_id` field.
+        :return:
+        """
         spell_activity_id = self.spell.activity_id.id
         cancel_reason_pme = \
             self.env['ir.model.data'].get_object(

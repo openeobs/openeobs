@@ -46,6 +46,12 @@ class FoodAndFluidReview(models.Model):
 
     @api.model
     def manage_review_tasks_for_active_periods(self):
+        """
+        Ensure all spells have the correct food and fluid review tasks
+        associated with them. This involves cancelling existing ones and
+        creating new ones at specific times.
+        :return:
+        """
         cancel_reason = self._get_cancel_reason()
         if cancel_reason:
             self.cancel_review_tasks(cancel_reason)

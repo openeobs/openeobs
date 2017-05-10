@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from unittest import skip
 
 from openerp.tests.common import TransactionCase
 
@@ -47,14 +46,6 @@ class TestManageReviewTasksForActivePeriods(TransactionCase):
 
         self.food_and_fluid_review_model \
             .manage_review_tasks_for_active_periods()
-
-    @skip('Test does not apply in subclass.')
-    def test_applies_passed_cancel_reason(self):
-        pass
-
-    @skip('Test does not apply in subclass.')
-    def test_cancels_all_review_tasks_for_spell_when_spell_activity_id(self):
-        pass
 
     def test_cancel_review_tasks_when_time_is_2pm_local_time(self):
         self.call_test(date_time=datetime(1989, 6, 6, 14, 0, 0))
