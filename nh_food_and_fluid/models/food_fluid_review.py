@@ -44,7 +44,6 @@ class FoodAndFluidReview(models.Model):
         return self._description.format(
             datetime.strftime(localised_time, '%-I%p').lower())
 
-    @api.model
     def manage_review_tasks_for_active_periods(self):
         cancel_reason = self._get_cancel_reason()
         if cancel_reason:
@@ -135,3 +134,9 @@ class FoodAndFluidReview(models.Model):
                 'patient_id': spell_activity.patient_id.id
             }
         )
+
+    @api.model
+    def foo(self):
+        datetime_utils = self.env['datetime_utils']
+        date_time = datetime_utils.get_current_time(as_string=True)
+        print date_time

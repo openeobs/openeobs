@@ -61,7 +61,7 @@ class TestNhClinicalWardboardStartPatientMonitoringException(TransactionCase):
         self.assertEqual(pme_activity.state, 'cancelled')
 
         cancel_reason_patient_monitoring_exception = self.browse_ref(
-            'nh_eobs.cancel_reason_transfer'
+            'nh_clinical.cancel_reason_transfer'
         )
         self.assertEqual(pme_activity.cancel_reason_id,
                          cancel_reason_patient_monitoring_exception)

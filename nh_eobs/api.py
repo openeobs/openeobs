@@ -876,15 +876,15 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].cancel_admit(
             cr, uid, patient_id, context=context)
 
-    def discharge(self, cr, uid, patient_id, data, context=None):
+    def discharge(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`discharge()<api.nh_clinical_api.discharge>`,
         closing the :class:`spell<spell.nh_clinical_spell>` of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: may contain the key ``discharge_date``
         :type data: dict
         :returns: ``True``
@@ -892,7 +892,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         return self.pool['nh.clinical.api'].discharge(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
     def cancel_discharge(self, cr, uid, patient_id, context=None):
         """

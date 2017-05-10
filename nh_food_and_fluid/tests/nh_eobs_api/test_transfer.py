@@ -2,9 +2,9 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestTransferCancelsReviewTasks(TransactionCase):
+class TestTransfer(TransactionCase):
     def setUp(self):
-        super(TestTransferCancelsReviewTasks, self).setUp()
+        super(TestTransfer, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
         self.test_utils.admit_and_place_patient()
         self.test_utils.copy_instance_variables(self)
@@ -54,7 +54,7 @@ class TestTransferCancelsReviewTasks(TransactionCase):
         self.call_test()
 
         cancel_reason_transfer = \
-            self.test_utils.browse_ref('nh_eobs.cancel_reason_transfer')
+            self.test_utils.browse_ref('nh_clinical.cancel_reason_transfer')
         expected = cancel_reason_transfer.id
         actual = self.f_and_f_review_activity.cancel_reason_id.id
         self.assertEqual(expected, actual)

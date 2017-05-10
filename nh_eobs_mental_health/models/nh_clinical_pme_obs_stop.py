@@ -60,7 +60,7 @@ class NhClinicalObsStop(models.Model):
 
         ir_model_data_model = self.env['ir.model.data']
         cancel_reason = ir_model_data_model.get_object(
-            'nh_eobs', 'cancel_reason_transfer')
+            'nh_clinical', 'cancel_reason_transfer')
 
         super(NhClinicalObsStop, self).cancel(activity_id)
         activity.cancel_reason_id = cancel_reason

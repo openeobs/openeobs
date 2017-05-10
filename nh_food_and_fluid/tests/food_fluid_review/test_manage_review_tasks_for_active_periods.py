@@ -18,19 +18,21 @@ class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
             .setUp()
         self.datetime_utils = self.env['datetime_utils']
 
+        def mock_get_localised_time(*args, **kwargs):
+            return self.date_time
+        self.datetime_utils._patch_method('get_localised_time',
+                                          mock_get_localised_time)
+
+    def tearDown(self):
+        self.datetime_utils._revert_method('get_localised_time')
+
     def call_test(self, date_time=None, spell_activity_id=None):
         if not date_time:
             date_time = datetime(1989, 6, 6, 14, 0, 0)
+        self.date_time = date_time
 
-        def mock_get_localised_time(*args, **kwargs):
-            return date_time
-        self.datetime_utils._patch_method('get_localised_time',
-                                          mock_get_localised_time)
-        try:
-            self.food_and_fluid_review_model \
-                .manage_review_tasks_for_active_periods()
-        finally:
-            self.datetime_utils._revert_method('get_localised_time')
+        self.food_and_fluid_review_model \
+            .manage_review_tasks_for_active_periods()
 
     @skip('Test does not apply in subclass.')
     def test_applies_passed_cancel_reason(self):

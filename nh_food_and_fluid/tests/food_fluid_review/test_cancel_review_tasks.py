@@ -76,7 +76,7 @@ class TestCancelReviewTasks(TransactionCase):
 
         f_and_f_review_activity_2 = self.test_utils \
             .create_f_and_f_review_activity(
-            spell_activity=self.test_utils.spell_activity)
+                spell_activity=self.test_utils.spell_activity)
 
         self.call_test(spell_activity_id=self.spell_activity.id)
 
