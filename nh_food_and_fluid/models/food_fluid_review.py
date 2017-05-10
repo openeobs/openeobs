@@ -134,9 +134,3 @@ class FoodAndFluidReview(models.Model):
                 'patient_id': spell_activity.patient_id.id
             }
         )
-
-    @api.model
-    def foo(self):
-        datetime_utils = self.env['datetime_utils']
-        date_time = datetime_utils.get_current_time(as_string=True)
-        print date_time
