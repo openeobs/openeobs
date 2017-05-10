@@ -25,6 +25,8 @@ class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
 
     def tearDown(self):
         self.datetime_utils._revert_method('get_localised_time')
+        super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self)\
+            .tearDown()
 
     def call_test(self, date_time=None, spell_activity_id=None):
         if not date_time:
