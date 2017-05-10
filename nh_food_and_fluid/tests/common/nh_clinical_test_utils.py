@@ -56,17 +56,11 @@ class NhClinicalTestUtils(models.AbstractModel):
             self.env['nh.clinical.notification.food_fluid_review']
         activity_model = self.env['nh.activity']
 
-        if spell_activity:
-            spell_activity_id = spell_activity.id
-            patient_id = spell_activity.patient_id.id
-        else:
-            spell_activity_id = self.spell_activity.id
-            patient_id = self.patient.id
+        if not spell_activity:
+            spell_activity = self.spell_activity
 
         f_and_f_review_activity_id = \
-            food_and_fluid_review_model.create_activity(
-                {'spell_activity_id': spell_activity_id},
-                {'patient_id': patient_id})
+            food_and_fluid_review_model.schedule_review(spell_activity)
         f_and_f_review_activity = activity_model.browse(
             f_and_f_review_activity_id)
 
