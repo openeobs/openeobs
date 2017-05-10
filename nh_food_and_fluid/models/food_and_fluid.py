@@ -548,15 +548,14 @@ class NHClinicalFoodAndFluid(models.Model):
         food_and_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
         an_obs = food_and_fluid_observations[0]
+        patient_id = an_obs.get('patient_id')[0]
         if an_obs.get('spell_activity_id'):
             spell_activity_id = \
                 self._get_id_from_tuple(an_obs['spell_activity_id'])
         else:
             spell_model = self.env['nh.clinical.spell']
             spell_activity = \
-                spell_model.get_spell_activity_by_patient(
-                    an_obs['patient_id'][0]
-                )
+                spell_model.get_spell_activity_by_patient(patient_id)
             spell_activity_id = spell_activity.id
 
         period_dictionaries = []
@@ -581,6 +580,11 @@ class NHClinicalFoodAndFluid(models.Model):
             # If this observation is in a period we've already come across
             # then add it.
             period_obs.append(obs)
+
+        review_model = self.env['nh.clinical.notification.food_fluid_review']
+        period_dictionaries = \
+            review_model.add_reviews_to_periods(
+                patient_id, period_dictionaries)
 
         if include_units:
             self._add_units_to_period_dictionaries(period_dictionaries)
