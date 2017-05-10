@@ -117,8 +117,7 @@ class FoodAndFluidReview(models.Model):
         :return: dictionary of review score, state and user/reason
         """
         period_start_datetime = datetime.strptime(period_start, dtf)
-        period_end_datetime = period_start_datetime
-        period_end_datetime.hour = trigger_time
+        period_end_datetime = period_start_datetime.replace(hour=trigger_time)
         if trigger_time < 7:
             day_delta = timedelta(days=1)
             period_end_datetime = period_end_datetime + day_delta
@@ -143,8 +142,11 @@ class FoodAndFluidReview(models.Model):
         fluid_intake = food_fluid_model.\
             _calculate_total_fluid_intake_from_obs_activities(obs)
         score = food_fluid_model.calculate_period_score(fluid_intake)
+        user_or_reason = review_activity.terminate_uid.name
+        if review_activity.state is 'cancelled':
+            user_or_reason = review_activity.cancel_reason_id.name
         return {
             'score': score,
             'state': review_activity.state,
-            'user': review_activity.terminate_uid[1]
+            'user': user_or_reason
         }
