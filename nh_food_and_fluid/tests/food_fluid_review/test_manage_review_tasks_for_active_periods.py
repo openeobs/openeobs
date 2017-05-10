@@ -2,20 +2,32 @@
 from datetime import datetime
 from unittest import skip
 
-from openerp.addons.nh_food_and_fluid.tests.food_fluid_review\
-    .test_cancel_review_tasks import TestCancelReviewTasks
+from openerp.tests.common import TransactionCase
 
 
-class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
-        TestCancelReviewTasks):
+class TestManageReviewTasksForActivePeriods(TransactionCase):
     """
     Inherits from TestCancelReviewTasks so that the same tests can be run again
     therefore asserting that the same state changes have occurred even when
     calling from a method lower down in the execution stack.
     """
     def setUp(self):
-        super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self)\
-            .setUp()
+        super(TestManageReviewTasksForActivePeriods, self).setUp()
+        self.test_utils = self.env['nh.clinical.test_utils']
+        self.test_utils.admit_and_place_patient()
+        self.test_utils.copy_instance_variables(self)
+
+        self.food_and_fluid_review_model = \
+            self.env['nh.clinical.notification.food_fluid_review']
+        self.activity_model = self.env['nh.activity']
+
+        self.f_and_f_review_activity_id = \
+            self.food_and_fluid_review_model.create_activity(
+                {'spell_activity_id': self.spell_activity.id},
+                {'patient_id': self.patient.id})
+        self.f_and_f_review_activity = self.activity_model.browse(
+            self.f_and_f_review_activity_id)
+
         self.datetime_utils = self.env['datetime_utils']
 
         def mock_get_localised_time(*args, **kwargs):
@@ -25,7 +37,7 @@ class TestManageReviewTasksForActivePeriodsCancelsReviewTasks(
 
     def tearDown(self):
         self.datetime_utils._revert_method('get_localised_time')
-        super(TestManageReviewTasksForActivePeriodsCancelsReviewTasks, self)\
+        super(TestManageReviewTasksForActivePeriods, self)\
             .tearDown()
 
     def call_test(self, date_time=None, spell_activity_id=None):
