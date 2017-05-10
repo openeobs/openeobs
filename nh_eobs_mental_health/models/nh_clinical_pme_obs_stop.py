@@ -37,6 +37,7 @@ class NhClinicalObsStop(models.Model):
             )
         cancel_open_ews = self.cancel_open_ews(activity.parent_id.id,
                                                cancel_reason_pme.id)
+        self._cancel_open_food_and_fluid_review_tasks()
         if not cancel_open_ews:
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
@@ -45,6 +46,17 @@ class NhClinicalObsStop(models.Model):
 
         self.set_obs_stop_flag(True)
         return super_return
+
+    def _cancel_open_food_and_fluid_review_tasks(self):
+        spell_activity_id = self.spell.activity_id.id
+        cancel_reason_pme = \
+            self.env['ir.model.data'].get_object(
+                'nh_eobs', 'cancel_reason_patient_monitoring_exception')
+
+        food_and_fluid_review_model = \
+            self.env['nh.clinical.notification.food_fluid_review']
+        food_and_fluid_review_model.cancel_review_tasks(cancel_reason_pme,
+                                                        spell_activity_id)
 
     def complete(self, activity_id):
         super_return = super(NhClinicalObsStop, self).complete(activity_id)

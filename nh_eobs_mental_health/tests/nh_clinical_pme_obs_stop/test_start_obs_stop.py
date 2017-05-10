@@ -14,12 +14,15 @@ class TestStartObsStop(TransactionCase):
         self.activity_model = self.env['nh.activity']
         self.obs_stop_model = self.env['nh.clinical.pme.obs_stop']
 
+    def call_test(self):
         self.activity_obs_stop = self.test_utils.create_activity_obs_stop()
         self.obs_stop = self.activity_obs_stop.data_ref
 
         self.test_utils.get_open_obs()
 
     def test_cancels_all_open_ews(self):
+        self.call_test()
+
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
             ('state', 'not in', ['completed', 'cancelled']),
@@ -34,10 +37,9 @@ class TestStartObsStop(TransactionCase):
 
         self.assertEqual(self.test_utils.ews_activity.state, 'cancelled')
 
-    def test_calls_cancel_food_and_fluid_review_tasks(self):
-        pass
-
     def test_pme_cancel_reason_set(self):
+        self.call_test()
+
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
             ('state', 'not in', ['completed', 'cancelled']),
@@ -57,6 +59,8 @@ class TestStartObsStop(TransactionCase):
                          activities_ews_open.cancel_reason_id.id)
 
     def test_raises_on_failing_to_cancel(self):
+        self.call_test()
+
         self.obs_stop_model._patch_method('cancel_open_ews', lambda a, b: None)
         spell_activity_id = self.obs_stop.spell.activity_id.id
         try:
@@ -64,3 +68,12 @@ class TestStartObsStop(TransactionCase):
                 self.obs_stop.start(spell_activity_id)
         finally:
             self.obs_stop_model._revert_method('cancel_open_ews')
+
+    def test_cancels_food_and_fluid_review_tasks(self):
+        f_and_f_activity = self.test_utils.create_f_and_f_review_activity()
+        self.assertEqual('new', f_and_f_activity.state)
+
+        self.call_test()
+        self.obs_stop.start(self.activity_obs_stop.id)
+
+        self.assertEqual('cancelled', f_and_f_activity.state)

@@ -122,7 +122,7 @@ class FoodAndFluidReview(models.Model):
                     self.schedule_review(spell_activity)
                     review_tasks_created += 1
 
-            tasks = 'tasks' if len(review_tasks_created) > 1 else 'task'
+            tasks = 'tasks' if review_tasks_created > 1 else 'task'
             message = "{} new food and fluid review {} created.".format(
                 review_tasks_created, tasks)
             _logger.info(message)
