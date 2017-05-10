@@ -92,8 +92,8 @@ class NHeObsAPI(orm.AbstractModel):
                 wardboard_model.browse(
                     cr, uid, spell.get('id'), context=context)\
                     .end_obs_stop(cancellation=True)
-        res = self.pool['nh.clinical.api'].transfer(
-            cr, uid, hospital_number, data, context=context)
+        res = super(NHeObsAPI, self).transfer(cr, uid, hospital_number, data,
+                                              context=None)
         return res
 
     @api.model

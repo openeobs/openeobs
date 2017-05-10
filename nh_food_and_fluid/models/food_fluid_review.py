@@ -44,6 +44,7 @@ class FoodAndFluidReview(models.Model):
         return self._description.format(
             datetime.strftime(localised_time, '%-I%p').lower())
 
+    @api.model
     def manage_review_tasks_for_active_periods(self):
         cancel_reason = self._get_cancel_reason()
         if cancel_reason:
@@ -83,13 +84,19 @@ class FoodAndFluidReview(models.Model):
         """
         open_activities = self.get_open_activities(
             spell_activity_id=spell_activity_id)
-        if spell_activity_id and len(open_activities) > 1:
+        open_activities_len = len(open_activities)
+        if spell_activity_id and open_activities_len > 1:
             _logger.error("There should not be more than one food and fluid "
                           "review task open at any one time. Cancelling all "
                           "such tasks for the spell anyway to reduce manual "
                           "cleanup but this needs to be fixed.")
         for activity in open_activities:
             activity.cancel_with_reason(activity.id, cancel_reason.id)
+
+        tasks = 'tasks' if len(open_activities) > 1 else 'task'
+        message = "{} food and fluid review {} cancelled.".format(
+            open_activities_len, tasks)
+        _logger.info(message)
 
     @api.model
     def trigger_review_tasks_for_active_periods(self):
@@ -108,10 +115,17 @@ class FoodAndFluidReview(models.Model):
                     ['state', 'not in', ['completed', 'cancelled']]
                 ]
             )
+            review_tasks_created = 0
             for spell_activity in spell_activities:
                 if food_fluid_model.active_food_fluid_period(
                         spell_activity.id):
                     self.schedule_review(spell_activity)
+                    review_tasks_created += 1
+
+            tasks = 'tasks' if len(review_tasks_created) > 1 else 'task'
+            message = "{} new food and fluid review {} created.".format(
+                review_tasks_created, tasks)
+            _logger.info(message)
 
     def schedule_review(self, spell_activity):
         """
