@@ -341,14 +341,49 @@ table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+/*
+Alert
+
+Styling for alerts
+
+.alert - Generic alert class
+.alert.error - Alert with error colourings
+.alert.info - Alert with info colourings
+.alert.warning - Alert with warning colourings
+.alert.success - Alert with success colourings
+
+Markup:
+<p class="alert error">
+  <strong>Something went wrong</strong> Oh noes!
+</p>
+<p class="alert info">
+  <strong>Just so you know</strong> Here's some contextual information
+</p>
+<p class="alert warning">
+  <strong>Could you not!?</strong> It's probably gonna result in a unexpected result
+</p>
+<p class="alert success">
+  <strong>We did it!</strong> Go us
+</p>
+
+Styleguide 1.7
+ */
 .alert {
   border-radius: 5px;
   padding: 2%;
+  color: black;
 }
-.alert.alert-error {
+.alert.error {
   background-color: #ffcccc;
-  color: white;
-  text-shadow: 0px 1px 1px #444444;
+}
+.alert.info {
+  background-color: #96CED6;
+}
+.alert.warning {
+  background-color: #ffd5b4;
+}
+.alert.success {
+  background-color: #c2ffd2;
 }
 /*
 
@@ -384,6 +419,10 @@ Markup:
   <li>List item</li>
   <li>List item</li>
 </ol>
+<ul class="no-padding">
+  <li><strong>Key:</strong> value</li>
+  <li>This list doesn't have padding</li>
+</ul>
 <dl>
   <dt>Definition</dt>
   <dd>Description</dd>
@@ -448,6 +487,11 @@ table,
 blockquote {
   margin-top: 0.7em;
   margin-bottom: 0.7em;
+}
+ul.no-padding,
+ol.no-padding {
+  padding-left: 0px;
+  list-style: none;
 }
 p {
   font-size: 1em;

@@ -2,7 +2,7 @@ var gulp = require('gulp'),
 	coffeelint = require('gulp-coffeelint'),
 	notify = require('gulp-notify'),
 	concat = require('gulp-concat'),
-	docco = require('gulp-docco'),
+	// docco = require('gulp-docco'),
 	coffee = require('gulp-coffee'),
 	deleteLines = require('gulp-delete-lines');
 
@@ -34,16 +34,16 @@ gulp.task('pycharm_test', function(){
 	.pipe(gulp.dest('tests/src'));
 });
 
-
-gulp.task('docs', function(){
-	gulp.src(['src/*.coffee'])
-	.pipe(deleteLines({
-			'filters': [
-				/### istanbul/i
-			]
-		}))
-	.pipe(docco())
-	.pipe(gulp.dest('docs'))
-});
+//
+// gulp.task('docs', function(){
+// 	gulp.src(['src/*.coffee'])
+// 	.pipe(deleteLines({
+// 			'filters': [
+// 				/### istanbul/i
+// 			]
+// 		}))
+// 	.pipe(docco())
+// 	.pipe(gulp.dest('docs'))
+// });
 
 gulp.task('default', ['compile']);

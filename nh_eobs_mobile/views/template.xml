@@ -183,87 +183,129 @@
             </t>
         </template>
 
-         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
-             <t t-call="nh_eobs_mobile.base">
-                 <div class="content">
-                     <h2 id="patientName" class="block">
-                         <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
-                     </h2>
-                     <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
-                         <h3>Confirm action taken?</h3>
-                         <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
-                         <t t-if="len(inputs) > 0">
-                            <div t-foreach="inputs" t-as="item">
-                                <t t-if="item['type']=='selection'">
-                                    <t t-call="nh_eobs_mobile.observation_data_select"/>
-                                </t>
-                                <t t-if="item['type']=='text'">
-                                    <t t-call="nh_eobs_mobile.observation_data_text_input"/>
-                                </t>
-                            </div>
-                         </t>
-
-                         <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
-                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                         <div class="block obsSubmit" id="parent_submitButton">
-                             <input type="submit" value="Confirm action" class="exclude" id="submitButton"/>
-                         </div>
-                         <t t-if="cancellable==True">
-                            <p class="obsConfirm">
-                                <input type="reset" t-att-ajax-action="form['cancel_url']" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
-                            </p>
-                         </t>
-                     </form>
-                     <script type="text/javascript">
-                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
-                     </script>
-                 </div>
-             </t>
-        </template>
-
-        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+        <template name="Observation / Notification Data Input Screen" t-name="nh_eobs_mobile.data_input_screen">
             <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <h2 id="patientName" class="block">
-                        <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
+                        <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']">
+                            <t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i>
+                        </a>
                     </h2>
-                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])"  t-att-ajax-partial-action="form.get('partial_flow')">
-                        <div t-foreach="inputs" t-as="item">
-                            <t t-if="item['name']=='systolic_sitting'">
-                                <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                    <t t-foreach="view_description" t-as="view_element">
+                        <t t-set="inputs" t-value="view_element.get('inputs', [])"/>
+                        <t t-set="view_data" t-value="view_element.get('view_data', {})"/>
+                        <t t-if="view_element.get('type')=='task'">
+                            <t t-if="task_valid">
+                                <t t-call="nh_eobs_mobile.notification_confirm_cancel"/>
                             </t>
-                            <t t-if="item['name']=='systolic_standing'">
-                                <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                            <t t-if="not task_valid">
+                                <t t-call="nh_eobs_mobile.notification_not_valid"/>
                             </t>
-                            <t t-if="item['type']=='number'">
-                                <t t-call="nh_eobs_mobile.observation_data_input"/>
-                            </t>
-                            <t t-if="item['type']=='text'">
-                                <t t-call="nh_eobs_mobile.observation_data_text_input"/>
-                            </t>
-                            <t t-if="item['type']=='selection'">
-                                <t t-call="nh_eobs_mobile.observation_data_select"/>
-                            </t>
-                            <t t-if="item['type']=='multiselect'">
-                                <t t-call="nh_eobs_mobile.observation_data_multiselect"/>
-                            </t>
-                        </div>
-                        <t t-if="section=='task'">
-                            <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                         </t>
-                        <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                        <div class="block obsSubmit" id="parent_submitButton">
-                            <input type="submit" value="Submit" class="exclude" id="submitButton"/>
-                        </div>
-                    </form>
-                    <!-- <script t-att-src="urls['jquery']" type="text/javascript"></script> -->
-                    <!-- <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
-                    <script t-att-src="urls['observation_form_js']" type="text/javascript"></script> -->
+                        <t t-if="view_element.get('type')=='form'">
+                            <t t-call="nh_eobs_mobile.observation_entry"/>
+                        </t>
+                        <t t-if="view_element.get('type')=='template'">
+                            <t t-call="{{view_element.get('template')}}"/>
+                        </t>
+                    </t>
                     <script type="text/javascript">
-                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
+                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
                     </script>
                 </div>
             </t>
+        </template>
+
+        <template name="Notifcation No Longer Valid Screen" t-name="nh_eobs_mobile.notification_not_valid">
+            <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
+                 <h3>This <t t-esc="name"/> task is no longer valid</h3>
+                 <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                 <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="not task_valid">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+             </form>
+        </template>
+
+         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
+             <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
+                 <h3>Confirm action taken?</h3>
+                 <t t-if="view_data.get('title')">
+                     <p><t t-raw="view_data.get('title')"/></p>
+                 </t>
+                 <t t-if="not view_data.get('title')">
+                     <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
+                 </t>
+                 <t t-raw="0"/>
+                 <t t-if="len(inputs) > 0">
+                    <div t-foreach="inputs" t-as="item">
+                        <t t-if="item['type']=='selection'">
+                            <t t-call="nh_eobs_mobile.observation_data_select"/>
+                        </t>
+                        <t t-if="item['type']=='text'">
+                            <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                        </t>
+                    </div>
+                 </t>
+                 <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                 <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                 <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" t-att-value="view_data.get('submit_title', 'Submit')" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="not task_valid">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+             </form>
+        </template>
+
+        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+            <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])"  t-att-ajax-partial-action="form.get('partial_flow')">
+                <div t-foreach="inputs" t-as="item">
+                    <t t-if="item['name']=='systolic_sitting'">
+                        <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                    </t>
+                    <t t-if="item['name']=='systolic_standing'">
+                        <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                    </t>
+                    <t t-if="item['type']=='number'">
+                        <t t-call="nh_eobs_mobile.observation_data_input"/>
+                    </t>
+                    <t t-if="item['type']=='text'">
+                        <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                    </t>
+                    <t t-if="item['type']=='selection'">
+                        <t t-call="nh_eobs_mobile.observation_data_select"/>
+                    </t>
+                    <t t-if="item['type']=='multiselect'">
+                        <t t-call="nh_eobs_mobile.observation_data_multiselect"/>
+                    </t>
+                </div>
+                <t t-if="section=='task'">
+                    <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                </t>
+                <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="not task_valid">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+            </form>
         </template>
 
 
@@ -451,6 +493,5 @@
                 </div>
             </t>
         </template>
-
     </data>
 </openerp>

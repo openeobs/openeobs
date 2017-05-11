@@ -24,7 +24,14 @@ module.exports = function (config) {
 
         frameworks: ['jasmine'],
 
-        browsers: ['PhantomJS'],
+        customLaunchers: {
+            ChromeTravis: {
+                base: 'Chrome',
+                flags: [ '--no-sandbox' ]
+            }
+        },
+
+        browsers: ['ChromeTravis'],
 
         plugins: [
             'karma-jasmine',

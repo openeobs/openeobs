@@ -13,7 +13,7 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
     Compare the actual rendered HTML pages against fixtures
     (i.e. 'fake' HTML files) specially built.
     """
-    template_id = 'nh_eobs_mobile.observation_entry'
+    template_id = 'nh_eobs_mobile.data_input_screen'
 
     def setUp(self):
         super(TestTaskDetailHTML, self).setUp()
@@ -28,7 +28,14 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
             'patient-id': 1,
             'source': 'task',
             'obs_needs_score': True,
+            'task_valid': True,
             'start': '0',
+            'view_description': [
+                {
+                    'type': 'form',
+                    'inputs': []
+                }
+            ]
         }
         self.form_inputs_fixture = [
             {
@@ -492,9 +499,15 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
             'form': self.form_fixture,
             'notification_count': 0,
             'section': 'task',
+            'task_valid': True,
             'username': 'norah',
             'urls': self.controller_urls,
-            'inputs': [],
+            'view_description': [
+                {
+                    'type': 'form',
+                    'inputs': []
+                }
+            ]
         }
 
         # Test the template rendering.
@@ -556,8 +569,14 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
             'notification_count': 0,
             'section': 'task',
             'username': 'norah',
+            'task_valid': True,
             'urls': self.controller_urls,
-            'inputs': form_inputs,
+            'view_description': [
+                {
+                    'type': 'form',
+                    'inputs': form_inputs
+                }
+            ]
         }
 
         # Test the template rendering.
@@ -613,9 +632,15 @@ class TestTaskDetailHTML(MobileHTMLRenderingCase):
             'form': self.form_fixture,
             'notification_count': 666,
             'section': 'task',
+            'task_valid': True,
             'username': 'norah',
             'urls': self.controller_urls,
-            'inputs': [],
+            'view_description': [
+                {
+                    'type': 'form',
+                    'inputs': []
+                }
+            ]
         }
 
         # Test the template rendering.

@@ -230,6 +230,7 @@ describe('Events', function() {
         });
 
         it("calls NHContext.handle_resize if is_alive", function () {
+            skipIfCantResize();
             spyOn(context, 'handle_resize').and.callThrough();
             graphlib.init();
             graphlib.draw();
