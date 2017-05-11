@@ -21,7 +21,8 @@
         'views/observation_report_template.xml',
         'views/acuity_board_buttons.xml',
         'views/static_file_include.xml',
-        'data/review_task_cron.xml'
+        'data/review_task_cron.xml',
+        'views/review_task_template.xml'
     ],
     'demo': [],
     'css': [],

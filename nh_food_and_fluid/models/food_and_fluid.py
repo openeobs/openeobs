@@ -643,6 +643,12 @@ class NHClinicalFoodAndFluid(models.Model):
         return period
 
     def _add_units_to_period_dictionaries(self, period_dictionaries):
+        """
+        Add units to values in period dictionaries - expects dictionary to
+        represent a food and fluid observation, not an nh.activity
+        :param period_dictionaries: list of food and fluid observation dicts
+        :return: list of food and fluid observation dicts
+        """
         for period in period_dictionaries:
             period['total_fluid_intake'] = self._add_ml(
                 period['total_fluid_intake'])
@@ -701,8 +707,6 @@ class NHClinicalFoodAndFluid(models.Model):
         """
         dateutils_model = self.env['datetime_utils']
         current_time = dateutils_model.get_current_time(as_string=True)
-        food_fluid_model = \
-            self.env['nh.clinical.patient.observation.food_fluid']
-        obs_for_period = food_fluid_model.get_obs_activities_for_period(
+        obs_for_period = self.get_obs_activities_for_period(
             spell_activity_id, current_time)
         return any(obs_for_period)
