@@ -84,7 +84,9 @@ class FoodAndFluidReview(models.Model):
         """
         Cancel all open review tasks activities with the passed cancel reason
         for either one spell or all spells.
-        :param spell_activity_id:
+        :param spell_activity_id: If passed, only cancels review tasks for the
+        associated spell. If left as the default ``None``, cancels review
+        tasks for all spells.
         :type spell_activity_id: int
         :param cancel_reason:
         """
