@@ -986,7 +986,8 @@ class nh_eobs_api(orm.AbstractModel):
             cr, uid, hospital_number, context=context)
         return res
 
-    def check_patient_responsibility(self, cr, uid, hospital_number, context=None):
+    def check_patient_responsibility(
+            self, cr, uid, hospital_number, context=None):
         """
         Verifies that a :class:`user<base.res_users>` is responsible for
         a :class:`patient<base.nh_clinical_patient>`.
