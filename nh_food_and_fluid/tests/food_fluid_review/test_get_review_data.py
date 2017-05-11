@@ -132,22 +132,6 @@ class TestGetReviewData(TransactionCase):
         )
         self.assertIsNone(review_data)
 
-    # def test_cancelled_task_stop_obs(self):
-    #     """
-    #     Test that if review was cancelled by a Stop Obs PME that it shows
-    #     that as the cancel reason
-    #     """
-    #     self.review_model.with_context(
-    #         {'review_date': '1988-01-12 15:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     wardboard = self.wardboard_model.browse(self.spell_activity.id)
-    #     wardboard.start_obs_stop(
-    #         self.pme_reason[0],
-    #         self.spell_activity.data_ref.id,
-    #         self.spell_activity.id
-    #     )
-    #     self.assertTrue(False)
-
     def test_cancelled_task_transfer(self):
         """
         Test that if review was cancelled by a transfer that it shows that

@@ -14,3 +14,4 @@ from .nh_eobs_mobile_mental import *
 from .nh_eobs_settings import *
 from .nh_eobs_ward_dashboard import *
 from .report_nh_clinical_observation_report import *
+from .nh_clinical_notification_food_fluid_review import *

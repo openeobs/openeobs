@@ -216,6 +216,19 @@ class FoodAndFluidReview(models.Model):
         user_or_reason = review_activity.terminate_uid.name
         if review_activity.state == 'cancelled':
             user_or_reason = review_activity.cancel_reason_id.name
+            if user_or_reason == 'Patient Monitoring Exception':
+                pme_domain = [
+                    ['data_model', '=', 'nh.clinical.pme.obs_stop'],
+                    ['date_started', '=',
+                     review_activity.date_terminated],
+                    ['spell_activity_id', '=',
+                     review_activity.spell_activity_id.id]
+                ]
+                pme = activity_model.search(pme_domain)
+                if pme:
+                    user_or_reason = 'Stop Obs - {}'.format(
+                        pme.data_ref.reason.display_name
+                    )
         return {
             'score': score,
             'state': review_activity.state,
