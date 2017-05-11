@@ -9,7 +9,6 @@ from datetime import datetime
 import jinja2
 import openerp
 import os
-import re
 from openerp import http
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
 from openerp.addons.nh_eobs_api.routing import Route as EobsRoute
@@ -529,6 +528,9 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 score = 'score' in form_input
                 input_score = form_input['score']
                 form['obs_needs_score'] = input_score if score else False
+                partial_flow = form_input.get('partial_flow')
+                if partial_flow:
+                    form['partial_flow'] = partial_flow
         return form_desc, form
 
     @http.route(URLS['patient_list'], type='http', auth="user")
@@ -657,18 +659,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :param task: task object
         :return: tuple of form and form inputs
         """
-        api_reg = request.registry('nh.eobs.api')
+        activity_model = request.registry('nh.activity')
+        activity_record = activity_model.browse(cr, uid, task.get('id'))
         form_desc, form = self.process_form_fields(
-            api_reg.get_form_description(
-                cr, uid,
-                patient.get('id'),
-                task.get('data_model'),
-                context=context
-            )
+            activity_record.data_ref.get_form_description(patient.get('id'))
         )
         form['action'] = \
             URLS['task_form_action'] + '{0}'.format(task.get('id'))
-        form['type'] = task['data_model']
+        # Add data model changing bit here
+        model_name = task['data_model']
+        form['type'] = model_name[(model_name.rindex('.') + 1):]
         form['task-id'] = task.get('id')
         form['patient-id'] = \
             int(patient['id']) if patient and patient.get('id') else False
@@ -711,6 +711,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             ],
             context=context)
 
+        task_rec = activity_reg.browse(cr, uid, task_id).data_ref
+
         # Get the patient object or redirect to task list if none
         patient = dict()
         if task and task.get('patient_id'):
@@ -752,11 +754,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         is_notification = 'notification' in task['data_model']
         is_placement = 'placement' in task['data_model']
+        is_observation = 'observation' in task['data_model']
+        form, form_desc = \
+            self.get_task_form(cr, uid, task, patient, request)
+        view_desc = task_rec.get_view_description(form_desc)
         if is_notification or is_placement:
-            form, form_desc = \
-                self.get_task_form(cr, uid, task, patient, request)
-            cancellable = api_reg.is_cancellable(
-                cr, uid, task['data_model'], context=context)
+            cancellable = task_rec.is_cancellable()
             form['confirm_url'] = "{0}{1}".format(
                 URLS['confirm_clinical_notification'], task_id)
             form['action'] = "{0}{1}".format(
@@ -764,44 +767,19 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(
                     URLS['cancel_clinical_notification'], task_id)
-            if 'notification' in task['data_model']:
-                form['type'] = re.match(
-                    r'nh\.clinical\.notification\.(.*)',
-                    task['data_model']).group(1)
-            else:
-                form['type'] = 'placement'
+        if is_notification or is_observation or is_placement:
             return request.render(
-                'nh_eobs_mobile.notification_confirm_cancel',
+                'nh_eobs_mobile.data_input_screen',
                 qcontext={
                     'name': task['summary'],
-                    'inputs': form_desc,
-                    'cancellable': cancellable,
+                    'view_description': view_desc,
                     'patient': patient,
                     'form': form,
                     'section': 'task',
                     'username': request.session['login'],
                     'notification_count': len(follow_activities),
-                    'urls': URLS
-                }
-            )
-        elif 'observation' in task['data_model']:
-            form, form_desc = \
-                self.get_task_form(cr, uid, task, patient, request)
-            form['type'] = re.match(
-                r'nh\.clinical\.patient\.observation\.(.*)',
-                task['data_model']).group(1)
-            inputs = [i for i in form_desc if i['type'] is not 'meta']
-            return request.render(
-                'nh_eobs_mobile.observation_entry',
-                qcontext={
-                    'inputs': inputs,
-                    'name': task['summary'],
-                    'patient': patient,
-                    'form': form,
-                    'section': 'task',
-                    'username': request.session['login'],
-                    'notification_count': len(follow_activities),
-                    'urls': URLS
+                    'urls': URLS,
+                    'task_valid': form.get('task_valid', True)
                 }
             )
         else:
@@ -921,9 +899,18 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patient_info['id'])
         patient['name'] = patient_info['full_name']
         patient['id'] = patient_info['id']
+        ob_model_name = \
+            'nh.clinical.patient.observation.{0}'.format(observation)
 
-        form = dict()
-        form['action'] = URLS['patient_form_action']+'{0}/{1}'.format(
+        form_desc, form = self.process_form_fields(
+            api_pool.get_form_description(
+                cr, uid, int(patient_id),
+                ob_model_name,
+                context=context)
+        )
+        ob_rec = request.registry(ob_model_name)
+        view_desc = ob_rec.new(cr, uid).get_view_description(form_desc)
+        form['action'] = URLS['patient_form_action'] + '{0}/{1}'.format(
             observation, patient_id)
         form['type'] = observation
         form['task-id'] = False
@@ -931,36 +918,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['source'] = "patient"
         form['start'] = datetime.now().strftime('%s')
         form['obs_needs_score'] = False
-
-        form_desc = api_pool.get_form_description(
-            cr, uid, int(patient_id),
-            'nh.clinical.patient.observation.{0}'.format(observation),
-            context=context)
-
-        for form_input in form_desc:
-            if form_input['type'] in ['float', 'integer']:
-                input_type = form_input['type']
-                form_input['step'] = 0.1 if input_type is 'float' else 1
-                form_input['type'] = 'number'
-                form_input['number'] = True
-                form_input['info'] = form_input.get('info', '')
-                form_input['errors'] = form_input.get('errors', '')
-                form_input['min'] = str(form_input['min'])
-            elif form_input['type'] == 'selection':
-                form_input['selection_options'] = []
-                form_input['info'] = form_input.get('info', '')
-                form_input['errors'] = form_input.get('errors', '')
-                for option in form_input['selection']:
-                    opt = dict()
-                    opt['value'] = '{0}'.format(option[0])
-                    opt['label'] = option[1]
-                    form_input['selection_options'].append(opt)
-            elif form_input['type'] == 'meta':
-                obs_score = form_input.get('score')
-                form['obs_needs_score'] = obs_score
-                partial_flow = form_input.get('partial_flow')
-                if partial_flow:
-                    form['partial_flow'] = partial_flow
         observation_name_list = []
         for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:
@@ -968,15 +925,16 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         if len(observation_name_list) == 0:
             exceptions.abort(404)
         return request.render(
-            'nh_eobs_mobile.observation_entry',
+            'nh_eobs_mobile.data_input_screen',
             qcontext={
-                'inputs': form_desc,
+                'view_description': view_desc,
                 'name': observation_name_list[0],
                 'patient': patient,
                 'form': form,
                 'section': 'patient',
                 'notification_count': len(follow_activities),
                 'username': request.session['login'],
-                'urls': URLS
+                'urls': URLS,
+                'task_valid': True
             }
         )

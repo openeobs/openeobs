@@ -3,7 +3,7 @@ coffeelint = require('gulp-coffeelint'),
 Server = require('karma').Server,
 notify = require('gulp-notify'),
 concat = require('gulp-concat'),
-docco = require('gulp-docco'),
+// docco = require('gulp-docco'),
 coffee = require('gulp-coffee'),
 sauceConnectLauncher = require('sauce-connect-launcher');
 
@@ -69,11 +69,11 @@ gulp.task('local_karma', function (done) {
 //	}))
 //});
 
-gulp.task('docs', function(){
-	gulp.src(['src/*.coffee'])
-	.pipe(docco())
-	.pipe(gulp.dest('docs'))
-})
+// gulp.task('docs', function(){
+// 	gulp.src(['src/*.coffee'])
+// 	.pipe(docco())
+// 	.pipe(gulp.dest('docs'))
+// })
 
 gulp.task('pycharm_test_compile', function(){
 

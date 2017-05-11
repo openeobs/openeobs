@@ -28,6 +28,9 @@
 .not-as-subtle-bgcolour(@colourToMakeSubtle: #000000){
   background-color: (@colourToMakeSubtle + rgb(10, 10, 10))
 }
+.make-subtle-bgcolour(@colourToMakeSubtle: #000000, @subtleAmount: 10){
+  background-color: (@colourToMakeSubtle + rgb(@subtleAmount, @subtleAmount, @subtleAmount))
+}
 .subtle-fill(@colourToMakeSubtle: #000000){
   fill:(@colourToMakeSubtle + rgb(204, 204, 204))
 }

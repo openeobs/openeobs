@@ -179,7 +179,7 @@ describe('Resize', function() {
         });
 
         it("NHContext.handle_resize() fires on 'resize' event",function() {
-
+            skipIfCantResize();
             spyOn(context, 'handle_resize').and.callThrough();
 
             graphlib.init();
@@ -192,7 +192,7 @@ describe('Resize', function() {
 
         it("NHFocus.handle_resize() fires on 'resize' event",function() {
             spyOn(NHFocus.prototype, 'handle_resize').and.callThrough();
-
+            skipIfCantResize();
             graphlib.init();
             graphlib.draw();
 
@@ -203,7 +203,7 @@ describe('Resize', function() {
 
         it("NHGraph.resize_graph() fires on 'resize' event",function() {
             spyOn(NHGraph.prototype, 'resize_graph').and.callThrough();
-
+            skipIfCantResize();
             graphlib.init();
             graphlib.draw();
 

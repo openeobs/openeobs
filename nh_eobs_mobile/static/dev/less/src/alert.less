@@ -1,11 +1,47 @@
+/*
+Alert
+
+Styling for alerts
+
+.alert - Generic alert class
+.alert.error - Alert with error colourings
+.alert.info - Alert with info colourings
+.alert.warning - Alert with warning colourings
+.alert.success - Alert with success colourings
+
+Markup:
+<p class="alert error">
+  <strong>Something went wrong</strong> Oh noes!
+</p>
+<p class="alert info">
+  <strong>Just so you know</strong> Here's some contextual information
+</p>
+<p class="alert warning">
+  <strong>Could you not!?</strong> It's probably gonna result in a unexpected result
+</p>
+<p class="alert success">
+  <strong>We did it!</strong> Go us
+</p>
+
+Styleguide 1.7
+ */
 @import "utils.less";
 
 .alert{
   border-radius: 5px;
   padding: 2%;
-  &.alert-error{
+  color: black;
+  &.error{
     .subtle-bgcolour(@error-color);
-    color: white;
-    text-shadow: 0px 1px 1px #444444;
+  }
+  &.info{
+    // Colour defined with team due to original 'make colour subtle' being considered too light
+    background-color: #96CED6;
+  }
+  &.warning{
+    background-color: @warning-colour;
+  }
+  &.success{
+    .make-subtle-bgcolour(@go-colour, 160);
   }
 }

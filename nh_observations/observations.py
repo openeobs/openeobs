@@ -502,6 +502,32 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         """
         return self._form_description
 
+    @api.model
+    def get_view_description(self, form_desc):
+        """
+        Transform the form description into view description that can
+        be used by the mobile. This will return a list of dicts similar to :
+        [
+            {
+                'type': 'template',
+                'template': 'nh_observation.custom_template'
+            },
+            {
+                'type': 'form',
+                'inputs': []
+            }
+        ]
+        :param form_desc: List of dicts representing the inputs for the form
+        :type form_desc: list
+        :return: list of dicts representing view description
+        """
+        return [
+            {
+                'type': 'form',
+                'inputs': [i for i in form_desc if i['type'] is not 'meta']
+            }
+        ]
+
     @classmethod
     def get_open_obs_search_domain(cls, spell_activity_id):
         return [
