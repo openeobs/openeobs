@@ -1,0 +1,24 @@
+<openerp>
+    <data>
+        <template t-name="nh_food_and_fluid.review_task" name="Food and Fluid Review Task Template">
+            <t t-call="nh_eobs_mobile.notification_confirm_cancel">
+                <div class="block">
+                    <p class="alert info">
+                        The information below belongs to the period between <strong><t t-esc="view_data.get('period_start', '')"/></strong> and <strong><t t-esc="view_data.get('period_end', '')"/></strong>
+                    </p>
+                    <ul class="no-padding">
+                        <li><strong>Total Fluid Intake:</strong> <t t-esc="view_data.get('period_fluid_intake', '')"/></li>
+                        <li><strong>Fluid Balance:</strong> <t t-esc="view_data.get('period_fluid_balance', '')"/></li>
+                        <li><strong>Score:</strong> <t t-esc="view_data.get('period_score', '')"/></li>
+                    </ul>
+                    <p>Press the button below to confirm that you have acknowledged the patient's Fluid Intake and Score for the defined period, and that the following task(s) based on their score have been completed:</p>
+                    <ul>
+                        <li t-foreach="view_data.get('period_escalation_tasks', [])" t-as="escalation_task">
+                            <t t-esc="escalation_task"/>
+                        </li>
+                    </ul>
+                </div>
+            </t>
+        </template>
+    </data>
+</openerp>

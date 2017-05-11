@@ -31,13 +31,21 @@ module.exports = function(config) {
 
         frameworks: ['jasmine-ajax', 'jasmine'],
 
-        browsers: ['PhantomJS'],
+        customLaunchers: {
+            ChromeTravis: {
+                base: 'Chrome',
+                flags: [ '--no-sandbox' ]
+            }
+        },
+
+        browsers: ['ChromeTravis'],
 
         plugins: [
             'karma-jasmine',
             'karma-jasmine-ajax',
             'karma-junit-reporter',
             'karma-phantomjs-launcher',
+            'karma-chrome-launcher',
             'karma-coverage',
             'karma-nyan-reporter',
             'karma-html-reporter'

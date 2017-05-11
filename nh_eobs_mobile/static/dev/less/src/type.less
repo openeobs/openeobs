@@ -32,6 +32,10 @@ Markup:
   <li>List item</li>
   <li>List item</li>
 </ol>
+<ul class="no-padding">
+  <li><strong>Key:</strong> value</li>
+  <li>This list doesn't have padding</li>
+</ul>
 <dl>
   <dt>Definition</dt>
   <dd>Description</dd>
@@ -94,6 +98,12 @@ h6 {
 ul, ol, pre, table, blockquote {
   margin-top: 0.7em;
   margin-bottom: 0.7em;
+}
+ul, ol{
+  &.no-padding{
+    padding-left: 0px;
+    list-style: none;
+  }
 }
 p{
   font-size: 1em;

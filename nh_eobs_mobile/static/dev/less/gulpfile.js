@@ -13,8 +13,10 @@ gulp.task('compileLESS', function(){
 
 gulp.task('Styleguide', function(){
 	del(['styleguide/**']);
-	gulp.src(['src/general.less',
+	gulp.src([
+		'src/general.less',
 		'src/modal.less',
+		'src/alert.less',
 		'src/button.less',
 		'src/form.less',
 		'src/list.less',
