@@ -214,7 +214,7 @@ class FoodAndFluidReview(models.Model):
             _calculate_total_fluid_intake_from_obs_activities(obs)
         score = food_fluid_model.calculate_period_score(fluid_intake)
         user_or_reason = review_activity.terminate_uid.name
-        if review_activity.state is 'cancelled':
+        if review_activity.state == 'cancelled':
             user_or_reason = review_activity.cancel_reason_id.name
         return {
             'score': score,

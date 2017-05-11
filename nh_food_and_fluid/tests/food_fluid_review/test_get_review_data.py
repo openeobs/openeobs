@@ -147,91 +147,89 @@ class TestGetReviewData(TransactionCase):
     #         self.spell_activity.id
     #     )
     #     self.assertTrue(False)
-    #
-    # def test_cancelled_task_transfer(self):
-    #     """
-    #     Test that if review was cancelled by a transfer that it shows that
-    #     as the cancel reason
-    #     """
-    #     self.review_model.with_context(
-    #         {'review_date': '1988-01-12 15:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.api_model.transfer(
-    #         self.patient.other_identifier,
-    #        {'location': self.other_ward.code})
-    #     review_data = self.review_model.get_review_data(
-    #         self.spell_activity.patient_id.id,
-    #         '1988-01-12 07:00:00', 15
-    #     )
-    #     self.assertEqual(review_data, {
-    #         'score': 3,
-    #         'user': self.nurse.name,
-    #         'state': 'cancelled'
-    #     })
-    #
-    # def test_cancelled_task_discharge(self):
-    #     """
-    #     Test that is review was cancelled by a discharge that is shows that
-    #     as the cancel reason
-    #     """
-    #     self.review_model.with_context(
-    #         {'review_date': '1988-01-12 15:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.api_model.discharge(
-    #         self.patient.other_identifier, {'location': self.hospital.code})
-    #     review_data = self.review_model.get_review_data(
-    #         self.spell_activity.patient_id.id,
-    #         '1988-01-12 07:00:00', 15
-    #     )
-    #     self.assertEqual(review_data, {
-    #         'score': 3,
-    #         'user': self.nurse.name,
-    #         'state': 'completed'
-    #     })
-    #
-    # def test_cancelled_by_6am_reason(self):
-    #     """
-    #     Test that a 3pm review which was cancelled by a 6am review task
-    #     triggering shows that as the cancel reason
-    #     """
-    #     review_id = self.review_model.with_context(
-    #         {'review_date': '1988-01-12 15:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.activity_model.sudo(self.nurse).complete(review_id)
-    #     review_id = self.review_model.with_context(
-    #         {'review_date': '1988-01-13 06:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.activity_model.sudo(self.nurse).complete(review_id)
-    #     review_data = self.review_model.get_review_data(
-    #         self.spell_activity.patient_id.id,
-    #         '1988-01-12 07:00:00', 15
-    #     )
-    #     self.assertEqual(review_data, {
-    #         'score': 3,
-    #         'user': '6am Review',
-    #         'state': 'cancelled'
-    #     })
-    #
-    # def test_cancelled_by_2pm_reason(self):
-    #     """
-    #     Test that a 6am review which was cancelled by the task not being
-    #     completed before 2pm in the next period shows 'Not performed' as the
-    #     reason
-    #     """
-    #     review_id = self.review_model.with_context(
-    #         {'review_date': '1988-01-12 15:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.activity_model.sudo(self.nurse).complete(review_id)
-    #     review_id = self.review_model.with_context(
-    #         {'review_date': '1988-01-13 06:00:00'}
-    #     ).schedule_review(self.spell_activity)
-    #     self.activity_model.sudo(self.nurse).complete(review_id)
-    #     review_data = self.review_model.get_review_data(
-    #         self.spell_activity.patient_id.id,
-    #         '1988-01-12 07:00:00', 6
-    #     )
-    #     self.assertEqual(review_data, {
-    #         'score': 1,
-    #         'user': 'Not Performed',
-    #         'state': 'cancelled'
-    #     })
+
+    def test_cancelled_task_transfer(self):
+        """
+        Test that if review was cancelled by a transfer that it shows that
+        as the cancel reason
+        """
+        self.review_model.with_context(
+            {'review_date': '1988-01-12 15:00:00'}
+        ).schedule_review(self.spell_activity)
+        self.api_model.transfer(
+            self.patient.other_identifier,
+            {'location': self.other_ward.code})
+        review_data = self.review_model.get_review_data(
+            self.spell_activity.patient_id.id,
+            '1988-01-12 07:00:00', 15
+        )
+        self.assertEqual(review_data, {
+            'score': 3,
+            'user': 'Transfer',
+            'state': 'cancelled'
+        })
+
+    def test_cancelled_task_discharge(self):
+        """
+        Test that is review was cancelled by a discharge that is shows that
+        as the cancel reason
+        """
+        self.review_model.with_context(
+            {'review_date': '1988-01-12 15:00:00'}
+        ).schedule_review(self.spell_activity)
+        self.api_model.discharge(
+            self.patient.other_identifier, {'location': self.hospital.code})
+        review_data = self.review_model.get_review_data(
+            self.spell_activity.patient_id.id,
+            '1988-01-12 07:00:00', 15
+        )
+        self.assertEqual(review_data, {
+            'score': 3,
+            'user': 'Discharge',
+            'state': 'cancelled'
+        })
+
+    def test_cancelled_by_6am_reason(self):
+        """
+        Test that a 3pm review which was cancelled by a 6am review task
+        triggering shows that as the cancel reason
+        """
+        self.review_model.with_context(
+            {'review_date': '1988-01-12 15:00:00'}
+        ).schedule_review(self.spell_activity)
+        cancel_reason = self.env['ir.model.data'].get_object(
+            'nh_food_and_fluid', 'cancel_reason_6am_review')
+        self.review_model.cancel_review_tasks(
+            cancel_reason, spell_activity_id=self.spell_activity.id)
+        review_data = self.review_model.get_review_data(
+            self.spell_activity.patient_id.id,
+            '1988-01-12 07:00:00', 15
+        )
+        self.assertEqual(review_data, {
+            'score': 3,
+            'user': '6am Review',
+            'state': 'cancelled'
+        })
+
+    def test_cancelled_by_2pm_reason(self):
+        """
+        Test that a 6am review which was cancelled by the task not being
+        completed before 2pm in the next period shows 'Not performed' as the
+        reason
+        """
+        self.review_model.with_context(
+            {'review_date': '1988-01-13 06:00:00'}
+        ).schedule_review(self.spell_activity)
+        cancel_reason = self.env['ir.model.data'].get_object(
+            'nh_food_and_fluid', 'cancel_reason_not_performed')
+        self.review_model.cancel_review_tasks(
+            cancel_reason, spell_activity_id=self.spell_activity.id)
+        review_data = self.review_model.get_review_data(
+            self.spell_activity.patient_id.id,
+            '1988-01-12 07:00:00', 6
+        )
+        self.assertEqual(review_data, {
+            'score': 1,
+            'user': 'Not Performed',
+            'state': 'cancelled'
+        })
