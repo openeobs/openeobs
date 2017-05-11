@@ -908,8 +908,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 ob_model_name,
                 context=context)
         )
-        ob_rec = request.registry(ob_model_name)
-        view_desc = ob_rec.new(cr, uid).get_view_description(form_desc)
         form['action'] = URLS['patient_form_action'] + '{0}/{1}'.format(
             observation, patient_id)
         form['type'] = observation
@@ -917,7 +915,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['patient-id'] = int(patient_id)
         form['source'] = "patient"
         form['start'] = datetime.now().strftime('%s')
-        form['obs_needs_score'] = False
+        ob_rec = request.registry(ob_model_name)
+        view_desc = ob_rec.new(cr, uid).get_view_description(form_desc)
         observation_name_list = []
         for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:
