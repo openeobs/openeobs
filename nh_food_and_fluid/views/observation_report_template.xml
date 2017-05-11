@@ -10,6 +10,8 @@
                         <t t-foreach="food_and_fluid" t-as="observation_period">
                             <t t-call="nh_food_and_fluid.observation_period"/>
                         </t>
+                        <h3>Food and Fluid Review Tasks</h3>
+                        <t t-call="nh_food_and_fluid.review_tasks_table"/>
                     </div>
                 </t>
             </xpath>
@@ -56,5 +58,40 @@
             </table>
         </template>
 
+        <template id="review_tasks_table">
+            <table class="striped row col-xs-12">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th colspan="3">3pm Review</th>
+                        <th colspan="3">6am Review</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th>F&amp;F Score</th>
+                        <th>Review State</th>
+                        <th>User/Reason</th>
+                        <th>F&amp;F Score</th>
+                        <th>Review State</th>
+                        <th>User/Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="food_and_fluid" t-as="review_period">
+                        <t t-set="threepm" t-value="review_period.get('reviews', {}).get(15, {})"/>
+                        <t t-set="sixam" t-value="review_period.get('reviews', {}).get(6, {})"/>
+                        <tr>
+                            <td><t t-esc="review_period.get('period_start_datetime')"/> - <t t-esc="review_period.get('period_end_datetime')"/></td>
+                            <td><t t-esc="threepm.get('score')"/></td>
+                            <td><t t-esc="threepm.get('state')"/></td>
+                            <td><t t-esc="threepm.get('user')"/></td>
+                            <td><t t-esc="sixam.get('score')"/></td>
+                            <td><t t-esc="sixam.get('state')"/></td>
+                            <td><t t-esc="sixam.get('user')"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </template>
     </data>
 </openerp>

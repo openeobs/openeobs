@@ -218,7 +218,7 @@ class FoodAndFluidReview(models.Model):
         activity_model = self.env['nh.activity']
         review_activity = activity_model.search(activity_domain)
         if not review_activity:
-            return None
+            return {}
         food_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
         obs_domain = [

@@ -22,7 +22,7 @@
         'views/acuity_board_buttons.xml',
         'views/static_file_include.xml',
         'data/review_task_cron.xml',
-        'data/nh_cancel_reasons.xml'
+        'data/nh_cancel_reasons.xml',
         'views/review_task_template.xml'
     ],
     'demo': [],
