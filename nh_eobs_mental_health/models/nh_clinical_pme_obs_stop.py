@@ -37,6 +37,7 @@ class NhClinicalObsStop(models.Model):
             )
         cancel_open_ews = self.cancel_open_ews(activity.parent_id.id,
                                                cancel_reason_pme.id)
+        self._cancel_open_food_and_fluid_review_tasks()
         if not cancel_open_ews:
             raise osv.except_osv(
                 'Error', 'There was an issue cancelling '
@@ -45,6 +46,23 @@ class NhClinicalObsStop(models.Model):
 
         self.set_obs_stop_flag(True)
         return super_return
+
+    def _cancel_open_food_and_fluid_review_tasks(self):
+        """
+        Cancels open food and fluid review tasks for the current spell.
+        The current spell is determined by looking at `self` which should be
+        an ob stop record with a poplated `spell_id` field.
+        :return:
+        """
+        spell_activity_id = self.spell.activity_id.id
+        cancel_reason_pme = \
+            self.env['ir.model.data'].get_object(
+                'nh_eobs', 'cancel_reason_patient_monitoring_exception')
+
+        food_and_fluid_review_model = \
+            self.env['nh.clinical.notification.food_fluid_review']
+        food_and_fluid_review_model.cancel_review_tasks(cancel_reason_pme,
+                                                        spell_activity_id)
 
     def complete(self, activity_id):
         super_return = super(NhClinicalObsStop, self).complete(activity_id)
@@ -60,7 +78,7 @@ class NhClinicalObsStop(models.Model):
 
         ir_model_data_model = self.env['ir.model.data']
         cancel_reason = ir_model_data_model.get_object(
-            'nh_eobs', 'cancel_reason_transfer')
+            'nh_clinical', 'cancel_reason_transfer')
 
         super(NhClinicalObsStop, self).cancel(activity_id)
         activity.cancel_reason_id = cancel_reason

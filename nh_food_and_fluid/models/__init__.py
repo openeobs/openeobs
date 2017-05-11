@@ -3,3 +3,4 @@ from . import food_and_fluid
 from . import food_fluid_review
 from . import recorded_concern
 from . import nh_clinical_wardboard
+from . import nh_eobs_api
