@@ -73,5 +73,5 @@ class TestGetReviewDataObsStop(TransactionCase):
             'score': 3,
             'user': 'Stop Obs - {}'.format(
                 self.obs_stop_reasons[0].display_name),
-            'state': 'cancelled'
+            'state': 'Cancelled'
         })
