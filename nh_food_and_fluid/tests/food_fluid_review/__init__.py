@@ -8,4 +8,3 @@ from . import test_get_review_data
 from . import test_get_view_description
 from . import test_get_escalation_tasks_for_score
 from . import test_process_period_datetimes
-from . import test_manage_review_tasks_for_active_periods

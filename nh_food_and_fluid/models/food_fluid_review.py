@@ -1,6 +1,4 @@
 import logging
-from datetime import datetime
-import logging
 from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 from openerp.osv import fields
