@@ -264,7 +264,7 @@ class FoodAndFluidReview(models.Model):
                     )
         return {
             'score': score,
-            'state': review_activity.state,
+            'state': review_activity.state.title(),
             'user': user_or_reason
         }
 

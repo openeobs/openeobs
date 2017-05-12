@@ -64,7 +64,7 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 3,
             'user': self.nurse.name,
-            'state': 'completed'
+            'state': 'Completed'
         })
 
     def test_normal_6am(self):
@@ -83,7 +83,7 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 1,
             'user': self.nurse.name,
-            'state': 'completed'
+            'state': 'Completed'
         })
 
     def test_normal_score_difference(self):
@@ -150,7 +150,7 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 3,
             'user': 'Transfer',
-            'state': 'cancelled'
+            'state': 'Cancelled'
         })
 
     def test_cancelled_task_discharge(self):
@@ -170,7 +170,7 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 3,
             'user': 'Discharge',
-            'state': 'cancelled'
+            'state': 'Cancelled'
         })
 
     def test_cancelled_by_6am_reason(self):
@@ -192,7 +192,7 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 3,
             'user': '6am Review',
-            'state': 'cancelled'
+            'state': 'Cancelled'
         })
 
     def test_cancelled_by_2pm_reason(self):
@@ -215,5 +215,5 @@ class TestGetReviewData(TransactionCase):
         self.assertEqual(review_data, {
             'score': 1,
             'user': 'Not Performed',
-            'state': 'cancelled'
+            'state': 'Cancelled'
         })
