@@ -686,11 +686,11 @@ class NHClinicalFoodAndFluid(models.Model):
         earliest_period_date_number = period_start_days[0]
         latest_period_date_number = period_start_days[-1]
 
-        all_period_start_days = range(earliest_period_date_number + 1,
-                                      latest_period_date_number)
+        all_period_start_days = range(earliest_period_date_number,
+                                      latest_period_date_number + 1)
 
         missing_period_days = set(all_period_start_days) - \
-                              set(period_start_days)
+            set(period_start_days)
         missing_period_datetimes = [datetime.fromordinal(day)
                                     for day in missing_period_days]
         # Ensures dictionaries are returned in chronological order.

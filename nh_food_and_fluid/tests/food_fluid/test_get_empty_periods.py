@@ -74,8 +74,10 @@ class TestGetEmptyPeriods(TransactionCase):
         latest_period_start_datetime = self.period_3_start_datetime
         for empty_period in self.empty_periods:
             period_start_datetime = empty_period['period_start_datetime']
-            period_start_datetime = datetime.strptime(period_start_datetime, DTF)
-            self.assertLess(period_start_datetime, latest_period_start_datetime)
+            period_start_datetime = datetime.strptime(period_start_datetime,
+                                                      DTF)
+            self.assertLess(period_start_datetime,
+                            latest_period_start_datetime)
 
     def test_empty_periods_between_first_and_last_passed_period_included(self):
         expected_period_start_datetimes = \

@@ -31,10 +31,13 @@ class NhClinicalObservationReport(models.Model):
         else:
             periods = []
 
-        return {'periods': periods}
+        empty_periods = food_and_fluid_model.get_empty_periods(periods)
 
-    def _add_empty_periods(self, period_dictionaries):
-        pass
+        food_and_fluid_report_data = {
+            'periods': periods,
+            'empty_periods': empty_periods
+        }
+        return food_and_fluid_report_data
 
     def _format_many_2_many_fields(self, food_and_fluid_report_data):
         food_and_fluid_model = \
