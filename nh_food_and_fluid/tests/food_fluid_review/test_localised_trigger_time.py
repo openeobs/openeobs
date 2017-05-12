@@ -8,7 +8,6 @@ class TestLocalisedTriggerTime(TransactionCase):
     Test that the review task is only triggered when it's 3pm and 6am in the
     'users' timezone
     """
-
     def setUp(self):
         super(TestLocalisedTriggerTime, self).setUp()
         # create users with different time zones

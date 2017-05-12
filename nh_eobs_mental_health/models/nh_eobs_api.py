@@ -92,8 +92,8 @@ class NHeObsAPI(orm.AbstractModel):
                 wardboard_model.browse(
                     cr, uid, spell.get('id'), context=context)\
                     .end_obs_stop(cancellation=True)
-        res = self.pool['nh.clinical.api'].transfer(
-            cr, uid, hospital_number, data, context=context)
+        res = super(NHeObsAPI, self).transfer(
+            cr, uid, hospital_number, data, context=None)
         return res
 
     @api.model
@@ -132,7 +132,8 @@ class NHeObsAPI(orm.AbstractModel):
             exceptions.abort(404, "Invalid patient ID.")
 
         spell_model = self.env['nh.clinical.spell']
-        spell_activity = spell_model.get_spell_activity_by_patient(patient_id)
+        spell_activity = spell_model.get_spell_activity_by_patient_id(
+            patient_id)
         if not spell_activity:
             exceptions.abort(404, "No spell found for patient with that ID.")
 
