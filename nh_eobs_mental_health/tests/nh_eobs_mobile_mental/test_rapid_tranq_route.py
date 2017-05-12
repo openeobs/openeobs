@@ -30,7 +30,7 @@ class TestRapidTranq(HttpCase):
             spell_activity.data_ref = spell
 
             return spell_activity
-        self.spell_model._patch_method('get_spell_activity_by_patient',
+        self.spell_model._patch_method('get_spell_activity_by_patient_id',
                                        mock_get_spell_activity_by_patient)
 
         def mock_toggle_rapid_tranq(*args, **kwargs):
@@ -198,7 +198,7 @@ class TestRapidTranq(HttpCase):
             raise except_orm("Spell Not Found Exception",
                              "No spell found for patient with that ID.")
 
-        self.spell_model._patch_method('get_spell_activity_by_patient',
+        self.spell_model._patch_method('get_spell_activity_by_patient_id',
                                        mock_get_spell_activity_by_patient)
 
         response = self.call_test(patient_id='foo')
@@ -223,7 +223,7 @@ class TestRapidTranq(HttpCase):
         self.assertEqual('fail', status)
 
     def tearDown(self):
-        self.spell_model._revert_method('get_spell_activity_by_patient')
+        self.spell_model._revert_method('get_spell_activity_by_patient_id')
         self.rapid_tranq_model._revert_method('toggle_rapid_tranq')
         self.patient_model._revert_method('browse')
         super(TestRapidTranq, self).tearDown()

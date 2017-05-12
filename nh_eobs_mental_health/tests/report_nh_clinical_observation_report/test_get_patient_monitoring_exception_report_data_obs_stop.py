@@ -364,7 +364,7 @@ class TestMonitoringExceptionsReturned(
 
         # Setup cancellation of patient monitoring exception due to transfer.
         cancel_reason_transfer = \
-            self.browse_ref('nh_eobs.cancel_reason_transfer')
+            self.browse_ref('nh_clinical.cancel_reason_transfer')
         pme_activity = self.env['nh.activity'].browse(self.pme_activity_id)
         pme_activity.cancel_reason_id = \
             cancel_reason_transfer.id
@@ -384,7 +384,7 @@ class TestMonitoringExceptionsReturned(
 
         # Setup cancellation of patient monitoring exception due to transfer.
         cancel_reason_transfer = \
-            self.browse_ref('nh_eobs.cancel_reason_transfer')
+            self.browse_ref('nh_clinical.cancel_reason_transfer')
         pme_activity = self.env['nh.activity'].browse(self.pme_activity_id)
         pme_activity.cancel_reason_id = \
             cancel_reason_transfer.id
