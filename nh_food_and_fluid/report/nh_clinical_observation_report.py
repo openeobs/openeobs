@@ -11,11 +11,11 @@ class NhClinicalObservationReport(models.Model):
     def get_report_data(self, data, ews_only=False):
         report_data = super(NhClinicalObservationReport, self)\
             .get_report_data(data, ews_only=ews_only)
-        food_and_fluid_data = self.get_food_and_fluid_observations(data)
+        food_and_fluid_data = self.get_food_and_fluid_report_data(data)
         report_data['food_and_fluid'] = food_and_fluid_data
         return report_data
 
-    def get_food_and_fluid_observations(self, data):
+    def get_food_and_fluid_report_data(self, data):
         food_and_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
         food_and_fluid_observation_activities = self.get_model_data(
@@ -24,18 +24,17 @@ class NhClinicalObservationReport(models.Model):
         )
 
         if food_and_fluid_observation_activities:
-            food_and_fluid_report_data = \
-                food_and_fluid_model.get_period_dictionaries(
-                    food_and_fluid_observation_activities, include_units=True
-                )
-            self._format_many_2_many_fields(food_and_fluid_report_data)
-            food_and_fluid_model.format_period_datetimes(
-                food_and_fluid_report_data
-            )
+            periods = food_and_fluid_model.get_period_dictionaries(
+                food_and_fluid_observation_activities, include_units=True)
+            self._format_many_2_many_fields(periods)
+            food_and_fluid_model.format_period_datetimes(periods)
         else:
-            food_and_fluid_report_data = []
+            periods = []
 
-        return food_and_fluid_report_data
+        return {'periods': periods}
+
+    def _add_empty_periods(self, period_dictionaries):
+        pass
 
     def _format_many_2_many_fields(self, food_and_fluid_report_data):
         food_and_fluid_model = \

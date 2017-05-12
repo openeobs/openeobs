@@ -5,13 +5,13 @@ import re
 from openerp.tests.common import TransactionCase
 
 
-class TestGetFoodAndFluidObservations(TransactionCase):
+class TestGetFoodAndFluidReportData(TransactionCase):
     """
-    Test `get_food_and_fluid_observations` method in override of
+    Test `get_food_and_fluid_report_data` method in override of
     `report.nh.clinical.observation.report`.
     """
     def setUp(self):
-        super(TestGetFoodAndFluidObservations, self).setUp()
+        super(TestGetFoodAndFluidReportData, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
         self.test_utils.admit_and_place_patient()
         self.test_utils.copy_instance_variables(self)
@@ -54,9 +54,10 @@ class TestGetFoodAndFluidObservations(TransactionCase):
             )
 
         self.food_and_fluid_report_data = \
-            self.report_model.get_food_and_fluid_observations(
-                self.report_wizard
-            )
+            self.report_model.get_food_and_fluid_report_data(
+                self.report_wizard)
+        self.periods = self.food_and_fluid_report_data['periods']
+
 
     def parse_datetime_string_list(self, datetime_string_list):
         datetime_format = \
@@ -65,19 +66,29 @@ class TestGetFoodAndFluidObservations(TransactionCase):
                      for date_time in datetime_string_list]
         return datetimes
 
-    def test_returns_list_of_dictionaries(self):
+    def test_returns_dictionary(self):
         """Returns a list of dictionaries."""
         self.call_test()
-        self.assertTrue(isinstance(self.food_and_fluid_report_data, list))
-        for period in self.food_and_fluid_report_data:
-            self.assertTrue(isinstance(period, dict))
+        self.assertTrue(isinstance(self.food_and_fluid_report_data, dict))
+
+    def test_returned_dictionary_has_periods_key_with_list_value(self):
+        self.call_test()
+        self.assertTrue('periods' in self.periods)
+        periods = self.periods['periods']
+        self.assertTrue(isinstance(periods, dict))
+
+    def test_returned_dictionary_has_empty_periods_key_with_list_value(self):
+        self.call_test()
+        self.assertTrue('empty_periods' in self.food_and_fluid_report_data)
+        empty_periods = self.periods['empty_periods']
+        self.assertTrue(isinstance(empty_periods, dict))
 
     def test_periods_are_in_chronological_order(self):
         self.call_test()
 
         period_start_datetimes = \
             [period['period_start_datetime'] for period
-             in self.food_and_fluid_report_data]
+             in self.periods]
         actual = self.parse_datetime_string_list(period_start_datetimes)
         expected = sorted(actual)
 
@@ -88,7 +99,7 @@ class TestGetFoodAndFluidObservations(TransactionCase):
         self.call_test()
 
         period_start_datetimes = [period['period_start_datetime'] for period in
-                                  self.food_and_fluid_report_data]
+                                  self.periods]
         self.parse_datetime_string_list(period_start_datetimes)
 
     def test_periods_have_total_fluid_intake_value(self):
@@ -105,7 +116,7 @@ class TestGetFoodAndFluidObservations(TransactionCase):
                 period_start_datetime, self.report_model.pretty_date_format
             )
         non_active_periods = \
-            [period for period in self.food_and_fluid_report_data
+            [period for period in self.periods
              if period['period_start_datetime'] != period_start_datetime]
 
         regex = re.compile(r'\d+ml')

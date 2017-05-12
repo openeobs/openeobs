@@ -6,7 +6,7 @@ from openerp.tests.common import TransactionCase
 
 class TestGetFormattedObs(TransactionCase):
     """
-    Test `get_food_and_fluid_observations` method in override of
+    Test `get_food_and_fluid_report_data` method in override of
     `report.nh.clinical.observation.report`.
     """
     def setUp(self):

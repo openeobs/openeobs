@@ -5,3 +5,4 @@ from . import test_food_fluid_form_description
 from . import test_get_formatted_obs
 from . import test_get_period_dictionaries
 from . import test_get_submission_message
+from . import test_get_empty_periods

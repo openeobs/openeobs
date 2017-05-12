@@ -668,6 +668,53 @@ class NHClinicalFoodAndFluid(models.Model):
                     obs['passed_urine'] = 'Yes ({}ml)'.format(
                         obs['fluid_output'])
 
+    def get_empty_periods(self, period_dictionaries):
+        if not period_dictionaries:
+            return []
+
+        def map_period_dict_to_start_date_ordinal(period_dictionary):
+            period_start_datetime = period_dictionary['period_start_datetime']
+            period_start_datetime = datetime.strptime(period_start_datetime,
+                                                      DTF)
+            return period_start_datetime.toordinal()
+
+        period_start_days = map(map_period_dict_to_start_date_ordinal,
+                                period_dictionaries)
+        # Sort is important because range() returns an empty list if the
+        # `start` argument is greater than the `stop` argument.
+        period_start_days = sorted(period_start_days)
+        earliest_period_date_number = period_start_days[0]
+        latest_period_date_number = period_start_days[-1]
+
+        all_period_start_days = range(earliest_period_date_number + 1,
+                                      latest_period_date_number)
+
+        missing_period_days = set(all_period_start_days) - \
+                              set(period_start_days)
+        missing_period_datetimes = [datetime.fromordinal(day)
+                                    for day in missing_period_days]
+        # Ensures dictionaries are returned in chronological order.
+        missing_period_datetimes = sorted(missing_period_datetimes)
+
+        empty_periods = map(self._create_empty_period_dictionary,
+                            missing_period_datetimes)
+        return empty_periods
+
+    def _create_empty_period_dictionary(self, period_start_datetime):
+        period_start_datetime = period_start_datetime.replace(hour=7)
+
+        period_end_datetime = datetime(
+            year=period_start_datetime.year, month=period_start_datetime.month,
+            day=period_start_datetime.day + 1, hour=6,
+            minute=59
+        )
+
+        empty_period_dictionary = {
+            'period_start_datetime': period_start_datetime.strftime(DTF),
+            'period_end_datetime': period_end_datetime.strftime(DTF)
+        }
+        return empty_period_dictionary
+
     @staticmethod
     def _add_ml(obj):
         return '{}ml'.format(obj)

@@ -37,7 +37,7 @@ class TestGetReportData(TransactionCase):
         self.assertTrue(isinstance(self.report_data, dict))
         self.assertTrue('food_and_fluid' in self.report_data)
 
-    def test_food_and_fluid_key_has_list_value(self):
+    def test_food_and_fluid_key_has_dictionary_value(self):
         """Food and fluid key has a list value."""
         food_and_fluid_data = self.report_data['food_and_fluid']
-        self.assertTrue(isinstance(food_and_fluid_data, list))
+        self.assertTrue(isinstance(food_and_fluid_data, dict))
