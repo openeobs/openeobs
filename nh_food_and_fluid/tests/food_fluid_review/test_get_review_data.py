@@ -119,7 +119,7 @@ class TestGetReviewData(TransactionCase):
             self.spell_activity.patient_id.id,
             '1988-01-12 07:00:00', 15
         )
-        self.assertIsNone(review_data)
+        self.assertEqual({}, review_data)
 
     def test_missing_6am_review(self):
         """
@@ -130,7 +130,7 @@ class TestGetReviewData(TransactionCase):
             self.spell_activity.patient_id.id,
             '1988-01-12 07:00:00', 6
         )
-        self.assertIsNone(review_data)
+        self.assertEqual({}, review_data)
 
     def test_cancelled_task_transfer(self):
         """
