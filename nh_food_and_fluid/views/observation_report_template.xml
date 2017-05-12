@@ -10,12 +10,40 @@
                         <t t-foreach="food_and_fluid" t-as="observation_period">
                             <t t-call="nh_food_and_fluid.observation_period"/>
                         </t>
+                    </div>
+                    <div class="col-xs-12 row">
                         <h3>Food and Fluid Review Tasks</h3>
                         <t t-call="nh_food_and_fluid.review_tasks_table"/>
                     </div>
                 </t>
             </xpath>
         </template>
+
+         <template id="observation_report_header_f_f_override" inherit_id="report.layout" name="F F Review Task CSS Override">
+            <xpath expr="//head" position="inside">
+                 <style>
+                    .f_f_review_table thead tr:first-child{
+                        border-bottom: 1px solid black;
+                    }
+                    .f_f_review_table thead tr:first-child > th.col-xs-5{
+                        text-align: center;
+                        border-left: 1px solid black;
+                        padding-top: 0.3em;
+                        padding-bottom: 0.3em;
+                    }
+                    .f_f_review_table thead tr:last-child > th.col-xs-1{
+                         border-left: 1px solid black;
+                    }
+                    .f_f_review_table thead tr:last-child > th{
+                        padding-top: 0.3em;
+                        padding-bottom: 0.3em;
+                    }
+                    .f_f_review_table tbody tr > td.col-xs-1{
+                        border-left: 1px solid black;
+                    }
+                </style>
+            </xpath>
+         </template>
 
         <template id="observation_period">
             <h4 class="col-xs-12"><strong><t t-esc="observation_period['period_start_datetime']"/> - <t t-esc="observation_period['period_end_datetime']"/><t t-if="observation_period.get('current_period') == True"> - Active</t><br/>
@@ -59,21 +87,21 @@
         </template>
 
         <template id="review_tasks_table">
-            <table class="striped row col-xs-12">
+            <table class="striped col-xs-12 row f_f_review_table">
                 <thead>
                     <tr>
-                        <th>Period</th>
-                        <th colspan="3">3pm Review</th>
-                        <th colspan="3">6am Review</th>
+                        <th class="col-xs-2">Period</th>
+                        <th colspan="3" class="col-xs-5">3pm Review</th>
+                        <th colspan="3" class="col-xs-5">6am Review</th>
                     </tr>
                     <tr>
-                        <th></th>
-                        <th>F&amp;F Score</th>
-                        <th>Review State</th>
-                        <th>User/Reason</th>
-                        <th>F&amp;F Score</th>
-                        <th>Review State</th>
-                        <th>User/Reason</th>
+                        <th class="col-xs-2"></th>
+                        <th class="col-xs-1">F&amp;F Score</th>
+                        <th class="col-xs-2">Review State</th>
+                        <th class="col-xs-2">User/Reason</th>
+                        <th class="col-xs-1">F&amp;F Score</th>
+                        <th class="col-xs-2">Review State</th>
+                        <th class="col-xs-2">User/Reason</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,13 +109,13 @@
                         <t t-set="threepm" t-value="review_period.get('reviews', {}).get(15, {})"/>
                         <t t-set="sixam" t-value="review_period.get('reviews', {}).get(6, {})"/>
                         <tr>
-                            <td><t t-esc="review_period.get('period_start_datetime')"/> - <t t-esc="review_period.get('period_end_datetime')"/></td>
-                            <td><t t-esc="threepm.get('score')"/></td>
-                            <td><t t-esc="threepm.get('state')"/></td>
-                            <td><t t-esc="threepm.get('user')"/></td>
-                            <td><t t-esc="sixam.get('score')"/></td>
-                            <td><t t-esc="sixam.get('state')"/></td>
-                            <td><t t-esc="sixam.get('user')"/></td>
+                            <td class="col-xs-2"><t t-esc="review_period.get('period_start_datetime')"/> - <t t-esc="review_period.get('period_end_datetime')"/></td>
+                            <td class="col-xs-1"><t t-esc="threepm.get('score')"/></td>
+                            <td class="col-xs-2"><t t-esc="threepm.get('state')"/></td>
+                            <td class="col-xs-2"><t t-esc="threepm.get('user')"/></td>
+                            <td class="col-xs-1"><t t-esc="sixam.get('score')"/></td>
+                            <td class="col-xs-2"><t t-esc="sixam.get('state')"/></td>
+                            <td class="col-xs-2"><t t-esc="sixam.get('user')"/></td>
                         </tr>
                     </t>
                 </tbody>
