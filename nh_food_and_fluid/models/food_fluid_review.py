@@ -1,8 +1,9 @@
 import logging
 from datetime import datetime, timedelta
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
-
+from openerp.osv import fields
 from openerp import models, api
+import pytz
 
 
 _logger = logging.getLogger(__name__)
@@ -205,15 +206,29 @@ class FoodAndFluidReview(models.Model):
         :type trigger_time: int
         :return: dictionary of review score, state and user/reason
         """
+        user_model = self.env['res.users']
+        review_creator = user_model.search(
+            [
+                ['login', '=', 'food_fluid_review_creator']
+            ]
+        )
         period_start_datetime = datetime.strptime(period_start, dtf)
-        period_end_datetime = period_start_datetime.replace(hour=trigger_time)
+        period_end_datetime = fields.datetime.context_timestamp(
+            self._cr, review_creator.id, period_start_datetime)\
+            .replace(hour=trigger_time)
         if trigger_time < 7:
             day_delta = timedelta(days=1)
             period_end_datetime = period_end_datetime + day_delta
-        period_end = period_end_datetime.strftime(dtf)
+        period_end = period_end_datetime.astimezone(pytz.utc).strftime(dtf)
+        period_end_start = \
+            period_end_datetime.astimezone(pytz.utc).strftime(dtf)
+        period_end_end = period_end_datetime + timedelta(minutes=1)
+        period_end_end = period_end_end.astimezone(pytz.utc).strftime(dtf)
         activity_domain = [
             ['patient_id', '=', patient_id],
-            ['date_scheduled', '=', period_end]
+            ['date_scheduled', '>=', period_end_start],
+            ['date_scheduled', '<=', period_end_end],
+            ['data_model', '=', 'nh.clinical.notification.food_fluid_review']
         ]
         activity_model = self.env['nh.activity']
         review_activity = activity_model.search(activity_domain)
