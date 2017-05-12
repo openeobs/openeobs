@@ -4,13 +4,18 @@
 
         <template id="observation_report" inherit_id="nh_eobs.observation_report" name="Observation Report">
             <xpath expr="//*[@id = 'news_values']" position="after">
-                <t t-if="len(food_and_fluid) &gt; 0">
+                <t t-set="periods" t-value="food_and_fluid.get('periods')"/>
+                <t t-set="empty_periods" t-value="food_and_fluid.get('empty_periods')"/>
+                <t t-if="len(periods) &gt; 0">
                     <div class="col-xs-12 row" id="food_and_fluid_log">
                         <h3>Food and Fluid Log</h3>
-                        <t t-foreach="food_and_fluid" t-as="observation_period">
+                        <t t-foreach="periods" t-as="observation_period">
                             <t t-call="nh_food_and_fluid.observation_period"/>
                         </t>
                     </div>
+                </t>
+                <t t-if="len(empty_periods) &gt; 0">
+                    <t t-call="nh_food_and_fluid.empty_periods"/>
                 </t>
             </xpath>
         </template>
@@ -54,6 +59,24 @@
                     </t>
                 </tbody>
             </table>
+        </template>
+
+        <template id="empty_periods">
+            <div id="food_and_fluid_periods_with_no_entries">
+                <h3>Food and Fluid Periods With No Entries</h3>
+                <table class="striped col-xs-12 row">
+                    <t t-foreach="empty_periods" t-as="empty_period">
+                        <tr>
+                            <td class="col-xs-7">
+                                <t t-esc="empty_period.get('period_start_datetime')"/> - <t t-esc="empty_period.get('period_end_datetime')"/>
+                            </td>
+                            <td class="col-xs-5">
+                                <span class="pull-right">No F&amp;F entries recorded</span>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
         </template>
 
     </data>

@@ -27,11 +27,13 @@ class NhClinicalObservationReport(models.Model):
             periods = food_and_fluid_model.get_period_dictionaries(
                 food_and_fluid_observation_activities, include_units=True)
             self._format_many_2_many_fields(periods)
-            food_and_fluid_model.format_period_datetimes(periods)
         else:
             periods = []
 
         empty_periods = food_and_fluid_model.get_empty_periods(periods)
+
+        food_and_fluid_model.format_period_datetimes(periods)
+        food_and_fluid_model.format_period_datetimes(empty_periods)
 
         food_and_fluid_report_data = {
             'periods': periods,
