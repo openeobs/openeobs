@@ -58,7 +58,6 @@ class TestGetFoodAndFluidReportData(TransactionCase):
                 self.report_wizard)
         self.periods = self.food_and_fluid_report_data['periods']
 
-
     def parse_datetime_string_list(self, datetime_string_list):
         datetime_format = \
             self.datetime_utils.datetime_format_front_end_two_character_year
@@ -73,15 +72,15 @@ class TestGetFoodAndFluidReportData(TransactionCase):
 
     def test_returned_dictionary_has_periods_key_with_list_value(self):
         self.call_test()
-        self.assertTrue('periods' in self.periods)
-        periods = self.periods['periods']
-        self.assertTrue(isinstance(periods, dict))
+        self.assertTrue('periods' in self.food_and_fluid_report_data)
+        periods = self.food_and_fluid_report_data['periods']
+        self.assertTrue(isinstance(periods, list))
 
     def test_returned_dictionary_has_empty_periods_key_with_list_value(self):
         self.call_test()
         self.assertTrue('empty_periods' in self.food_and_fluid_report_data)
-        empty_periods = self.periods['empty_periods']
-        self.assertTrue(isinstance(empty_periods, dict))
+        empty_periods = self.food_and_fluid_report_data['empty_periods']
+        self.assertTrue(isinstance(empty_periods, list))
 
     def test_periods_are_in_chronological_order(self):
         self.call_test()

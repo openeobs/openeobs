@@ -676,6 +676,8 @@ class NHClinicalFoodAndFluid(models.Model):
         if not period_dictionaries:
             return []
 
+        period_dictionaries = list (period_dictionaries)
+
         period_start_datetimes = [p['period_start_datetime'] for p in
                                   period_dictionaries]
 
