@@ -533,6 +533,10 @@ class NHClinicalFoodAndFluid(models.Model):
         observation period. Each dictionary contains data about the period as
         well as a nested list of data for the observations.
 
+        Passed food and fluid observations must be ordered consistently -
+        either chronologically or reverse chronologically. The period
+        dictionaries will be returned with the same ordering.
+
         :param food_and_fluid_observations:
         :param include_units: Include measurements with units where applicable.
         :type include_units: bool
@@ -672,46 +676,60 @@ class NHClinicalFoodAndFluid(models.Model):
         if not period_dictionaries:
             return []
 
-        def map_period_dict_to_start_date_ordinal(period_dictionary):
-            period_start_datetime = period_dictionary['period_start_datetime']
-            period_start_datetime = datetime.strptime(period_start_datetime,
-                                                      DTF)
-            return period_start_datetime.toordinal()
+        period_start_datetimes = [p['period_start_datetime'] for p in
+                                  period_dictionaries]
 
-        period_start_days = map(map_period_dict_to_start_date_ordinal,
-                                period_dictionaries)
-        # Sort is important because range() returns an empty list if the
-        # `start` argument is greater than the `stop` argument.
-        period_start_days = sorted(period_start_days)
-        earliest_period_date_number = period_start_days[0]
-        latest_period_date_number = period_start_days[-1]
+        datetime_utils = self.env['datetime_utils']
+        now = datetime_utils.get_current_time()
+        active_period_start_datetime = self.get_period_start_datetime(now)
 
-        all_period_start_days = range(earliest_period_date_number,
-                                      latest_period_date_number + 1)
+        if active_period_start_datetime not in period_start_datetimes:
+            active_period = {
+                'period_start_datetime': active_period_start_datetime
+            }
+            period_dictionaries.append(active_period)
 
-        missing_period_days = set(all_period_start_days) - \
-            set(period_start_days)
-        missing_period_datetimes = [datetime.fromordinal(day)
-                                    for day in missing_period_days]
-        # Ensures dictionaries are returned in chronological order.
-        missing_period_datetimes = sorted(missing_period_datetimes)
+        if len(period_dictionaries) < 2:
+            return []  # Cannot be empty period if only one period.
 
-        empty_periods = map(self._create_empty_period_dictionary,
-                            missing_period_datetimes)
+        empty_periods = []
+        for period in period_dictionaries:
+            period_start_datetime = period['period_start_datetime']
+
+            if period_start_datetime == active_period_start_datetime:
+                break  # All empty periods created, don't include active.
+
+            index = period_dictionaries.index(period)
+            next_period = period_dictionaries[index + 1]
+
+            try:
+                empty_period = self._create_empty_period_dictionary(
+                    period, next_period)
+            except ValueError:
+                continue
+            empty_periods.append(empty_period)
+
         return empty_periods
 
-    def _create_empty_period_dictionary(self, period_start_datetime):
-        period_start_datetime = period_start_datetime.replace(hour=7)
+    def _create_empty_period_dictionary(self, period_1, period_2):
+        period_1_end_datetime_str = period_1['period_end_datetime']
+        period_2_start_datetime_str = period_2['period_start_datetime']
 
-        period_end_datetime = datetime(
-            year=period_start_datetime.year, month=period_start_datetime.month,
-            day=period_start_datetime.day + 1, hour=6,
-            minute=59
-        )
+        period_1_end_datetime = datetime.strptime(
+            period_1_end_datetime_str, DTF)
+        period_2_start_datetime = datetime.strptime(
+            period_2_start_datetime_str, DTF)
+
+        empty_period_start_datetime = period_1_end_datetime
+        empty_period_end_datetime = period_2_start_datetime
+
+        if empty_period_start_datetime == empty_period_end_datetime:
+            raise ValueError("Passed periods are adjacent which means there "
+                             "cannot be any empty periods between them.")
 
         empty_period_dictionary = {
-            'period_start_datetime': period_start_datetime.strftime(DTF),
-            'period_end_datetime': period_end_datetime.strftime(DTF)
+            'period_start_datetime': empty_period_start_datetime.strftime(DTF),
+            'period_end_datetime': empty_period_end_datetime.strftime(DTF)
         }
         return empty_period_dictionary
 
