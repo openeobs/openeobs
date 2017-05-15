@@ -673,6 +673,17 @@ class NHClinicalFoodAndFluid(models.Model):
                         obs['fluid_output'])
 
     def get_empty_periods(self, period_dictionaries):
+        """
+        Looks at the passed list of 'normal' period dictionaries (ones during
+        which at least one observation occurred) and determines the 'empty'
+        periods (ones during which on observations occurred) from the first
+        chronologically to the currently active one.
+
+        :param period_dictionaries: A list of dictionaries representing food
+        and fluid periods that must be ordered chronologically. If they are not
+        ordered this way the behaviour is undefined.
+        :return:
+        """
         if not period_dictionaries:
             return []
 
@@ -713,7 +724,18 @@ class NHClinicalFoodAndFluid(models.Model):
 
         return empty_periods
 
-    def _create_empty_period_dictionary(self, period_1, period_2):
+    @classmethod
+    def _create_empty_period_dictionary(cls, period_1, period_2):
+        """
+        Returns a dictionary representing one or more 'empty' food and fluid
+        periods based on the datetimes of the passed 'normal' food and fluid
+        periods.
+
+        :param period_1: A dictionary representing a food and fluid period.
+        :param period_2: A dictionary representing the next food and fluid
+        period in which observations occurred.
+        :return:
+        """
         period_1_end_datetime_str = period_1['period_end_datetime']
         period_2_start_datetime_str = period_2['period_start_datetime']
 
