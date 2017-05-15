@@ -30,7 +30,7 @@ class GetReportEntryDictionary(TransactionCase):
             test = self.env.context.get('test')
             if test == 'transfer':
                 transfer_cancel_reason = self.browse_ref(
-                    'nh_eobs.cancel_reason_transfer')
+                    'nh_clinical.cancel_reason_transfer')
                 activity['cancel_reason_id'] = (transfer_cancel_reason.id,
                                                 'nh.cancel.reason')
 

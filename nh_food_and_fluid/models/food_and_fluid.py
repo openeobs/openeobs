@@ -558,7 +558,7 @@ class NHClinicalFoodAndFluid(models.Model):
         else:
             spell_model = self.env['nh.clinical.spell']
             spell_activity = \
-                spell_model.get_spell_activity_by_patient(
+                spell_model.get_spell_activity_by_patient_id(
                     an_obs['patient_id'][0]
                 )
             spell_activity_id = spell_activity.id
@@ -762,7 +762,6 @@ class NHClinicalFoodAndFluid(models.Model):
             period['period_end_datetime'] = \
                 period_end_datetime.strftime(datetime_format)
 
-    @api.model
     def active_food_fluid_period(self, spell_activity_id):
         """
         Check to see if any food and fluid observations have been submitted in

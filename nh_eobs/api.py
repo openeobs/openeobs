@@ -860,31 +860,31 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].admit_update(
             cr, uid, patient_id, data, context=context)
 
-    def cancel_admit(self, cr, uid, patient_id, context=None):
+    def cancel_admit(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_admit()<api.nh_clinical_api.cancel_admit>`,
         cancelling the open :class:`spell<spell.nh_clinical_spell>` of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         return self.pool['nh.clinical.api'].cancel_admit(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
 
-    def discharge(self, cr, uid, patient_id, data, context=None):
+    def discharge(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`discharge()<api.nh_clinical_api.discharge>`,
         closing the :class:`spell<spell.nh_clinical_spell>` of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: may contain the key ``discharge_date``
         :type data: dict
         :returns: ``True``
@@ -892,44 +892,44 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         return self.pool['nh.clinical.api'].discharge(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
-    def cancel_discharge(self, cr, uid, patient_id, context=None):
+    def cancel_discharge(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_discharge()<api.nh_clinical_api.cancel_discharge>`
         of a :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         res = self.pool['nh.clinical.api'].cancel_discharge(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         return res
 
-    def merge(self, cr, uid, patient_id, data, context=None):
+    def merge(self, cr, uid, hospital_number, data, context=None):
         """
         Wraps
         :meth:`merge()<api.nh_clinical_patient.merge>`
         of a :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient to merge
+        :param hospital_number: `hospital number` of the patient to merge
             INTO
-        :type patient_id: str
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the following
             keys ``from_identifier``, the `hospital number` of the
             patient merged FROM
         :type data: dict
-        :type patient_id: str
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         return self.pool['nh.clinical.api'].merge(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
     def transfer(self, cr, uid, hospital_number, data, context=None):
         """
@@ -945,45 +945,64 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res
 
-    def cancel_transfer(self, cr, uid, patient_id, context=None):
+    def get_spell_activity_id(self, hospital_number):
+        """
+        Return the spell activity ID for the patient with the given hospital
+        number. Raises an exception if more than one spell is found.
+        :param hospital_number:
+        :type hospital_number: str
+        :return:
+        """
+        patient_model = self.env['nh.clinical.patient']
+        domain = [('other_identifier', '=', hospital_number)]
+        patient = patient_model.search(domain)
+        patient.ensure_one()
+
+        spell_model = self.env['nh.clinical.spell']
+        domain = [('patient_id', '=', patient.id)]
+        spell = spell_model.search(domain)
+        spell.ensure_one()
+
+        return spell.activity_id.id
+
+    def cancel_transfer(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_transfer()<api.nh_clinical_api.cancel_transfer>`,
         cancelling the transfer of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
             ``location``
         :returns: ``True``
         :rtype: bool
         """
-
         res = self.pool['nh.clinical.api'].cancel_transfer(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         return res
 
-    def check_patient_responsibility(self, cr, uid, patient_id, context=None):
+    def check_patient_responsibility(
+            self, cr, uid, hospital_number, context=None):
         """
         Verifies that a :class:`user<base.res_users>` is responsible for
         a :class:`patient<base.nh_clinical_patient>`.
 
         :param uid: id of the user
         :type uid: int
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True`` if user is responsible. Otherwise ``False``
         :rtype: bool
         """
 
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         spell = spell_pool.browse(cr, uid, spell_id, context=context)
         return self.check_activity_access(
             cr, uid, spell.activity_id.id, context=context)
