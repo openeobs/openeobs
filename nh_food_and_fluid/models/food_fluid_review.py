@@ -18,7 +18,7 @@ class FoodAndFluidReview(models.Model):
 
     _description = 'F&F - {} Fluid Intake Review'
 
-    trigger_times = [15, 6]
+    trigger_times = [6, 15]
 
     ESCALATION_TASKS = {
         0: [
@@ -208,6 +208,53 @@ class FoodAndFluidReview(models.Model):
         :type trigger_time: int
         :return: dictionary of review score, state and user/reason
         """
+        food_fluid_model = \
+            self.env['nh.clinical.patient.observation.food_fluid']
+        review_activity, obs = self.get_data_for_trigger_time(
+            patient_id, period_start, trigger_time)
+        if not review_activity:
+            return {}
+        fluid_intake = food_fluid_model.\
+            _calculate_total_fluid_intake_from_obs_activities(obs)
+        score = food_fluid_model.calculate_period_score(fluid_intake)
+        user_or_reason = self.get_user_or_reason(review_activity)
+        return {
+            'score': score,
+            'state': review_activity.state.title(),
+            'user': user_or_reason
+        }
+
+    def get_review_end(self, period_start, trigger_time):
+        """
+        Get the datetime 1 minute before the next review so we can use this
+        to find observations and reviews that fall within this timeframe
+        :param period_start: Start of the current F&F period
+        :param trigger_time: Time of the review we want the end datetime for
+        :return: Odoo datetime string representation
+        """
+        # find the next trigger time
+        trigger_time_index = self.trigger_times.index(trigger_time)
+        sorted_trigger_times = self.trigger_times[trigger_time_index:] + \
+            self.trigger_times[:trigger_time_index]
+        next_trigger_time = sorted_trigger_times[1]
+        # convert that trigger time to a date
+        next_trigger_datetime = period_start.replace(hour=next_trigger_time)
+        if next_trigger_time < 7:
+            next_trigger_datetime = next_trigger_datetime + timedelta(days=1)
+        # subtract 1 minute
+        next_trigger_datetime = next_trigger_datetime + timedelta(minutes=-1)
+        # return string
+        return next_trigger_datetime.astimezone(pytz.utc).strftime(dtf)
+
+    def get_data_for_trigger_time(
+            self, patient_id, period_start, trigger_time):
+        """
+        Get Observations and Review for
+        :param patient_id: Patient ID
+        :param period_start: Start of the period
+        :param trigger_time: Trigger Time of Review
+        :return: tuple of review activity and obs
+        """
         user_model = self.env['res.users']
         review_creator = user_model.search(
             [
@@ -215,39 +262,45 @@ class FoodAndFluidReview(models.Model):
             ]
         )
         period_start_datetime = datetime.strptime(period_start, dtf)
+        # get period start for next period
         period_end_datetime = fields.datetime.context_timestamp(
-            self._cr, review_creator.id, period_start_datetime)\
+            self._cr, review_creator.id, period_start_datetime) \
             .replace(hour=trigger_time)
         if trigger_time < 7:
             day_delta = timedelta(days=1)
             period_end_datetime = period_end_datetime + day_delta
-        period_end = period_end_datetime.astimezone(pytz.utc).strftime(dtf)
-        period_end_start = \
-            period_end_datetime.astimezone(pytz.utc).strftime(dtf)
-        period_end_end = period_end_datetime + timedelta(minutes=1)
-        period_end_end = period_end_end.astimezone(pytz.utc).strftime(dtf)
+        review_time = period_end_datetime.astimezone(pytz.utc).strftime(dtf)
+        review_end = self.get_review_end(period_end_datetime, trigger_time)
         activity_domain = [
             ['patient_id', '=', patient_id],
-            ['date_scheduled', '>=', period_end_start],
-            ['date_scheduled', '<=', period_end_end],
+            ['date_scheduled', '>=', review_time],
+            ['date_scheduled', '<=', review_end],
             ['data_model', '=', 'nh.clinical.notification.food_fluid_review']
         ]
         activity_model = self.env['nh.activity']
         review_activity = activity_model.search(activity_domain)
         if not review_activity:
-            return {}
-        food_fluid_model = \
-            self.env['nh.clinical.patient.observation.food_fluid']
+            return {}, []
+
         obs_domain = [
             ['data_model', '=', 'nh.clinical.patient.observation.food_fluid'],
             ['patient_id', '=', patient_id],
             ['date_terminated', '>=', period_start],
-            ['date_terminated', '<=', period_end]
+            ['date_terminated', '<=', review_time]
         ]
         obs = activity_model.search(obs_domain)
-        fluid_intake = food_fluid_model.\
-            _calculate_total_fluid_intake_from_obs_activities(obs)
-        score = food_fluid_model.calculate_period_score(fluid_intake)
+        return review_activity, obs
+
+    def get_user_or_reason(self, review_activity):
+        """
+        Get the user who completed the review activity or the reason the
+        review activity was cancelled
+        :param review_activity: Review Activity object to get data for
+        :return: string of user name or reason for cancellation
+        """
+        activity_model = self.env['nh.activity']
+        if not review_activity:
+            return None
         user_or_reason = review_activity.terminate_uid.name
         if review_activity.state == 'cancelled':
             user_or_reason = review_activity.cancel_reason_id.name
@@ -264,11 +317,7 @@ class FoodAndFluidReview(models.Model):
                     user_or_reason = 'Stop Obs - {}'.format(
                         pme.data_ref.reason.display_name
                     )
-        return {
-            'score': score,
-            'state': review_activity.state.title(),
-            'user': user_or_reason
-        }
+        return user_or_reason
 
     def get_view_description(self, form_desc):
         """
