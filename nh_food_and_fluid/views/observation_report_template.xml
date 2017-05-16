@@ -62,9 +62,13 @@
         </template>
 
         <template id="empty_periods">
-            <div id="food_and_fluid_periods_with_no_entries">
+            <div class="col-xs-12 row" id="food_and_fluid_periods_with_no_entries">
                 <h3>Food and Fluid Periods With No Entries</h3>
                 <table class="striped col-xs-12 row">
+                    <thead>
+                        <th class="col-xs-7">Date Range</th>
+                        <th class="col-xs-5"><span class="pull-right">Details</span></th>
+                    </thead>
                     <t t-foreach="empty_periods" t-as="empty_period">
                         <tr>
                             <td class="col-xs-7">
