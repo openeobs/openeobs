@@ -251,3 +251,18 @@ class FoodAndFluidReview(models.Model):
                     period.get(datetime_key), dtf)\
                     .strftime('%-I%p %d/%m').lower()
         return period
+
+    def get_open_reviews_for_patient(self, patient_id):
+        """
+        Get any currently open Review tasks for the patient
+        :param patient_id: ID of the patient to find review task for
+        :return: recordset with open review activities
+        """
+        activity_model = self.env['nh.activity']
+        review_domain = [
+            ['patient_id', '=', patient_id],
+            ['data_model', '=', 'nh.clinical.notification.food_fluid_review'],
+            ['state', 'not in', ['completed', 'cancelled']]
+        ]
+        review_activities = activity_model.search(review_domain)
+        return review_activities
