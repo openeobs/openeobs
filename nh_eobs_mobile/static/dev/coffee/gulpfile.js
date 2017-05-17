@@ -51,6 +51,7 @@ gulp.task('travis_test_reports', function(){
 		'tests/spec/utility.spec.js',
 		'tests/spec/events.spec.js',
 		'tests/spec/form.spec.js',
+		'tests/spec/multiple-forms.spec.js',
 		'tests/spec/standin.spec.js'])
 	.pipe(
 		new Server({

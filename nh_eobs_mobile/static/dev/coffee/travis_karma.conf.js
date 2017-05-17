@@ -12,6 +12,7 @@ module.exports = function(config) {
 		    'tests/spec/utility.spec.js',
             'tests/spec/standin.spec.js',
             'tests/spec/form.spec.js',
+            'tests/spec/multiple-forms.spec.js',
 		    'tests/spec/events.spec.js'
         ],
 
