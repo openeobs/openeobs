@@ -598,6 +598,7 @@ describe('Data Entry Functionality', function(){
                      '</div>' +
                      '</div>' +
                      '<div id="patientName"><a patient-id="3">Test Patient</a></div>' +
+                     '<input type="submit" value="Submit">' +
                      '</form>';
                  mobile = new NHMobileForm();
              });
@@ -1015,7 +1016,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parentcomplete_input">' +
                         '<div class="input-header">' +
                         '<label for="complete_input">Test Complete Input</label>' +
-                        '<input type="number" value="1" name="complete_input" id="complete_input" data-required="false" data-necessary="true">' +
+                        '<input type="number" value="1" name="complete_input" id="complete_input" data-required="true" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +
@@ -1025,7 +1026,7 @@ describe('Data Entry Functionality', function(){
                         '<div class="block obsField" id="parent_incomplete_input">' +
                         '<div class="input-header">' +
                         '<label for="incomplete_input">Test incomplete_input</label>' +
-                        '<input type="number" name="incomplete_input" id="incomplete_input" data-required="false" data-necessary="true">' +
+                        '<input type="number" name="incomplete_input" id="incomplete_input" data-required="true" data-necessary="true">' +
                         '</div>' +
                         '<div class="input-body">' +
                         '<span class="errors"></span>' +

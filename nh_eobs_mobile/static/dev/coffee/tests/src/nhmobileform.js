@@ -19,7 +19,8 @@ NHMobileForm = (function(superClass) {
     this.validate_number_input = bind(this.validate_number_input, this);
     this.validate = bind(this.validate, this);
     var ptn_name, ref, self;
-    this.form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
+    this.forms = document.getElementsByTagName('form');
+    this.form = (ref = this.forms) != null ? ref[0] : void 0;
     this.form_timeout = 600 * 1000;
     ptn_name = document.getElementById('patientName');
     this.patient_name_el = ptn_name.getElementsByTagName('a')[0];
@@ -32,106 +33,121 @@ NHMobileForm = (function(superClass) {
   }
 
   NHMobileForm.prototype.setup_event_listeners = function(self) {
-    var fn, i, input, len, ref;
-    ref = self.form.elements;
-    fn = function() {
-      switch (input.localName) {
-        case 'input':
-          switch (input.getAttribute('type')) {
-            case 'number':
-              return input.addEventListener('change', function(e) {
-                self.handle_event(e, self.validate, true);
-                e.handled = false;
-                return self.handle_event(e, self.trigger_actions, true);
-              });
-            case 'submit':
-              return input.addEventListener('click', function(e) {
-                var change_event, el, element, errored_els, form, form_elements, inp, j, k, len1, len2, ref1;
-                form = (ref1 = document.getElementsByTagName('form')) != null ? ref1[0] : void 0;
-                errored_els = (function() {
-                  var j, len1, ref2, results;
-                  ref2 = form.elements;
-                  results = [];
-                  for (j = 0, len1 = ref2.length; j < len1; j++) {
-                    el = ref2[j];
-                    if (el.classList.contains('error')) {
-                      results.push(el);
-                    }
-                  }
-                  return results;
-                })();
-                for (j = 0, len1 = errored_els.length; j < len1; j++) {
-                  inp = errored_els[j];
-                  self.reset_input_errors(inp);
-                }
-                form_elements = (function() {
-                  var k, len2, ref2, results;
-                  ref2 = form.elements;
-                  results = [];
-                  for (k = 0, len2 = ref2.length; k < len2; k++) {
-                    element = ref2[k];
-                    if (!element.classList.contains('exclude')) {
-                      results.push(element);
-                    }
-                  }
-                  return results;
-                })();
-                for (k = 0, len2 = form_elements.length; k < len2; k++) {
-                  el = form_elements[k];
-                  change_event = document.createEvent('CustomEvent');
-                  change_event.initCustomEvent('change', false, true, false);
-                  el.dispatchEvent(change_event);
-                }
-                return self.handle_event(e, self.submit, true);
-              });
-            case 'reset':
-              return input.addEventListener('click', function(e) {
-                return self.handle_event(e, self.cancel_notification, true);
-              });
-            case 'radio':
-              return input.addEventListener('click', function(e) {
-                return self.handle_event(e, self.trigger_actions, true);
-              });
-            case 'checkbox':
-              input.addEventListener('click', function(e) {
-                self.handle_event(e, self.validate, false);
-                e.handled = false;
-                return self.handle_event(e, self.trigger_actions, false);
-              });
-              return input.addEventListener('change', function(e) {
-                self.handle_event(e, self.validate, false);
-                e.handled = false;
-                return self.handle_event(e, self.trigger_actions, false);
-              });
-            case 'text':
-              return input.addEventListener('change', function(e) {
-                self.handle_event(e, self.validate, true);
-                e.handled = false;
-                return self.handle_event(e, self.trigger_actions, true);
-              });
-          }
-          break;
-        case 'select':
-          return input.addEventListener('change', function(e) {
-            self.handle_event(e, self.validate, true);
-            e.handled = false;
-            return self.handle_event(e, self.trigger_actions, true);
-          });
-        case 'button':
-          return input.addEventListener('click', function(e) {
-            return self.handle_event(e, self.show_reference, true);
-          });
-        case 'textarea':
-          return input.addEventListener('change', function(e) {
-            self.handle_event(e, self.validate, true);
-            e.handled = false;
-            return self.handle_event(e, self.trigger_actions, true);
-          });
-      }
-    };
+    var fn, form, i, input, j, len, len1, ref, ref1, resetButton, submitButton;
+    ref = self.forms;
     for (i = 0, len = ref.length; i < len; i++) {
-      input = ref[i];
-      fn();
+      form = ref[i];
+      ref1 = form.elements;
+      fn = function() {
+        switch (input.localName) {
+          case 'input':
+            switch (input.getAttribute('type')) {
+              case 'number':
+                return input.addEventListener('change', function(e) {
+                  self.handle_event(e, self.validate, true);
+                  e.handled = false;
+                  return self.handle_event(e, self.trigger_actions, true);
+                });
+              case 'radio':
+                return input.addEventListener('click', function(e) {
+                  return self.handle_event(e, self.trigger_actions, true);
+                });
+              case 'checkbox':
+                input.addEventListener('click', function(e) {
+                  self.handle_event(e, self.validate, false);
+                  e.handled = false;
+                  return self.handle_event(e, self.trigger_actions, false);
+                });
+                return input.addEventListener('change', function(e) {
+                  self.handle_event(e, self.validate, false);
+                  e.handled = false;
+                  return self.handle_event(e, self.trigger_actions, false);
+                });
+              case 'text':
+                return input.addEventListener('change', function(e) {
+                  self.handle_event(e, self.validate, true);
+                  e.handled = false;
+                  return self.handle_event(e, self.trigger_actions, true);
+                });
+            }
+            break;
+          case 'select':
+            return input.addEventListener('change', function(e) {
+              self.handle_event(e, self.validate, true);
+              e.handled = false;
+              return self.handle_event(e, self.trigger_actions, true);
+            });
+          case 'button':
+            return input.addEventListener('click', function(e) {
+              return self.handle_event(e, self.show_reference, true);
+            });
+          case 'textarea':
+            return input.addEventListener('change', function(e) {
+              self.handle_event(e, self.validate, true);
+              e.handled = false;
+              return self.handle_event(e, self.trigger_actions, true);
+            });
+        }
+      };
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        input = ref1[j];
+        fn();
+      }
+    }
+    submitButton = document.querySelector('input[type="submit"]');
+    if (submitButton != null) {
+      submitButton.addEventListener('click', function(e) {
+        var change_event, el, element, elements, errored_els, form_elements, forms, inp, k, l, len2, len3, len4, len5, m, n, ref2;
+        forms = document.getElementsByTagName('form');
+        elements = [];
+        for (k = 0, len2 = forms.length; k < len2; k++) {
+          form = forms[k];
+          ref2 = form.elements;
+          for (l = 0, len3 = ref2.length; l < len3; l++) {
+            element = ref2[l];
+            elements.push(element);
+          }
+        }
+        errored_els = (function() {
+          var len4, m, results;
+          results = [];
+          for (m = 0, len4 = elements.length; m < len4; m++) {
+            el = elements[m];
+            if (el.classList.contains('error')) {
+              results.push(el);
+            }
+          }
+          return results;
+        })();
+        for (m = 0, len4 = errored_els.length; m < len4; m++) {
+          inp = errored_els[m];
+          self.reset_input_errors(inp);
+        }
+        form_elements = (function() {
+          var len5, n, results;
+          results = [];
+          for (n = 0, len5 = elements.length; n < len5; n++) {
+            element = elements[n];
+            if (!element.classList.contains('exclude')) {
+              results.push(element);
+            }
+          }
+          return results;
+        })();
+        for (n = 0, len5 = form_elements.length; n < len5; n++) {
+          el = form_elements[n];
+          change_event = document.createEvent('CustomEvent');
+          change_event.initCustomEvent('change', false, true, false);
+          el.dispatchEvent(change_event);
+        }
+        return self.handle_event(e, self.submit, true);
+      });
+    }
+    resetButton = document.querySelector('input[type="reset"]');
+    if (resetButton != null) {
+      resetButton.addEventListener('click', function(e) {
+        return self.handle_event(e, self.cancel_notification, true);
+      });
     }
     document.addEventListener('form_timeout', function(event) {
       var task_id;
@@ -360,105 +376,118 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, ajax_act, ajax_args, ajax_partial_act, btn, button, el, element, empty_elements, empty_mandatory, form_elements, i, invalid_elements, j, len, len1, msg;
+    var body_el, btn, el, element, empty_mandatory, form, form_elements, i, invalid_elements, j, len, len1, msg, ref, ref1;
     this.reset_form_timeout(this);
-    ajax_act = this.form.getAttribute('ajax-action');
-    ajax_partial_act = this.form.getAttribute('ajax-partial-action');
-    ajax_args = this.form.getAttribute('ajax-args');
-    form_elements = (function() {
-      var i, len, ref, results;
-      ref = this.form.elements;
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        element = ref[i];
+    body_el = document.getElementsByTagName('body')[0];
+    form_elements = [];
+    ref = this.forms;
+    for (i = 0, len = ref.length; i < len; i++) {
+      form = ref[i];
+      ref1 = form.elements;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        element = ref1[j];
         if (!element.classList.contains('exclude')) {
-          results.push(element);
+          form_elements.push(element);
         }
       }
-      return results;
-    }).call(this);
+    }
     invalid_elements = (function() {
-      var i, len, results;
+      var k, len2, results;
       results = [];
-      for (i = 0, len = form_elements.length; i < len; i++) {
-        element = form_elements[i];
+      for (k = 0, len2 = form_elements.length; k < len2; k++) {
+        element = form_elements[k];
         if (element.classList.contains('error')) {
           results.push(element);
         }
       }
       return results;
     })();
-    empty_elements = (function() {
-      var i, len, results;
-      results = [];
-      for (i = 0, len = form_elements.length; i < len; i++) {
-        el = form_elements[i];
-        if (!el.value && (el.getAttribute('data-necessary').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-necessary').toLowerCase() === 'true')) {
-          results.push(el);
-        }
-      }
-      return results;
-    })();
     empty_mandatory = (function() {
-      var i, len, results;
+      var k, len2, results;
       results = [];
-      for (i = 0, len = form_elements.length; i < len; i++) {
-        el = form_elements[i];
+      for (k = 0, len2 = form_elements.length; k < len2; k++) {
+        el = form_elements[k];
         if (!el.value && (el.getAttribute('data-required').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-required').toLowerCase() === 'true')) {
           results.push(el);
         }
       }
       return results;
     })();
-    if (invalid_elements.length < 1 && empty_elements.length < 1) {
-      action_buttons = (function() {
-        var i, len, ref, ref1, results;
-        ref = this.form.elements;
-        results = [];
-        for (i = 0, len = ref.length; i < len; i++) {
-          element = ref[i];
-          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-            results.push(element);
-          }
-        }
-        return results;
-      }).call(this);
-      for (i = 0, len = action_buttons.length; i < len; i++) {
-        button = action_buttons[i];
-        button.setAttribute('disabled', 'disabled');
-      }
-      return this.submit_observation(this, form_elements, ajax_act, ajax_args);
-    } else if (empty_mandatory.length > 0 || empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+    if (empty_mandatory.length > 0) {
       msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
-      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
+      return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, body_el);
     } else if (invalid_elements.length > 0) {
       msg = '<p>The form contains errors, please correct ' + 'the errors and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
-      return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, this.form);
+      return new window.NH.NHModal('invalid_form', 'Form contains errors', msg, [btn], 0, body_el);
     } else {
-      action_buttons = (function() {
-        var j, len1, ref, ref1, results;
-        ref = this.form.elements;
-        results = [];
-        for (j = 0, len1 = ref.length; j < len1; j++) {
-          element = ref[j];
-          if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-            results.push(element);
+      return this.submit_forms();
+    }
+  };
+
+  NHMobileForm.prototype.submit_forms = function() {
+    var ajaxAct, ajaxArgs, ajaxPartialAct, el, element, emptyElements, form, formElements, forms, i, j, len, len1, ref, results;
+    forms = document.getElementsByTagName('form');
+    results = [];
+    for (i = 0, len = forms.length; i < len; i++) {
+      form = forms[i];
+      formElements = [];
+      ref = form.elements;
+      for (j = 0, len1 = ref.length; j < len1; j++) {
+        element = ref[j];
+        if (!element.classList.contains('exclude')) {
+          formElements.push(element);
+        }
+      }
+      ajaxAct = form.getAttribute('ajax-action');
+      ajaxPartialAct = form.getAttribute('ajax-partial-action');
+      ajaxArgs = form.getAttribute('ajax-args');
+      emptyElements = (function() {
+        var k, len2, results1;
+        results1 = [];
+        for (k = 0, len2 = formElements.length; k < len2; k++) {
+          el = formElements[k];
+          if (!el.value && (el.getAttribute('data-necessary').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-necessary').toLowerCase() === 'true')) {
+            results1.push(el);
           }
         }
-        return results;
-      }).call(this);
-      for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-        button = action_buttons[j];
-        button.setAttribute('disabled', 'disabled');
-      }
-      if (ajax_partial_act === 'score') {
-        return this.submit_observation(this, form_elements, ajax_act, ajax_args, true);
+        return results1;
+      })();
+      this.disable_action_buttons();
+      if (emptyElements.length > 0) {
+        if (ajaxPartialAct === 'score') {
+          results.push(this.submit_observation(form, formElements, ajaxAct, ajaxArgs, true));
+        } else {
+          results.push(this.display_partial_reasons(form));
+        }
       } else {
-        return this.display_partial_reasons(this);
+        results.push(this.submit_observation(form, formElements, ajaxAct, ajaxArgs));
       }
     }
+    return results;
+  };
+
+  NHMobileForm.prototype.disable_action_buttons = function() {
+    var action_buttons, button, i, len, results;
+    action_buttons = document.querySelectorAll('input[type="submit"], input[type="reset"]');
+    results = [];
+    for (i = 0, len = action_buttons.length; i < len; i++) {
+      button = action_buttons[i];
+      results.push(button.setAttribute('disabled', 'disabled'));
+    }
+    return results;
+  };
+
+  NHMobileForm.prototype.enableActionButtons = function() {
+    var action_buttons, button, i, len, results;
+    action_buttons = document.querySelectorAll('input[type="submit"], input[type="reset"]');
+    results = [];
+    for (i = 0, len = action_buttons.length; i < len; i++) {
+      button = action_buttons[i];
+      results.push(button.removeAttribute('disabled'));
+    }
+    return results;
   };
 
   NHMobileForm.prototype.show_reference = function(event) {
@@ -480,10 +509,10 @@ NHMobileForm = (function(superClass) {
     }
   };
 
-  NHMobileForm.prototype.display_partial_reasons = function(self) {
+  NHMobileForm.prototype.display_partial_reasons = function(form) {
     var form_type, observation, partials_url;
-    form_type = self.form.getAttribute('data-source');
-    observation = self.form.getAttribute('data-type');
+    form_type = form.getAttribute('data-source');
+    observation = form.getAttribute('data-type');
     partials_url = this.urls.json_partial_reasons(observation);
     return Promise.when(this.call_resource(partials_url)).then(function(rdata) {
       var can_btn, con_btn, data, i, len, msg, option, option_name, option_val, options, select, server_data;
@@ -500,12 +529,12 @@ NHMobileForm = (function(superClass) {
       con_btn = form_type === 'task' ? '<a href="#" ' + 'data-target="partial_reasons" data-action="partial_submit" ' + 'data-ajax-action="json_task_form_action">Confirm</a>' : '<a href="#" data-target="partial_reasons" ' + 'data-action="partial_submit" ' + 'data-ajax-action="json_patient_form_action">Confirm</a>';
       can_btn = '<a href="#" data-action="renable" ' + 'data-target="partial_reasons">Cancel</a>';
       msg = '<p>' + server_data.desc + '</p>';
-      return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, self.form);
+      return new window.NH.NHModal('partial_reasons', server_data.title, msg + select, [can_btn, con_btn], 0, form);
     });
   };
 
-  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args, partial) {
-    var el, formValues, i, key, len, serialised_string, type, url, value;
+  NHMobileForm.prototype.submit_observation = function(form, elements, endpoint, args, partial) {
+    var el, formValues, i, key, len, self, serialised_string, type, url, value;
     if (partial == null) {
       partial = false;
     }
@@ -535,8 +564,9 @@ NHMobileForm = (function(superClass) {
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
+    self = this;
     return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, data_action, element, j, k, l, len1, len2, len3, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      var act_btn, body, btn, buttons, can_btn, cls, data, data_action, j, k, len1, len2, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
       server_data = raw_data[0];
       data = server_data.data;
       body = document.getElementsByTagName('body')[0];
@@ -544,7 +574,7 @@ NHMobileForm = (function(superClass) {
         data_action = !partial ? 'submit' : 'display_partial_reasons';
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
         act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="' + data_action + '" data-ajax-action="' + data.next_action + '">Submit</a>';
-        new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
+        new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, form);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
           cls = 'clinicalrisk-' + data.score.clinical_risk.toLowerCase();
@@ -590,24 +620,9 @@ NHMobileForm = (function(superClass) {
         }
         pos = '<p>' + server_data.desc + '</p>';
         task_list = triggered_tasks ? triggered_tasks : pos;
-        return new window.NH.NHModal('cancel_success', server_data.title, task_list, buttons, 0, self.form);
+        return new window.NH.NHModal('cancel_success', server_data.title, task_list, buttons, 0, body);
       } else {
-        action_buttons = (function() {
-          var l, len3, ref2, ref3, results;
-          ref2 = self.form.elements;
-          results = [];
-          for (l = 0, len3 = ref2.length; l < len3; l++) {
-            element = ref2[l];
-            if ((ref3 = element.getAttribute('type')) === 'submit' || ref3 === 'reset') {
-              results.push(element);
-            }
-          }
-          return results;
-        })();
-        for (l = 0, len3 = action_buttons.length; l < len3; l++) {
-          button = action_buttons[l];
-          button.removeAttribute('disabled');
-        }
+        self.enableActionButtons();
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
         return new window.NH.NHModal('submit_error', 'Error submitting observation', 'Server returned an error', [btn], 0, body);
       }
@@ -721,10 +736,11 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_partial_submit = function(event, self) {
-    var cancel_reason, cover, dialog_id, element, form_elements, reason, reason_to_use;
+    var cancel_reason, cover, dialog_id, element, form, form_elements, reason, reason_to_use;
+    form = event.detail.parent_node;
     form_elements = (function() {
       var i, len, ref, results;
-      ref = self.form.elements;
+      ref = form.elements;
       results = [];
       for (i = 0, len = ref.length; i < len; i++) {
         element = ref[i];
@@ -745,7 +761,7 @@ NHMobileForm = (function(superClass) {
     }
     if (reason_to_use) {
       form_elements.push(reason_to_use);
-      self.submit_observation(self, form_elements, event.detail.action, self.form.getAttribute('ajax-args'));
+      self.submit_observation(self.form, form_elements, event.detail.action, self.form.getAttribute('ajax-args'));
       dialog_id = document.getElementById(event.detail.target);
       cover = document.getElementById('cover');
       document.getElementsByTagName('body')[0].removeChild(cover);
@@ -754,14 +770,14 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.process_post_score_submit = function(event, self) {
-    var element, endpoint, form, form_elements, ref;
-    form = (ref = document.getElementsByTagName('form')) != null ? ref[0] : void 0;
+    var element, endpoint, form, form_elements;
+    form = event.detail.parent_node;
     form_elements = (function() {
-      var i, len, ref1, results;
-      ref1 = form.elements;
+      var i, len, ref, results;
+      ref = form.elements;
       results = [];
-      for (i = 0, len = ref1.length; i < len; i++) {
-        element = ref1[i];
+      for (i = 0, len = ref.length; i < len; i++) {
+        element = ref[i];
         if (!element.classList.contains('exclude')) {
           results.push(element);
         }
@@ -769,11 +785,16 @@ NHMobileForm = (function(superClass) {
       return results;
     })();
     endpoint = event.detail.endpoint;
-    return self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'));
+    return self.submit_observation(form, form_elements, endpoint, form.getAttribute('ajax-args'));
   };
 
   NHMobileForm.prototype.handle_display_partial_reasons = function(event) {
-    return this.display_partial_reasons(this);
+    var form;
+    if (!event.handled) {
+      form = event.detail.parent_node;
+      this.display_partial_reasons(form);
+      return event.handled = true;
+    }
   };
 
   NHMobileForm.prototype.findParentWithClass = function(el, className) {

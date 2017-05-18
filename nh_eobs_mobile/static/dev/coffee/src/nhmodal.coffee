@@ -150,103 +150,108 @@ class NHModal extends NHLib
   # - assign (assigns nurses to patients)
   # NOTE: Don't preventDefault() straight away as will disable all button clicks
   handle_button_events: (event) =>
-#    if not event.handled
-#      target_el = if event.srcElement then event.srcElement else event.target
-    target_el = event.src_el
-    data_target = target_el.getAttribute('data-target')
-    data_action = target_el.getAttribute('data-ajax-action')
-    switch target_el.getAttribute('data-action')
-      when 'close'
-        event.preventDefault()
-        @close_modal(data_target)
-      when 'close_reload'
-        event.preventDefault()
-        @reloadPage()
-      when 'renable'
-        event.preventDefault()
-        forms = document.getElementsByTagName('form')
-        for form in forms
-          action_buttons = (element for element in form.elements \
-            when element.getAttribute('type') in ['submit', 'reset'])
-          for button in action_buttons
-            button.removeAttribute('disabled')
-        @close_modal(data_target)
-      when 'confirm_submit'
-        event.preventDefault()
-        confirmEvent = document.createEvent "CustomEvent"
-        confirmEvent.initCustomEvent("confirm_change", false, true, false)
-        document.dispatchEvent confirmEvent
-        @close_modal(data_target)
-      when 'submit'
-        event.preventDefault()
-        submit_event = document.createEvent 'CustomEvent'
-        submit_detail = {
-          'endpoint': target_el.getAttribute('data-ajax-action')
-        }
-        submit_event.initCustomEvent('post_score_submit', true, false,
-          submit_detail)
-        document.dispatchEvent submit_event
-        @close_modal(data_target)
-      when 'partial_submit'
-        event.preventDefault()
-#        if not event.handled
-        submit_event = document.createEvent 'CustomEvent'
-        submit_detail = {
-          'action':data_action,
-          'target': data_target
-        }
-        submit_event.initCustomEvent('partial_submit',false,
-          true,submit_detail)
-        document.dispatchEvent submit_event
-      when 'display_partial_reasons'
-        event.preventDefault()
-        @close_modal(data_target)
-        submit_event = document.createEvent 'CustomEvent'
-        submit_detail = {
-          'action': data_action,
-          'target': data_target
-        }
-        submit_event.initCustomEvent('display_partial_reasons', false,
-          true, submit_detail)
-        document.dispatchEvent submit_event
-      when 'assign'
-        event.preventDefault()
-        dialog = document.getElementById(data_target)
-        dialog_form = dialog.getElementsByTagName('form')[0]
-        nurses = (el.value for el in dialog_form.elements when el.checked)
-        assign_event = document.createEvent 'CustomEvent'
-        assign_detail = {
-          'action':data_action,
-          'target': data_target,
-          'nurses': nurses
-        }
-        assign_event.initCustomEvent('assign_nurse', false, true,
-          assign_detail)
-        document.dispatchEvent assign_event
-      when 'claim'
-        event.preventDefault()
-        claim_event = document.createEvent 'CustomEvent'
-        claim_event.initCustomEvent('claim_patients', false, true, false)
-        document.dispatchEvent claim_event
-      when 'accept'
-        event.preventDefault()
-        accept_event = document.createEvent 'CustomEvent'
-        accept_detail = {
-          'invite_id': target_el.getAttribute('data-invite-id')
-        }
-        accept_event.initCustomEvent('accept_invite', false, true,
-          accept_detail)
-        document.dispatchEvent accept_event
-      when 'reject'
-        event.preventDefault()
-        reject_event = document.createEvent 'CustomEvent'
-        reject_detail = {
-          'invite_id': target_el.getAttribute('data-invite-id')
-        }
-        reject_event.initCustomEvent('reject_invite', false, true,
-          reject_detail)
-        document.dispatchEvent reject_event
-#      event.handled = true
+    if not event.handled
+      target_el = event.src_el
+      data_target = target_el.getAttribute('data-target')
+      data_action = target_el.getAttribute('data-ajax-action')
+      switch target_el.getAttribute('data-action')
+        when 'close'
+          event.preventDefault()
+          @close_modal(data_target)
+        when 'close_reload'
+          event.preventDefault()
+          @reloadPage()
+        when 'renable'
+          event.preventDefault()
+          forms = document.getElementsByTagName('form')
+          for form in forms
+            action_buttons = (element for element in form.elements \
+              when element.getAttribute('type') in ['submit', 'reset'])
+            for button in action_buttons
+              button.removeAttribute('disabled')
+          @close_modal(data_target)
+        when 'confirm_submit'
+          event.preventDefault()
+          confirmEvent = document.createEvent "CustomEvent"
+          confirmEvent.initCustomEvent("confirm_change", false, true, false)
+          document.dispatchEvent confirmEvent
+          @close_modal(data_target)
+        when 'submit'
+          event.preventDefault()
+          submit_event = document.createEvent 'CustomEvent'
+          parentForm = @.getParentForm(event.src_el)
+          submit_detail = {
+            'endpoint': target_el.getAttribute('data-ajax-action'),
+            'parent_node': parentForm
+          }
+          submit_event.initCustomEvent('post_score_submit', true, false,
+            submit_detail)
+          document.dispatchEvent submit_event
+          @close_modal(data_target)
+        when 'partial_submit'
+          event.preventDefault()
+  #        if not event.handled
+          parentForm = @.getParentForm(event.src_el)
+          submit_event = document.createEvent 'CustomEvent'
+          submit_detail = {
+            'action':data_action,
+            'target': data_target,
+            'parent_node': parentForm
+          }
+          submit_event.initCustomEvent('partial_submit',false,
+            true,submit_detail)
+          document.dispatchEvent submit_event
+        when 'display_partial_reasons'
+          event.preventDefault()
+          parentForm = @.getParentForm(event.src_el)
+          @close_modal(data_target)
+          submit_event = document.createEvent 'CustomEvent'
+          submit_detail = {
+            'action': data_action,
+            'target': data_target,
+            'parent_node': parentForm
+          }
+          submit_event.initCustomEvent('display_partial_reasons', false,
+            true, submit_detail)
+          document.dispatchEvent submit_event
+        when 'assign'
+          event.preventDefault()
+          dialog = document.getElementById(data_target)
+          dialog_form = dialog.getElementsByTagName('form')[0]
+          nurses = (el.value for el in dialog_form.elements when el.checked)
+          assign_event = document.createEvent 'CustomEvent'
+          assign_detail = {
+            'action':data_action,
+            'target': data_target,
+            'nurses': nurses
+          }
+          assign_event.initCustomEvent('assign_nurse', false, true,
+            assign_detail)
+          document.dispatchEvent assign_event
+        when 'claim'
+          event.preventDefault()
+          claim_event = document.createEvent 'CustomEvent'
+          claim_event.initCustomEvent('claim_patients', false, true, false)
+          document.dispatchEvent claim_event
+        when 'accept'
+          event.preventDefault()
+          accept_event = document.createEvent 'CustomEvent'
+          accept_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          }
+          accept_event.initCustomEvent('accept_invite', false, true,
+            accept_detail)
+          document.dispatchEvent accept_event
+        when 'reject'
+          event.preventDefault()
+          reject_event = document.createEvent 'CustomEvent'
+          reject_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          }
+          reject_event.initCustomEvent('reject_invite', false, true,
+            reject_detail)
+          document.dispatchEvent reject_event
+      event.handled = true
 
 
   # Function to prevent scrolling via locking body size to defined height and
@@ -262,6 +267,13 @@ class NHModal extends NHLib
     dialogs = document.getElementsByClassName('dialog')
     if dialogs.length < 1
       body.classList.remove('no-scroll')
+
+  getParentForm: (el) ->
+    while el.parentNode
+      el = el.parentNode
+      if el and el.tagName.toLowerCase() is 'form'
+        return el
+    return null
 
 ### istanbul ignore if ###
 if !window.NH

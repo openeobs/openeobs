@@ -5,7 +5,8 @@ class NHMobileForm extends NHMobile
 
   constructor: () ->
     # find the form on the page
-    @form = document.getElementsByTagName('form')?[0]
+    @forms = document.getElementsByTagName('form')
+    @form = @forms?[0]
     @form_timeout = 600*1000
     ptn_name = document.getElementById('patientName')
     @patient_name_el = ptn_name.getElementsByTagName('a')[0]
@@ -18,69 +19,76 @@ class NHMobileForm extends NHMobile
   setup_event_listeners: (self) ->
    
     # for each input in the form set up the event listeners
-    for input in self.form.elements
-      do () ->
-        switch input.localName
-          when 'input'
-            switch input.getAttribute('type')
-              when 'number'
-                input.addEventListener('change', (e) ->
-                  self.handle_event(e, self.validate, true)
-                  e.handled = false
+    for form in self.forms
+      for input in form.elements
+        do () ->
+          switch input.localName
+            when 'input'
+              switch input.getAttribute('type')
+                when 'number'
+                  input.addEventListener('change', (e) ->
+                    self.handle_event(e, self.validate, true)
+                    e.handled = false
+                    self.handle_event(e, self.trigger_actions, true)
+                  )
+  #                input.addEventListener('change', self.trigger_actions)
+                when 'radio' then input.addEventListener('click', (e) ->
                   self.handle_event(e, self.trigger_actions, true)
                 )
-#                input.addEventListener('change', self.trigger_actions)
-              when 'submit' then input.addEventListener('click', (e) ->
-                form = document.getElementsByTagName('form')?[0]
-                errored_els = (el for el in form.elements \
-                  when el.classList.contains('error'))
-                for inp in errored_els
-                  self.reset_input_errors(inp)
-                form_elements = (element for element in form.elements \
-                  when not element.classList.contains('exclude'))
-                for el in form_elements
-                  change_event = document.createEvent('CustomEvent')
-                  change_event.initCustomEvent('change', false, true, false)
-                  el.dispatchEvent(change_event)
-                self.handle_event(e, self.submit, true)
-              )
-              when 'reset' then input.addEventListener('click', (e) ->
-                self.handle_event(e, self.cancel_notification, true)
-              )
-              when 'radio' then input.addEventListener('click', (e) ->
-                self.handle_event(e, self.trigger_actions, true)
-              )
-              when 'checkbox'
-                input.addEventListener('click', (e) ->
-                  self.handle_event(e, self.validate, false)
-                  e.handled = false
-                  self.handle_event(e, self.trigger_actions, false)
-                )
-                input.addEventListener('change', (e) ->
-                  self.handle_event(e, self.validate, false)
-                  e.handled = false
-                  self.handle_event(e, self.trigger_actions, false)
-                )
-              when 'text'
-                input.addEventListener('change', (e) ->
-                  self.handle_event(e, self.validate, true)
-                  e.handled = false
-                  self.handle_event(e, self.trigger_actions, true)
-                )
-          when 'select' then input.addEventListener('change', (e) ->
-            self.handle_event(e, self.validate, true)
-            e.handled = false
-            self.handle_event(e, self.trigger_actions, true)
-          )
-          when 'button' then input.addEventListener('click', (e) ->
-            self.handle_event(e, self.show_reference, true)
-          )
-          when 'textarea'
-            input.addEventListener('change', (e) ->
+                when 'checkbox'
+                  input.addEventListener('click', (e) ->
+                    self.handle_event(e, self.validate, false)
+                    e.handled = false
+                    self.handle_event(e, self.trigger_actions, false)
+                  )
+                  input.addEventListener('change', (e) ->
+                    self.handle_event(e, self.validate, false)
+                    e.handled = false
+                    self.handle_event(e, self.trigger_actions, false)
+                  )
+                when 'text'
+                  input.addEventListener('change', (e) ->
+                    self.handle_event(e, self.validate, true)
+                    e.handled = false
+                    self.handle_event(e, self.trigger_actions, true)
+                  )
+            when 'select' then input.addEventListener('change', (e) ->
               self.handle_event(e, self.validate, true)
               e.handled = false
               self.handle_event(e, self.trigger_actions, true)
             )
+            when 'button' then input.addEventListener('click', (e) ->
+              self.handle_event(e, self.show_reference, true)
+            )
+            when 'textarea'
+              input.addEventListener('change', (e) ->
+                self.handle_event(e, self.validate, true)
+                e.handled = false
+                self.handle_event(e, self.trigger_actions, true)
+              )
+    submitButton = document.querySelector('input[type="submit"]')
+    submitButton?.addEventListener('click', (e) ->
+      forms = document.getElementsByTagName('form')
+      elements = []
+      for form in forms
+        for element in form.elements
+          elements.push(element)
+      errored_els = (el for el in elements \
+        when el.classList.contains('error'))
+      for inp in errored_els
+        self.reset_input_errors(inp)
+      form_elements = (element for element in elements \
+        when not element.classList.contains('exclude'))
+      for el in form_elements
+        change_event = document.createEvent('CustomEvent')
+        change_event.initCustomEvent('change', false, true, false)
+        el.dispatchEvent(change_event)
+      self.handle_event(e, self.submit, true)
+    )
+    resetButton = document.querySelector('input[type="reset"]')
+    resetButton?.addEventListener('click', (e) ->
+      self.handle_event(e, self.cancel_notification, true)
+    )
 
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
@@ -266,57 +274,72 @@ class NHMobileForm extends NHMobile
   submit: (event) =>
 #    event.preventDefault()
     @.reset_form_timeout(@)
-    ajax_act = @form.getAttribute('ajax-action')
-    ajax_partial_act = @form.getAttribute('ajax-partial-action')
-    ajax_args = @form.getAttribute('ajax-args')
-    form_elements =
-      (element for element in @form.elements \
-        when not element.classList.contains('exclude'))
+    body_el = document.getElementsByTagName('body')[0]
+    form_elements = []
+    for form in @forms
+      for element in form.elements
+        if not element.classList.contains('exclude')
+          form_elements.push(element)
     invalid_elements =
       (element for element in form_elements \
         when element.classList.contains('error'))
-    empty_elements =
-      (el for el in form_elements when not el.value and \
-        (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
-        el.value is '' and \
-        (el.getAttribute('data-necessary').toLowerCase() is 'true'))
     empty_mandatory =
       (el for el in form_elements when not el.value and \
         (el.getAttribute('data-required').toLowerCase() is 'true') \
         or el.value is '' \
         and (el.getAttribute('data-required').toLowerCase() is 'true'))
-    if invalid_elements.length<1 and empty_elements.length<1
-      # do something with the form
-      action_buttons = (element for element in @form.elements \
-        when element.getAttribute('type') in ['submit', 'reset'])
-      for button in action_buttons
-        button.setAttribute('disabled', 'disabled')
-      @submit_observation(@, form_elements, ajax_act, ajax_args)
-    else if empty_mandatory.length > 0 or empty_elements.length>0 and \
-      ajax_act.indexOf('notification') > 0
-        msg = '<p>The form contains empty fields, please enter '+
-          'data into these fields and resubmit</p>'
-        btn = '<a href="#" data-action="close" data-target="invalid_form">'+
-          'Cancel</a>'
-        new window.NH.NHModal('invalid_form', 'Form contains empty fields',
-          msg, [btn], 0, @.form)
+    if empty_mandatory.length > 0
+      msg = '<p>The form contains empty fields, please enter '+
+        'data into these fields and resubmit</p>'
+      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+        'Cancel</a>'
+      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+        msg, [btn], 0, body_el)
     else if invalid_elements.length>0
       msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
       btn = '<a href="#" data-action="close" data-target="invalid_form">'+
         'Cancel</a>'
       new window.NH.NHModal('invalid_form', 'Form contains errors',
-        msg, [btn], 0, @.form)
+        msg, [btn], 0, body_el)
     else
-      # display the partial obs dialog
-      action_buttons = (element for element in @form.elements \
-        when element.getAttribute('type') in ['submit', 'reset'])
-      for button in action_buttons
-        button.setAttribute('disabled', 'disabled')
-      if ajax_partial_act is 'score'
-        @submit_observation(@, form_elements, ajax_act, ajax_args, true)
+      @submit_forms()
+
+  submit_forms: () ->
+    forms = document.getElementsByTagName('form')
+    for form in forms
+      formElements = []
+      for element in form.elements
+        if not element.classList.contains('exclude')
+          formElements.push(element)
+      ajaxAct = form.getAttribute('ajax-action')
+      ajaxPartialAct = form.getAttribute('ajax-partial-action')
+      ajaxArgs = form.getAttribute('ajax-args')
+      emptyElements =
+      (el for el in formElements when not el.value and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
+        el.value is '' and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true'))
+      @disable_action_buttons()
+      if emptyElements.length > 0
+        if ajaxPartialAct is 'score'
+          @submit_observation(form, formElements, ajaxAct, ajaxArgs, true)
+        else
+          @display_partial_reasons(form)
       else
-        @display_partial_reasons(@)
+        @submit_observation(form, formElements, ajaxAct, ajaxArgs)
+
+  disable_action_buttons: () ->
+    action_buttons = document.querySelectorAll(
+      'input[type="submit"], input[type="reset"]')
+    for button in action_buttons
+      button.setAttribute('disabled', 'disabled')
+
+  enableActionButtons: () ->
+    action_buttons = document.querySelectorAll(
+      'input[type="submit"], input[type="reset"]')
+    for button in action_buttons
+      button.removeAttribute('disabled')
 
   show_reference: (event) =>
 #    event.preventDefault()
@@ -335,11 +358,12 @@ class NHMobileForm extends NHMobile
       iframe = '<iframe src="'+ ref_url + '"></iframe>'
       btn = '<a href="#" data-action="close" data-target="popup_iframe">'+
         'Cancel</a>'
-      new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, @.form)
+      new window.NH.NHModal(
+        'popup_iframe', ref_title, iframe, [btn], 0, @.form)
 
-  display_partial_reasons: (self) =>
-    form_type = self.form.getAttribute('data-source')
-    observation = self.form.getAttribute('data-type')
+  display_partial_reasons: (form) =>
+    form_type = form.getAttribute('data-source')
+    observation = form.getAttribute('data-type')
     partials_url = @.urls.json_partial_reasons(observation)
     Promise.when(@call_resource(partials_url)).then (rdata) ->
       server_data = rdata[0]
@@ -360,9 +384,9 @@ class NHMobileForm extends NHMobile
         'data-target="partial_reasons">Cancel</a>'
       msg = '<p>' + server_data.desc + '</p>'
       new window.NH.NHModal('partial_reasons', server_data.title,
-        msg+select, [can_btn, con_btn], 0, self.form)
+        msg+select, [can_btn, con_btn], 0, form)
 
-  submit_observation: (self, elements, endpoint, args, partial = false) =>
+  submit_observation: (form, elements, endpoint, args, partial = false) =>
     # turn form data in to serialised string and ping off to server
     formValues = {}
     for el in elements
@@ -378,6 +402,7 @@ class NHMobileForm extends NHMobile
     serialised_string = (key+'='+encodeURIComponent(value) \
       for key, value of formValues).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
+    self = @
     # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
       server_data = raw_data[0]
@@ -394,7 +419,7 @@ class NHMobileForm extends NHMobile
         new window.NH.NHModal('submit_observation',
           server_data.title + ' for ' + self.patient_name() + '?',
           server_data.desc,
-          [can_btn, act_btn], 0, body)
+          [can_btn, act_btn], 0, form)
         if 'clinical_risk' of data.score
           sub_ob = document.getElementById('submit_observation')
           cls = 'clinicalrisk-'+data.score.clinical_risk.toLowerCase()
@@ -436,12 +461,9 @@ class NHMobileForm extends NHMobile
         pos = '<p>' + server_data.desc + '</p>'
         task_list = if triggered_tasks then triggered_tasks else pos
         new window.NH.NHModal('cancel_success', server_data.title,
-          task_list, buttons, 0, self.form)
+          task_list, buttons, 0, body)
       else
-        action_buttons = (element for element in self.form.elements \
-          when element.getAttribute('type') in ['submit', 'reset'])
-        for button in action_buttons
-          button.removeAttribute('disabled')
+        self.enableActionButtons()
         btn = '<a href="#" data-action="close" '+
           'data-target="submit_error">Cancel</a>'
         new window.NH.NHModal('submit_error', 'Error submitting observation',
@@ -534,7 +556,8 @@ class NHMobileForm extends NHMobile
     inp.setAttribute('data-required', 'false')
 
   process_partial_submit: (event, self) ->
-    form_elements = (element for element in self.form.elements when not
+    form = event.detail.parent_node
+    form_elements = (element for element in form.elements when not
       element.classList.contains('exclude'))
     reason_to_use = false
     reason = document.getElementsByName('partial_reason')[0]
@@ -546,7 +569,7 @@ class NHMobileForm extends NHMobile
     # TODO: Add an error catch if no value entered
     if reason_to_use
       form_elements.push(reason_to_use)
-      self.submit_observation(self, form_elements, event.detail.action,
+      self.submit_observation(self.form, form_elements, event.detail.action,
         self.form.getAttribute('ajax-args'))
       dialog_id = document.getElementById(event.detail.target)
       cover = document.getElementById('cover')
@@ -554,15 +577,18 @@ class NHMobileForm extends NHMobile
       dialog_id.parentNode.removeChild(dialog_id)
 
   process_post_score_submit: (event, self) ->
-    form  = document.getElementsByTagName('form')?[0]
+    form = event.detail.parent_node
     form_elements = (element for element in form.elements when not
       element.classList.contains('exclude'))
     endpoint = event.detail.endpoint
-    self.submit_observation(self,
-      form_elements, endpoint, self.form.getAttribute('ajax-args'))
+    self.submit_observation(form,
+      form_elements, endpoint, form.getAttribute('ajax-args'))
 
   handle_display_partial_reasons: (event) ->
-    this.display_partial_reasons(this)
+    if not event.handled
+      form = event.detail.parent_node
+      this.display_partial_reasons(form)
+      event.handled = true
 
   findParentWithClass: (el, className) ->
     while el.parentNode
