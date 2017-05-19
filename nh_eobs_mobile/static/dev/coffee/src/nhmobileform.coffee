@@ -353,7 +353,7 @@ class NHMobileForm extends NHMobile
       con_btn = if form_type is 'task' then '<a href="#" ' +
         'data-target="partial_reasons" data-action="partial_submit" '+
         'data-ajax-action="json_task_form_action">Confirm</a>'
-        else '<a href="#" data-target="partial_reasons" '+
+      else '<a href="#" data-target="partial_reasons" '+
         'data-action="partial_submit" '+
         'data-ajax-action="json_patient_form_action">Confirm</a>'
       can_btn = '<a href="#" data-action="renable" '+
