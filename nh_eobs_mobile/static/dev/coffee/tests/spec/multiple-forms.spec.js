@@ -115,15 +115,15 @@ describe("Data Entry Functionality when multiple forms are present in view", fun
        });
     });
 
-    // describe("Form Submissions when multiple forms are present in view", function(){
-    //    it("Submits each form separately in order", function(){
-    //       fail();
-    //    });
-    //    it("Removes escalation tasks from the form once they have been successfully completed", function(){
-    //       fail();
-    //    });
-    //    it("Stops submitting the forms if one of the forms returns an error", function(){
-    //       fail();
-    //    });
-    // });
+    describe("Form Submissions when multiple forms are present in view", function(){
+       it("Submits each form separately in order", function(){
+          fail();
+       });
+       it("Removes escalation tasks from the form once they have been successfully completed", function(){
+          fail();
+       });
+       it("Stops submitting the forms if one of the forms returns an error", function(){
+          fail();
+       });
+    });
 });

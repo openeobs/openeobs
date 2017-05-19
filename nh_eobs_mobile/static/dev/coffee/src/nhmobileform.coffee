@@ -307,6 +307,8 @@ class NHMobileForm extends NHMobile
 
   submit_forms: () ->
     forms = document.getElementsByTagName('form')
+    @disable_action_buttons()
+    form_submissions = Promise.when()
     for form in forms
       formElements = []
       for element in form.elements
@@ -320,14 +322,22 @@ class NHMobileForm extends NHMobile
         (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
         el.value is '' and \
         (el.getAttribute('data-necessary').toLowerCase() is 'true'))
-      @disable_action_buttons()
       if emptyElements.length > 0
+        self = @
         if ajaxPartialAct is 'score'
-          @submit_observation(form, formElements, ajaxAct, ajaxArgs, true)
+          form_submissions.then( () ->
+            self.submit_observation(
+              form, formElements, ajaxAct, ajaxArgs, true)
+          )
         else
-          @display_partial_reasons(form)
+          form_submissions.then( () ->
+            self.display_partial_reasons(form)
+          )
       else
-        @submit_observation(form, formElements, ajaxAct, ajaxArgs)
+         form_submissions.then( () ->
+          self.submit_observation(form, formElements, ajaxAct, ajaxArgs)
+         )
+    form_submissions.complete()
 
   disable_action_buttons: () ->
     action_buttons = document.querySelectorAll(
