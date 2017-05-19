@@ -134,6 +134,7 @@ class FoodAndFluidReview(models.Model):
         food_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
         is_time_to_trigger_review = self.should_trigger_review()
+
         if is_time_to_trigger_review:
             activity_model = self.env['nh.activity']
             spell_activities = activity_model.search(
@@ -142,10 +143,15 @@ class FoodAndFluidReview(models.Model):
                     ['state', 'not in', ['completed', 'cancelled']]
                 ]
             )
+
             review_tasks_created = 0
             for spell_activity in spell_activities:
-                if food_fluid_model.active_food_fluid_period(
-                        spell_activity.id):
+                current_period_active = food_fluid_model\
+                    .active_food_fluid_period(spell_activity.id)
+
+                obs_stop_in_effect = spell_activity.data_ref.obs_stop
+
+                if current_period_active and not obs_stop_in_effect:
                     self.schedule_review(spell_activity)
                     review_tasks_created += 1
 
