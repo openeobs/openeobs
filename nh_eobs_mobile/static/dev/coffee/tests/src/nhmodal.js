@@ -153,119 +153,138 @@ NHModal = (function(superClass) {
   };
 
   NHModal.prototype.handle_button_events = function(event) {
-    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, confirmEvent, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, reject_detail, reject_event, submit_detail, submit_event, target_el;
-    target_el = event.src_el;
-    data_target = target_el.getAttribute('data-target');
-    data_action = target_el.getAttribute('data-ajax-action');
-    switch (target_el.getAttribute('data-action')) {
-      case 'close':
-        event.preventDefault();
-        return this.close_modal(data_target);
-      case 'close_reload':
-        event.preventDefault();
-        return this.reloadPage();
-      case 'renable':
-        event.preventDefault();
-        forms = document.getElementsByTagName('form');
-        for (i = 0, len = forms.length; i < len; i++) {
-          form = forms[i];
-          action_buttons = (function() {
-            var j, len1, ref, ref1, results;
-            ref = form.elements;
+    var accept_detail, accept_event, action_buttons, assign_detail, assign_event, button, claim_event, confirmEvent, data_action, data_target, dialog, dialog_form, el, element, form, forms, i, j, len, len1, nurses, parentForm, reject_detail, reject_event, submit_detail, submit_event, target_el;
+    if (!event.handled) {
+      target_el = event.src_el;
+      data_target = target_el.getAttribute('data-target');
+      data_action = target_el.getAttribute('data-ajax-action');
+      switch (target_el.getAttribute('data-action')) {
+        case 'close':
+          event.preventDefault();
+          this.close_modal(data_target);
+          break;
+        case 'close_reload':
+          event.preventDefault();
+          this.reloadPage();
+          break;
+        case 'renable':
+          event.preventDefault();
+          forms = document.getElementsByTagName('form');
+          for (i = 0, len = forms.length; i < len; i++) {
+            form = forms[i];
+            action_buttons = (function() {
+              var j, len1, ref, ref1, results;
+              ref = form.elements;
+              results = [];
+              for (j = 0, len1 = ref.length; j < len1; j++) {
+                element = ref[j];
+                if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
+                  results.push(element);
+                }
+              }
+              return results;
+            })();
+            for (j = 0, len1 = action_buttons.length; j < len1; j++) {
+              button = action_buttons[j];
+              button.removeAttribute('disabled');
+            }
+          }
+          this.close_modal(data_target);
+          break;
+        case 'confirm_submit':
+          event.preventDefault();
+          confirmEvent = document.createEvent("CustomEvent");
+          confirmEvent.initCustomEvent("confirm_change", false, true, false);
+          document.dispatchEvent(confirmEvent);
+          this.close_modal(data_target);
+          break;
+        case 'submit':
+          event.preventDefault();
+          submit_event = document.createEvent('CustomEvent');
+          parentForm = this.getParentForm(event.src_el);
+          submit_detail = {
+            'endpoint': target_el.getAttribute('data-ajax-action'),
+            'parent_node': parentForm
+          };
+          submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
+          document.dispatchEvent(submit_event);
+          this.close_modal(data_target);
+          break;
+        case 'partial_submit':
+          event.preventDefault();
+          parentForm = this.getParentForm(event.src_el);
+          submit_event = document.createEvent('CustomEvent');
+          submit_detail = {
+            'action': data_action,
+            'target': data_target,
+            'parent_node': parentForm
+          };
+          submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
+          document.dispatchEvent(submit_event);
+          break;
+        case 'display_partial_reasons':
+          event.preventDefault();
+          parentForm = this.getParentForm(event.src_el);
+          this.close_modal(data_target);
+          submit_event = document.createEvent('CustomEvent');
+          submit_detail = {
+            'action': data_action,
+            'target': data_target,
+            'parent_node': parentForm
+          };
+          submit_event.initCustomEvent('display_partial_reasons', false, true, submit_detail);
+          document.dispatchEvent(submit_event);
+          break;
+        case 'assign':
+          event.preventDefault();
+          dialog = document.getElementById(data_target);
+          dialog_form = dialog.getElementsByTagName('form')[0];
+          nurses = (function() {
+            var k, len2, ref, results;
+            ref = dialog_form.elements;
             results = [];
-            for (j = 0, len1 = ref.length; j < len1; j++) {
-              element = ref[j];
-              if ((ref1 = element.getAttribute('type')) === 'submit' || ref1 === 'reset') {
-                results.push(element);
+            for (k = 0, len2 = ref.length; k < len2; k++) {
+              el = ref[k];
+              if (el.checked) {
+                results.push(el.value);
               }
             }
             return results;
           })();
-          for (j = 0, len1 = action_buttons.length; j < len1; j++) {
-            button = action_buttons[j];
-            button.removeAttribute('disabled');
-          }
-        }
-        return this.close_modal(data_target);
-      case 'confirm_submit':
-        event.preventDefault();
-        confirmEvent = document.createEvent("CustomEvent");
-        confirmEvent.initCustomEvent("confirm_change", false, true, false);
-        document.dispatchEvent(confirmEvent);
-        return this.close_modal(data_target);
-      case 'submit':
-        event.preventDefault();
-        submit_event = document.createEvent('CustomEvent');
-        submit_detail = {
-          'endpoint': target_el.getAttribute('data-ajax-action')
-        };
-        submit_event.initCustomEvent('post_score_submit', true, false, submit_detail);
-        document.dispatchEvent(submit_event);
-        return this.close_modal(data_target);
-      case 'partial_submit':
-        event.preventDefault();
-        submit_event = document.createEvent('CustomEvent');
-        submit_detail = {
-          'action': data_action,
-          'target': data_target
-        };
-        submit_event.initCustomEvent('partial_submit', false, true, submit_detail);
-        return document.dispatchEvent(submit_event);
-      case 'display_partial_reasons':
-        event.preventDefault();
-        this.close_modal(data_target);
-        submit_event = document.createEvent('CustomEvent');
-        submit_detail = {
-          'action': data_action,
-          'target': data_target
-        };
-        submit_event.initCustomEvent('display_partial_reasons', false, true, submit_detail);
-        return document.dispatchEvent(submit_event);
-      case 'assign':
-        event.preventDefault();
-        dialog = document.getElementById(data_target);
-        dialog_form = dialog.getElementsByTagName('form')[0];
-        nurses = (function() {
-          var k, len2, ref, results;
-          ref = dialog_form.elements;
-          results = [];
-          for (k = 0, len2 = ref.length; k < len2; k++) {
-            el = ref[k];
-            if (el.checked) {
-              results.push(el.value);
-            }
-          }
-          return results;
-        })();
-        assign_event = document.createEvent('CustomEvent');
-        assign_detail = {
-          'action': data_action,
-          'target': data_target,
-          'nurses': nurses
-        };
-        assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
-        return document.dispatchEvent(assign_event);
-      case 'claim':
-        event.preventDefault();
-        claim_event = document.createEvent('CustomEvent');
-        claim_event.initCustomEvent('claim_patients', false, true, false);
-        return document.dispatchEvent(claim_event);
-      case 'accept':
-        event.preventDefault();
-        accept_event = document.createEvent('CustomEvent');
-        accept_detail = {
-          'invite_id': target_el.getAttribute('data-invite-id')
-        };
-        accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
-        return document.dispatchEvent(accept_event);
-      case 'reject':
-        event.preventDefault();
-        reject_event = document.createEvent('CustomEvent');
-        reject_detail = {
-          'invite_id': target_el.getAttribute('data-invite-id')
-        };
-        reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
-        return document.dispatchEvent(reject_event);
+          assign_event = document.createEvent('CustomEvent');
+          assign_detail = {
+            'action': data_action,
+            'target': data_target,
+            'nurses': nurses
+          };
+          assign_event.initCustomEvent('assign_nurse', false, true, assign_detail);
+          document.dispatchEvent(assign_event);
+          break;
+        case 'claim':
+          event.preventDefault();
+          claim_event = document.createEvent('CustomEvent');
+          claim_event.initCustomEvent('claim_patients', false, true, false);
+          document.dispatchEvent(claim_event);
+          break;
+        case 'accept':
+          event.preventDefault();
+          accept_event = document.createEvent('CustomEvent');
+          accept_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          accept_event.initCustomEvent('accept_invite', false, true, accept_detail);
+          document.dispatchEvent(accept_event);
+          break;
+        case 'reject':
+          event.preventDefault();
+          reject_event = document.createEvent('CustomEvent');
+          reject_detail = {
+            'invite_id': target_el.getAttribute('data-invite-id')
+          };
+          reject_event.initCustomEvent('reject_invite', false, true, reject_detail);
+          document.dispatchEvent(reject_event);
+      }
+      return event.handled = true;
     }
   };
 
@@ -282,6 +301,16 @@ NHModal = (function(superClass) {
     if (dialogs.length < 1) {
       return body.classList.remove('no-scroll');
     }
+  };
+
+  NHModal.prototype.getParentForm = function(el) {
+    while (el.parentNode) {
+      el = el.parentNode;
+      if (el && el.tagName.toLowerCase() === 'form') {
+        return el;
+      }
+    }
+    return null;
   };
 
   return NHModal;
