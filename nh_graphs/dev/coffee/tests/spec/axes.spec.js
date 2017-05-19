@@ -427,6 +427,22 @@ describe('Axes', function() {
 
     describe('Steps', function() {
 
+      it("uses strings for values if provided", function(){
+         var j, len, tick, y_ticks;
+        graph.axes.y.valueLabels = {
+            1: 'One',
+            2: 'Two'
+        };
+        graph.axes.y.min = 1;
+        graph.axes.y.max = 2;
+        graph.style.axis.step = 0;
+        graphlib.init();
+        graphlib.draw();
+        y_ticks = document.querySelectorAll('.y .tick text');
+        expect(y_ticks[0].textContent).toBe('One');
+        expect(y_ticks[y_ticks.length - 1].textContent).toBe('Two');
+      });
+
       it("changes tick label format as defined", function() {
         var j, len, tick, y_ticks;
         graph.style.axis.step = 2;

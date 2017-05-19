@@ -70,12 +70,20 @@ function drawNeurologicalChart(settings, serverData){
     eyesGraph.options.title = "Coma Scale - Eyes";
     eyesGraph.axes.y.min = 0.5;
     eyesGraph.axes.y.max = 4.5;
+    eyesGraph.axes.y.valueLabels = {
+        0: 'NT',
+        1: 'None',
+        2: 'To Pressure',
+        3: 'To Sound',
+        4: 'Spontaneuous'
+    };
     eyesGraph.options.normal.min = 0;
     eyesGraph.options.normal.max = 0;
     eyesGraph.style.dimensions.height = 250;
     eyesGraph.style.pointRadius = 5;
     eyesGraph.style.data_style = "linear";
-    eyesGraph.style.label_width = 60;
+    eyesGraph.style.label_width = null;
+    eyesGraph.style.margin.left = 100;
     eyesGraph.drawables.background.data = [];
 
     verbalGraph.options.keys = ["chart_verbal"];
@@ -84,13 +92,22 @@ function drawNeurologicalChart(settings, serverData){
     verbalGraph.options.title = "Coma Scale - Verbal";
     verbalGraph.axes.y.min = 0.5;
     verbalGraph.axes.y.max = 5.5;
+    verbalGraph.axes.y.valueLabels = {
+        0: 'NT',
+        1: 'None',
+        2: 'Sounds',
+        3: 'Words',
+        4: 'Confused',
+        5: 'Orientated'
+    };
     verbalGraph.options.normal.min = 0;
     verbalGraph.options.normal.max = 0;
     verbalGraph.style.dimensions.height = 250;
     verbalGraph.style.pointRadius = 5;
     verbalGraph.style.data_style = "linear";
-    verbalGraph.style.label_width = 60;
+    verbalGraph.style.label_width = null;
     verbalGraph.style.padding.top = 10;
+    verbalGraph.style.margin.left = 100;
     verbalGraph.drawables.background.data = [];
 
     motorGraph.options.keys = ["chart_motor"];
@@ -99,13 +116,23 @@ function drawNeurologicalChart(settings, serverData){
     motorGraph.options.title = "Coma Scale - Motor";
     motorGraph.axes.y.min = 0.5;
     motorGraph.axes.y.max = 6.5;
+    motorGraph.axes.y.valueLabels = {
+        0: 'NT',
+        1: 'None',
+        2: 'Extension',
+        3: 'Abnormal Flexion',
+        4: 'Normal Flexion',
+        5: 'Localising',
+        6: 'Obey Commands'
+    };
     motorGraph.options.normal.min = 0;
     motorGraph.options.normal.max = 0;
     motorGraph.style.dimensions.height = 250;
     motorGraph.style.pointRadius = 5;
     motorGraph.style.data_style = "linear";
-    motorGraph.style.label_width = 60;
+    motorGraph.style.label_width = null;
     motorGraph.style.padding.top = 10;
+    motorGraph.style.margin.left = 100;
     motorGraph.drawables.background.data = [];
 
 
