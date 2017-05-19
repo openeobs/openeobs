@@ -133,6 +133,9 @@ class FoodAndFluidReview(models.Model):
         """
         food_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
+
+        review_tasks_created = 0
+
         is_time_to_trigger_review = self.should_trigger_review()
         if is_time_to_trigger_review:
             activity_model = self.env['nh.activity']
@@ -142,17 +145,16 @@ class FoodAndFluidReview(models.Model):
                     ['state', 'not in', ['completed', 'cancelled']]
                 ]
             )
-            review_tasks_created = 0
             for spell_activity in spell_activities:
                 if food_fluid_model.active_food_fluid_period(
                         spell_activity.id):
                     self.schedule_review(spell_activity)
                     review_tasks_created += 1
 
-            tasks = 'tasks' if review_tasks_created > 1 else 'task'
-            message = "{} new food and fluid review {} created.".format(
-                review_tasks_created, tasks)
-            _logger.info(message)
+        tasks = 'tasks' if review_tasks_created > 1 else 'task'
+        message = "{} new food and fluid review {} created.".format(
+            review_tasks_created, tasks)
+        _logger.info(message)
 
     def schedule_review(self, spell_activity):
         """
