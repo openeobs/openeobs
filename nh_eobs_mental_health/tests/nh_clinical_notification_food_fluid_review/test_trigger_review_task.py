@@ -11,6 +11,8 @@ class TestTriggerReviewTasksWhenObsStop(TransactionCase):
         self.test_utils.admit_and_place_patient()
         self.test_utils.copy_instance_variables(self)
 
+        self.food_and_fluid_model = \
+            self.env['nh.clinical.patient.observation.food_fluid']
         self.food_and_fluid_review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
         self.activity_model = self.env['nh.activity']
@@ -27,11 +29,17 @@ class TestTriggerReviewTasksWhenObsStop(TransactionCase):
         def mock_get_localised_time(*args, **kwargs):
             return self.date_time
 
+        def mock_active_food_fluid_period(*args, **kwargs):
+            return True
+
         self.datetime_utils._patch_method('get_localised_time',
                                           mock_get_localised_time)
+        self.food_and_fluid_model._patch_method('active_food_fluid_period',
+                                                mock_active_food_fluid_period)
 
     def tearDown(self):
         self.datetime_utils._revert_method('get_localised_time')
+        self.food_and_fluid_model._revert_method('active_food_fluid_period')
         super(TestTriggerReviewTasksWhenObsStop, self) \
             .tearDown()
 
@@ -69,7 +77,10 @@ class TestTriggerReviewTasksWhenObsStop(TransactionCase):
         pme_reason = self.test_utils.browse_ref('nh_eobs.awol')
         pme_model = self.env['nh.clinical.pme.obs_stop']
         activity_id = pme_model.create_activity(
-            {'spell_activity_id': self.spell_activity.id},
+            {
+                'spell_activity_id': self.spell_activity.id,
+                'patient_id': self.patient.id
+            },
             {'spell': self.spell.id, 'reason': pme_reason.id}
         )
         pme_activity = self.activity_model.browse(activity_id)
