@@ -114,6 +114,18 @@ class NHClinicalFoodAndFluid(models.Model):
             [(rec.id, rec.name) for rec in dietary_needs]
         return form_desc
 
+    def get_view_description(self, form_description_obs):
+        view_description_obs = super(NHClinicalFoodAndFluid, self).get_view_description(form_description_obs)
+
+        food_and_fluid_review_model = self.env['nh.clinical.notification.food_fluid_review']
+        f_and_f_review_activity = food_and_fluid_review_model.get_open_reviews_for_patient(1)[0]
+
+        view_description_task = f_and_f_review_activity.data_ref.get_view_description([])
+        template_call = view_description_task[0]
+        view_description_obs.insert(0, template_call)
+
+        return view_description_obs
+
     _form_description = [
         {
             'name': 'recorded_concerns',
