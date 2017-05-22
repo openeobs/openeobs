@@ -764,6 +764,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 URLS['confirm_clinical_notification'], task_id)
             form['action'] = "{0}{1}".format(
                 URLS['confirm_clinical_notification'], task_id)
+            form['cancellable'] = cancellable
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(
                     URLS['cancel_clinical_notification'], task_id)
@@ -779,7 +780,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                     'username': request.session['login'],
                     'notification_count': len(follow_activities),
                     'urls': URLS,
-                    'task_valid': form.get('task_valid', True)
+                    'task_valid': form.get('task_valid', True),
+                    'cancellable': form.get('cancellable', False)
                 }
             )
         else:
