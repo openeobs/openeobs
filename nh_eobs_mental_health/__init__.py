@@ -12,6 +12,7 @@ from .models import nh_clinical_wardboard
 from .models import nh_eobs_api
 from .models import nh_eobs_mobile_main
 from .models import nh_eobs_ward_dashboard
+from .models import nh_clinical_notification_food_fluid_review
 from .report import *
 from .sql import *
 from .tests.common import nh_clinical_test_utils

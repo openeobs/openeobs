@@ -126,6 +126,18 @@ class FoodAndFluidReview(models.Model):
             open_activities_len, tasks)
         _logger.info(message)
 
+    def get_spells_to_create_reviews_for(self):
+        """
+        Get a list of spell activities to create Food and Fluid Reviews for
+        """
+        activity_model = self.env['nh.activity']
+        return activity_model.search(
+            [
+                ['data_model', '=', 'nh.clinical.spell'],
+                ['state', 'not in', ['completed', 'cancelled']]
+            ]
+        )
+
     @api.model
     def trigger_review_tasks_for_active_periods(self):
         """
@@ -137,22 +149,14 @@ class FoodAndFluidReview(models.Model):
         is_time_to_trigger_review = self.should_trigger_review()
 
         if is_time_to_trigger_review:
-            activity_model = self.env['nh.activity']
-            spell_activities = activity_model.search(
-                [
-                    ['data_model', '=', 'nh.clinical.spell'],
-                    ['state', 'not in', ['completed', 'cancelled']]
-                ]
-            )
+            spell_activities = self.get_spells_to_create_reviews_for()
 
             review_tasks_created = 0
             for spell_activity in spell_activities:
                 current_period_active = food_fluid_model\
                     .active_food_fluid_period(spell_activity.id)
 
-                obs_stop_in_effect = spell_activity.data_ref.obs_stop
-
-                if current_period_active and not obs_stop_in_effect:
+                if current_period_active:
                     self.schedule_review(spell_activity)
                     review_tasks_created += 1
 
