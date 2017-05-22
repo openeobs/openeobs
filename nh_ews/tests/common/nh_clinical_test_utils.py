@@ -4,6 +4,8 @@ from datetime import datetime
 
 from openerp.models import AbstractModel
 
+from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
+
 
 class NhClinicalTestUtils(AbstractModel):
 
@@ -65,8 +67,8 @@ class NhClinicalTestUtils(AbstractModel):
         )
 
     # Utility methods
-    def create_and_complete_ews_obs_activity(self, patient_id, spell_id,
-                                             obs_data):
+    def create_and_complete_ews_obs_activity(
+            self, patient_id, spell_id, obs_data=None, risk='no'):
         """
         Creates an EWS observation with the given clinical risk, then completes
         it.
@@ -79,6 +81,11 @@ class NhClinicalTestUtils(AbstractModel):
         :type obs_data: dict
         :return:
         """
+        if obs_data is None:
+            risk = risk.upper()
+            variable_name = '{}_RISK_DATA'.format(risk)
+            obs_data = getattr(clinical_risk_sample_data, variable_name)
+
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_pool = self.pool['nh.activity']
         activity_model = self.env['nh.activity']
