@@ -92,6 +92,18 @@ class nh_clinical_notification(orm.AbstractModel):
         """
         return True
 
+    def get_triggered_tasks(self):
+        """
+        Get any tasks triggered by this observation.
+        :return:
+        :rtype: list
+        """
+        domain = [
+            ('creator_id', '=', self.activity_id.id)
+        ]
+        activity_model = self.env['nh.activity']
+        return activity_model.search(domain)
+
 
 class nh_clinical_notification_hca(orm.Model):
     """

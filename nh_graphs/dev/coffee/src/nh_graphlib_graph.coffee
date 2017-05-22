@@ -15,6 +15,7 @@ class NHGraph extends NHGraphLib
     # - Axis: The D3 axis used for the the axis
     # - Min & Max: The extent of the axis
     # - Obj: The object that holds the axis
+    # - valueLabels: value to label mapping so can show custom labels on Y-Axis
     @axes = {
       x: {
         scale: null,
@@ -29,7 +30,8 @@ class NHGraph extends NHGraphLib
         min: 0,
         max: 0,
         obj: null,
-        ranged_extent: null
+        ranged_extent: null,
+        valueLabels: null
       }
       obj: null
     }
@@ -304,12 +306,21 @@ class NHGraph extends NHGraphLib
     else
       @.axes.y.scale = scaleNot
 
+    self = @
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
-    .tickFormat(if @.style.axis.step > 0 then \
-      nh_graphs.format(",." + @.style.axis.step + "f") else \
-      nh_graphs.format("d")).tickSubdivide(@.style.axis.step)
+    .tickFormat((d) ->
+      labels = self.axes.y.valueLabels
+      if labels and d of labels
+        return labels[d]
+      if self.style.axis.step > 0
+        return nh_graphs.format(",." + self.style.axis.step + "f")(d)
+      else
+        return nh_graphs.format("d")(d)
+    ).tickSubdivide(self.style.axis.step)
     if not @.style.axis.y.hide
-      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
+      @.axes.y.obj = @.axes.obj.append('g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate('+self.style.margin.left+', 0)')
       .call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
 
@@ -323,27 +334,28 @@ class NHGraph extends NHGraphLib
         'class': 'label'
       })
 
-      @.drawables.background.obj.selectAll('text.measurement')
-      .data(@.options.keys).enter().append('text').text((d, i) ->
-        raw = self.parent_obj.parent_obj.data.raw
-        if i isnt self.options.keys.length-1
-          ## Used in case of partial observation
-          value = raw[raw.length-1][d]
-          if self.validValue(value)
-            return raw[raw.length-1][d]
-          else return 'NA'
-        else
-          value = raw[raw.length-1][d]
-          if self.validValue(value)
-            return raw[raw.length-1][d] + '' + self.options.measurement
-          else return 'NA'
-      ).attr({
-        'x': self.style.dimensions.width + self.style.label_text_height,
-        'y': (d, i) ->
-          scaleNot(self.axes.y.min) -
-            (self.style.label_text_height * (self.options.keys.length - i))
-        ,'class': 'measurement'
-      })
+      if @.style.label_width
+        @.drawables.background.obj.selectAll('text.measurement')
+        .data(@.options.keys).enter().append('text').text((d, i) ->
+          raw = self.parent_obj.parent_obj.data.raw
+          if i isnt self.options.keys.length-1
+            ## Used in case of partial observation
+            value = raw[raw.length-1][d]
+            if self.validValue(value)
+              return raw[raw.length-1][d]
+            else return 'NA'
+          else
+            value = raw[raw.length-1][d]
+            if self.validValue(value)
+              return raw[raw.length-1][d] + '' + self.options.measurement
+            else return 'NA'
+        ).attr({
+          'x': self.style.dimensions.width + self.style.label_text_height,
+          'y': (d, i) ->
+            scaleNot(self.axes.y.min) -
+              (self.style.label_text_height * (self.options.keys.length - i))
+          ,'class': 'measurement'
+        })
 
     # Check normal range background data validity
     ((self) ->
