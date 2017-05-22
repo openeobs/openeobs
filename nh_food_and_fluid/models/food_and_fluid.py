@@ -676,7 +676,7 @@ class NHClinicalFoodAndFluid(models.Model):
         """
         Looks at the passed list of 'normal' period dictionaries (ones during
         which at least one observation occurred) and determines the 'empty'
-        periods (ones during which on observations occurred) from the first
+        periods (ones during which no observations occurred) from the first
         chronologically to the currently active one.
 
         :param period_dictionaries: A list of dictionaries representing food
@@ -693,7 +693,7 @@ class NHClinicalFoodAndFluid(models.Model):
                                   period_dictionaries]
 
         datetime_utils = self.env['datetime_utils']
-        now = datetime_utils.get_current_time()
+        now = datetime_utils.get_localised_time()
         active_period_start_datetime = self.get_period_start_datetime(now)
 
         if active_period_start_datetime not in period_start_datetimes:

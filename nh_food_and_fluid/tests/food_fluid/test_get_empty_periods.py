@@ -23,6 +23,7 @@ class TestGetEmptyPeriods(TransactionCase):
 
     def tearDown(self):
         self.datetime_utils._revert_method('get_current_time')
+        super(TestGetEmptyPeriods, self).tearDown()
 
     def _create_three_food_and_fluid_obs(self):
         self.period_1_start_datetime = datetime(2017, 8, 1, 7, 0, 0)
