@@ -917,7 +917,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['patient-id'] = int(patient_id)
         form['source'] = "patient"
         form['start'] = datetime.now().strftime('%s')
-        form['obs_needs_score'] = False
         observation_name_list = []
         for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:

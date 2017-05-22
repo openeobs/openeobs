@@ -838,7 +838,8 @@ NHGraph = (function(superClass) {
         min: 0,
         max: 0,
         obj: null,
-        ranged_extent: null
+        ranged_extent: null,
+        valueLabels: null
       },
       obj: null
     };
@@ -1046,9 +1047,21 @@ NHGraph = (function(superClass) {
     } else {
       this.axes.y.scale = scaleNot;
     }
-    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
+    self = this;
+    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(function(d) {
+      var labels;
+      labels = self.axes.y.valueLabels;
+      if (labels && d in labels) {
+        return labels[d];
+      }
+      if (self.style.axis.step > 0) {
+        return nh_graphs.format(",." + self.style.axis.step + "f")(d);
+      } else {
+        return nh_graphs.format("d")(d);
+      }
+    }).tickSubdivide(self.style.axis.step);
     if (!this.style.axis.y.hide) {
-      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
+      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').attr('transform', 'translate(' + self.style.margin.left + ', 0)').call(this.axes.y.axis);
       this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
     }
     if (this.options.label != null) {
@@ -1058,31 +1071,33 @@ NHGraph = (function(superClass) {
         'y': y_label,
         'class': 'label'
       });
-      this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
-        var raw, value;
-        raw = self.parent_obj.parent_obj.data.raw;
-        if (i !== self.options.keys.length - 1) {
-          value = raw[raw.length - 1][d];
-          if (self.validValue(value)) {
-            return raw[raw.length - 1][d];
+      if (this.style.label_width) {
+        this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
+          var raw, value;
+          raw = self.parent_obj.parent_obj.data.raw;
+          if (i !== self.options.keys.length - 1) {
+            value = raw[raw.length - 1][d];
+            if (self.validValue(value)) {
+              return raw[raw.length - 1][d];
+            } else {
+              return 'NA';
+            }
           } else {
-            return 'NA';
+            value = raw[raw.length - 1][d];
+            if (self.validValue(value)) {
+              return raw[raw.length - 1][d] + '' + self.options.measurement;
+            } else {
+              return 'NA';
+            }
           }
-        } else {
-          value = raw[raw.length - 1][d];
-          if (self.validValue(value)) {
-            return raw[raw.length - 1][d] + '' + self.options.measurement;
-          } else {
-            return 'NA';
-          }
-        }
-      }).attr({
-        'x': self.style.dimensions.width + self.style.label_text_height,
-        'y': function(d, i) {
-          return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
-        },
-        'class': 'measurement'
-      });
+        }).attr({
+          'x': self.style.dimensions.width + self.style.label_text_height,
+          'y': function(d, i) {
+            return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
+          },
+          'class': 'measurement'
+        });
+      }
     }
     (function(self) {
       var max, min, valid, yMax, yMin;
