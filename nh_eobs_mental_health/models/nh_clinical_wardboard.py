@@ -292,6 +292,7 @@ class NHClinicalWardboard(orm.Model):
                 spell = spell_model.read(
                     cr, user, spell_id, ['obs_stop', 'rapid_tranq'],
                     context=context)
+                rec['rapid_tranq'] = spell.get('rapid_tranq')
                 if spell.get('obs_stop'):
                     obs_stop_model = self.pool['nh.clinical.pme.obs_stop']
                     obs_stops = obs_stop_model.search(cr, user, [
@@ -303,8 +304,6 @@ class NHClinicalWardboard(orm.Model):
                             cr, user, obs_stop, ['reason'], context=context)
                         rec['frequency'] = reason.get('reason', [0, False])[1]
                     rec['next_diff'] = 'Observations Stopped'
-                elif 'rapid_tranq' in spell:
-                    rec['rapid_tranq'] = spell.get('rapid_tranq')
                 elif rec.get('acuity_index') == 'Refused':
                     rec['frequency'] = 'Refused - {0}'.format(rec['frequency'])
                     rec['next_diff'] = 'Refused - {0}'.format(rec['next_diff'])
