@@ -83,6 +83,7 @@ class NHeObsAPI(orm.AbstractModel):
             spell = spell_model.read(
                 cr, uid, spell_id, [
                     'obs_stop',
+                    'refusing_obs',
                     'activity_id'
                 ], context=context)
             obs_stopped = spell.get('obs_stop')
@@ -92,6 +93,10 @@ class NHeObsAPI(orm.AbstractModel):
                 wardboard_model.browse(
                     cr, uid, spell.get('id'), context=context)\
                     .end_obs_stop(cancellation=True)
+            if spell.get('refusing_obs'):
+                spell_model.write(
+                    cr, uid, spell_id,
+                    {'refusing_obs': False}, context=context)
         res = super(NHeObsAPI, self).transfer(
             cr, uid, hospital_number, data, context=None)
         return res
