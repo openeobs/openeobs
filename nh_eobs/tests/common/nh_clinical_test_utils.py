@@ -113,9 +113,9 @@ class NhClinicalTestUtils(AbstractModel):
         self.other_bed.write({'context_ids': [[4, self.eobs_context.id]]})
 
     def discharge_patient(self, hospital_number=None):
-        """ Overriding discharge patient to use nh.eobs.api so can take 
-        advantage of overrides there 
-        
+        """ Overriding discharge patient to use nh.eobs.api so can take
+        advantage of overrides there
+
         :param hospital_number: hospital number of patient
         """
         if not hospital_number:
@@ -129,7 +129,7 @@ class NhClinicalTestUtils(AbstractModel):
         """
         Overriding transfer patient to use nh.eobs.api so can take advantage of
         overrides there
-        
+
         :param location_code: Code to transfer patient to
         :param hospital_number: Hospital number of patient
         """
