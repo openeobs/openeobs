@@ -136,8 +136,6 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'THEN \'NoScore\' '
             'WHEN spell.refusing_obs = true '
             'THEN \'Refused\' '
-            'WHEN spell.refusing_obs = false '
-            'THEN \'NoScore\' '
         )
 
     def get_collect_activities_sql(self, activity_ids_sql):

@@ -101,6 +101,44 @@ class NHeObsAPI(orm.AbstractModel):
             cr, uid, hospital_number, data, context=None)
         return res
 
+    def discharge(self, cr, uid, hospital_number, data, context=None):
+        """
+        Extends
+        :meth:`discharge()<api.nh_clinical_api.discharge>`,
+        closing the :class:`spell<spell.nh_clinical_spell>` of a
+        :class:`patient<base.nh_clinical_patient>`.
+
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
+        :param data: may contain the key ``discharge_date``
+        :type data: dict
+        :returns: ``True``
+        :rtype: bool
+        """
+        spell_model = self.pool['nh.clinical.spell']
+        patient_model = self.pool['nh.clinical.patient']
+        patient_id = patient_model.search(cr, uid, [
+            ['other_identifier', '=', hospital_number]
+        ])
+        spell_id = spell_model.search(cr, uid, [
+            ['patient_id', 'in', patient_id],
+            ['state', 'not in', ['completed', 'cancelled']]
+        ], context=context)
+        if spell_id:
+            spell_id = spell_id[0]
+            spell = spell_model.read(
+                cr, uid, spell_id, [
+                    'refusing_obs',
+                    'activity_id'
+                ], context=context)
+            if spell.get('refusing_obs'):
+                spell_model.write(
+                    cr, uid, spell_id,
+                    {'refusing_obs': False}, context=context)
+        res = super(NHeObsAPI, self).discharge(
+            cr, uid, hospital_number, data, context=None)
+        return res
+
     @api.model
     def set_rapid_tranq(self, request, **kwargs):
         """

@@ -149,6 +149,11 @@ class NHClinicalPatientObservationEWS(orm.Model):
         :param context: Odoo Context
         :return: If the patient is currently in refusal
         """
+        activity_model = self.pool['nh.activity']
+        activity = activity_model.browse(cr, uid, activity_id)
+        if activity.spell_activity_id.state in ['completed', 'cancelled']:
+            return False
+
         column = 'last_activity_id'
         first_act_order = 'DESC'
         if mode == 'child':
@@ -164,7 +169,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
             'RIGHT OUTER JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = refused.spell_activity_id '
             'LEFT JOIN wb_transfer_ranked as transfer '
-            'ON transfer.spell_id = spell.id '  
+            'ON transfer.spell_id = spell.id '
             'AND transfer.rank = 1 '
             'LEFT JOIN last_finished_obs_stop AS obs_stop '
             'ON obs_stop.spell_id = spell.id '
