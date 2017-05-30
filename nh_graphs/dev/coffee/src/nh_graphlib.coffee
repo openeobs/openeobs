@@ -104,13 +104,11 @@ class NHGraphLib
     self = @
 
   # Create a Date Object from a string. As Odoo gives dates in a silly string
-  # format need to convert to proper Date to use with D3. Attempts to convert;
-  # falls back to use hack with T instead of space and finally throws error if
-  # cannot convert
+  # format need to convert to proper Date to use with D3. Uses a hack with T
+  # instead of space to force it to parse it as YYYY-MM-DD HH:MM:SS and throws
+  # error if cannot convert
   date_from_string: (date_string) ->
-    date = new Date(date_string)
-    if isNaN(date.getTime())
-      date = new Date(date_string.replace(' ', 'T'))
+    date = new Date(date_string.replace(' ', 'T'))
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
     return date

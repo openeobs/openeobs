@@ -38,6 +38,27 @@ describe('Conversion', function() {
             if(navigator.userAgent.indexOf('MSIE') < 0 && navigator.userAgent.indexOf('Trident') < 0) {
                 expect(date_for_string.constructor.name).toBe('Date');
             }
+            expect(date_for_string.getFullYear()).toBe(1988);
+            expect(date_for_string.getMonth()).toBe(0);
+            expect(date_for_string.getDate()).toBe(12);
+            expect(date_for_string.getHours()).toBe(6);
+            expect(date_for_string.getMinutes()).toBe(0);
+            expect(date_for_string.getSeconds()).toBe(0);
+        });
+
+        it('converts Odoo Format (YYYY-MM-DD HH:MM:SS) date string to date object - EOBS 1366', function(){
+            var date_string = '2017-07-02 16:05:48';
+            var date_for_string = graphlib.date_from_string(date_string);
+            expect(typeof(date_for_string)).toBe('object');
+            if(navigator.userAgent.indexOf('MSIE') < 0 && navigator.userAgent.indexOf('Trident') < 0) {
+                expect(date_for_string.constructor.name).toBe('Date');
+            }
+            expect(date_for_string.getFullYear()).toBe(2017);
+            expect(date_for_string.getMonth()).toBe(6);
+            expect(date_for_string.getDate()).toBe(2);
+            expect(date_for_string.getHours()).toBe(16);
+            expect(date_for_string.getMinutes()).toBe(5);
+            expect(date_for_string.getSeconds()).toBe(48);
         });
 
         it('throws an error when unable to convert invalid date string to date object', function(){

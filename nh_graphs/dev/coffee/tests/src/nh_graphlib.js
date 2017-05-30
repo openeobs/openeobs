@@ -81,10 +81,7 @@ NHGraphLib = (function() {
 
   NHGraphLib.prototype.date_from_string = function(date_string) {
     var date;
-    date = new Date(date_string);
-    if (isNaN(date.getTime())) {
-      date = new Date(date_string.replace(' ', 'T'));
-    }
+    date = new Date(date_string.replace(' ', 'T'));
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");
     }
