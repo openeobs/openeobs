@@ -20,7 +20,7 @@ class TestGetReviewEnd(TransactionCase):
         Test if trigger time is 6am that it gets review end as same day at
         14:59
         """
-        review_end = self.review_model.get_review_end(self.start_datetime, 6)
+        review_end = self.review_model._get_review_end(self.start_datetime, 6)
         self.assertEqual(review_end, '1988-01-12 14:59:00')
 
     def test_gets_review_next_day(self):
@@ -28,5 +28,5 @@ class TestGetReviewEnd(TransactionCase):
         Test if trigger time is 3pm that it gets review end as next day at
         05:59
         """
-        review_end = self.review_model.get_review_end(self.start_datetime, 15)
+        review_end = self.review_model._get_review_end(self.start_datetime, 15)
         self.assertEqual(review_end, '1988-01-13 05:59:00')

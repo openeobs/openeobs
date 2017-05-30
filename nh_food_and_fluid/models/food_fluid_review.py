@@ -237,10 +237,11 @@ class FoodAndFluidReview(models.Model):
             'user': user_or_reason
         }
 
-    def get_review_end(self, period_start, trigger_time):
+    def _get_review_end(self, period_start, trigger_time):
         """
         Get the datetime 1 minute before the next review so we can use this
-        to find observations and reviews that fall within this timeframe
+        to find observations and reviews that fall within this timeframe.
+        Intended for private use within this class only.
         :param period_start: Start of the current F&F period
         :param trigger_time: Time of the review we want the end datetime for
         :return: Odoo datetime string representation
@@ -283,7 +284,7 @@ class FoodAndFluidReview(models.Model):
             day_delta = timedelta(days=1)
             period_end_datetime = period_end_datetime + day_delta
         review_time = period_end_datetime.astimezone(pytz.utc).strftime(dtf)
-        review_end = self.get_review_end(period_end_datetime, trigger_time)
+        review_end = self._get_review_end(period_end_datetime, trigger_time)
         activity_domain = [
             ['patient_id', '=', patient_id],
             ['date_scheduled', '>=', review_time],
