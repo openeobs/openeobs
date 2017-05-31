@@ -61,7 +61,7 @@ module.exports = function (config) {
                 logfile: 'sauce_connect.log',
                 username: process.env.SAUCE_USERNAME,
                 accessKey: process.env.SAUCE_ACCESS_KEY,
-                tunnelIdentifier: 'bcdc7ca1e23b4c01989a07f4a771e48c'
+                tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
             }
         },
         customLaunchers: customLaunchers,
