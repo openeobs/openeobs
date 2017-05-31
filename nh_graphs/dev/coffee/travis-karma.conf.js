@@ -43,7 +43,7 @@ module.exports = function (config) {
 
         exclude: [],
 
-        hostname: 'localhost',
+        //hostname: 'localhost',
         port: 9876,
 
         reporters: ['dots', 'saucelabs'],
@@ -52,17 +52,18 @@ module.exports = function (config) {
             'tests/src/*.js': ['coverage']
         },
         sauceLabs:{
-            testName: 'NHGraphLib',
+            testName: 'NHGraphLib - #' + process.env.TRAVIS_BUILD_NUMBER + '.' + process.env.TRAVIS_BUILD_ID,
             recordScreenshots: true,
             startConnect: false,
             maxDuration: 240,
+            tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
             connectOptions: {
                 port: 5757,
                 logfile: 'sauce_connect.log',
                 username: process.env.SAUCE_USERNAME,
-                accessKey: process.env.SAUCE_ACCESS_KEY,
-                tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER
-            }
+                accessKey: process.env.SAUCE_ACCESS_KEY
+            },
+
         },
         customLaunchers: customLaunchers,
         browsers: Object.keys(customLaunchers),
