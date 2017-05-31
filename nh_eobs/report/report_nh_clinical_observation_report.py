@@ -28,7 +28,6 @@ class ObservationReport(models.AbstractModel):
     _name = 'report.nh.clinical.observation_report'
 
     pretty_date_format = '%H:%M %d/%m/%y'
-    wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
     spell_activity_id = None
 
@@ -401,33 +400,6 @@ class ObservationReport(models.AbstractModel):
         return self.get_model_values(model_two, act_data)
 
     def get_model_data_as_json(self, model_data):
-        for data in model_data:
-            if 'write_date' in data and data['write_date']:
-                data['write_date'] = datetime.strftime(
-                    datetime.strptime(data['write_date'], dtf),
-                    self.wkhtmltopdf_format
-                )
-            if 'create_date' in data and data['create_date']:
-                data['create_date'] = datetime.strftime(
-                    datetime.strptime(data['create_date'], dtf),
-                    self.wkhtmltopdf_format
-                )
-            if 'date_started' in data and data['date_started']:
-                data['date_started'] = datetime.strftime(
-                    datetime.strptime(
-                        data['date_started'],
-                        self.pretty_date_format
-                    ),
-                    self.wkhtmltopdf_format
-                )
-            if 'date_terminated' in data and data['date_terminated']:
-                data['date_terminated'] = datetime.strftime(
-                    datetime.strptime(
-                        data['date_terminated'],
-                        self.pretty_date_format
-                    ),
-                    self.wkhtmltopdf_format
-                )
         return json.dumps(model_data)
 
     def create_report_data(self, data):

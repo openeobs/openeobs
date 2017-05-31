@@ -104,11 +104,43 @@ class NHGraphLib
     self = @
 
   # Create a Date Object from a string. As Odoo gives dates in a silly string
-  # format need to convert to proper Date to use with D3. Uses a hack with T
-  # instead of space to force it to parse it as YYYY-MM-DD HH:MM:SS and throws
-  # error if cannot convert
+  # format need to convert to proper Date to use with D3 across all browsers.
+  # Because of issues with older webkit have to be deconstruct the date parts
+  # from the string (also adding the ability to change format) and put these
+  # into a new Date object
+  parseDateTime: (input, format='YYYY-mm-DD HH:MM:SS') ->
+    parts = input.match(/(\d+)/g)
+    i = 0
+    fmt = {}
+    format.replace /(YYYY|mm|DD|HH|MM|SS)/g, (part) ->
+      fmt[part] = i++
+    if parts is null or fmt is null
+      throw new Error("Invalid date format")
+    new Date(
+      parts[fmt['YYYY']],
+      (parts[fmt['mm']]-1),
+      parts[fmt['DD']],
+      parts[fmt['HH']],
+      parts[fmt['MM']],
+      parts[fmt['SS']]
+    )
+
+  parseDate: (input, format='YYYY-mm-DD') ->
+    parts = input.match(/(\d+)/g)
+    i = 0
+    fmt = {}
+    format.replace /(YYYY|mm|DD)/g, (part) ->
+      fmt[part] = i++
+    if parts is null or fmt is null
+      throw new Error("Invalid date format")
+    new Date(
+      parts[fmt['YYYY']],
+      (parts[fmt['mm']]-1),
+      parts[fmt['DD']]
+    )
+
   date_from_string: (date_string) ->
-    date = new Date(date_string.replace(' ', 'T'))
+    date = @parseDateTime(date_string)
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
     return date

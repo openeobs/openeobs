@@ -70,7 +70,7 @@ describe('Conversion', function() {
     describe('Date to String Conversion', function(){
 
         it('converts date object to Graph Format (day DD/MM/YY HH:MM) string', function(){
-            var date = new Date('1988-01-12T06:00:00');
+            var date = new Date(1988, 0, 12, 6, 0, 0);
             var string_for_date = graphlib.date_to_string(date);
             expect(string_for_date).toBe('Tue 12/01/88 06:00');
         });
@@ -84,14 +84,14 @@ describe('Conversion', function() {
     describe('Single to Double Digit date element Conversion', function(){
 
         it('converts single digit date element to double digit with leading zero', function(){
-           var date = new Date('1988-01-12T06:00:00');
+           var date = new Date(1988, 0, 12, 6, 0, 0);
            var month = (date.getMonth() +1);
            expect(month.toString()).toBe('1');
            expect(graphlib.leading_zero(month)).toBe('01');
         });
 
         it('does not prepend a zero to double digit date elements', function(){
-           var date = new Date('1988-12-12T06:00:00');
+           var date = new Date(1988, 11, 12, 6, 0, 0);
            var month = (date.getMonth() +1);
            expect(month.toString()).toBe('12');
            expect(graphlib.leading_zero(month)).not.toBe('012');
