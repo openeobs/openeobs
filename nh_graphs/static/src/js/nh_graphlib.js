@@ -195,14 +195,20 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.redraw_resize = function(event) {
-    var ref, ref1, ref2, ref3, ref4;
+    var ref, ref1, ref2, ref3, ref4, ref5;
     if (this.is_alive() && !event.handled) {
-      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      this.style.dimensions.width = (ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0;
       if ((ref3 = this.obj) != null) {
         ref3.attr('width', this.style.dimensions.width);
       }
-      if ((ref4 = this.context) != null) {
-        ref4.handle_resize(this.context, this.obj, event);
+      if (this.context != null) {
+        if ((ref4 = this.context) != null) {
+          ref4.handle_resize(this.context, this.obj, event);
+        }
+      } else {
+        if ((ref5 = this.focus) != null) {
+          ref5.handle_resize(this.focus, this.obj, event);
+        }
       }
       event.handled = true;
     }
@@ -229,6 +235,7 @@ NHGraphLib = (function() {
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
     }
+    this.remove_listeners();
     window.addEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     this.options.handler.rangify = this.rangify_graphs.bind(this);
@@ -713,7 +720,7 @@ NHFocus = (function() {
   NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
     if (!event.handled) {
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - (self.parent_obj.style.padding.left + self.parent_obj.style.padding.right);
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;
@@ -1000,7 +1007,7 @@ NHGraph = (function(superClass) {
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
-    this.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (this.style.margin.left + this.style.margin.right)) - this.style.label_width;
+    this.style.dimensions.width = parent_obj.style.dimensions.width - (parent_obj.style.padding.left + parent_obj.style.padding.right) - this.style.label_width;
     this.obj.attr('width', this.style.dimensions.width);
     left_offset = parent_obj.style.padding.left + this.style.margin.left;
     top_offset = parent_obj.style.dimensions.height + this.style.margin.top;

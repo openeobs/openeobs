@@ -195,14 +195,20 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.redraw_resize = function(event) {
-    var ref, ref1, ref2, ref3, ref4;
+    var ref, ref1, ref2, ref3, ref4, ref5;
     if (this.is_alive() && !event.handled) {
-      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      this.style.dimensions.width = (ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0;
       if ((ref3 = this.obj) != null) {
         ref3.attr('width', this.style.dimensions.width);
       }
-      if ((ref4 = this.context) != null) {
-        ref4.handle_resize(this.context, this.obj, event);
+      if (this.context != null) {
+        if ((ref4 = this.context) != null) {
+          ref4.handle_resize(this.context, this.obj, event);
+        }
+      } else {
+        if ((ref5 = this.focus) != null) {
+          ref5.handle_resize(this.focus, this.obj, event);
+        }
       }
       event.handled = true;
     }
@@ -229,6 +235,7 @@ NHGraphLib = (function() {
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
     }
+    this.remove_listeners();
     window.addEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     this.options.handler.rangify = this.rangify_graphs.bind(this);

@@ -240,11 +240,12 @@ class NHGraphLib
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (event) ->
     if @is_alive() and !event.handled
-      @style.dimensions.width = \
-        nh_graphs.select(@el)?[0]?[0]?.clientWidth -
-        (@style.margin.left + @style.margin.right)
+      @style.dimensions.width = nh_graphs.select(@el)?[0]?[0]?.clientWidth
       @obj?.attr('width', @style.dimensions.width)
-      @.context?.handle_resize(@.context, @.obj, event)
+      if @.context?
+        @.context?.handle_resize(@.context, @.obj, event)
+      else
+        @.focus?.handle_resize(@.focus, @.obj, event)
       event.handled = true
     return
 
