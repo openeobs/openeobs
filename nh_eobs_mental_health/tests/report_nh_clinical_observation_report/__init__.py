@@ -11,4 +11,3 @@ from . import test_get_refusal_events_data
 from . import test_get_refusals_until_news_obs_taken_column_data
 from . import test_get_report_data
 from . import test_get_task_column_data
-from . import test_add_extra_ews_with_clinical_review_in_datetime_range
