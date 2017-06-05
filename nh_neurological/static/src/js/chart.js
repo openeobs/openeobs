@@ -75,7 +75,7 @@ function drawNeurologicalChart(settings, serverData){
         1: 'None',
         2: 'To Pressure',
         3: 'To Sound',
-        4: 'Spontaneuous'
+        4: 'Spontaneous'
     };
     eyesGraph.options.normal.min = 0;
     eyesGraph.options.normal.max = 0;
