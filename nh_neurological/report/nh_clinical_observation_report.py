@@ -21,6 +21,12 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
         report_data['neurological_data'] = json_data
         return report_data
 
+    def _localise_and_format_datetimes(self, report_data):
+        super(NhClinicalPatientObservationReport, self)\
+            ._localise_and_format_datetimes(report_data)
+        for obs in report_data.get('neurological', []):
+            self._localise_dict_time(obs, 'date_terminated')
+
     def get_neurological_observations(self, data):
         neuro_model = self.env['nh.clinical.patient.observation.neurological']
         neurological_observations = self.get_model_data(

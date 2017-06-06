@@ -17,7 +17,6 @@ import json
 from datetime import datetime
 
 from openerp import api, models
-from openerp.osv import fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 from . import helpers
@@ -54,10 +53,11 @@ class ObservationReport(models.AbstractModel):
                 ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
-            rep_data = self.get_report_data(data)
+            report_data = self.get_report_data(data)
+            self._localise_and_format_datetimes(report_data)
             return report_obj.render(
                 'nh_eobs.observation_report',
-                rep_data)
+                report_data)
         else:
             return None
 
@@ -206,7 +206,6 @@ class ObservationReport(models.AbstractModel):
             non_basic_obs,
             ews_report
         )
-        self._localise_and_format_datetimes(report_data)
         return report_data
 
     def _get_patient_dob(self, patient):
@@ -422,11 +421,8 @@ class ObservationReport(models.AbstractModel):
         company_logo = partner_pool.read(cr, uid, 1, ['image'])['image']
 
         # generate report timestamp
-        time_generated = fields.datetime.context_timestamp(
-            cr, uid,
-            datetime.now(),
-            context=None
-        ).strftime(DTF)
+        datetime_utils = self.env['datetime_utils']
+        time_generated = datetime_utils.get_current_time(as_string=True)
         return helpers.BaseReport(
             user,
             company_name,
@@ -981,7 +977,10 @@ class ObservationReport(models.AbstractModel):
 
         # Patient date of birth
         patient = report_data['patient']
-        self._localise_dict_time(patient, 'dob')
+        datetime_utils = self.env['datetime_utils']
+        return_string_format = datetime_utils.date_format_front_end
+        self._localise_dict_time(patient, 'dob',
+                                 return_string_format=return_string_format)
 
         # EWS activity datetimes
         for obs_activity in report_data['ews']:
@@ -999,6 +998,14 @@ class ObservationReport(models.AbstractModel):
         for obs in report_data['table_ews']:
             self._localise_dict_time(obs, date_terminated)
 
+        # Blood product datetimes
+        for obs in report_data.get('blood_products', []):
+            self._localise_dict_time(obs['values'], date_terminated)
+
+        # PBPS (blood pressure) datetimes
+        for obs in report_data.get('pbps', []):
+            self._localise_dict_time(obs, date_terminated)
+
         # Patient monitoring exception history datetimes
         for pme in report_data['patient_monitoring_exception_history']:
             self._localise_dict_time(pme, 'date')
@@ -1007,7 +1014,7 @@ class ObservationReport(models.AbstractModel):
         for transfer in report_data['transfer_history']:
             self._localise_dict_time(transfer, date_terminated)
 
-    def _localise_dict_time(self, dictionary, key):
+    def _localise_dict_time(self, dictionary, key, return_string_format=None):
         date_time = dictionary[key]
 
         if not date_time:
@@ -1017,8 +1024,12 @@ class ObservationReport(models.AbstractModel):
             return
 
         datetime_utils = self.env['datetime_utils']
+        if return_string_format is None:
+            return_string_format = \
+                datetime_utils.datetime_format_front_end_two_character_year
+
         localised_date_time = datetime_utils.get_localised_time(
-            date_time, return_string=True, return_string_format=datetime_utils
-            .datetime_format_front_end_two_character_year)
+            date_time, return_string=True,
+            return_string_format=return_string_format)
 
         dictionary[key] = localised_date_time

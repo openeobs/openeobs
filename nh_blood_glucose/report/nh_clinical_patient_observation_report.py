@@ -37,5 +37,10 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
                 self.env['nh.clinical.patient.observation']\
                     ._replace_falsey_values(
                         obs_dict['values'], replace_zeros=True)
-
         return report_data
+
+    def _localise_and_format_datetimes(self, report_data):
+        super(NhClinicalPatientObservationReport, self)\
+            ._localise_and_format_datetimes(report_data)
+        for obs in report_data.get('blood_glucoses', []):
+            self._localise_dict_time(obs['values'], 'date_terminated')
