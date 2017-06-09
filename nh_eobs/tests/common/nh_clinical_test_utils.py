@@ -78,6 +78,7 @@ class NhClinicalTestUtils(AbstractModel):
             task.id,
             {}
         )
+        return task
 
     def get_report_triggered_action_status(self, activity_summary):
         """
