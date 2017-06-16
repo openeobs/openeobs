@@ -352,22 +352,9 @@ class ObservationReport(models.AbstractModel):
                 model_data = model_data[0]
 
             if model_data:
-                datetime_utils = self.env['datetime_utils']
-
                 if 'status' in model_data and model_data['status']:
                     status = 'Yes'
                     model_data['status'] = status
-                if 'date_started' in model_data and model_data['date_started']:
-                    model_data['date_started'] = \
-                        datetime_utils.get_localised_time(
-                            model_data['date_started'], return_string=True)
-
-                date_terminated = 'date_terminated'
-                if date_terminated in model_data \
-                        and model_data[date_terminated]:
-                    model_data['date_terminated'] = \
-                        datetime_utils.get_localised_time(
-                            model_data['date_terminated'], return_string=True)
 
             activity['values'] = model_data
         return activity_data
@@ -561,16 +548,25 @@ class ObservationReport(models.AbstractModel):
                     observation['ward'] = ward[1]
         return model_data
 
-    def process_report_dates(self, data, spell, base_report):
+    @staticmethod
+    def process_report_dates(data, spell, base_report):
+        # Set spell datetimes.
         spell_start = spell['date_started']
         spell_end = spell['date_terminated']
-        report_start = spell_start
-        report_end = base_report.time_generated
 
+        # Set report start.
+        if data.start_time:
+            report_start = data.start_time
+        else:
+            report_start = spell_start
+
+        # Set report end.
         if data.end_time:
             report_end = data.end_time
         elif spell_end:
             report_end = spell_end
+        elif base_report.time_generated:
+            report_end = base_report.time_generated
 
         return helpers.ReportDates(
             report_start,
