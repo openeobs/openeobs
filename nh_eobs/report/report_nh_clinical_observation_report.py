@@ -38,6 +38,8 @@ class ObservationReport(models.AbstractModel):
         'critical_care_history': 'nh.clinical.patient.critical_care'
     }
 
+    _graph_data_keys_mapping = {}
+
     @api.multi
     def render_html(self, data=None):
         """"
@@ -49,17 +51,32 @@ class ObservationReport(models.AbstractModel):
 
         if data and data.spell_id:
             report_obj = self.env['report']
+
             if hasattr(data, 'ews_only') and data.ews_only:
                 ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
-            report_data = self.get_report_data(data)
-            self._localise_and_format_datetimes(report_data)
+
+            report_data = self.get_and_process_report_data(data)
+
             return report_obj.render(
                 'nh_eobs.observation_report',
                 report_data)
         else:
             return None
+
+    def get_and_process_report_data(self, data):
+        """
+        Calls get_report_data as well as some additional methods that massage
+        the data.
+        :param data:
+        :return:
+        :rtype: dict
+        """
+        report_data = self.get_report_data(data)
+        self._create_graph_data(report_data)
+        self._localise_and_format_datetimes(report_data)
+        return report_data
 
     def get_report_data(self, data, ews_only=False):
         """
@@ -103,12 +120,9 @@ class ObservationReport(models.AbstractModel):
         self._get_patient_dob(patient)
 
         ews = self.get_ews_observations(data, spell_activity_id)
-        json_data = []
         table_ews = []
         for activity in ews:
-            json_data.append(copy.deepcopy(activity['values']))
             table_ews.append(copy.deepcopy(activity['values']))
-        json_ews = self.get_model_data_as_json(json_data)
 
         # Get the script files to load
         observation_report = '/nh_eobs/static/src/js/observation_report.js'
@@ -159,7 +173,6 @@ class ObservationReport(models.AbstractModel):
             'report_start': dates.report_start,
             'report_end': dates.report_end,
             'spell_start': dates.spell_start,
-            'ews_data': json_ews,
             'draw_graph_js': observation_report,
             'device_session_history': device_session_history,
             'transfer_history': transfer_history,
@@ -168,6 +181,7 @@ class ObservationReport(models.AbstractModel):
         ews_report = helpers.merge_dicts(ews_dict,
                                          base_report.footer_values,
                                          monitoring)
+        self._register_graph_data('ews', 'ews_data')
         if ews_only:
             return ews_report
 
@@ -388,9 +402,6 @@ class ObservationReport(models.AbstractModel):
                              model_one, model_two,  start, end):
         act_data = self.get_activity_data(spell_id, model_one, start, end)
         return self.get_model_values(model_two, act_data)
-
-    def get_model_data_as_json(self, model_data):
-        return json.dumps(model_data)
 
     def create_report_data(self, data):
         cr, uid = self._cr, self._uid
@@ -1029,3 +1040,83 @@ class ObservationReport(models.AbstractModel):
             return_string_format=return_string_format)
 
         dictionary[key] = localised_date_time
+
+    def _register_graph_data(self, key_to_copy_from, key_to_copy_to):
+        """
+        Allows observations to register their need to display graphs on the
+        report. Updates a dictionary which is used later to add the necessary
+        data for the graphs to the overall report data dictionary.
+        :param key_to_copy_from: A key for the report data dictionary which
+        points to a nested dictionary of all the observation data that will be
+        used for the graphs.
+        :type key_to_copy_from: str
+        :param key_to_copy_to: A key for the report data dictionary which is
+        which will be created for the graph data to be stored.
+        :type key_to_copy_to: str
+        :return:
+        """
+        if key_to_copy_from not in self._graph_data_keys_mapping:
+            self._graph_data_keys_mapping[key_to_copy_from] = key_to_copy_to
+
+    def _create_graph_data(self, report_data):
+        """
+        Creates new graph data and stores it in new keys which are created on
+        the overall report data dictionary. Graph data is a JSON encoded
+        string used by JS in the report templates to render the graphs before
+        they are converted to PDFs.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        self._copy_data_for_graphs(report_data)
+        self._localise_graph_data_datetimes(report_data)
+        self._convert_graph_data_to_json(report_data)
+
+    def _copy_data_for_graphs(self, report_data):
+        """
+        Copies observation data from other keys in the report data dictionary
+        and stores them in new keys to be used specifically by the graphs.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        for key_to_copy_from in self._graph_data_keys_mapping:
+            obs_data_list = []
+            for obs_data in report_data[key_to_copy_from]:
+                obs_data_copy = copy.deepcopy(obs_data['values'])
+                obs_data_list.append(obs_data_copy)
+
+            key_to_copy_to = self._graph_data_keys_mapping[key_to_copy_from]
+            report_data[key_to_copy_to] = obs_data_list
+
+    def _localise_graph_data_datetimes(self, report_data):
+        """
+        Localises the date terminated datetimes of the graph data stored in
+        their respective keys in the report data dictionary. Must be called
+        before the graph data is converted to JSON.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        graph_data_keys = self._graph_data_keys_mapping.values()
+        for graph_data_key in graph_data_keys:
+            graph_data = report_data[graph_data_key]
+
+            for obs_data in graph_data:
+                self._localise_dict_time(
+                    obs_data, 'date_terminated', return_string_format=DTF)
+
+    def _convert_graph_data_to_json(self, report_data):
+        """
+        Converts the graph data stored in their respective keys in the report
+        data dictionary to JSON encoded strings.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        keys_to_copy_to = self._graph_data_keys_mapping.values()
+        for key_to_copy_to in keys_to_copy_to:
+            graph_data = report_data[key_to_copy_to]
+            graph_data_json = json.dumps(graph_data)
+
+            report_data[key_to_copy_to] = graph_data_json

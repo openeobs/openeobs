@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import copy
-
 from openerp import models
 
 
@@ -27,11 +25,8 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
 
         if not ews_only:
             report_data["weights"] = weight['weight']
-            json_weight_data = []
-            for activity in weight['weight']:
-                json_weight_data.append(copy.deepcopy(activity['values']))
-            json_data = self.get_model_data_as_json(json_weight_data)
-            report_data['weight_data'] = json_data
+
+        self._register_graph_data('weights', 'weight_data')
 
         if 'weights' in report_data:
             for obs_dict in report_data['weights']:

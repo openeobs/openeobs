@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+# TODO Add all obs types to these tests, only a few asserted currently.
 """
 Module for TestDatetimesAreCorrectlyLocalised.
 """
+import json
+
 from openerp.addons.nh_eobs.report import helpers
 from openerp.tests.common import TransactionCase
 
@@ -65,6 +68,7 @@ class TestDatetimesAreCorrectlyLocalised(TransactionCase):
         weight_activity = self.activity_model.browse(weight_activity_id)
 
         datetime_utc = '2017-06-06 13:00:00'
+        self.datetime_bst = '2017-06-06 14:00:00'
         self.datetime_bst_formatted = '14:00 06/06/17'
 
         ews_obs_activity.date_terminated = datetime_utc
@@ -84,9 +88,9 @@ class TestDatetimesAreCorrectlyLocalised(TransactionCase):
         }
         report_input_obj = helpers.data_dict_to_obj(report_input_dict)
 
-        self.report_data = self.report_model.get_report_data(report_input_obj)
-        self.report_model.with_context({'tz': 'Europe/London'})\
-            ._localise_and_format_datetimes(self.report_data)
+        self.report_data = self.report_model\
+            .with_context({'tz': 'Europe/London'})\
+            .get_and_process_report_data(report_input_obj)
 
     def test_datetimes_are_localised(self):
         """
@@ -130,3 +134,39 @@ class TestDatetimesAreCorrectlyLocalised(TransactionCase):
 
         self.assertEqual(expected_date_terminated_dict,
                          actual_date_terminated_dict)
+
+    def _assert_json_string_data_is_localised(self, key):
+        """
+        Calls the method to create the graph data and asserts that the date
+        terminated datetimes are correctly localised.
+        :param key:
+        :type key: str
+        :return:
+        """
+        obs_data_json_str = self.report_data[key]
+        obs_data_list = json.loads(obs_data_json_str)
+
+        expected = [self.datetime_bst] * len(obs_data_list)
+        actual = [obs['date_terminated'] for obs in obs_data_list]
+        self.assertEqual(expected, actual)
+
+    def test_ews_json_string_datetimes_are_localised(self):
+        """
+        Test that data used for rendering the NEWS graphs on the report has
+        correctly localised datetimes.
+        """
+        self._assert_json_string_data_is_localised('ews_data')
+
+    def test_blood_glucose_json_string_datetimes_are_localised(self):
+        """
+        Test that data used for rendering the blood glucose graphs on the
+        report has correctly localised datetimes.
+        """
+        self._assert_json_string_data_is_localised('blood_glucose_data')
+
+    def test_weight_json_string_datetimes_are_localised(self):
+        """
+        Test that data used for rendering the weight graphs on the report has
+        correctly localised datetimes.
+        """
+        self._assert_json_string_data_is_localised('weight_data')
