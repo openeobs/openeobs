@@ -188,14 +188,17 @@ class nh_eobs_api(orm.AbstractModel):
         """
         settings_pool = self.pool['nh.clinical.settings']
         activity_period = settings_pool.get_setting(cr, uid, 'activity_period')
-        activity_time = dt.now()+td(minutes=activity_period)
+        activity_time = dt.now() + td(minutes=activity_period)
 
         domain = [('id', 'in', ids)] if ids else [
-            ('state', 'not in', ['completed', 'cancelled']), '|',
-            ('date_scheduled', '<=', activity_time.strftime(DTF)),
-            ('date_deadline', '<=', activity_time.strftime(DTF)),
+            ('state', 'not in', ['completed', 'cancelled']),
             ('user_ids', 'in', [uid]),
-            '|', ('user_id', '=', False), ('user_id', '=', uid)
+            '|',
+            ('user_id', '=', False),
+            ('user_id', '=', uid),
+            '|',
+            ('date_scheduled', '<=', activity_time.strftime(DTF)),
+            ('date_deadline', '<=', activity_time.strftime(DTF))
         ]
         return self.collect_activities(cr, uid, domain, context=context)
 
@@ -212,14 +215,16 @@ class nh_eobs_api(orm.AbstractModel):
         """
         activity_pool = self.pool['nh.activity']
         sql_pool = self.pool['nh.clinical.sql']
+
         activity_ids = activity_pool.search(cr, uid, domain, context=context)
         activity_ids_sql = ','.join(map(str, activity_ids))
         sql = sql_pool.get_collect_activities_sql(activity_ids_sql)
-        activity_values = []
+
+        activity_dict_list = []
         if activity_ids:
             cr.execute(sql)
-            activity_values = cr.dictfetchall()
-        return activity_values
+            activity_dict_list = cr.dictfetchall()
+        return activity_dict_list
 
     def get_assigned_activities(self, cr, uid, activity_type=None,
                                 context=None):

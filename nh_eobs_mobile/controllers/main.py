@@ -639,7 +639,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         # nh_clinical_patient_follow records, but they are no longer used.
         notification_count = 0
 
-        # Grab the patient object and get ID?
         tasks = api_model.get_activities(cr, uid, [], context=context)
         tasks = self.process_task_list(cr, uid, tasks, context=context)
         return request.render(
