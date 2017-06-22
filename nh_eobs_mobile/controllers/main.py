@@ -627,7 +627,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :returns: task list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
-
         cr, uid, context = request.cr, request.uid, request.context
         task_api = request.registry['nh.eobs.api']
         task_api.unassign_my_activities(cr, uid)
