@@ -461,7 +461,6 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :returns: EWS class
         :rtype: str
         """
-
         if score == 'None':
             return 'level-none'
         elif score == 'Low':
@@ -607,10 +606,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     def process_task_list(self, cr, uid, task_list, context=None):
         """
-        Process the task list from nh.eobs.api.get_activities
-
+        Add URL and colour information for the tasks dictionary returned from
+        nh_eobs_api.get_activities().
         :param cr: Odoo cursor
-        :param uid: user id
+        :param uid: user ID
         :param task_list: list of tasks from get_activities
         :param context: Odoo context
         :return: list of tasks with extra processing
@@ -628,25 +627,28 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
         cr, uid, context = request.cr, request.uid, request.context
-        task_api = request.registry['nh.eobs.api']
-        task_api.unassign_my_activities(cr, uid)
-        follow_activities = task_api.get_assigned_activities(
-            cr, uid,
-            activity_type='nh.clinical.patient.follow',
-            context=context
-        )
-        # grab the patient object and get id?
-        tasks = self.process_task_list(
-            cr, uid, task_api.get_activities(
-                cr, uid, [], context=context),
-            context=context)
+        api_model = request.registry['nh.eobs.api']
+
+        # This is also called when the patient list is loaded, the idea being
+        # that we 'catch' any users leaving a task and unassign them from the
+        # task, otherwise no-one else can pick it up.
+        api_model.unassign_my_activities(cr, uid)
+
+        # Used to be the length of the return value of
+        # nh_eobs_api.get_assigned_activities() which looked at
+        # nh_clinical_patient_follow records, but they are no longer used.
+        notification_count = 0
+
+        # Grab the patient object and get ID?
+        tasks = api_model.get_activities(cr, uid, [], context=context)
+        tasks = self.process_task_list(cr, uid, tasks, context=context)
         return request.render(
             'nh_eobs_mobile.patient_task_list',
             qcontext={
                 'items': tasks,
                 'section': 'task',
                 'username': request.session['login'],
-                'notification_count': len(follow_activities),
+                'notification_count': notification_count,
                 'urls': URLS
             }
         )

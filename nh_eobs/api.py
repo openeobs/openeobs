@@ -344,7 +344,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         activity_pool = self.pool['nh.activity']
         domain = [['user_id', '=', uid],
                   ['data_model', 'not in',
