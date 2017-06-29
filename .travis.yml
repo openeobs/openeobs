@@ -20,6 +20,8 @@ addons:
     - pov-wkhtmltopdf
     packages:
     - expect-dev
+    # TODO Investigate if this is needed. Stopped working in Travis so we
+    # added a pip install line for it, but may be used elsewhere in the stack.
     - python-lxml
     - python-simplejson
     - python-serial
@@ -69,6 +71,7 @@ before_install:
 # Install a pinned version of the dependencies so when OCA's requirements.txt is installed the dependency at this particular version is met
 - pip install astroid==1.3.8
 - pip install Pillow==2.5.1
+- pip install lxml==3.8.0
 - mv xml_test_output ${HOME}/dependencies/xml_test_output
 - cd ${TRAVIS_BUILD_DIR}
 install:
