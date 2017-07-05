@@ -32,7 +32,7 @@
              'views/observation_report_template.xml',
              'security/ir.model.access.csv',
              'views/settings.xml'],
-    'qweb': ['static/src/xml/nh_eobs.xml'],
+    'qweb': ['static/src/xml/*.xml'],
     'application': True,
     'installable': True,
     'active': False,
