@@ -154,7 +154,7 @@ openerp.nh_eobs = function (instance) {
 
             environmentModel.call("get_eobs_version").then(function(eobsVersion) {
                     var text = 'LiveObs version ' + eobsVersion;
-                    self.$el.find('ul.dropdown-menu > li > a[data-menu="about"]').text(text);
+                    self.$el.find('#liveobs_about_link').text(text);
                 }
             );
         },

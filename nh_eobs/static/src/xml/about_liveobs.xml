@@ -3,7 +3,7 @@
 
     <t t-extend="UserMenu">
         <t t-jquery="ul.dropdown-menu > li > a[data-menu='about']" t-operation="replace">
-            <a href="http://www.liveobs.com/" data-menu="about"></a>
+            <a id="liveobs_about_link" href="http://www.liveobs.com/"></a>
         </t>
     </t>
 
