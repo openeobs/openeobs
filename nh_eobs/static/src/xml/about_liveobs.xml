@@ -2,8 +2,8 @@
 <templates id="template" xml:space="preserve">
 
     <t t-extend="UserMenu">
-        <t t-jquery="#oe_main_menu_placeholder > ul.nav.navbar-nav.navbar-right.oe_user_menu_placeholder > li > ul > li:nth-child(2) > a" t-operation="inner">
-            About LiveObs
+        <t t-jquery="ul.dropdown-menu > li > a[data-menu='about']" t-operation="replace">
+            <a href="http://www.liveobs.com/" data-menu="about"></a>
         </t>
     </t>
 

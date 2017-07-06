@@ -556,16 +556,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         following_patients = self.process_patient_list(
             cr, uid, patient_api.get_followed_patients(
                 cr, uid, []), context=context)
+
+        qcontext = {
+            'notifications': follow_activities,
+            'items': patients,
+            'notification_count': len(follow_activities),
+            'followed_items': following_patients,
+            'section': 'patient',
+        }
+        self.add_common_keys_to_qweb_context(qcontext, request)
         return request.render(
-            'nh_eobs_mobile.patient_task_list',
-            qcontext={
-                'notifications': follow_activities,
-                'items': patients,
-                'notification_count': len(follow_activities),
-                'followed_items': following_patients,
-                'section': 'patient',
-                'username': request.session['login'],
-                'urls': URLS}
+            'nh_eobs_mobile.patient_task_list', qcontext=qcontext
         )
 
     @http.route(URLS['share_patient_list'], type='http', auth='user')
@@ -592,17 +593,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             patients,
             key=lambda k: cmp(k['followers'], k['invited_users'])
         )
+
+        qcontext = {
+            'items': sorted_pts,
+            'section': 'patient',
+            'share_list': True,
+            'notification_count': len(follow_activities),
+            'user_id': uid
+        }
+        self.add_common_keys_to_qweb_context(qcontext, request)
         return request.render(
-            'nh_eobs_mobile.share_patients_list',
-            qcontext={
-                'items': sorted_pts,
-                'section': 'patient',
-                'username': request.session['login'],
-                'share_list': True,
-                'notification_count': len(follow_activities),
-                'urls': URLS,
-                'user_id': uid
-            }
+            'nh_eobs_mobile.share_patients_list', qcontext=qcontext
         )
 
     def process_task_list(self, cr, uid, task_list, context=None):
@@ -641,15 +642,17 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             cr, uid, task_api.get_activities(
                 cr, uid, [], context=context),
             context=context)
+
+        qcontext = {
+            'items': tasks,
+            'section': 'task',
+            'username': request.session['login'],
+            'notification_count': len(follow_activities),
+            'urls': URLS
+        }
+        self.add_common_keys_to_qweb_context(qcontext, request)
         return request.render(
-            'nh_eobs_mobile.patient_task_list',
-            qcontext={
-                'items': tasks,
-                'section': 'task',
-                'username': request.session['login'],
-                'notification_count': len(follow_activities),
-                'urls': URLS
-            }
+            'nh_eobs_mobile.patient_task_list', qcontext=qcontext
         )
 
     def get_task_form(self, cr, uid, task, patient, request, context=None):
@@ -767,32 +770,27 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(
                     URLS['cancel_clinical_notification'], task_id)
+
         if is_notification or is_observation or is_placement:
-            return request.render(
-                'nh_eobs_mobile.data_input_screen',
-                qcontext={
-                    'name': task['summary'],
-                    'view_description': view_desc,
-                    'patient': patient,
-                    'form': form,
-                    'section': 'task',
-                    'username': request.session['login'],
-                    'notification_count': len(follow_activities),
-                    'urls': URLS,
-                    'task_valid': form.get('task_valid', True)
-                }
-            )
+            response_type = 'nh_eobs_mobile.data_input_screen'
+            qcontext = {
+                'name': task['summary'],
+                'view_description': view_desc,
+                'patient': patient,
+                'form': form,
+                'section': 'task',
+                'notification_count': len(follow_activities),
+                'task_valid': form.get('task_valid', True)
+            }
         else:
-            return request.render(
-                'nh_eobs_mobile.error',
-                qcontext={
-                    'error_string': 'Task is neither a notification '
-                                    'nor an observation',
-                    'section': 'task',
-                    'username': request.session['login'],
-                    'urls': URLS
-                }
-            )
+            response_type = 'nh_eobs_mobile.error'
+            qcontext = {
+                'error_string': 'Task is neither a notification '
+                                'nor an observation',
+                'section': 'task'
+            }
+        self.add_common_keys_to_qweb_context(qcontext, request)
+        return request.render(response_type, qcontext=qcontext)
 
     # TODO: eventually remove this method, it's no more used: it has
     # been replaced by method 'process_ajax_form()'
@@ -857,18 +855,18 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             cr, uid, user_group_ids.get('groups_id'), ['display_name']
         )
         user_groups = [rec.get('display_name') for rec in user_groups]
+
+        qcontext = {
+            'patient': patient,
+            'section': 'patient',
+            'obs_list': obs,
+            'notification_count': len(follow_activities),
+            'data_vis_list': obs_data_vis_list,
+            'user_groups': user_groups
+        }
+        self.add_common_keys_to_qweb_context(qcontext)
         return request.render(
-            'nh_eobs_mobile.patient',
-            qcontext={
-                'patient': patient,
-                'urls': URLS,
-                'section': 'patient',
-                'obs_list': obs,
-                'notification_count': len(follow_activities),
-                'username': request.session['login'],
-                'data_vis_list': obs_data_vis_list,
-                'user_groups': user_groups
-            }
+            'nh_eobs_mobile.patient', qcontext=qcontext
         )
 
     @http.route(URLS['patient_ob']+'<observation>/<patient_id>',
@@ -923,17 +921,24 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 observation_name_list.append(ob['name'])
         if len(observation_name_list) == 0:
             exceptions.abort(404)
+
+        qcontext = {
+            'view_description': view_desc,
+            'name': observation_name_list[0],
+            'patient': patient,
+            'form': form,
+            'section': 'patient',
+            'notification_count': len(follow_activities),
+            'task_valid': True
+        }
+        self.add_common_keys_to_qweb_context(qcontext)
         return request.render(
-            'nh_eobs_mobile.data_input_screen',
-            qcontext={
-                'view_description': view_desc,
-                'name': observation_name_list[0],
-                'patient': patient,
-                'form': form,
-                'section': 'patient',
-                'notification_count': len(follow_activities),
-                'username': request.session['login'],
-                'urls': URLS,
-                'task_valid': True
-            }
+            'nh_eobs_mobile.data_input_screen', qcontext=qcontext
         )
+
+    @staticmethod
+    def add_common_keys_to_qweb_context(qcontext, request_obj):
+        qcontext['username'] = request_obj.session['login']
+        qcontext['urls'] = URLS
+        environment_model = request_obj.registry['nh.clinical.environment']
+        qcontext['eobs_version'] = environment_model.get_eobs_version()

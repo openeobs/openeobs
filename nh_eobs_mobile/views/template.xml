@@ -54,7 +54,7 @@
                     </t>
                     <t t-if="share_list==None">
                         <div class="footer block">
-                            <p class="user"><t t-esc="username"/></p>
+                            <p class="user"><t t-esc="username"/> v<t t-esc="eobs_version"/></p>
                         </div>
                     </t>
                     <script type="text/javascript">
