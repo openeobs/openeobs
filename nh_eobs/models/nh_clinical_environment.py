@@ -14,9 +14,13 @@ From Javascript there are 2 options for server communication:
 Calling a model seemed the better option as backend code could then also make
 use of it without having to unnecessarily call an endpoint.
 """
+import logging
 from os import environ
 
 from openerp.models import AbstractModel
+
+
+_logger = logging.getLogger(__name__)
 
 
 class NhClinicalEnvironment(AbstractModel):
@@ -27,6 +31,9 @@ class NhClinicalEnvironment(AbstractModel):
         try:
             eobs_version = environ['EOBS_VERSION']
             return eobs_version
-        except:
-            message = "There is no EOBS_VERSION environment variable set!"
-            raise KeyError(message)
+        except KeyError:
+            message = "There is no EOBS_VERSION environment variable set. " \
+                      "Users will not be able to see which version they are " \
+                      "using in the UI."
+            _logger.warn(message)
+            return None
