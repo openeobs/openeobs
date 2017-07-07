@@ -230,12 +230,12 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     @http.route(URLS['logo'], type='http', auth='none')
     def get_logo(self, *args, **kw):
         """
-        Returns /static/src/img/open_eobs_logo.png response object.
-        :returns: /static/src/img/open_eobs_logo.png
+        Returns /static/src/img/liveobs_logo.png response object.
+        :returns: /static/src/img/liveobs_logo.png
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
 
-        with open('{0}/static/src/img/open_eobs_logo.png'.format(
+        with open('{0}/static/src/img/liveobs_logo.png'.format(
             get_module_path('nh_eobs_mobile')
         ), 'r') as logo:
             return request.make_response(
