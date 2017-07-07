@@ -1108,9 +1108,9 @@ class nh_clinical_wardboard(orm.Model):
         cr.execute("""
 
 -- materialized views
-drop materialized view if exists ews0 cascade;
-drop materialized view if exists ews1 cascade;
-drop materialized view if exists ews2 cascade;
+drop view if exists ews0 cascade;
+drop view if exists ews1 cascade;
+drop view if exists ews2 cascade;
 drop materialized view if exists ward_locations cascade;
 drop materialized view if exists param cascade;
 drop materialized view if exists pbp cascade;
@@ -1249,7 +1249,7 @@ wb_activity_data as(
             activity.state
 );
 
-create materialized view
+create or replace view
 ews0 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -1276,7 +1276,7 @@ ews0 as(
             where activity.rank = 1 and activity.state = 'scheduled'
 );
 
-create materialized view
+create or replace view
 ews1 as(
             select
                 activity.parent_id as spell_activity_id,
@@ -1304,7 +1304,7 @@ ews1 as(
             where activity.rank = 1 and activity.state = 'completed'
 );
 
-create materialized view
+create or replace view
 ews2 as(
             select
                 activity.parent_id as spell_activity_id,

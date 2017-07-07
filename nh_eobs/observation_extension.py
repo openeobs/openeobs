@@ -7,7 +7,6 @@ from openerp.addons.nh_eobs.helpers import refresh_materialized_views
 class nh_clinical_patient_observation_ews(orm.Model):
     _inherit = 'nh.clinical.patient.observation.ews'
 
-    @refresh_materialized_views('ews0', 'ews1', 'ews2')
     def complete(self, cr, uid, activity_id, context=None):
         return super(
             nh_clinical_patient_observation_ews, self).complete(
@@ -27,7 +26,6 @@ class nh_clinical_patient_o2target(orm.Model):
 class nh_clinical_notification_frequency(orm.Model):
     _inherit = 'nh.clinical.notification.frequency'
 
-    @refresh_materialized_views('ews0', 'ews1', 'ews2')
     def complete(self, cr, uid, activity_id, context=None):
         return super(
             nh_clinical_notification_frequency, self).complete(
