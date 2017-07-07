@@ -1120,10 +1120,9 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             TestOdooRouteDecoratorIntegration.mock_method_returning_true
         )
 
-        test_resp = requests.post(url_under_test,
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies
-                                  )
+        test_resp = requests.post(
+            url_under_test, data=demo_data, cookies=self.auth_resp.cookies
+        )
 
         # Stop Odoo's patchers
         api_pool._revert_method('cancel')

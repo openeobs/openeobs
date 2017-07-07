@@ -100,7 +100,7 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
         # Add the 'doctype' string (before compressing) as a small
         # fix for the comparison's sake
         compressed_rendered_parsed = self._compress_string(
-            '<!DOCTYPE html>'+rendered_and_parsed)
+            '<!DOCTYPE html>' + rendered_and_parsed)
 
         self.assertEqual(
             compressed_expected_output, compressed_rendered_parsed)
