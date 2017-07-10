@@ -28,12 +28,10 @@ class NhClinicalEnvironment(AbstractModel):
 
     @staticmethod
     def get_eobs_version(*args):
-        try:
-            eobs_version = environ['EOBS_VERSION']
-            return eobs_version
-        except KeyError:
+        eobs_version = environ.get('EOBS_VERSION')
+        if eobs_version is None:
             message = "There is no EOBS_VERSION environment variable set. " \
                       "Users will not be able to see which version they are " \
                       "using in the UI."
             _logger.warn(message)
-            return None
+        return eobs_version
