@@ -50,7 +50,7 @@ class nh_eobs_demo_loader(orm.AbstractModel):
 
         # set the discharge date
         discharge_date = dt.now().strftime(dtf)
-        data = {'discharge_date': discharge_date}
+        data = {'discharge_date': discharge_date, 'location': 'U'}
 
         # discharge patients
         patients = api_demo.discharge_patients(
