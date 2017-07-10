@@ -27,7 +27,8 @@ class TestCalculateScore(TransactionCase):
             'patient_id': self.patient.id,
             'height': height
         })
-        self.activity_model.complete(obs_height_activity_id)
+        height = self.activity_model.browse(obs_height_activity_id)
+        height.complete()
         obs_weight = self.weight_model.create({
             'patient_id': self.patient.id,
             'weight': weight
@@ -45,7 +46,8 @@ class TestCalculateScore(TransactionCase):
             'patient_id': self.patient.id,
             'height': height
         })
-        self.activity_model.complete(obs_height_activity_id)
+        height = self.activity_model.browse(obs_height_activity_id)
+        height.complete()
         obs_weight = self.weight_model.create({
             'patient_id': self.patient.id,
             'weight': weight
