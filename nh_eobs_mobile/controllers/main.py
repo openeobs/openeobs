@@ -864,7 +864,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'data_vis_list': obs_data_vis_list,
             'user_groups': user_groups
         }
-        self.add_common_keys_to_qweb_context(qcontext)
+        self.add_common_keys_to_qweb_context(qcontext, request)
         return request.render(
             'nh_eobs_mobile.patient', qcontext=qcontext
         )
@@ -931,7 +931,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             'notification_count': len(follow_activities),
             'task_valid': True
         }
-        self.add_common_keys_to_qweb_context(qcontext)
+        self.add_common_keys_to_qweb_context(qcontext, request)
         return request.render(
             'nh_eobs_mobile.data_input_screen', qcontext=qcontext
         )
