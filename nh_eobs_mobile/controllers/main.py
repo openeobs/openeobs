@@ -786,7 +786,8 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
                 'form': form,
                 'section': 'task',
                 'notification_count': len(follow_activities),
-                'task_valid': form.get('task_valid', True)
+                'task_valid': task_valid,
+                'cancellable': form.get('cancellable', False)
             }
         else:
             response_type = 'nh_eobs_mobile.error'
