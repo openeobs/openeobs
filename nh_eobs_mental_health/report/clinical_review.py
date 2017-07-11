@@ -37,7 +37,6 @@ class NhClinicalObservationReport(models.Model):
         extra_ews_activities = activity_model.read(
             self.env.cr, self.env.uid, extra_ews_activity_ids
         )
-        self.convert_activities_dates_to_context_dates(extra_ews_activities)
         extra_ews_activities = self.get_model_values(
             'nh.clinical.patient.observation.ews', extra_ews_activities
         )
