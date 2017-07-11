@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.nh_eobs.report import helpers
 from openerp.tests.common import TransactionCase
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestGetPatientMonitoringExceptionReportData(TransactionCase):
@@ -42,36 +40,15 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
                 self.spell_activity.id)
 
     def test_contains_rapid_tranq_events(self):
-        datetime_utils = self.env['datetime_utils']
-        datetime_format = \
-            datetime_utils.datetime_format_front_end_two_character_year
+        rapid_tranq_1_date_started = self.rapid_tranq_1_activity.date_started
 
-        rapid_tranq_1_date_started = datetime.strptime(
-            self.rapid_tranq_1_activity.date_started, DTF)
-        rapid_tranq_1_date_started = helpers.convert_db_date_to_context_date(
-            self.env.cr, self.env.uid,
-            rapid_tranq_1_date_started, datetime_format)
+        rapid_tranq_1_date_terminated = \
+            self.rapid_tranq_1_activity.date_terminated
 
-        rapid_tranq_1_date_terminated = datetime.strptime(
-            self.rapid_tranq_1_activity.date_terminated, DTF)
-        rapid_tranq_1_date_terminated = helpers\
-            .convert_db_date_to_context_date(
-                self.env.cr, self.env.uid, rapid_tranq_1_date_terminated,
-                datetime_format)
+        rapid_tranq_2_date_started = self.rapid_tranq_2_activity.date_started
 
-        rapid_tranq_2_date_started = datetime.strptime(
-            self.rapid_tranq_2_activity.date_started, DTF)
-        rapid_tranq_2_date_started = helpers.convert_db_date_to_context_date(
-            self.env.cr, self.env.uid, rapid_tranq_2_date_started,
-            datetime_format)
-
-        rapid_tranq_2_date_terminated = datetime.strptime(
-            self.rapid_tranq_2_activity.date_terminated, DTF)
-        rapid_tranq_2_date_terminated = helpers\
-            .convert_db_date_to_context_date(
-                self.env.cr, self.env.uid, rapid_tranq_2_date_terminated,
-                datetime_format
-            )
+        rapid_tranq_2_date_terminated = \
+            self.rapid_tranq_2_activity.date_terminated
 
         expected_report_entries = [
             {

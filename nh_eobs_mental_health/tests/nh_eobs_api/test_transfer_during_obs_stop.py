@@ -83,7 +83,7 @@ class TestTransferDuringObsStop(TransactionCase):
             ['parent_id', '=', self.spell_activity_id]
         ])
         self.test_utils_model.place_patient(
-            placement_id=new_placement.id
+            placement_activity_id=new_placement.id
         )
 
         domain = [

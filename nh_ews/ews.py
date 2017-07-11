@@ -1113,7 +1113,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :return:
         """
         if self.is_partial:
-            clinical_risk = self.clinical_risk
+            score_dict = self.calculate_score(self)
+            clinical_risk = score_dict['clinical_risk']
+            score = score_dict['score']
             if clinical_risk == 'None':
                 clinical_risk = 'No'
             if clinical_risk:
@@ -1124,7 +1126,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'real NEWS score may be higher<br>' \
                     'This Partial Observation will not update the ' \
                     'NEWS score and clinical risk of the ' \
-                    'patient'.format(clinical_risk, self.score)
+                    'patient'.format(clinical_risk, score)
             else:
                 submission_message = \
                     '<strong>Clinical risk:</strong> Unknown<br>' \

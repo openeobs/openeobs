@@ -78,6 +78,7 @@ class NhClinicalTestUtils(AbstractModel):
             task.id,
             {}
         )
+        return task
 
     def get_report_triggered_action_status(self, activity_summary):
         """
@@ -111,3 +112,31 @@ class NhClinicalTestUtils(AbstractModel):
         )[0]
         self.bed.write({'context_ids': [[4, self.eobs_context.id]]})
         self.other_bed.write({'context_ids': [[4, self.eobs_context.id]]})
+
+    def discharge_patient(self, hospital_number=None):
+        """ Overriding discharge patient to use nh.eobs.api so can take
+        advantage of overrides there
+
+        :param hospital_number: hospital number of patient
+        """
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.eobs.api']
+        api_model.discharge(hospital_number, {
+            'location': 'DISL'
+        })
+
+    def transfer_patient(self, location_code, hospital_number=None):
+        """
+        Overriding transfer patient to use nh.eobs.api so can take advantage of
+        overrides there
+
+        :param location_code: Code to transfer patient to
+        :param hospital_number: Hospital number of patient
+        """
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.clinical.api']
+        api_model.transfer(hospital_number, {
+            'location': location_code
+        })

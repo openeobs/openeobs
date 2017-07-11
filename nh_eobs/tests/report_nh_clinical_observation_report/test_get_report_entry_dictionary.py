@@ -75,11 +75,6 @@ class GetReportEntryDictionary(TransactionCase):
         self.cancel_reason_model._patch_method('read', mock_cancel_reason_read)
 
         self.report_model = self.env['report.nh.clinical.observation_report']
-        # Stubbed out method to return nothing as was calling user read and
-        # expecting all user values which is time consuming and not the code
-        # under test anyway.
-        self.report_model._patch_method(
-            'convert_activity_dates_to_context_dates', lambda a, b: None)
 
     def call_test(self):
         self.pme_started_dictionary = \
@@ -112,7 +107,5 @@ class GetReportEntryDictionary(TransactionCase):
         self.activity_model._revert_method('read')
         self.pme_model._revert_method('read')
         self.user_model._revert_method('read')
-        self.report_model._revert_method(
-            'convert_activity_dates_to_context_dates')
         self.cancel_reason_model._revert_method('read')
         super(GetReportEntryDictionary, self).tearDown()
