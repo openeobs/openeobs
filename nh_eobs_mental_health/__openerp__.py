@@ -14,7 +14,7 @@
         'nh_eobs_mobile',
         # TODO EOBS-1089: nh_eobs_mental_health_depends on nh_weight.
         'nh_weight',
-        'nh_food_and_fluid',
+        # 'nh_food_and_fluid',
         'nh_blood_glucose'
     ],
     'data': [

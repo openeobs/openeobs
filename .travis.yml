@@ -14,6 +14,7 @@ cache:
 python:
 - '2.7'
 addons:
+  sauce_connect: true
   apt:
     sources:
     - pov-wkhtmltopdf
