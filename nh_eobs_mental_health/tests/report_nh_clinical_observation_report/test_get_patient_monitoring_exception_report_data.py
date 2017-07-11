@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.nh_eobs.report import helpers
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
@@ -77,15 +76,7 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         return new_datetime
 
     def test_entries_returned_in_chronological_order(self):
-        report_datetime_format = self.env['datetime_utils'] \
-            .datetime_format_front_end_two_character_year
-
-        def reformat_and_convert_timezone(date_time):
-            date_time = datetime.strptime(date_time, DTF)
-            return helpers.convert_db_date_to_context_date(
-                self.env.cr, self.env.uid, date_time, report_datetime_format)
-
-        expected = map(reformat_and_convert_timezone, self.pme_events)
+        expected = self.pme_events
         actual = map(lambda item: item['date'],
                      self.patient_monitoring_exception_history)
 

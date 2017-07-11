@@ -63,8 +63,7 @@ class NHFocus
     if !event.handled
       self.style.dimensions.width = self.parent_obj.style.dimensions.width -
         ((self.parent_obj.style.padding.left +
-        self.parent_obj.style.padding.right) + (self.style.margin.left +
-        self.style.margin.right))
+        self.parent_obj.style.padding.right))
       self.obj.attr('width', self.style.dimensions.width)
       self.axes.x.scale?.range()[1] = self.style.dimensions.width
       if self.parent_obj.options.mobile.is_mob

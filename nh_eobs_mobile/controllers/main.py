@@ -761,12 +761,18 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form, form_desc = \
             self.get_task_form(cr, uid, task, patient, request)
         view_desc = task_rec.get_view_description(form_desc)
+
+        # TODO EOBS-1388: Extract adding of task valid key from controller
+        task_valid = True
         if is_notification or is_placement:
+            task_valid = task_rec.is_valid()
             cancellable = task_rec.is_cancellable()
+
             form['confirm_url'] = "{0}{1}".format(
                 URLS['confirm_clinical_notification'], task_id)
             form['action'] = "{0}{1}".format(
                 URLS['confirm_clinical_notification'], task_id)
+            form['cancellable'] = cancellable
             if cancellable:
                 form['cancel_url'] = "{0}{1}".format(
                     URLS['cancel_clinical_notification'], task_id)

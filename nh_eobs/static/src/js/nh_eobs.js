@@ -508,13 +508,6 @@ openerp.nh_eobs = function (instance) {
                         if (d.partial_reason === 'refused' && self.refused || d.is_partial && self.partial_type === 'character'){
                             d.score = false;
                         }
-
-
-                        var date_els = d.date_terminated.match(date_regex);
-                        var dt = new Date(date_els[1], (parseInt(date_els[2]) - 1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
-                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
-                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0' + (dt.getMonth() + 1)).slice(-2) + "/" + ('0' + (dt.getFullYear())).slice(-2) + " " + ('0' + (dt.getHours())).slice(-2) + ":" + ('0' + (dt.getMinutes())).slice(-2);
-
                         d.oxygen_administration_device = 'No';
                         if (d.flow_rate && d.flow_rate > -1 || d.concentration && d.concentration > -1 || d.oxygen_administration_flag) {
                             plotO2 = true;

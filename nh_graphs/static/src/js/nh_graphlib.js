@@ -79,12 +79,43 @@ NHGraphLib = (function() {
     self = this;
   }
 
+  NHGraphLib.prototype.parseDateTime = function(input, format) {
+    var fmt, i, parts;
+    if (format == null) {
+      format = 'YYYY-mm-DD HH:MM:SS';
+    }
+    parts = input.match(/(\d+)/g);
+    i = 0;
+    fmt = {};
+    format.replace(/(YYYY|mm|DD|HH|MM|SS)/g, function(part) {
+      return fmt[part] = i++;
+    });
+    if (parts === null || fmt === null) {
+      throw new Error("Invalid date format");
+    }
+    return new Date(parts[fmt['YYYY']], parts[fmt['mm']] - 1, parts[fmt['DD']], parts[fmt['HH']], parts[fmt['MM']], parts[fmt['SS']]);
+  };
+
+  NHGraphLib.prototype.parseDate = function(input, format) {
+    var fmt, i, parts;
+    if (format == null) {
+      format = 'YYYY-mm-DD';
+    }
+    parts = input.match(/(\d+)/g);
+    i = 0;
+    fmt = {};
+    format.replace(/(YYYY|mm|DD)/g, function(part) {
+      return fmt[part] = i++;
+    });
+    if (parts === null || fmt === null) {
+      throw new Error("Invalid date format");
+    }
+    return new Date(parts[fmt['YYYY']], parts[fmt['mm']] - 1, parts[fmt['DD']]);
+  };
+
   NHGraphLib.prototype.date_from_string = function(date_string) {
     var date;
-    date = new Date(date_string);
-    if (isNaN(date.getTime())) {
-      date = new Date(date_string.replace(' ', 'T'));
-    }
+    date = this.parseDateTime(date_string);
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");
     }
@@ -164,28 +195,34 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.redraw_resize = function(event) {
-    var ref, ref1, ref2, ref3, ref4;
+    var ref, ref1, ref2, ref3, ref4, ref5;
     if (this.is_alive() && !event.handled) {
-      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      this.style.dimensions.width = (ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0;
       if ((ref3 = this.obj) != null) {
         ref3.attr('width', this.style.dimensions.width);
       }
-      if ((ref4 = this.context) != null) {
-        ref4.handle_resize(this.context, this.obj, event);
+      if (this.context != null) {
+        if ((ref4 = this.context) != null) {
+          ref4.handle_resize(this.context, this.obj, event);
+        }
+      } else {
+        if ((ref5 = this.focus) != null) {
+          ref5.handle_resize(this.focus, this.obj, event);
+        }
       }
       event.handled = true;
     }
   };
 
   NHGraphLib.prototype.rangify_graphs = function() {
-    var graph, i, len, ranged, ref;
+    var graph, j, len, ranged, ref;
     this.options.ranged = this.options.controls.rangify.checked;
     ranged = this.options.ranged;
     if (this.is_alive()) {
       this.context.graph.rangify_graph(this.context.graph, ranged);
       ref = this.focus.graphs;
-      for (i = 0, len = ref.length; i < len; i++) {
-        graph = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        graph = ref[j];
         graph.rangify_graph(graph, ranged);
       }
     }
@@ -198,6 +235,7 @@ NHGraphLib = (function() {
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
     }
+    this.remove_listeners();
     window.addEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     this.options.handler.rangify = this.rangify_graphs.bind(this);
@@ -352,7 +390,7 @@ NHGraphLib = (function() {
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
     return cells = rows.selectAll('td').data(function(d) {
-      var data, fix_val, i, j, key, len, len1, o, obj, p, ref, t, v;
+      var data, fix_val, j, k, key, len, len1, o, obj, p, ref, t, v;
       data = [
         {
           title: d['title'],
@@ -361,8 +399,8 @@ NHGraphLib = (function() {
           "class": false
         }
       ];
-      for (i = 0, len = raw_data.length; i < len; i++) {
-        obj = raw_data[i];
+      for (j = 0, len = raw_data.length; j < len; j++) {
+        obj = raw_data[j];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
           fix_val = void 0;
@@ -388,8 +426,8 @@ NHGraphLib = (function() {
           v = [];
           p = d['presentation'];
           ref = d['keys'];
-          for (j = 0, len1 = ref.length; j < len1; j++) {
-            o = ref[j];
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            o = ref[k];
             v.push({
               title: o['title'],
               value: obj[o['keys'][0]],
@@ -409,12 +447,12 @@ NHGraphLib = (function() {
       }
       return data;
     }).enter().append('td').html(function(d) {
-      var i, len, o, ref, text;
+      var j, len, o, ref, text;
       if (typeof d.value === 'object' && d.value !== null) {
         text = '';
         ref = d.value;
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          o = ref[j];
           if (o.value) {
             if (Array.isArray(o.value) && o.value.length > 1) {
               o.value = o.value[1];
@@ -682,7 +720,7 @@ NHFocus = (function() {
   NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
     if (!event.handled) {
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - (self.parent_obj.style.padding.left + self.parent_obj.style.padding.right);
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;
@@ -969,7 +1007,7 @@ NHGraph = (function(superClass) {
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
-    this.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (this.style.margin.left + this.style.margin.right)) - this.style.label_width;
+    this.style.dimensions.width = parent_obj.style.dimensions.width - (parent_obj.style.padding.left + parent_obj.style.padding.right) - this.style.label_width;
     this.obj.attr('width', this.style.dimensions.width);
     left_offset = parent_obj.style.padding.left + this.style.margin.left;
     top_offset = parent_obj.style.dimensions.height + this.style.margin.top;

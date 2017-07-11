@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import copy
-
 from openerp import models
 
 
@@ -25,17 +23,17 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
                 data
             )
             report_data["blood_glucoses"] = blood_glucose_data['blood_glucose']
-            json_blood_glucose_data = []
-            for activity in report_data['blood_glucoses']:
-                json_blood_glucose_data.append(
-                    copy.deepcopy(activity['values'])
-                )
-            json_data = self.get_model_data_as_json(json_blood_glucose_data)
-            report_data['blood_glucose_data'] = json_data
+
+            self._register_graph_data('blood_glucoses', 'blood_glucose_data')
 
             for obs_dict in report_data.get('blood_glucoses', []):
                 self.env['nh.clinical.patient.observation']\
                     ._replace_falsey_values(
                         obs_dict['values'], replace_zeros=True)
-
         return report_data
+
+    def _localise_and_format_datetimes(self, report_data):
+        super(NhClinicalPatientObservationReport, self)\
+            ._localise_and_format_datetimes(report_data)
+        for obs in report_data.get('blood_glucoses', []):
+            self._localise_dict_time(obs['values'], 'date_terminated')
