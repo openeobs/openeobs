@@ -100,9 +100,12 @@ class TestGetFoodAndFluidObservations(TransactionCase):
 
         period_start_datetime = \
             self.food_and_fluid_model.get_period_start_datetime(datetime.now())
+        date_format = \
+            self.datetime_utils.datetime_format_front_end_two_character_year
         period_start_datetime = \
             self.datetime_utils.convert_datetime_str_to_known_format(
-                period_start_datetime, self.report_model.pretty_date_format
+                period_start_datetime,
+                date_format
             )
         non_active_periods = \
             [period for period in self.food_and_fluid_report_data
