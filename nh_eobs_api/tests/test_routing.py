@@ -975,7 +975,8 @@ class TestOdooRouteDecoratorIntegration(openerp.tests.common.HttpCase):
         self.assertEqual(test_resp.status_code, 200)
         self.assertIn(
             'Successfully reached the "route without arguments" '
-            'page as an authenticated user.', test_resp.text)
+            'page as an authenticated user.', test_resp.text
+        )
 
     def test_route_with_no_arguments_only_post(self):
         test_resp_get = requests.get(
