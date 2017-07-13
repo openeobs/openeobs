@@ -1,24 +1,13 @@
 <openerp>
     <data>
-        <record model="ir.ui.view" id="view_spell_patient_form">
+        <record model="ir.ui.view" id="view_adt_patient_form">
                 <field name="name">patient Form View</field>
                 <field name="model">nh.clinical.patient</field>
+                <field name="inherit_id" ref="nh_clinical.view_patient_form"/>
                 <field name="arch" type="xml">
-                    <form string="patient Form View" delete="0">
-                        <sheet>
-                            <group>
-                                <field name="given_name" required="True"/>
-                                <field name="middle_names" />
-                                <field name="family_name" required="True"/>
-                                <field name="dob" widget="date"/>
-                                <field name="sex" />
-                                <field name="gender" />
-                                <field name="ethnicity" />
-                                <field name="patient_identifier" required="True"/>
-                                <field name="other_identifier" />
-                            </group>
-                        </sheet>
-                    </form>
+                    <xpath expr="//sheet/group/field[@name='patient_identifier']" position="attributes">
+                        <attribute name="required">True</attribute>
+                    </xpath>
                 </field>
             </record>
     </data>
