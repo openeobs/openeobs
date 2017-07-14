@@ -17,7 +17,8 @@ import json
 from datetime import datetime
 
 from openerp import api, models
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+from openerp.osv import fields
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 from . import helpers
 
@@ -26,6 +27,8 @@ class ObservationReport(models.AbstractModel):
 
     _name = 'report.nh.clinical.observation_report'
 
+    pretty_date_format = '%H:%M %d/%m/%y'
+    wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
     spell_activity_id = None
 
@@ -38,8 +41,6 @@ class ObservationReport(models.AbstractModel):
         'critical_care_history': 'nh.clinical.patient.critical_care'
     }
 
-    _graph_data_keys_mapping = {}
-
     @api.multi
     def render_html(self, data=None):
         """"
@@ -51,32 +52,16 @@ class ObservationReport(models.AbstractModel):
 
         if data and data.spell_id:
             report_obj = self.env['report']
-
             if hasattr(data, 'ews_only') and data.ews_only:
                 ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
-
-            report_data = self.get_and_process_report_data(data)
-
+            rep_data = self.get_report_data(data)
             return report_obj.render(
                 'nh_eobs.observation_report',
-                report_data)
+                rep_data)
         else:
             return None
-
-    def get_and_process_report_data(self, data):
-        """
-        Calls get_report_data as well as some additional methods that massage
-        the data.
-        :param data:
-        :return:
-        :rtype: dict
-        """
-        report_data = self.get_report_data(data)
-        self._create_graph_data(report_data)
-        self._localise_and_format_datetimes(report_data)
-        return report_data
 
     def get_report_data(self, data, ews_only=False):
         """
@@ -116,13 +101,16 @@ class ObservationReport(models.AbstractModel):
         # Get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient_location = patient.get('current_location_id')
-
-        self._get_patient_dob(patient)
-
+        patient['dob'] = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime.strptime(patient['dob'], dtf),
+            '%d/%m/%Y', context=None) if patient.get('dob', False) else ''
         ews = self.get_ews_observations(data, spell_activity_id)
+        json_data = []
         table_ews = []
         for activity in ews:
+            json_data.append(copy.deepcopy(activity['values']))
             table_ews.append(copy.deepcopy(activity['values']))
+        json_ews = self.get_model_data_as_json(json_data)
 
         # Get the script files to load
         observation_report = '/nh_eobs/static/src/js/observation_report.js'
@@ -173,6 +161,7 @@ class ObservationReport(models.AbstractModel):
             'report_start': dates.report_start,
             'report_end': dates.report_end,
             'spell_start': dates.spell_start,
+            'ews_data': json_ews,
             'draw_graph_js': observation_report,
             'device_session_history': device_session_history,
             'transfer_history': transfer_history,
@@ -181,7 +170,6 @@ class ObservationReport(models.AbstractModel):
         ews_report = helpers.merge_dicts(ews_dict,
                                          base_report.footer_values,
                                          monitoring)
-        self._register_graph_data('ews', 'ews_data')
         if ews_only:
             return ews_report
 
@@ -215,26 +203,12 @@ class ObservationReport(models.AbstractModel):
             'pbps': pbps
         }
 
-        report_data = helpers.merge_dicts(
+        rep_data = helpers.merge_dicts(
             basic_obs,
             non_basic_obs,
             ews_report
         )
-        return report_data
-
-    def _get_patient_dob(self, patient):
-        datetime_utils = self.env['datetime_utils']
-        patient_dob = patient.get('dob', False)
-
-        if patient_dob:
-            self._localise_dict_time(patient, 'dob')
-            datetime_utils.convert_datetime_str_to_format(
-                patient['dob'], '%d/%m/%Y')
-        else:
-            patient_dob = ''
-
-        formatted_patient_dob = patient_dob
-        patient['dob'] = formatted_patient_dob
+        return rep_data
 
     @api.multi
     def get_activity_data(
@@ -331,6 +305,8 @@ class ObservationReport(models.AbstractModel):
         """
         activity_data = \
             self.get_activity_data(spell_activity_id, model, start, end)
+        if activity_data:
+            self.convert_activities_dates_to_context_dates(activity_data)
         return self.get_model_values(model, activity_data)
 
     def get_model_values(self, model, activity_data):
@@ -366,10 +342,31 @@ class ObservationReport(models.AbstractModel):
                 model_data = model_data[0]
 
             if model_data:
+                date_terminated = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
                     status = 'Yes'
                     model_data['status'] = status
-
+                if 'date_started' in model_data and model_data['date_started']:
+                    model_data['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_started'],
+                                dtf
+                            ),
+                            self.pretty_date_format
+                        )
+                if date_terminated in model_data \
+                        and model_data[date_terminated]:
+                    model_data['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                            cr, uid,
+                            datetime.strptime(
+                                model_data['date_terminated'],
+                                dtf
+                            ),
+                            self.pretty_date_format
+                        )
             activity['values'] = model_data
         return activity_data
 
@@ -403,8 +400,39 @@ class ObservationReport(models.AbstractModel):
         act_data = self.get_activity_data(spell_id, model_one, start, end)
         return self.get_model_values(model_two, act_data)
 
+    def get_model_data_as_json(self, model_data):
+        for data in model_data:
+            if 'write_date' in data and data['write_date']:
+                data['write_date'] = datetime.strftime(
+                    datetime.strptime(data['write_date'], dtf),
+                    self.wkhtmltopdf_format
+                )
+            if 'create_date' in data and data['create_date']:
+                data['create_date'] = datetime.strftime(
+                    datetime.strptime(data['create_date'], dtf),
+                    self.wkhtmltopdf_format
+                )
+            if 'date_started' in data and data['date_started']:
+                data['date_started'] = datetime.strftime(
+                    datetime.strptime(
+                        data['date_started'],
+                        self.pretty_date_format
+                    ),
+                    self.wkhtmltopdf_format
+                )
+            if 'date_terminated' in data and data['date_terminated']:
+                data['date_terminated'] = datetime.strftime(
+                    datetime.strptime(
+                        data['date_terminated'],
+                        self.pretty_date_format
+                    ),
+                    self.wkhtmltopdf_format
+                )
+        return json.dumps(model_data)
+
     def create_report_data(self, data):
         cr, uid = self._cr, self._uid
+        pretty_date_format = self.pretty_date_format
 
         # set up pools
         company_pool = self.pool['res.company']
@@ -419,8 +447,11 @@ class ObservationReport(models.AbstractModel):
         company_logo = partner_pool.read(cr, uid, 1, ['image'])['image']
 
         # generate report timestamp
-        datetime_utils = self.env['datetime_utils']
-        time_generated = datetime_utils.get_current_time(as_string=True)
+        time_generated = fields.datetime.context_timestamp(
+            cr, uid,
+            datetime.now(),
+            context=None
+        ).strftime(pretty_date_format)
         return helpers.BaseReport(
             user,
             company_name,
@@ -432,6 +463,23 @@ class ObservationReport(models.AbstractModel):
     def add_triggered_action_keys_to_obs_dicts(self, obs_dict_list):
         for observation in obs_dict_list:
             triggered_actions = self.get_triggered_actions(observation['id'])
+            for t in triggered_actions:
+                ds = t.get('date_started', False)
+                dt = t.get('date_terminated', False)
+                if ds:
+                    t['date_started'] = \
+                        helpers.convert_db_date_to_context_date(
+                            self.env.cr, self.env.uid,
+                            datetime.strptime(t['date_started'], dtf),
+                            self.pretty_date_format
+                        )
+                if dt:
+                    t['date_terminated'] = \
+                        helpers.convert_db_date_to_context_date(
+                            self.env.cr, self.env.uid,
+                            datetime.strptime(t['date_terminated'], dtf),
+                            self.pretty_date_format
+                        )
             observation['triggered_actions'] = triggered_actions
 
     @api.model
@@ -493,8 +541,8 @@ class ObservationReport(models.AbstractModel):
         for observation in ews:
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
-                DTF
-            ).strftime(DTF)
+                self.pretty_date_format
+            ).strftime(dtf)
             o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
                 cr, uid, self.patient_id,
                 datetime=o2target_dt)
@@ -559,26 +607,42 @@ class ObservationReport(models.AbstractModel):
                     observation['ward'] = ward[1]
         return model_data
 
-    @staticmethod
-    def process_report_dates(data, spell, base_report):
-        # Set spell datetimes.
-        spell_start = spell['date_started']
-        spell_end = spell['date_terminated']
-
-        # Set report start.
+    def process_report_dates(self, data, spell, base_report):
+        context_start_time = False
+        context_end_time = False
         if data.start_time:
-            report_start = data.start_time
-        else:
-            report_start = spell_start
-
-        # Set report end.
+            if isinstance(data.start_time, str):
+                context_start_time = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid,
+                    datetime.strptime(data.start_time, dtf),
+                    self.pretty_date_format, context=None)
+                start_time = datetime.strptime(data.start_time, dtf)
+                data.start_time = start_time
         if data.end_time:
-            report_end = data.end_time
-        elif spell_end:
-            report_end = spell_end
-        elif base_report.time_generated:
-            report_end = base_report.time_generated
+            if isinstance(data.end_time, str):
+                context_end_time = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid, datetime.strptime(data.end_time, dtf),
+                    self.pretty_date_format, context=None)
+                end_time = datetime.strptime(data.end_time, dtf)
+                data.end_time = end_time
 
+        # - get the start and end date of spell
+        spell_start = helpers.convert_db_date_to_context_date(
+            self._cr, self._uid, datetime.strptime(spell['date_started'], dtf),
+            self.pretty_date_format, context=None)
+        spell_end = spell['date_terminated']
+        report_start = spell_start
+        report_end = base_report.time_generated
+        if context_start_time:
+            report_start = context_start_time
+        if context_end_time:
+            report_end = context_end_time
+        else:
+            if spell_end:
+                report_end = helpers.convert_db_date_to_context_date(
+                    self._cr, self._uid, datetime.strptime(spell_end, dtf),
+                    self.pretty_date_format,
+                    context=None)
         return helpers.ReportDates(
             report_start,
             report_end,
@@ -668,10 +732,12 @@ class ObservationReport(models.AbstractModel):
 
         def extract_datetime_for_compare(item):
             datetime_str = item['date']
-            date_time = datetime.strptime(datetime_str, DTF)
+            date_time = datetime.strptime(datetime_str, dtf)
             return date_time
-
         report_data = sorted(report_data, key=extract_datetime_for_compare)
+
+        for pme_event in report_data:
+            self.convert_specified_dates_to_context_dates(pme_event, 'date')
 
         dictionary = {'patient_monitoring_exception_history': report_data}
         return dictionary
@@ -853,17 +919,17 @@ class ObservationReport(models.AbstractModel):
         :rtype: bool
         """
         if isinstance(date_time, str):
-            date_time = datetime.strptime(date_time, DTF)
+            date_time = datetime.strptime(date_time, dtf)
 
         if start_date:
             if isinstance(start_date, str):
-                start_date = datetime.strptime(start_date, DTF)
+                start_date = datetime.strptime(start_date, dtf)
             if not date_time >= start_date:
                 return False
 
         if end_date:
             if isinstance(end_date, str):
-                end_date = datetime.strptime(end_date, DTF)
+                end_date = datetime.strptime(end_date, dtf)
             if not date_time <= end_date:
                 return False
 
@@ -888,12 +954,12 @@ class ObservationReport(models.AbstractModel):
             return False
         if not start_date and not end_date:
             return False
-        pme_start = datetime.strptime(pme_start, DTF)
-        pme_end = datetime.strptime(pme_end, DTF)
+        pme_start = datetime.strptime(pme_start, dtf)
+        pme_end = datetime.strptime(pme_end, dtf)
         if isinstance(start_date, str):
-            start_date = datetime.strptime(start_date, DTF)
+            start_date = datetime.strptime(start_date, dtf)
         if isinstance(end_date, str):
-            end_date = datetime.strptime(end_date, DTF)
+            end_date = datetime.strptime(end_date, dtf)
         if not pme_start <= start_date or not pme_end >= end_date:
                 return False
         return True
@@ -969,154 +1035,45 @@ class ObservationReport(models.AbstractModel):
             'reason': reason
         }
 
-    def _localise_and_format_datetimes(self, report_data):
-        date_started = 'date_started'
-        date_terminated = 'date_terminated'
+    def convert_activities_dates_to_context_dates(self, activity_data):
+        """
+        Calls :method:<convert_activity_dates_to_context_dates> recursively.
 
-        # Report period datetimes
-        self._localise_dict_time(report_data, 'report_start')
-        self._localise_dict_time(report_data, 'report_end')
+        :param activity_data:
+        :type activity_data: list
+        :return: No return, just side effects.
+        """
+        for activity in activity_data:
+            self.convert_activity_dates_to_context_dates(activity)
 
-        # Spell datetimes
-        spell = report_data['spell']
-        self._localise_dict_time(spell, date_terminated)
-        self._localise_dict_time(report_data, 'spell_start')
+    # TODO EOBS-1013: Merge report helpers for dates into datetime_utils model
+    def convert_activity_dates_to_context_dates(self, activity):
+        """
+        Ensures dates on the passed activity are in the correct format and
+        timezone.
 
-        # Patient date of birth
-        patient = report_data['patient']
-        datetime_utils = self.env['datetime_utils']
-        return_string_format = datetime_utils.date_format_front_end
-        self._localise_dict_time(patient, 'dob',
-                                 return_string_format=return_string_format)
+        :param activity:
+        :type activity: dict
+        :return:
+        :rtype: No return, just side effects.
+        """
+        date_started = None
+        date_terminated = None
+        if 'date_started' in activity and activity['date_started']:
+            date_started = activity['date_started']
+        if 'date_terminated' in activity and activity['date_terminated']:
+            date_terminated = activity['date_terminated']
+        if date_started:
+            self.convert_specified_dates_to_context_dates(activity,
+                                                          'date_started')
+        if date_terminated:
+            self.convert_specified_dates_to_context_dates(activity,
+                                                          'date_terminated')
 
-        # EWS activity datetimes
-        for obs_activity in report_data['ews']:
-            self._localise_dict_time(obs_activity, date_started)
-            self._localise_dict_time(obs_activity, date_terminated)
-            # EWS model datetimes
-            obs = obs_activity['values']
-            self._localise_dict_time(obs, date_started)
-            self._localise_dict_time(obs, date_terminated)
-            # EWS triggered tasks
-            for action in obs_activity['triggered_actions']:
-                self._localise_dict_time(action, date_terminated)
-
-        # EWS table datetimes
-        for obs in report_data['table_ews']:
-            self._localise_dict_time(obs, date_terminated)
-
-        # Blood product datetimes
-        for obs in report_data.get('blood_products', []):
-            self._localise_dict_time(obs['values'], date_terminated)
-
-        # PBPS (blood pressure) datetimes
-        for obs in report_data.get('pbps', []):
-            self._localise_dict_time(obs, date_terminated)
-
-        # Patient monitoring exception history datetimes
-        for pme in report_data['patient_monitoring_exception_history']:
-            self._localise_dict_time(pme, 'date')
-
-        # Transfer history
-        for transfer in report_data['transfer_history']:
-            self._localise_dict_time(transfer, date_terminated)
-
-    def _localise_dict_time(self, dictionary, key, return_string_format=None):
+    def convert_specified_dates_to_context_dates(self, dictionary, key):
+        cr, uid = self._cr, self._uid
         date_time = dictionary[key]
-
-        if not date_time:
-            # Some datetimes will not be populated and so will be `False`,
-            # this is perfectly acceptable. They may also be `None`, for
-            # example if the patient has no date of birth.
-            return
-
-        datetime_utils = self.env['datetime_utils']
-        if return_string_format is None:
-            return_string_format = \
-                datetime_utils.datetime_format_front_end_two_character_year
-
-        localised_date_time = datetime_utils.get_localised_time(
-            date_time, return_string=True,
-            return_string_format=return_string_format)
-
-        dictionary[key] = localised_date_time
-
-    def _register_graph_data(self, key_to_copy_from, key_to_copy_to):
-        """
-        Allows observations to register their need to display graphs on the
-        report. Updates a dictionary which is used later to add the necessary
-        data for the graphs to the overall report data dictionary.
-        :param key_to_copy_from: A key for the report data dictionary which
-        points to a nested dictionary of all the observation data that will be
-        used for the graphs.
-        :type key_to_copy_from: str
-        :param key_to_copy_to: A key for the report data dictionary which is
-        which will be created for the graph data to be stored.
-        :type key_to_copy_to: str
-        :return:
-        """
-        if key_to_copy_from not in self._graph_data_keys_mapping:
-            self._graph_data_keys_mapping[key_to_copy_from] = key_to_copy_to
-
-    def _create_graph_data(self, report_data):
-        """
-        Creates new graph data and stores it in new keys which are created on
-        the overall report data dictionary. Graph data is a JSON encoded
-        string used by JS in the report templates to render the graphs before
-        they are converted to PDFs.
-        :param report_data:
-        :type report_data: dict
-        :return:
-        """
-        self._copy_data_for_graphs(report_data)
-        self._localise_graph_data_datetimes(report_data)
-        self._convert_graph_data_to_json(report_data)
-
-    def _copy_data_for_graphs(self, report_data):
-        """
-        Copies observation data from other keys in the report data dictionary
-        and stores them in new keys to be used specifically by the graphs.
-        :param report_data:
-        :type report_data: dict
-        :return:
-        """
-        for key_to_copy_from in self._graph_data_keys_mapping:
-            obs_data_list = []
-            for obs_data in report_data[key_to_copy_from]:
-                obs_data_copy = copy.deepcopy(obs_data['values'])
-                obs_data_list.append(obs_data_copy)
-
-            key_to_copy_to = self._graph_data_keys_mapping[key_to_copy_from]
-            report_data[key_to_copy_to] = obs_data_list
-
-    def _localise_graph_data_datetimes(self, report_data):
-        """
-        Localises the date terminated datetimes of the graph data stored in
-        their respective keys in the report data dictionary. Must be called
-        before the graph data is converted to JSON.
-        :param report_data:
-        :type report_data: dict
-        :return:
-        """
-        graph_data_keys = self._graph_data_keys_mapping.values()
-        for graph_data_key in graph_data_keys:
-            graph_data = report_data[graph_data_key]
-
-            for obs_data in graph_data:
-                self._localise_dict_time(
-                    obs_data, 'date_terminated', return_string_format=DTF)
-
-    def _convert_graph_data_to_json(self, report_data):
-        """
-        Converts the graph data stored in their respective keys in the report
-        data dictionary to JSON encoded strings.
-        :param report_data:
-        :type report_data: dict
-        :return:
-        """
-        keys_to_copy_to = self._graph_data_keys_mapping.values()
-        for key_to_copy_to in keys_to_copy_to:
-            graph_data = report_data[key_to_copy_to]
-            graph_data_json = json.dumps(graph_data)
-
-            report_data[key_to_copy_to] = graph_data_json
+        datetime_obj = datetime.strptime(date_time, dtf)
+        new_date_time = helpers.convert_db_date_to_context_date(
+            cr, uid, datetime_obj, self.pretty_date_format)
+        dictionary[key] = new_date_time

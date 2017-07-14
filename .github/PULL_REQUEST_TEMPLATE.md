@@ -2,14 +2,14 @@
 
 ---
 
-Before this pull request can be merged the following must be true.
+Before this pull request can be accepted the following must be true.
 - [ ] Unit tests pass (Travis integration).
 - [ ] No code quality issues (Codacy integration).
 - [ ] Code review conducted (request a review by assigning a *reviewer* on the right-hand side).
-- [ ] Approval from at least one developer and at least one tester.
+- [ ] At least 1 ship-it squirrel obtained from another developer.
 
 If you are a BJSS contributor there are some additional conditions.
-- [ ] All client module unit tests pass.
-- [ ] The *Pull Request* field in the work tab of the JIRA issue is populated.
-- [ ] The JIRA issue contains a description of the root cause and the solution in the comments.
 - [ ] There are no bugs against the JIRA issues in the current sprint.
+- [ ] The *Pull Request* field in the work tab of the JIRA issue is populated.
+- [ ] An AWS instance has been created for test.
+- [ ] At least 1 ship-it squirrel obtained from a tester.

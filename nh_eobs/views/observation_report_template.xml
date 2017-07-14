@@ -827,8 +827,6 @@
                                 <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
                                     <strong>Date:</strong> <t t-esc="task.get('date_terminated', '')"/>
                                 </t><br/>
-                                <!-- TODO For cancelled frequency tasks we still display 'Task Still in Progress' as a temporary measure until EOBS-485 is implemented.
-                                     This isn't very nice, but before it was misleading because it looked as though the tasks had been completed (see EOBS-513). -->
                                 <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">
                                     Task still in progress
                                 </t>

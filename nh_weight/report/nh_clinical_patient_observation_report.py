@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import copy
+
 from openerp import models
 
 
@@ -25,8 +27,11 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
 
         if not ews_only:
             report_data["weights"] = weight['weight']
-
-        self._register_graph_data('weights', 'weight_data')
+            json_weight_data = []
+            for activity in weight['weight']:
+                json_weight_data.append(copy.deepcopy(activity['values']))
+            json_data = self.get_model_data_as_json(json_weight_data)
+            report_data['weight_data'] = json_data
 
         if 'weights' in report_data:
             for obs_dict in report_data['weights']:
@@ -35,12 +40,6 @@ class NhClinicalPatientObservationReport(models.AbstractModel):
                                             replace_zeros=True)
 
         return report_data
-
-    def _localise_and_format_datetimes(self, report_data):
-        super(NhClinicalPatientObservationReport, self)\
-            ._localise_and_format_datetimes(report_data)
-        for obs in report_data.get('weights', []):
-            self._localise_dict_time(obs['values'], 'date_terminated')
 
     @staticmethod
     def process_patient_weight(patient, weight):

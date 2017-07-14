@@ -104,43 +104,13 @@ class NHGraphLib
     self = @
 
   # Create a Date Object from a string. As Odoo gives dates in a silly string
-  # format need to convert to proper Date to use with D3 across all browsers.
-  # Because of issues with older webkit have to be deconstruct the date parts
-  # from the string (also adding the ability to change format) and put these
-  # into a new Date object
-  parseDateTime: (input, format='YYYY-mm-DD HH:MM:SS') ->
-    parts = input.match(/(\d+)/g)
-    i = 0
-    fmt = {}
-    format.replace /(YYYY|mm|DD|HH|MM|SS)/g, (part) ->
-      fmt[part] = i++
-    if parts is null or fmt is null
-      throw new Error("Invalid date format")
-    new Date(
-      parts[fmt['YYYY']],
-      (parts[fmt['mm']]-1),
-      parts[fmt['DD']],
-      parts[fmt['HH']],
-      parts[fmt['MM']],
-      parts[fmt['SS']]
-    )
-
-  parseDate: (input, format='YYYY-mm-DD') ->
-    parts = input.match(/(\d+)/g)
-    i = 0
-    fmt = {}
-    format.replace /(YYYY|mm|DD)/g, (part) ->
-      fmt[part] = i++
-    if parts is null or fmt is null
-      throw new Error("Invalid date format")
-    new Date(
-      parts[fmt['YYYY']],
-      (parts[fmt['mm']]-1),
-      parts[fmt['DD']]
-    )
-
+  # format need to convert to proper Date to use with D3. Attempts to convert;
+  # falls back to use hack with T instead of space and finally throws error if
+  # cannot convert
   date_from_string: (date_string) ->
-    date = @parseDateTime(date_string)
+    date = new Date(date_string)
+    if isNaN(date.getTime())
+      date = new Date(date_string.replace(' ', 'T'))
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
     return date
@@ -240,12 +210,11 @@ class NHGraphLib
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (event) ->
     if @is_alive() and !event.handled
-      @style.dimensions.width = nh_graphs.select(@el)?[0]?[0]?.clientWidth
+      @style.dimensions.width = \
+        nh_graphs.select(@el)?[0]?[0]?.clientWidth -
+        (@style.margin.left + @style.margin.right)
       @obj?.attr('width', @style.dimensions.width)
-      if @.context?
-        @.context?.handle_resize(@.context, @.obj, event)
-      else
-        @.focus?.handle_resize(@.focus, @.obj, event)
+      @.context?.handle_resize(@.context, @.obj, event)
       event.handled = true
     return
 

@@ -217,8 +217,8 @@ class NHGraph extends NHGraphLib
     @.obj = parent_obj.obj.append('g')
     @.obj.attr('class', 'nhgraph')
     @.style.dimensions.width = parent_obj.style.dimensions.width -
-      ((parent_obj.style.padding.left + parent_obj.style.padding.right)
-      ) - @.style.label_width
+      ((parent_obj.style.padding.left + parent_obj.style.padding.right) +
+      (@.style.margin.left + @.style.margin.right)) - @.style.label_width
     @.obj.attr('width', @.style.dimensions.width)
     left_offset = (parent_obj.style.padding.left + @.style.margin.left)
     top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)

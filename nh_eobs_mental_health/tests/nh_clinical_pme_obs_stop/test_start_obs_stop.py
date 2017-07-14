@@ -67,17 +67,17 @@ class TestStartObsStop(TransactionCase):
                 self.obs_stop.start(spell_activity_id)
         finally:
             self.obs_stop_model._revert_method('cancel_open_ews')
-#
-# def test_cancels_food_and_fluid_review_tasks(self):
-#     """
-#     Food and fluid review tasks associated with the spell that is having a
-#     PME started will have their state set to 'cancelled'.
-#     :return:
-#     """
-#     f_and_f_activity = self.test_utils.create_f_and_f_review_activity()
-#     self.assertEqual('new', f_and_f_activity.state)
-#
-#     self.call_test()
-#     self.obs_stop.start(self.activity_obs_stop.id)
-#
-#     self.assertEqual('cancelled', f_and_f_activity.state)
+
+    def test_cancels_food_and_fluid_review_tasks(self):
+        """
+        Food and fluid review tasks associated with the spell that is having a
+        PME started will have their state set to 'cancelled'.
+        :return:
+        """
+        f_and_f_activity = self.test_utils.create_f_and_f_review_activity()
+        self.assertEqual('new', f_and_f_activity.state)
+
+        self.call_test()
+        self.obs_stop.start(self.activity_obs_stop.id)
+
+        self.assertEqual('cancelled', f_and_f_activity.state)

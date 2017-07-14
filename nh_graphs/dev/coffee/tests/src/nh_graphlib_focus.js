@@ -54,7 +54,7 @@ NHFocus = (function() {
   NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
     if (!event.handled) {
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - (self.parent_obj.style.padding.left + self.parent_obj.style.padding.right);
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;

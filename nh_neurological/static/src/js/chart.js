@@ -75,17 +75,15 @@ function drawNeurologicalChart(settings, serverData){
         1: 'None',
         2: 'To Pressure',
         3: 'To Sound',
-        4: 'Spontaneous'
+        4: 'Spontaneuous'
     };
     eyesGraph.options.normal.min = 0;
     eyesGraph.options.normal.max = 0;
     eyesGraph.style.dimensions.height = 250;
     eyesGraph.style.pointRadius = 5;
     eyesGraph.style.data_style = "linear";
-    eyesGraph.style.label_width = 0;
-    eyesGraph.style.margin.left = 150;
-    eyesGraph.style.padding.right = 0;
-    eyesGraph.style.margin.right = 0;
+    eyesGraph.style.label_width = null;
+    eyesGraph.style.margin.left = 100;
     eyesGraph.drawables.background.data = [];
 
     verbalGraph.options.keys = ["chart_verbal"];
@@ -107,11 +105,9 @@ function drawNeurologicalChart(settings, serverData){
     verbalGraph.style.dimensions.height = 250;
     verbalGraph.style.pointRadius = 5;
     verbalGraph.style.data_style = "linear";
-    verbalGraph.style.label_width = 0;
+    verbalGraph.style.label_width = null;
     verbalGraph.style.padding.top = 10;
-    verbalGraph.style.margin.left = 150;
-    verbalGraph.style.padding.right = 0;
-    verbalGraph.style.margin.right = 0;
+    verbalGraph.style.margin.left = 100;
     verbalGraph.drawables.background.data = [];
 
     motorGraph.options.keys = ["chart_motor"];
@@ -134,11 +130,9 @@ function drawNeurologicalChart(settings, serverData){
     motorGraph.style.dimensions.height = 250;
     motorGraph.style.pointRadius = 5;
     motorGraph.style.data_style = "linear";
-    motorGraph.style.label_width = 0;
+    motorGraph.style.label_width = null;
     motorGraph.style.padding.top = 10;
-    motorGraph.style.margin.left = 150;
-    motorGraph.style.padding.right = 0;
-    motorGraph.style.margin.right = 0;
+    motorGraph.style.margin.left = 100;
     motorGraph.drawables.background.data = [];
 
 
@@ -156,24 +150,9 @@ function drawNeurologicalChart(settings, serverData){
         verbalFocus.style.margin.top = 70;
         motorFocus.style.margin.top = 70;
     }
-    eyesFocus.style.margin.right = 0;
-    eyesFocus.style.label_width = 0;
-    verbalFocus.style.margin.right = 0;
-    verbalFocus.style.label_width = 0;
-    motorFocus.style.margin.right = 0;
-    motorFocus.style.label_width = 0;
     eyesEl.focus = eyesFocus;
     verbalEl.focus = verbalFocus;
     motorEl.focus = motorFocus;
-    eyesEl.style.label_width = 0;
-    eyesEl.style.padding.right = 0;
-    eyesEl.style.padding.left = 0;
-    verbalEl.style.label_width = 0;
-    verbalEl.style.padding.right = 0;
-    verbalEl.style.padding.left = 0;
-    motorEl.style.label_width = 0;
-    motorEl.style.padding.right = 0;
-    motorEl.style.padding.left = 0;
     var data = processNeurologicalData(obs);
 
 

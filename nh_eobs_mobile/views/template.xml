@@ -261,7 +261,7 @@
                         <input type="submit" t-att-value="view_data.get('submit_title', 'Submit')" class="exclude" id="submitButton"/>
                     </div>
                 </t>
-                <t t-if="cancellable">
+                <t t-if="not task_valid">
                     <p class="obsConfirm">
                         <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
                     </p>

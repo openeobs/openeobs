@@ -36,22 +36,11 @@ class TestComplete(SingleTransactionCase):
         self.activity_model = self.env['nh.activity']
         self.api_model = self.env['nh.eobs.api']
         patient_model = self.env['nh.clinical.patient']
-        spell_model = self.env['nh.clinical.spell']
-
         patient = patient_model.new({
             'family_name': 'Testerson',
             'given_name': 'Testy',
             'other_identifier': '1337',
             'patient_identifier': '666'
-        })
-
-        spell = spell_model.new({
-            'patient_id': patient
-        })
-
-        refusing_spell = spell_model.new({
-            'patient_id': patient,
-            'refusing_obs': True
         })
 
         initial_full_ews = self.activity_model.new({
@@ -67,10 +56,6 @@ class TestComplete(SingleTransactionCase):
                 'avpu_text': 'A',
                 'patient_id': patient,
                 'is_partial': False
-            }),
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
             })
         })
 
@@ -84,11 +69,7 @@ class TestComplete(SingleTransactionCase):
         refused_ews = self.activity_model.new({
             'data_ref': refused_ews_data,
             'data_model': ews_model_name,
-            'creator_id': initial_full_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
-            })
+            'creator_id': initial_full_ews
         })
 
         partial_ews = self.activity_model.new({
@@ -99,11 +80,7 @@ class TestComplete(SingleTransactionCase):
                 'patient_id': patient,
                 'is_partial': True
             }),
-            'creator_id': initial_full_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
-            })
+            'creator_id': initial_full_ews
         })
 
         full_ews = self.activity_model.new({
@@ -120,41 +97,25 @@ class TestComplete(SingleTransactionCase):
                 'patient_id': patient,
                 'is_partial': False
             }),
-            'creator_id': initial_full_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
-            })
+            'creator_id': initial_full_ews
         })
 
         created_by_full = self.activity_model.new({
             'data_model': ews_model_name,
             'data_ref': refused_ews_data,
-            'creator_id': full_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
-            })
+            'creator_id': full_ews
         })
 
         created_by_partial = self.activity_model.new({
             'data_model': ews_model_name,
             'data_ref': refused_ews_data,
-            'creator_id': partial_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': spell
-            })
+            'creator_id': partial_ews
         })
 
         created_by_refused = self.activity_model.new({
             'data_model': ews_model_name,
             'data_ref': refused_ews_data,
-            'creator_id': refused_ews,
-            'spell_activity_id': self.activity_model.new({
-                'data_model': 'nh.clinical.spell',
-                'data_ref': refusing_spell
-            })
+            'creator_id': refused_ews
         })
 
         def patched_activity_browse(*args, **kwargs):
@@ -190,6 +151,13 @@ class TestComplete(SingleTransactionCase):
                 'clinical_risk': risk
             }]
 
+        def patch_is_refusal_in_effect(*args, **kwargs):
+            context = kwargs.get('context', {})
+            test = context.get('test')
+            if test == 'created_by_refused':
+                return True
+            return False
+
         def mock_ews_super(*args, **kwargs):
             if len(args) > 1 and hasattr(args[0], '_name'):
                 if args[0]._name == 'nh.clinical.patient.observation.ews':
@@ -199,6 +167,8 @@ class TestComplete(SingleTransactionCase):
         self.cron_model._patch_method('create', patched_cron_create)
         self.activity_model._patch_method('browse', patched_activity_browse)
         self.api_model._patch_method('get_patients', patched_get_patients)
+        self.ews_model._patch_method(
+            'is_refusal_in_effect', patch_is_refusal_in_effect)
 
         self.original_super = super
         __builtin__.super = mock_ews_super
@@ -208,6 +178,7 @@ class TestComplete(SingleTransactionCase):
         self.cron_model._revert_method('create')
         self.activity_model._revert_method('browse')
         self.api_model._revert_method('get_patients')
+        self.ews_model._revert_method('is_refusal_in_effect')
         super(TestComplete, self).tearDown()
 
     def call_test(self, context):

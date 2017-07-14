@@ -12,12 +12,10 @@ class NHClinicalSpell(orm.Model):
 
     _columns = {
         'obs_stop': fields.boolean('Stop Observations for patient?'),
-        'rapid_tranq': fields.boolean('Patient on Rapid Tranquilisation?'),
-        'refusing_obs': fields.boolean('Patient Refusing Observations?')
+        'rapid_tranq': fields.boolean('Patient on Rapid Tranquilisation?')
     }
 
     _defaults = {
         'obs_stop': False,
-        'rapid_tranq': False,
-        'refusing_obs': False
+        'rapid_tranq': False
     }

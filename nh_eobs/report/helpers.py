@@ -72,7 +72,6 @@ def create_search_filter(spell_activity_id, model,
     return domain
 
 
-# TODO method only used in tests and lister now, can remove.
 def convert_db_date_to_context_date(cr, uid, date_string, dformat,
                                     context=None):
     if dformat:

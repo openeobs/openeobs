@@ -356,7 +356,7 @@ describe('Context', function() {
 
           it("updates start date input with new date", function() {
             var actual, expected;
-            actual = graphlib.parseDate(graphlib.options.controls.date.start.value);
+            actual = new Date(graphlib.options.controls.date.start.value);
             expected = new Date(context.axes.x.min);
             actual = actual.toString().substr(0, 10);
             expected = expected.toString().substr(0, 10);
@@ -367,15 +367,15 @@ describe('Context', function() {
             var actual, conMin, expected;
             actual = graphlib.options.controls.time.start.value;
             conMin = new Date(context.axes.x.min);
-            expected = ('0'+ conMin.getHours()).slice(-2);
+            expected = conMin.getHours();
             expected += ':';
-            expected += ('0'+ conMin.getMinutes()).slice(-2);
+            expected += conMin.getMinutes();
             expect(actual).toBe(expected);
           });
 
           it("updates end date input with new date", function() {
             var actual, expected;
-            actual = graphlib.parseDate(graphlib.options.controls.date.end.value);
+            actual = new Date(graphlib.options.controls.date.end.value);
             expected = new Date(context.axes.x.max);
             actual = actual.toString().substr(0, 10);
             expected = expected.toString().substr(0, 10);

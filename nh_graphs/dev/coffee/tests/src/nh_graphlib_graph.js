@@ -161,7 +161,7 @@ NHGraph = (function(superClass) {
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
-    this.style.dimensions.width = parent_obj.style.dimensions.width - (parent_obj.style.padding.left + parent_obj.style.padding.right) - this.style.label_width;
+    this.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (this.style.margin.left + this.style.margin.right)) - this.style.label_width;
     this.obj.attr('width', this.style.dimensions.width);
     left_offset = parent_obj.style.padding.left + this.style.margin.left;
     top_offset = parent_obj.style.dimensions.height + this.style.margin.top;

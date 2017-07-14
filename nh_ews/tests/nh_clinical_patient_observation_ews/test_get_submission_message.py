@@ -29,17 +29,13 @@ class TestGetSubmissionMessage(TransactionCase):
 
     def test_partial_with_clinical_risk(self):
         self.obs.is_partial = True
-        self.obs.respiration_rate = 11
-        self.obs.indirect_oxymetry_spo2 = 80
-        self.obs.body_temperature = 42
-        self.obs.pulse_rate = 50
-        self.obs.oxygen_administration_flag = False
-        self.obs.avpu_text = 'A'
+        self.obs.clinical_risk = 'High'
+        self.obs.score = 3
 
         expected = \
             '<strong>At least High clinical risk</strong>, ' \
             'real risk may be higher <br>' \
-            '<strong>At least 7 NEWS score</strong>, ' \
+            '<strong>At least 3 NEWS score</strong>, ' \
             'real NEWS score may be higher<br>' \
             'This Partial Observation will not update the ' \
             'NEWS score and clinical risk of the ' \
