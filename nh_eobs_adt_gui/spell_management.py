@@ -215,30 +215,39 @@ class nh_clinical_spellboard(orm.Model):
         :rtype: bool
         """
 
-        api = self.pool['nh.eobs.api']
+        api_pool = self.pool['nh.eobs.api']
         location_pool = self.pool['nh.clinical.location']
+
         if vals.get('patient_id'):
             osv.except_osv(
                 'Error!',
                 'Cannot change patient from an existing spell, edit patient '
-                'information instead!')
+                'information instead!'
+            )
+
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):
             if vals.get('location_id'):
                 location = location_pool.read(cr, uid, vals.get(
                     'location_id'), ['code'], context=context)
-                res[spell.id] = api.transfer(
+                res[spell.id] = api_pool.transfer(
                     cr, uid, spell.patient_id.other_identifier,
                     {'location': location['code']}, context=context)
             else:
-                res[spell.id] = api.admit_update(
+                res[spell.id] = api_pool.admit_update(
                     cr, uid, spell.patient_id.other_identifier,
-                    {'location': spell.location_id.code,
-                     'code': spell.code,
-                     'ref_doctor_ids': vals.get('ref_doctor_ids'),
-                     'con_doctor_ids': vals.get('con_doctor_ids')
-                     }, context=context)
-        return all([res[r] for r in res.keys()])
+                    {
+                        'location': spell.location_id.code,
+                        'code': spell.code,
+                        'ref_doctor_ids': vals.get('ref_doctor_ids'),
+                        'con_doctor_ids': vals.get('con_doctor_ids')
+                    },
+                    context=context
+                )
+
+        super(nh_clinical_spellboard, self).write(cr, uid, vals,
+                                                  context=context)
+        return all(res.iteritems())
 
     def cancel_discharge(self, cr, uid, ids, context=None):
         """
