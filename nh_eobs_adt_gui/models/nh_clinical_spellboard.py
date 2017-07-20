@@ -244,6 +244,7 @@ class nh_clinical_spellboard(orm.Model):
                     {
                         'location': spell.location_id.code,
                         'code': spell.code,
+                        'start_date': vals.get('start_date'),
                         'ref_doctor_ids': vals.get('ref_doctor_ids'),
                         'con_doctor_ids': vals.get('con_doctor_ids')
                     },
