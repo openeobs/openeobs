@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-Defines the spellboard model.
+Defines the spellboard model. This model is backed by a view and is not
+managed by the ORM (see `_auto = False`). That is why all the model methods
+such as `create` and `write` are overridden and do not call `super`, as writes
+to the database will fail because views cannot be updated unless you setup
+rules in PostgreSQL (google 'updateable views'). You can think of this model
+as a proxy that is only used as a means of updating various other underlying
+models.
 """
 import re
 import logging
@@ -66,7 +72,6 @@ class nh_clinical_spellboard(orm.Model):
     }
 
     def init(self, cr):
-
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
@@ -244,9 +249,6 @@ class nh_clinical_spellboard(orm.Model):
                     },
                     context=context
                 )
-
-        super(nh_clinical_spellboard, self).write(
-            cr, uid, ids, vals, context=context)
         return all(res.iteritems())
 
     def cancel_discharge(self, cr, uid, ids, context=None):
