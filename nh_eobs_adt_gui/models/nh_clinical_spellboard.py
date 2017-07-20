@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-Defines models used for `Open eObs` spellboard UI.
+Defines the spellboard model.
 """
 import re
 import logging
 
 from openerp.osv import orm, fields, osv
+
 
 _logger = logging.getLogger(__name__)
 
@@ -14,7 +16,6 @@ class nh_clinical_spellboard(orm.Model):
     """
     Provides patient spell information and operations for the GUI.
     """
-
     _name = "nh.clinical.spellboard"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Spell Management View"
@@ -214,7 +215,6 @@ class nh_clinical_spellboard(orm.Model):
         :returns: ``True`` if successful. Otherwise ``False``
         :rtype: bool
         """
-
         api_pool = self.pool['nh.eobs.api']
         location_pool = self.pool['nh.clinical.location']
 
@@ -245,8 +245,8 @@ class nh_clinical_spellboard(orm.Model):
                     context=context
                 )
 
-        super(nh_clinical_spellboard, self).write(cr, uid, vals,
-                                                  context=context)
+        super(nh_clinical_spellboard, self).write(
+            cr, uid, ids, vals, context=context)
         return all(res.iteritems())
 
     def cancel_discharge(self, cr, uid, ids, context=None):
