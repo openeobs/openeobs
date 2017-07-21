@@ -22,13 +22,13 @@ module.exports = function (config) {
             platform: 'Windows 10',
             timeZone: 'Universal'
         },
-        'SL_WebKit': {
-            base: 'SauceLabs',
-            browserName: 'safari',
-            version: '5.1',
-            platform: 'Windows 7',
-            timeZone: 'Universal'
-        },
+        // 'SL_WebKit': {
+        //     base: 'SauceLabs',
+        //     browserName: 'safari',
+        //     version: '5.1',
+        //     platform: 'Windows 7',
+        //     timeZone: 'Universal'
+        // },
         'SL_iPad_Safari': {
             base: 'SauceLabs',
             browserName: 'Safari',
