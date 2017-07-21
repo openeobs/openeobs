@@ -64,6 +64,8 @@ module.exports = function (config) {
             recordScreenshots: true,
             startConnect: false,
             maxDuration: 240,
+            commandTimeout: 600,
+            idelTimeout: 120,
             tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
             connectOptions: {
                 port: 5757,
