@@ -32,6 +32,7 @@ module.exports = function (config) {
         'SL_iPad_Safari': {
             base: 'SauceLabs',
             browserName: 'Safari',
+            appiumVersion: '1.6.5',
             deviceName: 'iPad Simulator',
             deviceOrientation: 'portrait',
             platformVersion: '10.3',
