@@ -135,10 +135,5 @@ if (!Function.prototype.bind) {
 }
 
 function skipIfCantResize(){
-    if(!!window.chrome && !!window.chrome.webstore){
-       pending();
-    }
-    if(!!window.safari){
-        pending();
-    }
+    pending();
 }
