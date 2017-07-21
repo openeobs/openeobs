@@ -77,6 +77,7 @@ module.exports = function (config) {
 
         },
         concurrency: 1,
+        captureTimeout: 120000,
         customLaunchers: customLaunchers,
         browsers: Object.keys(customLaunchers),
         autoWatch: false,
