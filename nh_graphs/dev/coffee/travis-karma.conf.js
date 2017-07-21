@@ -29,6 +29,16 @@ module.exports = function (config) {
             version: '5.1',
             platform: 'Windows 7',
             timeZone: 'Universal'
+        },
+        'SL_iPad_Safari': {
+            base: 'SauceLabs',
+            browserName: 'safari',
+            appiumVersion: '1.6.4',
+            deviceName: 'iPad Simulator',
+            deviceOrientation: 'portrait',
+            platformVersion: '10.3',
+            platformName: 'iOS',
+            timeZone: 'Universal'
         }
     };
 
