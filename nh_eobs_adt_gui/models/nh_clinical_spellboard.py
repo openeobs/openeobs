@@ -167,13 +167,14 @@ class nh_clinical_spellboard(orm.Model):
             'code': vals.get('code'),
             'patient_identifier': patient['patient_identifier'],
             'location': location['code'],
-            'start_date': vals.get('start_date'),
+            'date_started': vals.get('start_date'),  # Activity field
+            'start_date': vals.get('start_date'),  # ADT admit field
             'ref_doctor_ids': vals.get('ref_doctor_ids'),
             'con_doctor_ids': vals.get('con_doctor_ids')
         }, context=context)
         api.admit_update(cr, uid, patient['other_identifier'], {
             'date_started': vals.get('start_date'),  # Activity field
-            'start_date': vals.get('start_date'),  # ADT admit field
+            'start_date': vals.get('start_date'),  # ADT spell update field
             'patient_identifier': patient['patient_identifier'],
             'location': location['code'],
         })
