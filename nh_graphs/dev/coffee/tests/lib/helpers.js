@@ -138,7 +138,7 @@ function skipIfCantResize(){
     if(!!window.chrome && !!window.chrome.webstore){
        pending();
     }
-    if(window.safari !== undefined){
+    if(!!window.safari){
         pending();
     }
 }
