@@ -172,8 +172,8 @@ class nh_clinical_spellboard(orm.Model):
             'con_doctor_ids': vals.get('con_doctor_ids')
         }, context=context)
         api.admit_update(cr, uid, patient['other_identifier'], {
-            'date_started': vals.get('start_date'),
-            'start_date': vals.get('start_date'),
+            'date_started': vals.get('start_date'),  # Activity field
+            'start_date': vals.get('start_date'),  # ADT admit field
             'patient_identifier': patient['patient_identifier'],
             'location': location['code'],
         })
