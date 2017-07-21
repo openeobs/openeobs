@@ -9,7 +9,6 @@ module.exports = function (config) {
         'SL_Android_Chrome': {
             base: 'SauceLabs',
             browserName: 'Browser',
-            appiumVersion: '1.6.4',
             deviceName: 'Android Emulator',
             deviceOrientation: 'portrait',
             platformVersion: '5.1',
@@ -32,9 +31,7 @@ module.exports = function (config) {
         },
         'SL_iPad_Safari': {
             base: 'SauceLabs',
-            browserName: '',
-            app: 'safari',
-            appiumVersion: '1.6.4',
+            browserName: 'Safari',
             deviceName: 'iPad Simulator',
             deviceOrientation: 'portrait',
             platformVersion: '10.3',
