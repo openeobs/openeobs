@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <!-- Create an action to open the bed availability page when the menu item is selected. -->
+        <record model="ir.actions.act_window" id="action_bed_availability">
+            <field name="name">Open Bed Availability</field>
+            <field name="res_model">nh.clinical.bed_availability</field>
+        </record>
+
         <!-- Add a new group for menu items in the root menu. -->
         <menuitem name="Bed Management"
-                  id="menu_eobs_bed_management"
+                  id="menu_eobs_category_bed_management"
                   sequence="1"
-                  groups="nh_clinical.group_nhc_ward_manager"/>
+                  parent="nh_eobs.menu_eobs_top_root"/>
 
         <!-- Add a new menu item in the 'Bed Management' group in the root menu. -->
         <menuitem name="Bed Availability"
                   id="menu_eobs_bed_availability"
                   sequence="1"
                   parent="menu_eobs_category_bed_management"
-                  action="action_show_bed_availability"
-                  groups="nh_clinical.group_nhc_ward_manager"/>
-
-        <!-- Create an action to open the bed availability page when the menu item is selected. -->
-        <record model="ir.actions.act_window" id="action_bed_availability">
-            <field name="name">Open Bed Availability</field>
-            <field name="res_model">nh.clinical.bed_availability</field>
-        </record>
+                  action="action_bed_availability"/>
 
         <!-- The 'Bed Availability' view. -->
         <!--record model="ir.ui.view" id="view_bed_availability">

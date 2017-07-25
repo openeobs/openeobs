@@ -14,10 +14,11 @@
     ],
     'data': [
         'data/bed_manager_user.xml',
-        'views/bed_availability.xml'
+        'views/bed_availability.xml',
+        'security/ir.model.access.csv'
     ],
     'qweb': [],
     'application': True,
     'installable': True,
-    'active': False,
+    'active': False
 }
