@@ -1,5 +1,6 @@
 from openerp.tests.common import TransactionCase
 import uuid
+import copy
 from datetime import datetime
 
 
@@ -15,29 +16,19 @@ class TestLocalisedTriggerTime(TransactionCase):
         self.review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
         self.dateutils_model = self.env['datetime_utils']
-        self.gmt_user = users_model.create({
+        self.uk_user = users_model.create({
             'login': uuid.uuid4(),
             'password': 'pass',
             'name': 'GMT user',
-            'tz': 'Etc/GMT'
-        })
-        self.bst_user = users_model.create({
-            'login': uuid.uuid4(),
-            'password': 'pass',
-            'name': 'BST user',
-            'tz': 'Etc/GMT-1'
-        })
-        self.utc_plus_12_user = users_model.create({
-            'login': uuid.uuid4(),
-            'password': 'pass',
-            'name': 'UTC+12 user',
-            'tz': 'Etc/GMT+12'
+            'tz': 'Europe/London'
         })
 
         def patch_get_current_time(*args, **kwargs):
             obj = args[0]
-            hours = obj._context.get('hours', 6)
-            return datetime(1988, 1, 12, hours, 0, 0, 0)
+            hours = obj.env.context.get('hours', 6)
+            if obj.env.context.get('summer'):
+                return datetime(2017, 7, 7, hours, 0, 0, 0)
+            return datetime(1988, 01, 12, hours, 0, 0, 0)
 
         self.dateutils_model._patch_method(
             'get_current_time', patch_get_current_time)
@@ -46,47 +37,51 @@ class TestLocalisedTriggerTime(TransactionCase):
         self.dateutils_model._revert_method('get_current_time')
         super(TestLocalisedTriggerTime, self).tearDown()
 
-    def test_gmt_timezone(self):
+    def test_non_dst_schedule_3pm(self):
         """
-        Test that GMT timezone will trigger task at 15:00 +0000 and 06:00 +0000
+        Test that when not in DST that 3pm task is executed at 15:00 UTC
         """
-        self.assertTrue(
-            self.review_model.sudo(self.gmt_user).should_trigger_review()
-        )
-
-    def test_bst_timezone(self):
-        """
-        Test that BST timezone will trigger task at 15:00 +0100 and 06:00 +0100
-        """
-        ctx = self.env.context.copy()
-        ctx.update({'hours': 5})
+        ctx = copy.deepcopy(self.env.context.copy())
+        ctx.update({'hours': 15})
         self.assertTrue(
             self.review_model
-            .sudo(self.bst_user)
+            .sudo(self.uk_user)
             .with_context(ctx)
             .should_trigger_review()
         )
-        self.assertFalse(
+
+    def test_non_dst_schedule_6am(self):
+        """
+        Test that when not in DST that 6am task is executed at 06:00 UTC
+        """
+        self.assertTrue(
             self.review_model
-            .sudo(self.bst_user)
+            .sudo(self.uk_user)
             .should_trigger_review()
         )
 
-    def test_utc_plus_12_timezone(self):
+    def test_dst_schedule_for_3pm(self):
         """
-        Test that UTC + 12 timezone will trigger task at 15:00 +1200 and
-        06:00 +1200
+        Test that when in DST for UK (BST) that the task is triggered at
+        14:00 UTC
         """
-        ctx = self.env.context.copy()
-        ctx.update({'hours': 18})
+        ctx = copy.deepcopy(self.env.context.copy())
+        ctx.update({'hours': 14, 'summer': True})
         self.assertTrue(
             self.review_model
-            .sudo(self.utc_plus_12_user)
-            .with_context(ctx)
+            .sudo(self.uk_user)
             .should_trigger_review()
         )
-        self.assertFalse(
+
+    def test_dst_schedule_for_6am(self):
+        """
+        Test that when in DST for UK (BST) that the task is triggered at
+        14:00 UTC
+        """
+        ctx = copy.deepcopy(self.env.context.copy())
+        ctx.update({'hours': 5, 'summer': True})
+        self.assertTrue(
             self.review_model
-            .sudo(self.utc_plus_12_user)
-            .should_trigger_review()
+                .sudo(self.uk_user)
+                .should_trigger_review()
         )

@@ -76,10 +76,9 @@ class TestOverdueInitSQL(TransactionCase):
                 ['state', '=', 'scheduled']
             ]
         )
-        self.activity_model.submit(
-            placement_id[0].id, {'location_id': bed.id}
-        )
-        self.activity_model.complete(placement_id[0].id)
+        placement_act = placement_id[0]
+        placement_act.submit({'location_id': bed.id})
+        placement_act.complete()
         # Create activities for patient
         clinical_review_model = \
             self.env['nh.clinical.notification.clinical_review']

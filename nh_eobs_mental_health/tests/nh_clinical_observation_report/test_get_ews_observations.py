@@ -59,7 +59,8 @@ class TestGetEwsObservations(TransactionCase):
             datetime_scheduled
         )
         if complete_clinical_review:
-            self.env['nh.activity'].complete(activity_id)
+            activity = self.env['nh.activity'].browse(activity_id)
+            activity.complete()
 
         ews_activities_after = self.report_model.get_ews_observations(
             self.data, self.spell_activity.id
