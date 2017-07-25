@@ -10,7 +10,9 @@
     'author': 'BJSS',
     'website': 'http://bjss.com',
     'depends': ['nh_clinical'],
-    'data': [],
+    'data': [
+        'data/bed_manager_user.xml'
+    ],
     'qweb': [],
     'application': True,
     'installable': True,
