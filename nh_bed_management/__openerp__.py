@@ -9,10 +9,14 @@
     'description': """Bed Management for LiveObs""",
     'author': 'BJSS',
     'website': 'http://bjss.com',
-    'depends': ['nh_clinical'],
-    'data': [],
+    'depends': [
+        'nh_clinical'
+    ],
+    'data': [
+        'views/bed_availability.xml'
+    ],
     'qweb': [],
     'application': True,
     'installable': True,
     'active': False,
-    }
+}
