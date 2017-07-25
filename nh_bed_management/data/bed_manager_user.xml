@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="group_nhc_bed_manager" model="res.groups">
+            <field name="name">NH Clinical Bed Manager Group</field>
+            <field name="category_id" ref="nh_clinical.module_category_nhc"/>
+            <field name="implied_ids" eval="[(6, False, [ref('nh_clinical.group_nhc_base')])]"/>
+        </record>
+
+         <record id="role_nhc_bed_manager" model="res.partner.category">
+            <field name="name">Bed Manager</field>
+            <field name="parent_id" eval="ref('nh_clinical.role_nhc_admin')"/>
+            <field name="group_ids" eval="[(6, False, [ref('nh_clinical.group_nhc_senior_manager'),ref('nh_clinical.group_nhc_base'), ref('group_nhc_bed_manager')])]"/>
+        </record>
+    </data>
+</openerp>
