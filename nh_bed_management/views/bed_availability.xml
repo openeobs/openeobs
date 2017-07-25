@@ -10,7 +10,7 @@
         <!-- Add a new group for menu items in the root menu. -->
         <menuitem name="Bed Management"
                   id="menu_eobs_category_bed_management"
-                  sequence="1"
+                  sequence="5"
                   parent="nh_eobs.menu_eobs_top_root"/>
 
         <!-- Add a new menu item in the 'Bed Management' group in the root menu. -->
