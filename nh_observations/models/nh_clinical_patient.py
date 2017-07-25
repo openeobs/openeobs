@@ -2,7 +2,7 @@
 from openerp import models, api
 
 
-class nh_clinical_patient(models.Model):
+class NhClinicalPatient(models.Model):
     """
     Extends :class:`patient<base.nh_clinical_patient>`
     """
@@ -22,7 +22,7 @@ class nh_clinical_patient(models.Model):
         :returns: ``True``
         :rtype: bool
         """
-        res = super(nh_clinical_patient, self).write(vals)
+        res = super(NhClinicalPatient, self).write(vals)
 
         if 'current_location_id' in vals:
             activity_pool = self.pool['nh.activity']
