@@ -13,9 +13,9 @@ class NhClinicalBedAvailability(models.AbstractModel):
     bed_status = fields.Char()
     patient_status = fields.Char()
 
-    @api.multi
+    @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None,
-                    order=None):
+                    order=None, context=None):
         location_model = self.env['nh.clinical.location']
         # Read all hospitals, wards, and beds.
         locations = location_model.search_read(
@@ -42,6 +42,14 @@ class NhClinicalBedAvailability(models.AbstractModel):
             }
             bed_availability_records.append(bed_availability_record)
 
+        if order:
+            order_field, order_type = order.split(' ')
+            bed_availability_records = sorted(
+                bed_availability_records,
+                cmp=None,
+                key=lambda i: i[order_field],
+                reverse=order_type.lower() == 'desc'
+            )
         return bed_availability_records
 
     def _get_location_names(self, location):
