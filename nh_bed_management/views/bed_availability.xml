@@ -11,7 +11,6 @@
                     <field name="ward_name"/>
                     <field name="bed_name"/>
                     <field name="bed_status"/>
-                    <field name="patient_status"/>
                 </tree>
             </field>
         </record>

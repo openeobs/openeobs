@@ -7,11 +7,15 @@ class NhClinicalBedAvailability(models.AbstractModel):
     _name = 'nh.clinical.bed_availability'
     _order = 'bed_status desc'
 
-    hospital_name = fields.Char()
-    ward_name = fields.Char()
-    bed_name = fields.Char()
-    bed_status = fields.Char()
-    patient_status = fields.Char()
+    bed_status_selection = ['Available', 'Occupied']
+
+    hospital_name = fields.Char(string='Hospital Name')
+    ward_name = fields.Char(string='Ward Name')
+    bed_name = fields.Char(string='Bed Name')
+    bed_status = fields.Selection(
+        selection=bed_status_selection,
+        string='Bed Status'
+    )
 
     @api.model
     def search_read(self, domain=None, fields=None, offset=0, limit=None,
@@ -30,7 +34,6 @@ class NhClinicalBedAvailability(models.AbstractModel):
             hospital_name, ward_name, bed_name = self._get_location_names(
                 location)
             bed_status = self._get_bed_status(location)
-            patient_status = 'Unknown'
 
             bed_availability_record = {
                 'id': location['id'],
@@ -38,7 +41,6 @@ class NhClinicalBedAvailability(models.AbstractModel):
                 'ward_name': ward_name,
                 'bed_name': bed_name,
                 'bed_status': bed_status,
-                'patient_status': patient_status,
             }
             bed_availability_records.append(bed_availability_record)
 
@@ -81,6 +83,19 @@ class NhClinicalBedAvailability(models.AbstractModel):
 
     @staticmethod
     def _get_bed_status(location):
+        missing_keys = []
+        if 'usage' not in location:
+            missing_keys.append('usage')
+        if 'patient_ids' not in location:
+            missing_keys.append('patient_ids')
+        if missing_keys:
+            missing_keys_str = reduce(lambda i, j: i + ', ' + j, missing_keys)
+            raise ValueError(
+                "Required keys not found: {}. "
+                "Passed location should be a read of a nh.clinical.location "
+                "record.".format(missing_keys_str)
+            )
+
         if location['usage'] == 'bed':
             if len(location['patient_ids']):
                 return 'Occupied'
