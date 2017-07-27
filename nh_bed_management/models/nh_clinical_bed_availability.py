@@ -83,19 +83,6 @@ class NhClinicalBedAvailability(models.AbstractModel):
 
     @staticmethod
     def _get_bed_status(location):
-        missing_keys = []
-        if 'usage' not in location:
-            missing_keys.append('usage')
-        if 'patient_ids' not in location:
-            missing_keys.append('patient_ids')
-        if missing_keys:
-            missing_keys_str = reduce(lambda i, j: i + ', ' + j, missing_keys)
-            raise ValueError(
-                "Required keys not found: {}. "
-                "Passed location should be a read of a nh.clinical.location "
-                "record.".format(missing_keys_str)
-            )
-
         if location['usage'] == 'bed':
             if len(location['patient_ids']):
                 return 'Occupied'

@@ -36,13 +36,3 @@ class TestGetBedStatus(TransactionCase):
         ward = self.ward.read()[0]
         actual = self.call_test(ward)
         self.assertIsNone(actual)
-
-    def test_raises_value_error_if_no_usage_field_on_passed_location(self):
-        with self.assertRaises(ValueError):
-            location = {
-                'plop'
-            }
-            self.call_test(location)
-
-    def test_invalid_value_raises_exception(self):
-        pass
