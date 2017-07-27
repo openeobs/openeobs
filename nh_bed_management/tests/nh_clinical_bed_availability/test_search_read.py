@@ -14,6 +14,7 @@ class TestSearchRead(TransactionCase):
         self.test_utils.copy_instance_variables(self)
         self.bed = self.test_utils.bed
         self.ward = self.test_utils.ward
+        self.hospital = self.test_utils.hospital
 
         self.bed_availability_model = self.env['nh.clinical.bed_availability']
         self.location_model = self.env['nh.clinical.location']
@@ -92,9 +93,10 @@ class TestSearchRead(TransactionCase):
         self.assertEqual(expected, actual)
 
     def test_can_be_sorted_on_one_field(self):
+        order = 'bed_status asc'
         expected_order = [None, 'Available', 'Occupied']
 
-        bed_availability_records = self.call_test(order='bed_status asc')
+        bed_availability_records = self.call_test(order=order)
         bed_statuses_only = map(lambda i: i['bed_status'],
                                 bed_availability_records)
 
@@ -109,7 +111,45 @@ class TestSearchRead(TransactionCase):
         self.assertEqual(expected_order, actual_order)
 
     def test_can_be_sorted_on_two_fields(self):
-        pass
+        order = 'ward_name desc, bed_status asc'
+
+        locations = []
+        for colour in ['Yellow', 'Red', 'Blue']:
+            ward = self.test_utils.create_location(
+                usage='ward',
+                parent=self.hospital.id,
+                name='The {} Ward'.format(colour)
+            )
+            locations.append(ward)
+            for size in ['Small', 'Medium', 'Large']:
+                bed = self.test_utils.create_location(
+                    usage='bed',
+                    parent=self.hospital.id,
+                    name='The {} Bed'.format(size)
+                )
+                locations.append(bed)
+
+        expected_order = [
+            ('The Yellow Ward', 'The Large Bed'),
+            ('The Red Ward', 'The Medium Bed'),
+            ('The Blue Ward', 'The Small Bed'),
+        ]
+
+        bed_availability_records = self.call_test(order=order)
+        # Could be demo data in this instance so filter the records down to
+        # just those created in this test.
+        bed_availability_records = filter(
+            lambda i: i in locations,
+            bed_availability_records
+        )
+        # Now filter down to ward and bed names only so can easily compare.
+        ward_and_bed_names_only = map(
+            lambda i: (i['ward_name'], i['bed_name']),
+            bed_availability_records
+        )
+
+        actual_order = ward_and_bed_names_only
+        self.assertEqual(expected_order, actual_order)
 
     def test_field_strings(self):
         """

@@ -5,6 +5,7 @@ from openerp import models, fields, api
 class NhClinicalBedAvailability(models.AbstractModel):
 
     _name = 'nh.clinical.bed_availability'
+    _inherit = 'nh.activity.data'
     _order = 'bed_status desc'
 
     bed_status_selection = ['Available', 'Occupied']
