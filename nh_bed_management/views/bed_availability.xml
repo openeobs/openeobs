@@ -1,9 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <!-- The 'Bed Availability' view. -->
+        <record model="ir.ui.view" id="view_bed_availability">
+            <field name="name">Bed Availability</field>
+            <field name="model">nh.clinical.bed_availability</field>
+            <field name="arch" type="xml">
+                <tree default_order="bed_status asc">
+                    <field name="hospital_name"/>
+                    <field name="ward_name"/>
+                    <field name="bed_name"/>
+                    <field name="bed_status"/>
+                </tree>
+            </field>
+        </record>
+
         <!-- Create an action to open the bed availability page when the menu item is selected. -->
         <record model="ir.actions.act_window" id="action_bed_availability">
-            <field name="name">Open Bed Availability</field>
+            <field name="name">Bed Availability</field>
             <field name="res_model">nh.clinical.bed_availability</field>
         </record>
 
@@ -19,11 +33,5 @@
                   sequence="1"
                   parent="menu_eobs_category_bed_management"
                   action="action_bed_availability"/>
-
-        <!-- The 'Bed Availability' view. -->
-        <!--record model="ir.ui.view" id="view_bed_availability">
-            <field name="name">Bed Availability</field>
-            <field name="model">nh.clinical.bed_availability</field>
-        </record-->
     </data>
 </openerp>
