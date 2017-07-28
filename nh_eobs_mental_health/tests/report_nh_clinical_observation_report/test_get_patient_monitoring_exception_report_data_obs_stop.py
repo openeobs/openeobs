@@ -79,15 +79,16 @@ class TestGetPatientMonitoringExceptionReportData(TransactionCase):
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
             'family_name': 'Snow',
-            'patient_identifier': 'a_patient_identifier'
+            'patient_identifier': 'a_patient_identifier',
+            'other_identifier': 'an_other_identifier'
         })
         self.spell_activity_id = self.spell_model.create_activity(
             {},
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
-        self.activity_model.start(self.spell_activity_id)
         self.spell_activity = \
             self.activity_model.browse(self.spell_activity_id)
+        self.spell_activity.start()
         self.spell = self.spell_activity.data_ref
 
     def setUp(self):
