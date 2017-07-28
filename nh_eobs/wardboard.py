@@ -4,6 +4,7 @@
 Defines models for the `Wardboard` view.
 """
 import logging
+import copy
 
 from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, fields, osv
@@ -1018,6 +1019,7 @@ class nh_clinical_wardboard(orm.Model):
             ['state', 'not in', ['completed', 'cancelled']]], context=context)
         res_id = self.pool['nh.clinical.patient.placement'].search(
             cr, uid, [['activity_id', 'in', res_activity_id]], context=context)
+        new_context = copy.deepcopy(context)
         context.update({'active_id': res_activity_id[0]})
         return {
             'name': wardboard.full_name + ' Placement',
@@ -1028,7 +1030,7 @@ class nh_clinical_wardboard(orm.Model):
             'res_id': res_id[0],
             'target': 'new',
             'view_id': int(view_id),
-            'context': context
+            'context': new_context
         }
 
     def write(self, cr, uid, ids, vals, context=None):

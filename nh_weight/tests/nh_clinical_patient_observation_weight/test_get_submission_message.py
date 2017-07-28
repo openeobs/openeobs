@@ -30,7 +30,9 @@ class TestGetSubmissionMessage(TransactionCase):
                     'height': self.height
                 }
             )
-            self.activity_model.complete(self.obs_height_activity_id)
+            height_act = self.activity_model.browse(
+                self.obs_height_activity_id)
+            height_act.complete()
 
         vals = {
             'patient_id': self.patient.id,
