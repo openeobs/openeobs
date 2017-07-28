@@ -61,12 +61,16 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
         cr, uid = self.cr, self.uid
         self.api_pool.discharge(
             cr, self.adt_user, self.patient.get('other_identifier'),
-            {'discharge_date': datetime.now().strftime(DTF)})
+            {
+                'discharge_date': datetime.now().strftime(DTF),
+                'location': 'U'
+            })
         self.api_pool.discharge(
             cr, self.adt_user, self.patient_2.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=5)).strftime(DTF)
+                    (datetime.now() - timedelta(days=5)).strftime(DTF),
+                'location': 'U'
             })
         self.settings_pool.write(cr, uid, 1, {'discharge_transfer_period': 3})
         self.wardboard_pool.init(self.cr)
@@ -85,12 +89,16 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
         cr, uid = self.cr, self.uid
         self.api_pool.discharge(
             cr, self.adt_user, self.patient.get('other_identifier'),
-            {'discharge_date': datetime.now().strftime(DTF)})
+            {
+                'discharge_date': datetime.now().strftime(DTF),
+                'location': 'U'
+            })
         self.api_pool.discharge(
             cr, self.adt_user, self.patient_2.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=5)).strftime(DTF)
+                    (datetime.now() - timedelta(days=5)).strftime(DTF),
+                'location': 'U'
             })
         wizard = self.config_pool.create(
             cr, uid, {
@@ -116,13 +124,15 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
             cr, self.adt_user, self.patient.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=5)).strftime(DTF)
+                    (datetime.now() - timedelta(days=5)).strftime(DTF),
+                'location': 'U'
             })
         self.api_pool.discharge(
             cr, self.adt_user, self.patient_2.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=15)).strftime(DTF)
+                    (datetime.now() - timedelta(days=15)).strftime(DTF),
+                'location': 'U'
             })
         self.settings_pool.write(cr, uid, 1, {'discharge_transfer_period': 10})
         self.wardboard_pool.init(self.cr)
@@ -143,13 +153,15 @@ class TestWardboardDischargeTransferSettingsIntegration(TransactionCase):
             cr, self.adt_user, self.patient.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=5)).strftime(DTF)
+                    (datetime.now() - timedelta(days=5)).strftime(DTF),
+                'location': 'DISCHARGE'
             })
         self.api_pool.discharge(
             cr, self.adt_user, self.patient_2.get('other_identifier'),
             {
                 'discharge_date':
-                    (datetime.now() - timedelta(days=15)).strftime(DTF)
+                    (datetime.now() - timedelta(days=15)).strftime(DTF),
+                'location': 'DISCHARGE'
             })
         wizard = self.config_pool.create(
             cr, uid, {

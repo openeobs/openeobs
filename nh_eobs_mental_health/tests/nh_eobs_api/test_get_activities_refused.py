@@ -162,7 +162,9 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         time.sleep(2)
         self.api_pool.transfer(
             cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
-        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {})
+        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {
+            'location': 'U'
+        })
         placement_id = self.activity_pool.search(
             cr, uid, [
                 ['data_model', '=', 'nh.clinical.patient.placement'],

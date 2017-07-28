@@ -11,6 +11,7 @@ models.
 """
 import re
 import logging
+import copy
 
 from openerp.osv import orm, fields, osv
 
@@ -330,8 +331,9 @@ class nh_clinical_spellboard(orm.Model):
     def _update_context(self, cr, uid, ids, context=None):
         """Updates context with patient_id and location_id."""
         record = self.browse(cr, uid, ids, context=context)
-        if context:
-            context.update({'default_patient_id': record.patient_id.id})
-            context.update({'default_nhs_number': record.nhs_number})
-            context.update({'default_ward_id': record.ward_id.id})
-        return context
+        new_context = copy.deepcopy(context)
+        if new_context:
+            new_context.update({'default_patient_id': record.patient_id.id})
+            new_context.update({'default_nhs_number': record.nhs_number})
+            new_context.update({'default_ward_id': record.ward_id.id})
+        return new_context
