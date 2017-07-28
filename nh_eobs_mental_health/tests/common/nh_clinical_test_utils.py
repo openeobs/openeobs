@@ -32,7 +32,8 @@ class NhClinicalTestUtils(AbstractModel):
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
             'family_name': 'Snow',
-            'patient_identifier': 'he_knows_nothing'
+            'patient_identifier': 'he_knows_nothing',
+            'other_identifier': 'nothing_he_knows'
         })
 
         self.spell_activity_id = self.spell_model.create_activity(
@@ -42,7 +43,8 @@ class NhClinicalTestUtils(AbstractModel):
                 'pos_id': 1
             }
         )
-        self.activity_model.start(self.spell_activity_id)
+        activity = self.activity_model.browse(self.spell_activity_id)
+        activity.start()
 
         self.clinical_review_notification_activity_id = \
             self.clinical_review_model.sudo(self.nurse).create_activity(
@@ -58,9 +60,7 @@ class NhClinicalTestUtils(AbstractModel):
             self.activity_model.sudo(self.nurse).browse(
                 self.clinical_review_notification_activity_id
             )
-        self.activity_model.sudo(self.nurse).complete(
-            self.clinical_review_notification_activity_id
-        )
+        self.clinical_review_notification_activity.sudo(self.nurse).complete()
 
     def start_pme(self, spell=None, reason=None):
         if not spell:
@@ -87,7 +87,9 @@ class NhClinicalTestUtils(AbstractModel):
             ['state', 'not in', ['completed', 'cancelled']]
         ])
         if clinical_review:
-            self.activity_model.sudo(self.doctor).complete(clinical_review.id)
+            clinical_review.sudo(self.doctor).complete()
+            # self.activity_model.sudo(self.doctor)
+            # .complete(clinical_review.id)
         return clinical_review
 
     def find_and_complete_clinical_review_freq(self, review_id=None):
@@ -98,8 +100,7 @@ class NhClinicalTestUtils(AbstractModel):
             ['state', 'not in', ['completed', 'cancelled']]
         ])
         if clinical_review_freq:
-            self.activity_model.sudo(self.doctor).complete(
-                clinical_review_freq.id)
+            clinical_review_freq.sudo(self.doctor).complete()
 
     def create_activity_obs_stop(self):
         obs_stop_model = self.env['nh.clinical.pme.obs_stop']

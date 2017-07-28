@@ -30,7 +30,8 @@ class TestReviewFrequencyComplete(SingleTransactionCase):
         cls.patient = patient_pool.create(cr, uid, {
             'given_name': 'Test',
             'patient_identifier': '123456789101112',
-            'family_name': 'McTesterson'
+            'family_name': 'McTesterson',
+            'other_identifier': '123412124'
         })
         cls.observation_parent = cls.observation_pool.create(cr, uid, {
             'patient_id': cls.patient

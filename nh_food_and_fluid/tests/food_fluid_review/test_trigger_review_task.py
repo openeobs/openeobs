@@ -32,14 +32,14 @@ class TestTriggerReviewTask(TransactionCase):
 
         def patch_get_current_time(*args, **kwargs):
             obj = args[0]
-            hours = obj._context.get('hours', 15)
-            now_time = datetime.now()
+            hours = obj.env.context.get('hours', 15)
+            now_time = datetime(1988, 1, 12, hours, 0, 0, 0)
             current_time = now_time.replace(hour=hours)
             return current_time
 
         def patch_should_trigger_review(*args, **kwargs):
             obj = args[0]
-            return obj._context.get('correct_time', False)
+            return obj.env.context.get('correct_time', False)
 
         self.food_fluid_model._patch_method(
             'active_food_fluid_period', patch_active_food_fluid_period)

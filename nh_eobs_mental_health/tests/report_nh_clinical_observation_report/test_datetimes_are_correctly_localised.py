@@ -56,16 +56,15 @@ class TestDatetimesAreCorrectlyLocalised(TransactionCase):
                 'waist_measurement': 80
             }
         )
-
-        self.activity_model.complete(blood_glucose_activity_id)
-        self.activity_model.complete(blood_product_activity_id)
-        self.activity_model.complete(weight_activity_id)
-
         blood_glucose_activity = \
             self.activity_model.browse(blood_glucose_activity_id)
         blood_product_activity = \
             self.activity_model.browse(blood_product_activity_id)
         weight_activity = self.activity_model.browse(weight_activity_id)
+
+        blood_glucose_activity.complete()
+        blood_product_activity.complete()
+        weight_activity.complete()
 
         datetime_utc = '2017-06-06 13:00:00'
         self.datetime_bst = '2017-06-06 14:00:00'
