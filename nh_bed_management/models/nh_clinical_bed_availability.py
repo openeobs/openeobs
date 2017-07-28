@@ -8,7 +8,10 @@ class NhClinicalBedAvailability(models.AbstractModel):
     _inherit = 'nh.activity.data'
     _order = 'bed_status desc'
 
-    bed_status_selection = ['Available', 'Occupied']
+    bed_status_selection = [
+        ('available', 'Available'),
+        ('occupied', 'Occupied')
+    ]
 
     hospital_name = fields.Char(string='Hospital Name')
     ward_name = fields.Char(string='Ward Name')
@@ -86,6 +89,6 @@ class NhClinicalBedAvailability(models.AbstractModel):
     def _get_bed_status(location):
         if location['usage'] == 'bed':
             if len(location['patient_ids']):
-                return 'Occupied'
+                return 'occupied'
             else:
-                return 'Available'
+                return 'available'

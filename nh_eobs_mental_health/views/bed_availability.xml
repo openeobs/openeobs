@@ -1,7 +1,12 @@
 <openerp>
     <data>
-        <template id="bed_availability" inherit_id="nh_bed_management.bed_availability">
-            <field name="patient_status"/>
-        </template>
+        <record model="ir.ui.view" id="view_bed_availability">
+            <field name="inherit_id" ref="nh_bed_management.view_bed_availability"/>
+            <field name="arch" type="xml">
+                <xpath expr="/tree" position="inside">
+                    <field name="patient_status"/>
+                </xpath>
+            </field>
+        </record>
     </data>
 </openerp>

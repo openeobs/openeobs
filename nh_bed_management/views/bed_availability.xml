@@ -6,7 +6,7 @@
             <field name="name">Bed Availability</field>
             <field name="model">nh.clinical.bed_availability</field>
             <field name="arch" type="xml">
-                <tree default_order="bed_status asc">
+                <tree>
                     <field name="hospital_name"/>
                     <field name="ward_name"/>
                     <field name="bed_name"/>
