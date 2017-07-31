@@ -6,7 +6,6 @@ class NhClinicalBedAvailability(models.Model):
 
     _name = 'nh.clinical.bed_availability'
     _inherit = 'nh.activity.data'
-    _order = 'bed_status asc'
 
     location = fields.Many2one(
         comodel_name='nh.clinical.location'
