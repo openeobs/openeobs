@@ -2,93 +2,106 @@
 from openerp import models, fields, api
 
 
-class NhClinicalBedAvailability(models.AbstractModel):
+class NhClinicalBedAvailability(models.Model):
 
     _name = 'nh.clinical.bed_availability'
     _inherit = 'nh.activity.data'
-    _order = 'bed_status desc'
+    _order = 'bed_status asc'
 
+    location = fields.Many2one(
+        comodel_name='nh.clinical.location'
+    )
+    name = fields.Char(related='location.name')
+    hospital_name = fields.Char(
+        string='Hospital Name',
+        compute='_get_hospital_name',
+        store=True
+    )
+    ward_name = fields.Char(
+        string='Ward Name',
+        compute='_get_ward_name',
+        store=True
+    )
+    bed_name = fields.Char(
+        string='Bed Name',
+        compute='_get_bed_name',
+        store=True
+    )
     bed_status_selection = [
         ('available', 'Available'),
         ('occupied', 'Occupied')
     ]
-
-    hospital_name = fields.Char(string='Hospital Name')
-    ward_name = fields.Char(string='Ward Name')
-    bed_name = fields.Char(string='Bed Name')
     bed_status = fields.Selection(
         selection=bed_status_selection,
-        string='Bed Status'
+        string='Bed Status',
+        compute='_get_bed_status',
+        store=True
     )
 
+    bed_manager = None
+
+    def init(self, cr):
+        self.delete_and_recreate_all_records(cr, 1)
+
     @api.model
-    def search_read(self, domain=None, fields=None, offset=0, limit=None,
-                    order=None, context=None):
+    def delete_and_recreate_all_records(self):
+        self.search([]).unlink()
+
         location_model = self.env['nh.clinical.location']
         # Read all hospitals, wards, and beds.
         locations = location_model.search_read(
             domain=[('usage', 'in', ['hospital', 'ward', 'bed'])],
             fields=['parent_id', 'name', 'patient_ids', 'usage'],
-            offset=offset,
-            limit=limit
         )
 
         bed_availability_records = []
         for location in locations:
-            hospital_name, ward_name, bed_name = self._get_location_names(
-                location)
-            bed_status = self._get_bed_status(location)
-
-            bed_availability_record = {
-                'id': location['id'],
-                'hospital_name': hospital_name,
-                'ward_name': ward_name,
-                'bed_name': bed_name,
-                'bed_status': bed_status,
-            }
+            bed_availability_record = self.create({
+                'location': location['id']
+            })
             bed_availability_records.append(bed_availability_record)
-
-        if order:
-            order_field, order_type = order.split(' ')
-            bed_availability_records = sorted(
-                bed_availability_records,
-                cmp=None,
-                key=lambda i: i[order_field],
-                reverse=order_type.lower() == 'desc'
-            )
         return bed_availability_records
 
-    def _get_location_names(self, location):
-        location_names = [None] * 3
-        usage = location['usage']
+    @api.depends('location')
+    def _get_hospital_name(self):
+        for record in self:
+            record.hospital_name = \
+                record._get_location_name(record.location, 'hospital')
 
-        if isinstance(location['parent_id'], tuple):
-            # Is actually a 'reference' tuple, not an ID.
-            parent_id = location['parent_id'][0]
+    @api.depends('location')
+    def _get_ward_name(self):
+        for record in self:
+            record.ward_name = record._get_location_name(
+                record.location, 'ward')
 
-        if usage == 'hospital':
-            location_names[0] = location['name']
-
-        elif usage == 'ward':
-            location_model = self.env['nh.clinical.location']
-            location_names[0] = location_model.browse(parent_id).name
-            location_names[1] = location['name']
-
-        elif usage == 'bed':
-            location_model = self.env['nh.clinical.location']
-            ward = location_model.browse(parent_id)
-            hospital = ward.parent_id
-
-            location_names[0] = hospital.name
-            location_names[1] = ward.name
-            location_names[2] = location['name']
-
-        return location_names
+    @api.depends('location')
+    def _get_bed_name(self):
+        for record in self:
+            record.bed_name = record._get_location_name(record.location, 'bed')
 
     @staticmethod
-    def _get_bed_status(location):
-        if location['usage'] == 'bed':
-            if len(location['patient_ids']):
-                return 'occupied'
-            else:
-                return 'available'
+    def _get_location_name(location, location_type):
+        while True:
+            if location.usage == location_type:
+                return location.name
+            if location.parent_id:
+                location = location.parent_id
+                continue
+            return None
+
+    @api.depends('location')
+    def _get_bed_status(self):
+        for record in self:
+            bed_status = None
+            if record.location.usage == 'bed':
+                # Originally tried just using `record.location.patient_ids` but
+                # for some reason this destroyed performance, taking
+                # ~10 minutes to create all the bed availability records.
+                # Not sure why this is but read did not have the same problem.
+                patient_ids = record.location.read(
+                    fields=['patient_ids'])[0]['patient_ids']
+                if patient_ids:
+                    bed_status = 'occupied'
+                else:
+                    bed_status = 'available'
+            record.bed_status = bed_status
