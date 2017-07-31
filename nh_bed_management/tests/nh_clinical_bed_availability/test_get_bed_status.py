@@ -10,29 +10,33 @@ class TestGetBedStatus(TransactionCase):
         self.test_utils.admit_and_place_patient()
         self.test_utils.copy_instance_variables(self)
         self.bed = self.test_utils.bed
-        self.ward= self.test_utils.ward
+        self.ward = self.test_utils.ward
 
-        self.available = 'Available'
-        self.occupied = 'Occupied'
+        self.available = 'available'
+        self.occupied = 'occupied'
 
-    def call_test(self, location):
-        bed_availability_model = self.env['nh.clinical.bed_availability']
-        return bed_availability_model._get_bed_status(location)
-
-    def test_returns_available_when_no_patient_allocated_to_it(self):
-        self.test_utils.discharge_patient()
-        bed = self.bed.read()[0]
-        expected = self.available
-        actual = self.call_test(bed)
-        self.assertEqual(expected, actual)
+        self.bed_availability_model = self.env['nh.clinical.bed_availability']
 
     def test_returns_occupied_when_patient_allocated_to_it(self):
-        bed = self.bed.read()[0]
+        record = self.bed_availability_model.create({
+            'location': self.bed.id
+        })
         expected = self.occupied
-        actual = self.call_test(bed)
+        actual = record.bed_status
         self.assertEqual(expected, actual)
 
-    def test_returns_none_if_location_is_not_bed(self):
-        ward = self.ward.read()[0]
-        actual = self.call_test(ward)
-        self.assertIsNone(actual)
+    def test_returns_available_when_no_patient_allocated_to_it(self):
+        record = self.bed_availability_model.create({
+            'location': self.bed.id
+        })
+        self.assertEqual(self.occupied, record.bed_status)
+
+        self.test_utils.discharge_patient()
+
+        self.env.add_todo(record._fields['bed_status'], record)
+        record.recompute()
+
+        expected = self.available
+        actual = record.bed_status
+
+        self.assertEqual(expected, actual)

@@ -33,11 +33,8 @@ class NhClinicalBedAvailability(models.Model):
     bed_status = fields.Selection(
         selection=bed_status_selection,
         string='Bed Status',
-        compute='_get_bed_status',
-        store=True
+        compute='_get_bed_status'
     )
-
-    bed_manager = None
 
     def init(self, cr):
         self.delete_and_recreate_all_records(cr, 1)
@@ -49,7 +46,7 @@ class NhClinicalBedAvailability(models.Model):
         location_model = self.env['nh.clinical.location']
         # Read all hospitals, wards, and beds.
         locations = location_model.search_read(
-            domain=[('usage', 'in', ['hospital', 'ward', 'bed'])],
+            domain=[('usage', '=', 'bed')],
             fields=['parent_id', 'name', 'patient_ids', 'usage'],
         )
 

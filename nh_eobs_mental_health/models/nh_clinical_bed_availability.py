@@ -14,8 +14,7 @@ class NhClinicalBedAvailability(models.Model):
     patient_status = fields.Selection(
         selection=patient_status_selection,
         string='Patient Status',
-        compute='_get_patient_status',
-        store=True
+        compute='_get_patient_status'
     )
 
     @api.depends('location')
