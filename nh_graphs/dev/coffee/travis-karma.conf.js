@@ -66,7 +66,7 @@ module.exports = function (config) {
             startConnect: false,
             maxDuration: 240,
             commandTimeout: 600,
-            idelTimeout: 120,
+            idleTimeout: 120,
             tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
             connectOptions: {
                 port: 5757,
