@@ -21,17 +21,22 @@
             <field name="res_model">nh.clinical.bed_availability</field>
         </record>
 
-        <!-- Add a new group for menu items in the root menu. -->
+        <!-- Add a new item menu item along the top of the screen. -->
         <menuitem name="Bed Management"
-                  id="menu_eobs_category_bed_management"
-                  sequence="5"
-                  parent="nh_eobs.menu_eobs_top_root"/>
+                  id="menu_bed_management_top_root"
+                  sequence="12"/>
+
+        <!-- Add a new group for menu items in the bed management menu. -->
+        <menuitem name="Bed Management"
+                  id="menu_bed_management_category"
+                  parent="menu_bed_management_top_root"
+                  sequence="1"/>
 
         <!-- Add a new menu item in the 'Bed Management' group in the root menu. -->
         <menuitem name="Bed Availability"
-                  id="menu_eobs_bed_availability"
+                  id="menu_bed_management_bed_availability"
                   sequence="1"
-                  parent="menu_eobs_category_bed_management"
+                  parent="menu_bed_management_category"
                   action="action_bed_availability"/>
     </data>
 </openerp>
