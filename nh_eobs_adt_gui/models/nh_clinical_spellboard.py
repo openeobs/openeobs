@@ -1,11 +1,20 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-Defines models used for `Open eObs` spellboard UI.
+Defines the spellboard model. This model is backed by a view and is not
+managed by the ORM (see `_auto = False`). That is why all the model methods
+such as `create` and `write` are overridden and do not call `super`, as writes
+to the database will fail because views cannot be updated unless you setup
+rules in PostgreSQL (google 'updateable views'). You can think of this model
+as a proxy that is only used as a means of updating various other underlying
+models.
 """
 import re
 import logging
+import copy
 
 from openerp.osv import orm, fields, osv
+
 
 _logger = logging.getLogger(__name__)
 
@@ -14,7 +23,6 @@ class nh_clinical_spellboard(orm.Model):
     """
     Provides patient spell information and operations for the GUI.
     """
-
     _name = "nh.clinical.spellboard"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Spell Management View"
@@ -65,7 +73,6 @@ class nh_clinical_spellboard(orm.Model):
     }
 
     def init(self, cr):
-
         cr.execute("""
                 drop view if exists %s;
                 create or replace view %s as (
@@ -161,13 +168,14 @@ class nh_clinical_spellboard(orm.Model):
             'code': vals.get('code'),
             'patient_identifier': patient['patient_identifier'],
             'location': location['code'],
-            'start_date': vals.get('start_date'),
+            'date_started': vals.get('start_date'),  # Activity field
+            'start_date': vals.get('start_date'),  # ADT admit field
             'ref_doctor_ids': vals.get('ref_doctor_ids'),
             'con_doctor_ids': vals.get('con_doctor_ids')
         }, context=context)
         api.admit_update(cr, uid, patient['other_identifier'], {
-            'date_started': vals.get('start_date'),
-            'start_date': vals.get('start_date'),
+            'date_started': vals.get('start_date'),  # Activity field
+            'start_date': vals.get('start_date'),  # ADT spell update field
             'patient_identifier': patient['patient_identifier'],
             'location': location['code'],
         })
@@ -214,31 +222,37 @@ class nh_clinical_spellboard(orm.Model):
         :returns: ``True`` if successful. Otherwise ``False``
         :rtype: bool
         """
-
-        api = self.pool['nh.eobs.api']
+        api_pool = self.pool['nh.eobs.api']
         location_pool = self.pool['nh.clinical.location']
+
         if vals.get('patient_id'):
             osv.except_osv(
                 'Error!',
                 'Cannot change patient from an existing spell, edit patient '
-                'information instead!')
+                'information instead!'
+            )
+
         res = {}
         for spell in self.browse(cr, uid, ids, context=context):
             if vals.get('location_id'):
                 location = location_pool.read(cr, uid, vals.get(
                     'location_id'), ['code'], context=context)
-                res[spell.id] = api.transfer(
+                res[spell.id] = api_pool.transfer(
                     cr, uid, spell.patient_id.other_identifier,
                     {'location': location['code']}, context=context)
             else:
-                res[spell.id] = api.admit_update(
+                res[spell.id] = api_pool.admit_update(
                     cr, uid, spell.patient_id.other_identifier,
-                    {'location': spell.location_id.code,
-                     'code': spell.code,
-                     'ref_doctor_ids': vals.get('ref_doctor_ids'),
-                     'con_doctor_ids': vals.get('con_doctor_ids')
-                     }, context=context)
-        return all([res[r] for r in res.keys()])
+                    {
+                        'location': spell.location_id.code,
+                        'code': spell.code,
+                        'start_date': vals.get('start_date'),
+                        'ref_doctor_ids': vals.get('ref_doctor_ids'),
+                        'con_doctor_ids': vals.get('con_doctor_ids')
+                    },
+                    context=context
+                )
+        return all(res.iteritems())
 
     def cancel_discharge(self, cr, uid, ids, context=None):
         """
@@ -317,8 +331,9 @@ class nh_clinical_spellboard(orm.Model):
     def _update_context(self, cr, uid, ids, context=None):
         """Updates context with patient_id and location_id."""
         record = self.browse(cr, uid, ids, context=context)
-        if context:
-            context.update({'default_patient_id': record.patient_id.id})
-            context.update({'default_nhs_number': record.nhs_number})
-            context.update({'default_ward_id': record.ward_id.id})
-        return context
+        new_context = copy.deepcopy(context)
+        if new_context:
+            new_context.update({'default_patient_id': record.patient_id.id})
+            new_context.update({'default_nhs_number': record.nhs_number})
+            new_context.update({'default_ward_id': record.ward_id.id})
+        return new_context

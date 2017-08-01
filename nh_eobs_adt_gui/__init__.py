@@ -1,2 +1,2 @@
-from . import spell_management
-from .import wizards
+from .models import *
+from .wizard import *

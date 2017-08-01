@@ -14,13 +14,11 @@ class NhClinicalTestUtils(models.AbstractModel):
         obs_food_and_fluid_activity_id = \
             self.create_food_and_fluid_obs_activity(fluid_taken, fluid_output,
                                                     patient_id)
-
-        activity_model.submit(obs_food_and_fluid_activity_id, {})
-        activity_model.complete(obs_food_and_fluid_activity_id)
-
-        activity_obs = activity_model.browse(obs_food_and_fluid_activity_id)
+        activity = activity_model.browse(obs_food_and_fluid_activity_id)
+        activity.submit({})
+        activity.complete()
         if completion_datetime:
-            activity_obs.date_terminated = completion_datetime
+            activity.date_terminated = completion_datetime
         return obs_food_and_fluid_activity_id
 
     def create_food_and_fluid_obs_activity(self, fluid_taken=None,
