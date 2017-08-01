@@ -19,8 +19,12 @@ class NhClinicalBedAvailability(models.Model):
             # for some reason this destroyed performance, taking
             # ~10 minutes to create all the bed availability records.
             # Not sure why this is but read did not have the same problem.
-            patient_ids = record.location.read(
-                fields=['patient_ids'])[0]['patient_ids']
+            records = record.location.read(fields=['patient_ids'])
+
+            # Can happen when creating a record via a view.
+            if not records:
+                return
+            patient_ids = records[0]['patient_ids']
             if record.location.usage == 'bed' and patient_ids:
                 if len(patient_ids) != 1:
                     raise ValueError("Multiple patient IDs found for bed.")
