@@ -1,4 +1,3 @@
-from . import nh_clinical_bed_availability
 from . import nh_clinical_doctor_activities
 from . import nh_clinical_notification_clinical_review
 from . import nh_clinical_notification_clinical_review_frequency

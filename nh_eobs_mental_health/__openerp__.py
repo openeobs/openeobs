@@ -24,7 +24,6 @@
         'views/static_include.xml',
         'views/mobile_override.xml',
         'views/observation_report_template.xml',
-        'views/bed_availability.xml',
         'security/ir.model.access.csv'
     ],
     'qweb': ['static/src/xml/widgets.xml'],
