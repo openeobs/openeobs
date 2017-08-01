@@ -6,13 +6,7 @@ class NhClinicalBedAvailability(models.Model):
 
     _inherit = 'nh.clinical.bed_availability'
 
-    patient_status_selection = [
-        ('in ward', 'In Ward'),
-        ('off ward', 'Off Ward')
-    ]
-
-    patient_status = fields.Selection(
-        selection=patient_status_selection,
+    patient_status = fields.Char(
         string='Patient Status',
         compute='_get_patient_status'
     )
@@ -38,8 +32,15 @@ class NhClinicalBedAvailability(models.Model):
                     spell_model.get_spell_activity_by_patient_id(patient.id)
 
                 obs_stop_model = record.env['nh.clinical.pme.obs_stop']
-                obs_stop_open = \
+                obs_stop_activity = \
                     obs_stop_model.get_open_activity(spell_activity.id)
 
-                patient_status = 'off ward' if obs_stop_open else 'in ward'
+                if obs_stop_activity:
+                    obs_stop = obs_stop_activity.data_ref
+                    obs_stop_reason = obs_stop.reason.display_text
+                    obs_stop_active_time = obs_stop.get_hours_active()
+                    patient_status = 'Off Ward - {} ({} Hours)'.format(
+                        obs_stop_reason, obs_stop_active_time)
+                else:
+                    patient_status = 'In Ward'
             record.patient_status = patient_status

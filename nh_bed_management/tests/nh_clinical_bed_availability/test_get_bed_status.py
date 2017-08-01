@@ -33,6 +33,8 @@ class TestGetBedStatus(TransactionCase):
 
         self.test_utils.discharge_patient()
 
+        # Must manually recompute. Odoo does this for us when a view is
+        # reloaded.
         self.env.add_todo(record._fields['bed_status'], record)
         record.recompute()
 
