@@ -1,67 +1,67 @@
 module.exports = function (config) {
 
     if (!process.env.SAUCE_USERNAME || !process.env.SAUCE_ACCESS_KEY) {
-        console.log('Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.');
+        console.log("Make sure the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables are set.");
         process.exit(1);
     }
 
     var customLaunchers = {
-        'SL_Android_Chrome': {
-            base: 'SauceLabs',
-            browserName: 'Browser',
-            deviceName: 'Android Emulator',
-            deviceOrientation: 'portrait',
-            platformVersion: '5.1',
-            platformName: 'Android',
-            timeZone: 'Universal'
+        "SL_Android_Chrome": {
+            base: "SauceLabs",
+            browserName: "Browser",
+            deviceName: "Android Emulator",
+            deviceOrientation: "portrait",
+            platformVersion: "5.1",
+            platformName: "Android",
+            timeZone: "Universal"
         },
-        'SL_Windows_Chrome': {
-            base: 'SauceLabs',
-            browserName: 'chrome',
-            version: '50.0',
-            platform: 'Windows 10',
-            timeZone: 'Universal'
+        "SL_Windows_Chrome": {
+            base: "SauceLabs",
+            browserName: "chrome",
+            version: "50.0",
+            platform: "Windows 10",
+            timeZone: "Universal"
         },
-        // 'SL_WebKit': {
-        //     base: 'SauceLabs',
-        //     browserName: 'safari',
-        //     version: '5.1',
-        //     platform: 'Windows 7',
-        //     timeZone: 'Universal'
+        // "SL_WebKit": {
+        //     base: "SauceLabs",
+        //     browserName: "safari",
+        //     version: "5.1",
+        //     platform: "Windows 7",
+        //     timeZone: "Universal"
         // },
-        'SL_iPad_Safari': {
-            base: 'SauceLabs',
-            browserName: 'Safari',
-            appiumVersion: '1.6.5',
-            deviceName: 'iPad Simulator',
-            deviceOrientation: 'portrait',
-            platformVersion: '10.3',
-            platformName: 'iOS',
-            timeZone: 'Universal'
+        "SL_iPad_Safari": {
+            base: "SauceLabs",
+            browserName: "Safari",
+            appiumVersion: "1.6.5",
+            deviceName: "iPad Simulator",
+            deviceOrientation: "portrait",
+            platformVersion: "10.3",
+            platformName: "iOS",
+            timeZone: "Universal"
         }
     };
 
     config.set({
-        basePath: '',
+        basePath: "",
 
         files: [
-            'tests/src/*.js',
-            'tests/lib/*.js',
-            'tests/spec/*.js'
+            "tests/src/*.js",
+            "tests/lib/*.js",
+            "tests/spec/*.js"
         ],
 
         exclude: [],
 
-        //hostname: 'localhost',
+        //hostname: "localhost",
         port: 9876,
 
-        reporters: ['dots', 'saucelabs'],
+        reporters: ["dots", "saucelabs"],
 
         preprocessors: {
-            'tests/src/*.js': ['coverage']
+            "tests/src/*.js": ["coverage"]
         },
         sauceLabs:{
-            testName: 'NHGraphLib - #' + process.env.TRAVIS_BUILD_NUMBER + '.' + process.env.TRAVIS_BUILD_ID,
+            testName: "NHGraphLib - #" + process.env.TRAVIS_BUILD_NUMBER + "." + process.env.TRAVIS_BUILD_ID,
             recordScreenshots: true,
             startConnect: false,
             maxDuration: 240,
@@ -70,7 +70,7 @@ module.exports = function (config) {
             tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
             connectOptions: {
                 port: 5757,
-                logfile: 'sauce_connect.log',
+                logfile: "sauce_connect.log",
                 username: process.env.SAUCE_USERNAME,
                 accessKey: process.env.SAUCE_ACCESS_KEY
             },
@@ -82,28 +82,28 @@ module.exports = function (config) {
         browsers: Object.keys(customLaunchers),
         autoWatch: false,
         singleRun: true,
-        frameworks: ['jasmine'],
+        frameworks: ["jasmine"],
         plugins: [
-            'karma-jasmine',
-            'karma-junit-reporter',
-            'karma-phantomjs-launcher',
-            'karma-chrome-launcher',
-            'karma-firefox-launcher',
-            'karma-coverage',
-            'karma-nyan-reporter',
-            'karma-html-reporter',
-            'karma-sauce-launcher'
+            "karma-jasmine",
+            "karma-junit-reporter",
+            "karma-phantomjs-launcher",
+            "karma-chrome-launcher",
+            "karma-firefox-launcher",
+            "karma-coverage",
+            "karma-nyan-reporter",
+            "karma-html-reporter",
+            "karma-sauce-launcher"
         ],
 
         junitReporter: {
-            outputFile: 'unit.xml',
-            suite: 'unit'
+            outputFile: "unit.xml",
+            suite: "unit"
         },
 
         // optionally, configure the reporter
         coverageReporter: {
-            type: 'html',
-            dir: 'coverage/'
+            type: "html",
+            dir: "coverage/"
         }
     })
 }
