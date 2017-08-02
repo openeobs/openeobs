@@ -34,20 +34,23 @@ env:
   global:
   - VERSION="8.0" RUN_PIPELINE="0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0" AUTOMATION="0"  PYLINT_PR_CONFIG_FILE="travis_run_pylint.cfg"
   matrix:
-  - LINT_CHECK="1" TESTS="0"
+#  - LINT_CHECK="1" TESTS="0"
 
 # Test nh_graph GraphLib JS
-  - GRAPHJS="1"
+#  - GRAPHJS="1"
 
 # Test nh_eob_mobile NHMobile JS
-  - MOBJS="1"
+#  - MOBJS="1"
+#
+#  - ODOO_REPO="bjss/odoo" TESTS="1"
+#    EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
+#    INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,nh_eobs_mental_health,nh_neurological,nh_food_and_fluid,nh_weight,nh_blood_glucose"
+#    VERSION="liveobs_1.0"
 
-  - ODOO_REPO="bjss/odoo" TESTS="1"
+  - AUTOMATION="1" TESTS="0"
     EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
     INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,nh_eobs_mental_health,nh_neurological,nh_food_and_fluid,nh_weight,nh_blood_glucose"
     VERSION="liveobs_1.0"
-
-  - AUTOMATION="1" TESTS="0"
 
 virtualenv:
   system_site_packages: true
