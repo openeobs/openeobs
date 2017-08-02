@@ -72,7 +72,8 @@ module.exports = function (config) {
                 port: 5757,
                 logfile: "sauce_connect.log",
                 username: process.env.SAUCE_USERNAME,
-                accessKey: process.env.SAUCE_ACCESS_KEY
+                accessKey: process.env.SAUCE_ACCESS_KEY,
+                noSslBumpDomains: "all"
             },
 
         },
