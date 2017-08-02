@@ -88,7 +88,7 @@ install:
 before_script:
 - npm install -g gulp-cli
 script:
-- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_run_tests ; fi
+- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] && [ "$AUTOMATION" == "0" ] ; then travis_run_tests ; fi
 - if [ "$GRAPHJS" == "1" ] ; then gulp karma ; fi
 - if [ "$MOBJS" == "1" ] ; then gulp travis ; fi
 - if [ "$AUTOMATION" == "1" ] ; then automation.sh ; fi
