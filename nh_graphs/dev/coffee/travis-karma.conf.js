@@ -52,7 +52,7 @@ module.exports = function (config) {
 
         exclude: [],
 
-        //hostname: "localhost",
+        hostname: "localhost",
         port: 9876,
 
         reporters: ["dots", "saucelabs"],
