@@ -85,6 +85,7 @@ install:
 - if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
 - if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm cache clean; npm install; fi
+- mv ${HOME}/build/NeovaHealth/openeobs/automation.sh automation.sh
 before_script:
 - npm install -g gulp-cli
 script:
