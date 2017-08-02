@@ -64,9 +64,9 @@ module.exports = function (config) {
             testName: "NHGraphLib - #" + process.env.TRAVIS_BUILD_NUMBER + "." + process.env.TRAVIS_BUILD_ID,
             recordScreenshots: true,
             startConnect: false,
-            maxDuration: 240,
-            commandTimeout: 600,
-            idleTimeout: 120,
+            maxDuration: 360,
+            commandTimeout: 1200,
+            idleTimeout: 240,
             tunnelIdentifier: process.env.TRAVIS_JOB_NUMBER,
             connectOptions: {
                 port: 5757,
@@ -77,7 +77,7 @@ module.exports = function (config) {
 
         },
         concurrency: 1,
-        captureTimeout: 120000,
+        captureTimeout: 240000,
         customLaunchers: customLaunchers,
         browsers: Object.keys(customLaunchers),
         autoWatch: false,
