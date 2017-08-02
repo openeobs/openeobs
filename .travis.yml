@@ -34,7 +34,7 @@ env:
   global:
   - VERSION="8.0" RUN_PIPELINE="0" LINT_CHECK="0" TRANSIFEX="0" GRAPHJS="0" MOBJS="0" AUTOMATION="0"  PYLINT_PR_CONFIG_FILE="travis_run_pylint.cfg"
   matrix:
-#  - LINT_CHECK="1" TESTS="0"
+  - LINT_CHECK="1" TESTS="0"
 
 # Test nh_graph GraphLib JS
 #  - GRAPHJS="1"
@@ -85,7 +85,7 @@ install:
 - git clone --depth=1 https://github.com/NeovaHealth/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
 - pip install -r ${HOME}/maintainer-quality-tools/requirements.txt
 - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ] ; then travis_install_nightly ; fi
+- if [ "$GRAPHJS" == "0" ] && [ "$MOBJS" == "0" ]; then travis_install_nightly ; fi
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
 - if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm cache clean; npm install; fi
 - mv ${HOME}/build/NeovaHealth/openeobs/automation.sh ${HOME}/automation.sh
