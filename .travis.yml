@@ -90,6 +90,12 @@ install:
 - if [ "$GRAPHJS" == "1" ] ; then cd nh_graphs/dev/coffee; npm install; fi
 - if [ "$MOBJS" == "1" ] ; then cd nh_eobs_mobile/static/dev/coffee; npm cache clean; npm install; fi
 - mv ${HOME}/build/NeovaHealth/openeobs/automation.sh ${HOME}/automation.sh
+- export CHROME_DRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`
+- wget -N http://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip -P ~/
+- unzip ~/chromedriver_linux64.zip -d ~/
+- mv -f ~/chromedriver /usr/local/bin/chromedriver
+- chown root:root /usr/local/bin/chromedriver
+- chmod 0755 /usr/local/bin/chromedriver
 before_script:
 - npm install -g gulp-cli
 script:
