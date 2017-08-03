@@ -62,7 +62,16 @@ class NhClinicalTestUtils(AbstractModel):
             )
         self.clinical_review_notification_activity.sudo(self.nurse).complete()
 
+    # TODO rename this to `start_obs_stop`.
     def start_pme(self, spell=None, reason=None):
+        """
+        Start a patient monitoring exception for the patient created using
+        test utils methods.
+        :param spell:
+        :param reason:
+        :type reason: `nh.clinical.patient_monitoring_exception.reason`
+        :return:
+        """
         if not spell:
             spell = self.spell
         if not reason:
@@ -72,8 +81,7 @@ class NhClinicalTestUtils(AbstractModel):
         wardboard_model = self.env['nh.clinical.wardboard']
         self.wardboard = wardboard_model.browse(spell.id)
         self.wardboard.start_obs_stop(
-            reason, spell.id, spell.activity_id.id
-        )
+            reason, spell.id, spell.activity_id.id)
 
     def end_pme(self):
         self.wardboard.end_obs_stop()

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- The 'Bed Availability' view. -->
+        <record model="ir.ui.view" id="view_bed_availability">
+            <field name="name">Bed Availability</field>
+            <field name="model">nh.clinical.bed_availability</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="hospital_name"/>
+                    <field name="ward_name"/>
+                    <field name="bed_name"/>
+                    <field name="bed_status"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Create an action to open the bed availability page when the menu item is selected. -->
+        <record model="ir.actions.act_window" id="action_bed_availability">
+            <field name="name">Bed Availability</field>
+            <field name="res_model">nh.clinical.bed_availability</field>
+        </record>
+
+        <!-- Add a new item menu item along the top of the screen. -->
+        <menuitem name="Bed Management"
+                  id="menu_bed_management_top_root"
+                  sequence="12"/>
+
+        <!-- Add a new group for menu items in the bed management menu. -->
+        <menuitem name="Bed Management"
+                  id="menu_bed_management_category"
+                  parent="menu_bed_management_top_root"
+                  sequence="1"/>
+
+        <!-- Add a new menu item in the 'Bed Management' group in the root menu. -->
+        <menuitem name="Bed Availability"
+                  id="menu_bed_management_bed_availability"
+                  sequence="1"
+                  parent="menu_bed_management_category"
+                  action="action_bed_availability"/>
+    </data>
+</openerp>
