@@ -10,7 +10,7 @@ class NhClinicalPatient(models.Model):
     _inherit = 'nh.clinical.patient'
 
     @api.multi
-    def write(self, cr, uid, vals, context=None):
+    def write(self, vals):
         """
         Calls :meth:`write<openerp.models.Model.write>` and
         automatically updates the :class:`location<base.nh_clinical_location>`
@@ -25,10 +25,10 @@ class NhClinicalPatient(models.Model):
         res = super(NhClinicalPatient, self).write(vals)
 
         if 'current_location_id' in vals:
-            activity_pool = self.pool['nh.activity']
+            activity_model = self.env['nh.activity']
             patient_ids = self.ids if hasattr(self.ids, '__iter__') \
                 else [self.ids]
-            obs_and_not_ids = activity_pool.search(
+            obs_and_notifications = activity_model.search(
                 [
                     ('patient_id', 'in', patient_ids),
                     ('state', 'not in', ['completed', 'cancelled']),
@@ -37,8 +37,7 @@ class NhClinicalPatient(models.Model):
                     ('data_model', 'ilike', '%notification%')
                 ]
             )
-            activity_pool.write(
-                obs_and_not_ids, {'location_id': vals['current_location_id']}
-            )
+            for record in obs_and_notifications:
+                record.location_id = vals['current_location_id']
 
         return res
