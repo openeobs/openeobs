@@ -1,6 +1,6 @@
-from openerp.tests.common import TransactionCase
 from datetime import datetime
 
+from openerp.tests.common import TransactionCase
 
 TEST_SUMMARY = 'F&F - 3pm Fluid Intake Review'
 
@@ -13,15 +13,15 @@ class TestReviewPermissions(TransactionCase):
 
     def setUp(self):
         super(TestReviewPermissions, self).setUp()
-        self.test_util_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model = self.env['nh.clinical.test_utils']
         self.dateutils_model = self.env['datetime_utils']
         self.review_model = \
             self.env['nh.clinical.notification.food_fluid_review']
         self.eobs_api_model = self.env['nh.eobs.api']
-        self.test_util_model.admit_and_place_patient()
+        self.test_utils_model.admit_and_place_patient()
         self.shift_coordinator = \
-            self.test_util_model.create_shift_coordinator()
-        self.test_util_model.create_senior_manager()
+            self.test_utils_model.create_shift_coordinator()
+        self.test_utils_model.create_senior_manager()
         items_needed = [
             'ward',
             'senior_manager',
@@ -32,7 +32,7 @@ class TestReviewPermissions(TransactionCase):
             'spell_activity'
         ]
         for item in items_needed:
-            self.test_util_model.copy_instance_variable_if_exists(self, item)
+            self.test_utils_model.copy_instance_variable_if_exists(self, item)
 
         def patch_get_current_time(*args, **kwargs):
             as_string = kwargs.get('as_string')

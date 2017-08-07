@@ -7,7 +7,7 @@ class TestWrite(TransactionCase):
     def setUp(self):
         super(TestWrite, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
-        self.test_utils.create_patient()
+        self.test_utils.create_and_register_patient()
         self.test_utils.create_locations()
         self.test_utils.copy_instance_variables(self)
         self.ward = self.test_utils.ward

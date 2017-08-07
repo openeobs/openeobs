@@ -27,6 +27,7 @@ class TestWardDashboard(SingleTransactionCase):
         # WardDashboard Models
         cls.ward_pool = cls.registry('nh.eobs.ward.dashboard')
         cls.bed_pool = cls.registry('nh.eobs.bed.dashboard')
+        cls.test_utils = cls.env['nh.clinical.test_utils']
 
         cls.eobs_context_id = cls.context_pool.search(
             cr, uid, [['name', '=', 'eobs']])[0]
@@ -100,35 +101,32 @@ class TestWardDashboard(SingleTransactionCase):
                 'password': 'dr0',
                 'category_id': [[4, cls.dr_role_id]],
                 'location_ids': [[4, cls.ward_id]]})
-        cls.patients = [
-            cls.patient_pool.create(
-                cr, uid, {
-                    'given_name': 'Dave',
-                    'family_name': 'The Patient',
-                    'other_identifier': 'HN00'+str(i)
-                }
-            ) for i in range(3)]
 
-        cls.api.admit(cr, cls.adt_uid, 'HN000', {'location': 'W0'})
-        cls.api.admit(cr, cls.adt_uid, 'HN001', {'location': 'W0'})
-        cls.api.admit(cr, cls.adt_uid, 'HN002', {'location': 'W0'})
+        cls.patients = [
+            cls.test_utils.create_and_register_patient() for i in range(3)
+        ]
+        cls.patient_ids = map(lambda patient: patient.id, cls.patients)
+
+        for patient in cls.patients:
+            cls.api.admit(
+                cr, cls.adt_uid, patient.other_identifier, {'location': 'W0'})
 
         placement_id = cls.activity_pool.search(
-            cr, uid, [['patient_id', '=', cls.patients[0]],
+            cr, uid, [['patient_id', '=', cls.patient_ids[0]],
                       ['data_model', '=', 'nh.clinical.patient.placement'],
                       ['state', '=', 'scheduled']])[0]
         cls.activity_pool.submit(
             cr, uid, placement_id, {'location_id': cls.beds[0]})
         cls.activity_pool.complete(cr, uid, placement_id)
         placement_id = cls.activity_pool.search(
-            cr, uid, [['patient_id', '=', cls.patients[1]],
+            cr, uid, [['patient_id', '=', cls.patient_ids[1]],
                       ['data_model', '=', 'nh.clinical.patient.placement'],
                       ['state', '=', 'scheduled']])[0]
         cls.activity_pool.submit(
             cr, uid, placement_id, {'location_id': cls.beds[1]})
         cls.activity_pool.complete(cr, uid, placement_id)
         placement_id = cls.activity_pool.search(
-            cr, uid, [['patient_id', '=', cls.patients[2]],
+            cr, uid, [['patient_id', '=', cls.patient_ids[2]],
                       ['data_model', '=', 'nh.clinical.patient.placement'],
                       ['state', '=', 'scheduled']])[0]
         cls.activity_pool.submit(
@@ -137,7 +135,7 @@ class TestWardDashboard(SingleTransactionCase):
 
         cls.user_pool.write(
             cr, uid, [cls.nurse_uid, cls.hca_uid],
-            {'following_ids': [[4, cls.patients[2]]]})
+            {'following_ids': [[4, cls.patient_ids[2]]]})
 
     def test_01_get_bed_ids(self):
         cr, uid = self.cr, self.uid
@@ -192,9 +190,9 @@ class TestWardDashboard(SingleTransactionCase):
         res = self.bed_pool._get_patient_ids(
             cr, uid, self.beds, 'patient_ids', {})
         self.assertTrue(isinstance(res, dict))
-        self.assertListEqual(res[self.beds[0]], [self.patients[0]])
-        self.assertListEqual(res[self.beds[1]], [self.patients[1]])
-        self.assertListEqual(res[self.beds[2]], [self.patients[2]])
+        self.assertListEqual(res[self.beds[0]], [self.patient_ids[0]])
+        self.assertListEqual(res[self.beds[1]], [self.patient_ids[1]])
+        self.assertListEqual(res[self.beds[2]], [self.patient_ids[2]])
 
     def test_07_get_nurse_follower_ids(self):
         cr, uid = self.cr, self.uid
@@ -284,16 +282,11 @@ class TestWardDashboard(SingleTransactionCase):
         self.assertTrue(isinstance(res, dict))
         self.assertFalse(res[self.ward_id])
 
-        patient_id = self.patient_pool.create(
-            cr, uid, {
-                'other_identifier': 'HN003',
-                'given_name': 'Another',
-                'family_name': 'Patient'
-            }
-        )
-        self.api.admit(cr, self.adt_uid, 'HN003', {'location': 'W0'})
+        patient = self.test_utils.create_and_register_patient()
+        self.api.admit(
+            cr, self.adt_uid, patient.other_identifier, {'location': 'W0'})
 
         res = self.ward_pool._get_waiting_patient_ids(
             cr, uid, [self.ward_id], 'waiting_patient_ids', {})
         self.assertTrue(isinstance(res, dict))
-        self.assertListEqual(res[self.ward_id], [patient_id])
+        self.assertListEqual(res[self.ward_id], [patient.id])
