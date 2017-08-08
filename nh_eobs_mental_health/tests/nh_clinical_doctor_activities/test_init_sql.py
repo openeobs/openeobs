@@ -59,10 +59,15 @@ class TestInitSQL(TransactionCase):
             'pos_ids': [[6, 0, [pos_id.id]]]
         })
         # Place patient in ward
-        self.patient_id = self.api_model.register('TESTHN001', {
+        registration_id = self.api_model.register('TESTHN001', {
             'family_name': 'Testersen',
             'given_name': 'Test'
         })
+        registration_model = self.env['nh.clinical.adt.patient.register']
+        registration = registration_model.browse(registration_id)
+        self.patient = registration.patient_id
+        self.patient_id = self.patient.id
+
         self.api_model.admit('TESTHN001', {'location': 'TESTWARD_A'})
         spell_activity_id = self.activity_model.search(
             [

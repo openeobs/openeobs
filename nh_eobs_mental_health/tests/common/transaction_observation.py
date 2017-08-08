@@ -1,5 +1,6 @@
-from openerp.tests.common import TransactionCase
 import logging
+
+from openerp.tests.common import TransactionCase
 
 _logger = logging.getLogger(__name__)
 
@@ -182,20 +183,26 @@ class TransactionObservationCase(TransactionCase):
 
         # register, admit and place patient
         _logger.info('Creating patient')
-        self.patient_id = self.api_pool.register(
+        registration_id = self.api_pool.register(
             cr, self.adt_id, 'TESTHN001',
             {
                 'family_name': 'Testersen',
                 'given_name': 'Test'
             }
         )
-        self.patient_2_id = self.api_pool.register(
+        registration_2_id = self.api_pool.register(
             cr, self.adt_id, 'TESTHN002',
             {
                 'family_name': 'Testersen',
                 'given_name': 'Test'
             }
         )
+        registration_model = self.env['nh.clinical.adt.patient.register']
+        registration = registration_model.browse(registration_id)
+        registration_2 = registration_model.browse(registration_2_id)
+        self.patient_id = registration.patient_id.id
+        self.patient_2_id = registration_2.patient_id.id
+
         _logger.info('Admitting patient')
         self.api_pool.admit(
             cr, self.adt_id, 'TESTHN001', {'location': 'SLAM'}
