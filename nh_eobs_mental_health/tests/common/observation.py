@@ -116,10 +116,12 @@ class ObservationCase(SingleTransactionCase):
         )
 
         # Register, admit and place patient.
-        cls.registration_id = cls.api_pool.register(cr, cls.adt_id, 'TESTHN001', {
-            'family_name': 'Testersen',
-            'given_name': 'Test'
-        })
+        cls.registration_id = cls.api_pool.register(
+            cr, cls.adt_id, 'TESTHN001', {
+                'family_name': 'Testersen',
+                'given_name': 'Test'
+            }
+        )
         registration_pool = cls.registry('nh.clinical.adt.patient.register')
         cls.registration = registration_pool.browse(
             cr, uid, cls.registration_id)
