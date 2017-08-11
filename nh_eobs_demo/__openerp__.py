@@ -31,6 +31,7 @@
              'data/ward_c/demo_spells.xml',
              'data/ward_d/demo_spells.xml',
              'data/ward_e/demo_spells.xml',
+             'data/ward_a/demo_registrations.xml',
              'data/ward_a/demo_admissions.xml',
              'data/ward_b/demo_admissions.xml',
              'data/ward_c/demo_admissions.xml',
