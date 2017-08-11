@@ -1,0 +1,21 @@
+<openerp>
+  <data noupdate="1">
+    <!--ADT Register data for patient 1-->
+    <record id="nhc_activity_demo_adt_register_1" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_1" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_1" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_1" />
+      <field name="patient_id" ref="nhc_demo_patient_1" />
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="create_date" />
+      <field name="patient_identifier">NHSNUM0001</field>
+      <field name="other_identifier">HOSNUM0001</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_1" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_1'))" name="data_ref" />
+    </record>
+  </data>
+</openerp>

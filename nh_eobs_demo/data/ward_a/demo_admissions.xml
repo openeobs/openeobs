@@ -10,7 +10,7 @@
     </record>
     <record id="nhc_demo_adt_admit_1" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_1" />
-      <field name="patient_id" ref="nhc_demo_patient_1" />
+      <field name="registration" ref="nhc_demo_adt_register_1" />
       <field name="location_id" ref="nhc_def_conf_location_wa" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
