@@ -1,0 +1,764 @@
+<openerp>
+  <data noupdate="1">
+    <!--ADT register data for patient 161-->
+    <record id="nhc_activity_demo_adt_register_161" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_161" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_161" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_161" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_161" />
+      <field name="patient_id" ref="nhc_demo_patient_161" />
+
+      <field name="patient_identifier">NHSNUM0161</field>
+      <field name="other_identifier">HOSNUM0161</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_161" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_161'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 162-->
+    <record id="nhc_activity_demo_adt_register_162" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_162" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_162" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_162" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_162" />
+      <field name="patient_id" ref="nhc_demo_patient_162" />
+
+      <field name="patient_identifier">NHSNUM0162</field>
+      <field name="other_identifier">HOSNUM0162</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_162" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_162'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 163-->
+    <record id="nhc_activity_demo_adt_register_163" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_163" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_163" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_163" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_163" />
+      <field name="patient_id" ref="nhc_demo_patient_163" />
+
+      <field name="patient_identifier">NHSNUM0163</field>
+      <field name="other_identifier">HOSNUM0163</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_163" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_163'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 164-->
+    <record id="nhc_activity_demo_adt_register_164" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_164" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_164" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_164" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_164" />
+      <field name="patient_id" ref="nhc_demo_patient_164" />
+
+      <field name="patient_identifier">NHSNUM0164</field>
+      <field name="other_identifier">HOSNUM0164</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_164" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_164'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 165-->
+    <record id="nhc_activity_demo_adt_register_165" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_165" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_165" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_165" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_165" />
+      <field name="patient_id" ref="nhc_demo_patient_165" />
+
+      <field name="patient_identifier">NHSNUM0165</field>
+      <field name="other_identifier">HOSNUM0165</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_165" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_165'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 166-->
+    <record id="nhc_activity_demo_adt_register_166" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_166" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_166" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_166" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_166" />
+      <field name="patient_id" ref="nhc_demo_patient_166" />
+
+      <field name="patient_identifier">NHSNUM0166</field>
+      <field name="other_identifier">HOSNUM0166</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_166" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_166'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 167-->
+    <record id="nhc_activity_demo_adt_register_167" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_167" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_167" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_167" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_167" />
+      <field name="patient_id" ref="nhc_demo_patient_167" />
+
+      <field name="patient_identifier">NHSNUM0167</field>
+      <field name="other_identifier">HOSNUM0167</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_167" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_167'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 168-->
+    <record id="nhc_activity_demo_adt_register_168" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_168" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_168" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_168" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_168" />
+      <field name="patient_id" ref="nhc_demo_patient_168" />
+
+      <field name="patient_identifier">NHSNUM0168</field>
+      <field name="other_identifier">HOSNUM0168</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_168" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_168'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 169-->
+    <record id="nhc_activity_demo_adt_register_169" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_169" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_169" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_169" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_169" />
+      <field name="patient_id" ref="nhc_demo_patient_169" />
+
+      <field name="patient_identifier">NHSNUM0169</field>
+      <field name="other_identifier">HOSNUM0169</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_169" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_169'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 170-->
+    <record id="nhc_activity_demo_adt_register_170" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_170" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_170" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_170" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_170" />
+      <field name="patient_id" ref="nhc_demo_patient_170" />
+
+      <field name="patient_identifier">NHSNUM0170</field>
+      <field name="other_identifier">HOSNUM0170</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_170" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_170'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 171-->
+    <record id="nhc_activity_demo_adt_register_171" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_171" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_171" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_171" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_171" />
+      <field name="patient_id" ref="nhc_demo_patient_171" />
+
+      <field name="patient_identifier">NHSNUM0171</field>
+      <field name="other_identifier">HOSNUM0171</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_171" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_171'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 172-->
+    <record id="nhc_activity_demo_adt_register_172" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_172" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_172" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_172" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_172" />
+      <field name="patient_id" ref="nhc_demo_patient_172" />
+
+      <field name="patient_identifier">NHSNUM0172</field>
+      <field name="other_identifier">HOSNUM0172</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_172" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_172'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 173-->
+    <record id="nhc_activity_demo_adt_register_173" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_173" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_173" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_173" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_173" />
+      <field name="patient_id" ref="nhc_demo_patient_173" />
+
+      <field name="patient_identifier">NHSNUM0173</field>
+      <field name="other_identifier">HOSNUM0173</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_173" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_173'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 174-->
+    <record id="nhc_activity_demo_adt_register_174" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_174" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_174" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_174" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_174" />
+      <field name="patient_id" ref="nhc_demo_patient_174" />
+
+      <field name="patient_identifier">NHSNUM0174</field>
+      <field name="other_identifier">HOSNUM0174</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_174" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_174'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 175-->
+    <record id="nhc_activity_demo_adt_register_175" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_175" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_175" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_175" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_175" />
+      <field name="patient_id" ref="nhc_demo_patient_175" />
+
+      <field name="patient_identifier">NHSNUM0175</field>
+      <field name="other_identifier">HOSNUM0175</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_175" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_175'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 176-->
+    <record id="nhc_activity_demo_adt_register_176" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_176" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_176" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_176" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_176" />
+      <field name="patient_id" ref="nhc_demo_patient_176" />
+
+      <field name="patient_identifier">NHSNUM0176</field>
+      <field name="other_identifier">HOSNUM0176</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_176" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_176'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 177-->
+    <record id="nhc_activity_demo_adt_register_177" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_177" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_177" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_177" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_177" />
+      <field name="patient_id" ref="nhc_demo_patient_177" />
+
+      <field name="patient_identifier">NHSNUM0177</field>
+      <field name="other_identifier">HOSNUM0177</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_177" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_177'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 178-->
+    <record id="nhc_activity_demo_adt_register_178" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_178" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_178" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_178" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_178" />
+      <field name="patient_id" ref="nhc_demo_patient_178" />
+
+      <field name="patient_identifier">NHSNUM0178</field>
+      <field name="other_identifier">HOSNUM0178</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_178" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_178'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 179-->
+    <record id="nhc_activity_demo_adt_register_179" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_179" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_179" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_179" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_179" />
+      <field name="patient_id" ref="nhc_demo_patient_179" />
+
+      <field name="patient_identifier">NHSNUM0179</field>
+      <field name="other_identifier">HOSNUM0179</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_179" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_179'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 180-->
+    <record id="nhc_activity_demo_adt_register_180" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_180" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_180" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_180" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_180" />
+      <field name="patient_id" ref="nhc_demo_patient_180" />
+
+      <field name="patient_identifier">NHSNUM0180</field>
+      <field name="other_identifier">HOSNUM0180</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_180" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_180'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 181-->
+    <record id="nhc_activity_demo_adt_register_181" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_181" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_181" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_181" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_181" />
+      <field name="patient_id" ref="nhc_demo_patient_181" />
+
+      <field name="patient_identifier">NHSNUM0181</field>
+      <field name="other_identifier">HOSNUM0181</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_181" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_181'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 182-->
+    <record id="nhc_activity_demo_adt_register_182" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_182" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_182" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_182" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_182" />
+      <field name="patient_id" ref="nhc_demo_patient_182" />
+
+      <field name="patient_identifier">NHSNUM0182</field>
+      <field name="other_identifier">HOSNUM0182</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_182" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_182'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 183-->
+    <record id="nhc_activity_demo_adt_register_183" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_183" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_183" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_183" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_183" />
+      <field name="patient_id" ref="nhc_demo_patient_183" />
+
+      <field name="patient_identifier">NHSNUM0183</field>
+      <field name="other_identifier">HOSNUM0183</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_183" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_183'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 184-->
+    <record id="nhc_activity_demo_adt_register_184" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_184" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_184" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_184" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_184" />
+      <field name="patient_id" ref="nhc_demo_patient_184" />
+
+      <field name="patient_identifier">NHSNUM0184</field>
+      <field name="other_identifier">HOSNUM0184</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_184" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_184'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 185-->
+    <record id="nhc_activity_demo_adt_register_185" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_185" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_185" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_185" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_185" />
+      <field name="patient_id" ref="nhc_demo_patient_185" />
+
+      <field name="patient_identifier">NHSNUM0185</field>
+      <field name="other_identifier">HOSNUM0185</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_185" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_185'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 186-->
+    <record id="nhc_activity_demo_adt_register_186" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_186" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_186" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_186" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_186" />
+      <field name="patient_id" ref="nhc_demo_patient_186" />
+
+      <field name="patient_identifier">NHSNUM0186</field>
+      <field name="other_identifier">HOSNUM0186</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_186" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_186'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 187-->
+    <record id="nhc_activity_demo_adt_register_187" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_187" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_187" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_187" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_187" />
+      <field name="patient_id" ref="nhc_demo_patient_187" />
+
+      <field name="patient_identifier">NHSNUM0187</field>
+      <field name="other_identifier">HOSNUM0187</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_187" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_187'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 188-->
+    <record id="nhc_activity_demo_adt_register_188" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_188" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_188" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_188" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_188" />
+      <field name="patient_id" ref="nhc_demo_patient_188" />
+
+      <field name="patient_identifier">NHSNUM0188</field>
+      <field name="other_identifier">HOSNUM0188</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_188" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_188'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 189-->
+    <record id="nhc_activity_demo_adt_register_189" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_189" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_189" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_189" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_189" />
+      <field name="patient_id" ref="nhc_demo_patient_189" />
+
+      <field name="patient_identifier">NHSNUM0189</field>
+      <field name="other_identifier">HOSNUM0189</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_189" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_189'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 190-->
+    <record id="nhc_activity_demo_adt_register_190" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_190" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_190" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_190" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_190" />
+      <field name="patient_id" ref="nhc_demo_patient_190" />
+
+      <field name="patient_identifier">NHSNUM0190</field>
+      <field name="other_identifier">HOSNUM0190</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_190" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_190'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 191-->
+    <record id="nhc_activity_demo_adt_register_191" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_191" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_191" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_191" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_191" />
+      <field name="patient_id" ref="nhc_demo_patient_191" />
+
+      <field name="patient_identifier">NHSNUM0191</field>
+      <field name="other_identifier">HOSNUM0191</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_191" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_191'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 192-->
+    <record id="nhc_activity_demo_adt_register_192" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_192" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_192" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_192" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_192" />
+      <field name="patient_id" ref="nhc_demo_patient_192" />
+
+      <field name="patient_identifier">NHSNUM0192</field>
+      <field name="other_identifier">HOSNUM0192</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_192" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_192'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 193-->
+    <record id="nhc_activity_demo_adt_register_193" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_193" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_193" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_193" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_193" />
+      <field name="patient_id" ref="nhc_demo_patient_193" />
+
+      <field name="patient_identifier">NHSNUM0193</field>
+      <field name="other_identifier">HOSNUM0193</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_193" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_193'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 194-->
+    <record id="nhc_activity_demo_adt_register_194" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_194" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_194" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_194" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_194" />
+      <field name="patient_id" ref="nhc_demo_patient_194" />
+
+      <field name="patient_identifier">NHSNUM0194</field>
+      <field name="other_identifier">HOSNUM0194</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_194" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_194'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 195-->
+    <record id="nhc_activity_demo_adt_register_195" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_195" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_195" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_195" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_195" />
+      <field name="patient_id" ref="nhc_demo_patient_195" />
+
+      <field name="patient_identifier">NHSNUM0195</field>
+      <field name="other_identifier">HOSNUM0195</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_195" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_195'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 196-->
+    <record id="nhc_activity_demo_adt_register_196" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_196" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_196" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_196" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_196" />
+      <field name="patient_id" ref="nhc_demo_patient_196" />
+
+      <field name="patient_identifier">NHSNUM0196</field>
+      <field name="other_identifier">HOSNUM0196</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_196" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_196'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 197-->
+    <record id="nhc_activity_demo_adt_register_197" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_197" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_197" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_197" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_197" />
+      <field name="patient_id" ref="nhc_demo_patient_197" />
+
+      <field name="patient_identifier">NHSNUM0197</field>
+      <field name="other_identifier">HOSNUM0197</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_197" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_197'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 198-->
+    <record id="nhc_activity_demo_adt_register_198" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_198" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_198" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-2)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_198" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_198" />
+      <field name="patient_id" ref="nhc_demo_patient_198" />
+
+      <field name="patient_identifier">NHSNUM0198</field>
+      <field name="other_identifier">HOSNUM0198</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_198" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_198'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 199-->
+    <record id="nhc_activity_demo_adt_register_199" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_199" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_199" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_199" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_199" />
+      <field name="patient_id" ref="nhc_demo_patient_199" />
+
+      <field name="patient_identifier">NHSNUM0199</field>
+      <field name="other_identifier">HOSNUM0199</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_199" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_199'))" name="data_ref" />
+    </record>
+    
+    <!--ADT register data for patient 200-->
+    <record id="nhc_activity_demo_adt_register_200" model="nh.activity">
+      <field name="patient_id" ref="nhc_demo_patient_200" />
+      <field name="parent_id" ref="nhc_activity_demo_spell_200" />
+      <field name="state">completed</field>
+      <field name="data_model">nh.clinical.adt.patient.register</field>
+      <field eval="(datetime.now() + timedelta(-1)).strftime('%Y-%m-%d %H:%M:%S')" name="date_terminated" />
+    </record>
+    <record id="nhc_demo_adt_register_200" model="nh.clinical.adt.patient.register">
+      <field name="activity_id" ref="nhc_activity_demo_adt_register_200" />
+      <field name="patient_id" ref="nhc_demo_patient_200" />
+
+      <field name="patient_identifier">NHSNUM0200</field>
+      <field name="other_identifier">HOSNUM0200</field>
+    </record>
+    <record id="nhc_activity_demo_adt_register_200" model="nh.activity">
+      <field eval="'nh.clinical.adt.patient.register,' + str(ref('nhc_demo_adt_register_200'))" name="data_ref" />
+    </record>
+    
+  </data>
+</openerp>
