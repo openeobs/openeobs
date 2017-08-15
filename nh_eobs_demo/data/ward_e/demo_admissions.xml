@@ -10,7 +10,7 @@
     </record>
     <record id="nhc_demo_adt_admit_161" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_161" />
-      <field name="patient_id" ref="nhc_demo_patient_161" />
+      <field name="registration" ref="nhc_demo_adt_register_161" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -72,7 +72,7 @@
     </record>
     <record id="nhc_demo_adt_admit_162" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_162" />
-      <field name="patient_id" ref="nhc_demo_patient_162" />
+      <field name="registration" ref="nhc_demo_adt_register_162" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -134,7 +134,7 @@
     </record>
     <record id="nhc_demo_adt_admit_163" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_163" />
-      <field name="patient_id" ref="nhc_demo_patient_163" />
+      <field name="registration" ref="nhc_demo_adt_register_163" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -196,7 +196,7 @@
     </record>
     <record id="nhc_demo_adt_admit_164" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_164" />
-      <field name="patient_id" ref="nhc_demo_patient_164" />
+      <field name="registration" ref="nhc_demo_adt_register_164" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -258,7 +258,7 @@
     </record>
     <record id="nhc_demo_adt_admit_165" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_165" />
-      <field name="patient_id" ref="nhc_demo_patient_165" />
+      <field name="registration" ref="nhc_demo_adt_register_165" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -320,7 +320,7 @@
     </record>
     <record id="nhc_demo_adt_admit_166" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_166" />
-      <field name="patient_id" ref="nhc_demo_patient_166" />
+      <field name="registration" ref="nhc_demo_adt_register_166" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -382,7 +382,7 @@
     </record>
     <record id="nhc_demo_adt_admit_167" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_167" />
-      <field name="patient_id" ref="nhc_demo_patient_167" />
+      <field name="registration" ref="nhc_demo_adt_register_167" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -444,7 +444,7 @@
     </record>
     <record id="nhc_demo_adt_admit_168" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_168" />
-      <field name="patient_id" ref="nhc_demo_patient_168" />
+      <field name="registration" ref="nhc_demo_adt_register_168" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -506,7 +506,7 @@
     </record>
     <record id="nhc_demo_adt_admit_169" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_169" />
-      <field name="patient_id" ref="nhc_demo_patient_169" />
+      <field name="registration" ref="nhc_demo_adt_register_169" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -568,7 +568,7 @@
     </record>
     <record id="nhc_demo_adt_admit_170" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_170" />
-      <field name="patient_id" ref="nhc_demo_patient_170" />
+      <field name="registration" ref="nhc_demo_adt_register_170" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -630,7 +630,7 @@
     </record>
     <record id="nhc_demo_adt_admit_171" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_171" />
-      <field name="patient_id" ref="nhc_demo_patient_171" />
+      <field name="registration" ref="nhc_demo_adt_register_171" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -692,7 +692,7 @@
     </record>
     <record id="nhc_demo_adt_admit_172" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_172" />
-      <field name="patient_id" ref="nhc_demo_patient_172" />
+      <field name="registration" ref="nhc_demo_adt_register_172" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -754,7 +754,7 @@
     </record>
     <record id="nhc_demo_adt_admit_173" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_173" />
-      <field name="patient_id" ref="nhc_demo_patient_173" />
+      <field name="registration" ref="nhc_demo_adt_register_173" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -816,7 +816,7 @@
     </record>
     <record id="nhc_demo_adt_admit_174" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_174" />
-      <field name="patient_id" ref="nhc_demo_patient_174" />
+      <field name="registration" ref="nhc_demo_adt_register_174" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -878,7 +878,7 @@
     </record>
     <record id="nhc_demo_adt_admit_175" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_175" />
-      <field name="patient_id" ref="nhc_demo_patient_175" />
+      <field name="registration" ref="nhc_demo_adt_register_175" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -940,7 +940,7 @@
     </record>
     <record id="nhc_demo_adt_admit_176" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_176" />
-      <field name="patient_id" ref="nhc_demo_patient_176" />
+      <field name="registration" ref="nhc_demo_adt_register_176" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1002,7 +1002,7 @@
     </record>
     <record id="nhc_demo_adt_admit_177" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_177" />
-      <field name="patient_id" ref="nhc_demo_patient_177" />
+      <field name="registration" ref="nhc_demo_adt_register_177" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1064,7 +1064,7 @@
     </record>
     <record id="nhc_demo_adt_admit_178" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_178" />
-      <field name="patient_id" ref="nhc_demo_patient_178" />
+      <field name="registration" ref="nhc_demo_adt_register_178" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1126,7 +1126,7 @@
     </record>
     <record id="nhc_demo_adt_admit_179" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_179" />
-      <field name="patient_id" ref="nhc_demo_patient_179" />
+      <field name="registration" ref="nhc_demo_adt_register_179" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1188,7 +1188,7 @@
     </record>
     <record id="nhc_demo_adt_admit_180" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_180" />
-      <field name="patient_id" ref="nhc_demo_patient_180" />
+      <field name="registration" ref="nhc_demo_adt_register_180" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1250,7 +1250,7 @@
     </record>
     <record id="nhc_demo_adt_admit_181" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_181" />
-      <field name="patient_id" ref="nhc_demo_patient_181" />
+      <field name="registration" ref="nhc_demo_adt_register_181" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1312,7 +1312,7 @@
     </record>
     <record id="nhc_demo_adt_admit_182" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_182" />
-      <field name="patient_id" ref="nhc_demo_patient_182" />
+      <field name="registration" ref="nhc_demo_adt_register_182" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1374,7 +1374,7 @@
     </record>
     <record id="nhc_demo_adt_admit_183" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_183" />
-      <field name="patient_id" ref="nhc_demo_patient_183" />
+      <field name="registration" ref="nhc_demo_adt_register_183" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1436,7 +1436,7 @@
     </record>
     <record id="nhc_demo_adt_admit_184" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_184" />
-      <field name="patient_id" ref="nhc_demo_patient_184" />
+      <field name="registration" ref="nhc_demo_adt_register_184" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1498,7 +1498,7 @@
     </record>
     <record id="nhc_demo_adt_admit_185" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_185" />
-      <field name="patient_id" ref="nhc_demo_patient_185" />
+      <field name="registration" ref="nhc_demo_adt_register_185" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1560,7 +1560,7 @@
     </record>
     <record id="nhc_demo_adt_admit_186" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_186" />
-      <field name="patient_id" ref="nhc_demo_patient_186" />
+      <field name="registration" ref="nhc_demo_adt_register_186" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1622,7 +1622,7 @@
     </record>
     <record id="nhc_demo_adt_admit_187" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_187" />
-      <field name="patient_id" ref="nhc_demo_patient_187" />
+      <field name="registration" ref="nhc_demo_adt_register_187" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1684,7 +1684,7 @@
     </record>
     <record id="nhc_demo_adt_admit_188" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_188" />
-      <field name="patient_id" ref="nhc_demo_patient_188" />
+      <field name="registration" ref="nhc_demo_adt_register_188" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1746,7 +1746,7 @@
     </record>
     <record id="nhc_demo_adt_admit_189" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_189" />
-      <field name="patient_id" ref="nhc_demo_patient_189" />
+      <field name="registration" ref="nhc_demo_adt_register_189" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1808,7 +1808,7 @@
     </record>
     <record id="nhc_demo_adt_admit_190" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_190" />
-      <field name="patient_id" ref="nhc_demo_patient_190" />
+      <field name="registration" ref="nhc_demo_adt_register_190" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1870,7 +1870,7 @@
     </record>
     <record id="nhc_demo_adt_admit_191" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_191" />
-      <field name="patient_id" ref="nhc_demo_patient_191" />
+      <field name="registration" ref="nhc_demo_adt_register_191" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1932,7 +1932,7 @@
     </record>
     <record id="nhc_demo_adt_admit_192" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_192" />
-      <field name="patient_id" ref="nhc_demo_patient_192" />
+      <field name="registration" ref="nhc_demo_adt_register_192" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -1994,7 +1994,7 @@
     </record>
     <record id="nhc_demo_adt_admit_193" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_193" />
-      <field name="patient_id" ref="nhc_demo_patient_193" />
+      <field name="registration" ref="nhc_demo_adt_register_193" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2056,7 +2056,7 @@
     </record>
     <record id="nhc_demo_adt_admit_194" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_194" />
-      <field name="patient_id" ref="nhc_demo_patient_194" />
+      <field name="registration" ref="nhc_demo_adt_register_194" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2118,7 +2118,7 @@
     </record>
     <record id="nhc_demo_adt_admit_195" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_195" />
-      <field name="patient_id" ref="nhc_demo_patient_195" />
+      <field name="registration" ref="nhc_demo_adt_register_195" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2180,7 +2180,7 @@
     </record>
     <record id="nhc_demo_adt_admit_196" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_196" />
-      <field name="patient_id" ref="nhc_demo_patient_196" />
+      <field name="registration" ref="nhc_demo_adt_register_196" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2242,7 +2242,7 @@
     </record>
     <record id="nhc_demo_adt_admit_197" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_197" />
-      <field name="patient_id" ref="nhc_demo_patient_197" />
+      <field name="registration" ref="nhc_demo_adt_register_197" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2304,7 +2304,7 @@
     </record>
     <record id="nhc_demo_adt_admit_198" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_198" />
-      <field name="patient_id" ref="nhc_demo_patient_198" />
+      <field name="registration" ref="nhc_demo_adt_register_198" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2366,7 +2366,7 @@
     </record>
     <record id="nhc_demo_adt_admit_199" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_199" />
-      <field name="patient_id" ref="nhc_demo_patient_199" />
+      <field name="registration" ref="nhc_demo_adt_register_199" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
@@ -2428,7 +2428,7 @@
     </record>
     <record id="nhc_demo_adt_admit_200" model="nh.clinical.adt.patient.admit">
       <field name="activity_id" ref="nhc_activity_demo_adt_admit_200" />
-      <field name="patient_id" ref="nhc_demo_patient_200" />
+      <field name="registration" ref="nhc_demo_adt_register_200" />
       <field name="location_id" ref="nhc_def_conf_location_we" />
       <field name="pos_id" ref="nh_clinical.nhc_location_default_pos" />
       <field name="location">A</field>
