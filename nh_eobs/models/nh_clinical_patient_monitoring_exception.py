@@ -82,6 +82,16 @@ class PatientMonitoringException(models.Model):
              if activity.date_started >= date]
         return len(pme_activities_started_after_date) > 0
 
+    def get_hours_active(self):
+        datetime_utils = self.env['datetime_utils']
+        now = datetime_utils.get_current_time()
+        date_started = datetime_utils.parse_datetime_str_from_known_format(
+            self.date_started)
+        timedelta = now - date_started
+        # Relies on integer math automatically rounding down.
+        full_hours_elapsed = timedelta.seconds / 60 / 60
+        return full_hours_elapsed
+
 
 class PatientMonitoringExceptionReason(models.Model):
     """

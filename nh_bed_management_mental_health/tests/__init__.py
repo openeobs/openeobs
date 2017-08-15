@@ -1,0 +1,1 @@
+from .nh_clinical_bed_availability import *

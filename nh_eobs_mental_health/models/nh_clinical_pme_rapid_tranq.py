@@ -106,8 +106,7 @@ class NhClinicalRapidTranq(models.Model):
         spell = spell_activity.data_ref
 
         if spell.rapid_tranq:
-            activity_rapid_tranq = self.get_open_activity(
-                'nh.clinical.pme.rapid_tranq', spell_activity.id)
+            activity_rapid_tranq = self.get_open_activity(spell_activity.id)
             rapid_tranq = activity_rapid_tranq.data_ref
 
             rapid_tranq.complete(activity_rapid_tranq.id)
