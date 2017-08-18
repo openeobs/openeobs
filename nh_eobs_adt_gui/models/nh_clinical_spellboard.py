@@ -9,12 +9,11 @@ rules in PostgreSQL (google 'updateable views'). You can think of this model
 as a proxy that is only used as a means of updating various other underlying
 models.
 """
-import re
-import logging
 import copy
+import logging
 
+import re
 from openerp.osv import orm, fields, osv
-
 
 _logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ class nh_clinical_spellboard(orm.Model):
     _description = "Spell Management View"
     _auto = False
     _table = "nh_clinical_spellboard"
-    _rec_name = 'patient_id'
+    _rec_name = 'registration'
     _states = [('new', 'New'), ('scheduled', 'Scheduled'),
                ('started', 'Started'), ('completed', 'Completed'),
                ('cancelled', 'Cancelled')]
@@ -46,8 +45,8 @@ class nh_clinical_spellboard(orm.Model):
     _columns = {
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
                                        ondelete='restrict'),
-        'patient_id': fields.many2one('nh.clinical.patient', 'Patient',
-                                      required=True),
+        'registration': fields.many2one(
+            'nh.clinical.adt.patient.register', 'Patient', required=True),
         'location_id': fields.many2one('nh.clinical.location',
                                        'Current Location', required=True),
         'ward_id': fields.function(
@@ -79,19 +78,19 @@ class nh_clinical_spellboard(orm.Model):
                     select
                         spell_activity.id as id,
                         spell_activity.id as activity_id,
-                        spell.patient_id as patient_id,
+                        register.id as registration,
                         spell.location_id as location_id,
                         spell.pos_id as pos_id,
                         spell.code as code,
                         spell.start_date as start_date,
                         spell.move_date as move_date,
-                        patient.other_identifier as hospital_number,
-                        patient.patient_identifier as nhs_number
+                        register.other_identifier as hospital_number,
+                        register.patient_identifier as nhs_number
                     from nh_activity spell_activity
                     inner join nh_clinical_spell spell
                         on spell.activity_id = spell_activity.id
-                    inner join nh_clinical_patient patient
-                        on spell.patient_id = patient.id
+                    inner join nh_clinical_adt_patient_register register
+                        on spell.patient_id = register.patient_id
                     where spell_activity.data_model = 'nh.clinical.spell'
                 )
         """ % (self._table, self._table))
@@ -112,30 +111,32 @@ class nh_clinical_spellboard(orm.Model):
         """
         if not context:
             context = dict()
-        patient_api = self.pool['nh.clinical.patient']
+        patient_pool = self.pool['nh.clinical.patient']
         if data.get('hospital_number'):
-            patient_id = patient_api.search(
+            patient_id = patient_pool.search(
                 cr, uid,
                 [['other_identifier', '=', data.get('hospital_number')]],
                 context=context)
             data['patient_id'] = patient_id[0] if patient_id else False
         elif data.get('nhs_number'):
-            patient_id = patient_api.search(
+            patient_id = patient_pool.search(
                 cr, uid,
                 [['patient_identifier', '=', data.get('nhs_number')]],
                 context=context)
             data['patient_id'] = patient_id[0] if patient_id else False
 
-    def patient_id_change(self, cr, uid, ids, patient_id, context=None):
+    def patient_id_change(self, cr, uid, ids, registration_id, context=None):
         """Fills hospital_number and nhs_number fields."""
-        patient_pool = self.pool['nh.clinical.patient']
         result = {'hospital_number': False, 'nhs_number': False}
 
-        if patient_id:
-            patient = patient_pool.browse(
-                cr, uid, [patient_id], context=context)
-            result = {'hospital_number': patient.other_identifier,
-                      'nhs_number': patient.patient_identifier}
+        if registration_id:
+            adt_register_pool = self.pool['nh.clinical.adt.patient.register']
+            registration = adt_register_pool.browse(
+                cr, uid, [registration_id], context=context)
+            result = {
+                'hospital_number': registration.other_identifier,
+                'nhs_number': registration.patient_identifier
+            }
         return {'value': result}
 
     def create(self, cr, uid, vals, context=None):
@@ -156,40 +157,46 @@ class nh_clinical_spellboard(orm.Model):
             if not vals.get('patient_id'):
                 raise orm.except_orm('Validation Error!', 'Patient not found!')
         api = self.pool['nh.eobs.api']
-        patient_pool = self.pool['nh.clinical.patient']
         location_pool = self.pool['nh.clinical.location']
         activity_pool = self.pool['nh.activity']
-        patient = patient_pool.read(
-            cr, uid, vals.get('patient_id'),
-            ['other_identifier', 'patient_identifier'], context=context)
+        adt_register_pool = self.pool['nh.clinical.adt.patient.register']
+
+        registration = adt_register_pool.browse(
+            cr, uid, vals.get('registration'), context=context)
+        # Creates the patient.
+        registration.complete(registration.activity_id.id, context=context)
+
+        patient = registration.patient_id
         location = location_pool.read(
             cr, uid, vals.get('location_id'), ['code'], context=context)
-        api.admit(cr, uid, patient['other_identifier'], {
+
+        api.admit(cr, uid, patient.other_identifier, {
             'code': vals.get('code'),
-            'patient_identifier': patient['patient_identifier'],
+            'patient_identifier': patient.patient_identifier,
             'location': location['code'],
             'date_started': vals.get('start_date'),  # Activity field
             'start_date': vals.get('start_date'),  # ADT admit field
             'ref_doctor_ids': vals.get('ref_doctor_ids'),
             'con_doctor_ids': vals.get('con_doctor_ids')
         }, context=context)
-        api.admit_update(cr, uid, patient['other_identifier'], {
+
+        api.admit_update(cr, uid, patient.other_identifier, {
             'date_started': vals.get('start_date'),  # Activity field
             'start_date': vals.get('start_date'),  # ADT spell update field
-            'patient_identifier': patient['patient_identifier'],
+            'patient_identifier': patient.patient_identifier,
             'location': location['code'],
         })
         spell_activity_id = activity_pool.search(
-            cr, uid, [['patient_id', '=', vals.get('patient_id')],
+            cr, uid, [['patient_id', '=', patient.id],
                       ['state', 'not in', ['completed', 'cancelled']],
                       ['data_model', '=', 'nh.clinical.spell']],
             context=context)
         if not spell_activity_id:
             osv.except_osv('Error!', 'Spell does not exist after admission!')
-        activity_pool.write(cr, uid, spell_activity_id,
-                            {
-                                'date_started': vals.get('start_date')
-                            })
+        activity_pool.write(
+            cr, uid, spell_activity_id,
+            {'date_started': vals.get('start_date')}
+        )
         return spell_activity_id
 
     def read(self, cr, uid, ids, fields=None, context=None,

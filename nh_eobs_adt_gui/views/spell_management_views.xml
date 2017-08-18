@@ -6,7 +6,7 @@
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
                 <search string="Spell Search View">
-                    <field name="patient_id"/>
+                    <field name="registration"/>
                     <field name="location_id"/>
                     <field name="pos_id"/>
                     <group expand="1" string="Group By...">
@@ -21,7 +21,7 @@
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
                 <tree string="Spell Tree View" version="7.0" create="0" edit="0" delete="0">
-                   <field name="patient_id"/>
+                   <field name="registration"/>
                    <field name="code"/>
                    <field name="location_id"/>
                    <field name="ward_id"/>
@@ -35,7 +35,7 @@
             <field name="model">nh.clinical.spellboard</field>
             <field name="arch" type="xml">
                 <tree string="Spell Tree View" version="7.0" delete="0">
-                   <field name="patient_id"/>
+                   <field name="registration"/>
                    <field name="code"/>
                    <field name="location_id"/>
                    <field name="ward_id"/>
@@ -55,7 +55,7 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id"/>
+                            <field name="registration"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}"/>
@@ -91,7 +91,7 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]"/>
+                            <field name="registration" placeholder="Please Select or Enter Name" on_change="patient_id_change(registration)" domain="[['[patient_id.not_admitted', '=', True]]"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}" />
@@ -127,7 +127,7 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]"/>
+                            <field name="registration" placeholder="Please Select or Enter Name" on_change="patient_id_change(registration)" domain="[['patient_id.not_admitted', '=', True]]"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" placeholder="Enter Patient NHS Number" attrs="{'readonly': True}"/>
                             <field name="hospital_number" placeholder="Enter Patient Hospital Number" attrs="{'readonly': True}" />
