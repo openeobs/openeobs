@@ -27,7 +27,6 @@ class nh_clinical_spellboard(orm.Model):
     _description = "Spell Management View"
     _auto = False
     _table = "nh_clinical_spellboard"
-    _rec_name = 'registration'
     _states = [('new', 'New'), ('scheduled', 'Scheduled'),
                ('started', 'Started'), ('completed', 'Completed'),
                ('cancelled', 'Cancelled')]
@@ -43,6 +42,8 @@ class nh_clinical_spellboard(orm.Model):
         return res
 
     _columns = {
+        'name': fields.related(
+            'registration', 'name', type='char'),
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
                                        ondelete='restrict'),
         'registration': fields.many2one(
