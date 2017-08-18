@@ -43,8 +43,6 @@ class nh_clinical_spellboard(orm.Model):
         return res
 
     _columns = {
-        'name': fields.related(
-            'registration', 'name', type='char'),
         'activity_id': fields.many2one('nh.activity', 'Activity', required=1,
                                        ondelete='restrict'),
         'registration': fields.many2one(
