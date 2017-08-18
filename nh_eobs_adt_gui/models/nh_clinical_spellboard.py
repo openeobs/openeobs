@@ -25,6 +25,7 @@ class nh_clinical_spellboard(orm.Model):
     _name = "nh.clinical.spellboard"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Spell Management View"
+    _rec_name = 'registration'
     _auto = False
     _table = "nh_clinical_spellboard"
     _states = [('new', 'New'), ('scheduled', 'Scheduled'),
