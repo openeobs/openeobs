@@ -163,8 +163,17 @@ class nh_clinical_spellboard(orm.Model):
 
         registration = adt_register_pool.browse(
             cr, uid, vals.get('registration'), context=context)
+        data_ref = '{},{}'.format(adt_register_pool._name, registration.id)
+        registration_activity_id = registration.create_activity(
+            cr, uid,
+            {
+                'data_ref': data_ref
+            },
+            {},
+            context=context
+        )
         # Creates the patient.
-        registration.complete(registration.activity_id.id, context=context)
+        registration.complete(registration_activity_id, context=context)
 
         patient = registration.patient_id
         location = location_pool.read(
