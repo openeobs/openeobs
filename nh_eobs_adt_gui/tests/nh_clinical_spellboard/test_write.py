@@ -20,7 +20,6 @@ class TestWrite(TransactionCase):
         if start_date is None:
             start_date = self.start_date
         values = {
-            'patient_id': self.patient.id,
             'location_id': self.ward.id,
             'start_date': start_date,
             'registration': self.register.id

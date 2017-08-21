@@ -57,7 +57,6 @@ class TestSpellManagementPatientUpdate(SingleTransactionCase):
 
         # Create a patient visit
         self.spell_id = self.spellboard_pool.create(cr, adt, {
-            'patient_id': patient,
             'location_id': location,
             'code': 'TESTPATIENTSPELL',
             'start_date': '2016-07-18 00:00:00',
