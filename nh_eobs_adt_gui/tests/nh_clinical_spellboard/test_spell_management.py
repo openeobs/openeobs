@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from collections import namedtuple
-from mock import MagicMock
 
+from mock import MagicMock
+from openerp.exceptions import ValidationError
 from openerp.tests.common import SingleTransactionCase
 
 
@@ -11,6 +12,8 @@ class TestSpellManagement(SingleTransactionCase):
     def setUp(self):
         super(TestSpellManagement, self).setUp()
         self.spellboard_pool = self.registry('nh.clinical.spellboard')
+        self.spellboard_model = self.env['nh.clinical.spellboard']
+        self.test_utils = self.env['nh.clinical.test_utils']
 
     def test_fetch_patient_id_adds_patient_id_to_data_dict_if_found_it(self):
 
@@ -26,7 +29,7 @@ class TestSpellManagement(SingleTransactionCase):
             return [47]
 
         patient_api._patch_method('search', mock_search_returning_patient_id)
-        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        self.spellboard_model.fetch_patient_id(data)
         patient_api._revert_method('search')
 
         self.assertIn('patient_id', data)
@@ -41,7 +44,7 @@ class TestSpellManagement(SingleTransactionCase):
             return []
 
         patient_api._patch_method('search', mock_search_returning_empty_list)
-        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        self.spellboard_model.fetch_patient_id(data)
         patient_api._revert_method('search')
 
         self.assertIn('patient_id', data)
@@ -55,7 +58,7 @@ class TestSpellManagement(SingleTransactionCase):
             return [47]
 
         patient_api._patch_method('search', mock_search_returning_patient_id)
-        self.spellboard_pool.fetch_patient_id(self.cr, self.uid, data)
+        self.spellboard_model.fetch_patient_id(data)
         patient_api._revert_method('search')
 
         self.assertIn('hospital_number', data)
@@ -104,3 +107,68 @@ class TestSpellManagement(SingleTransactionCase):
         self.assertEqual(context['default_patient_id'], 1)
         self.assertEqual(context['default_ward_id'], 2)
         self.assertEqual(context['default_nhs_number'], 'nhsnum1')
+
+    def test_name_field_value_is_patient_full_name(self):
+        """
+        The 'name' field is used in the UI for various elements. When viewing
+        the register data we want to see the name of the patient the register
+        concerns.
+        """
+        self.test_utils.create_locations()
+        self.test_utils.create_and_register_patient()
+
+        self.spellboard_model = self.env['nh.clinical.spellboard']
+        spellboard = self.spellboard_model.create({
+            'registration': self.test_utils.register.id,
+            'location_id': self.test_utils.bed.id
+        })
+        expected = 'Testersen, Test'
+        actual = spellboard.display_name
+
+        self.assertEqual(expected, actual)
+
+    def test_handles_registration_activity_already_created(self):
+        self.test_utils.create_locations()
+        self.test_utils.create_and_register_patient()
+
+    def test_creates_registration_activity_if_it_doesnt_already_exist(self):
+        self.test_utils.create_locations()
+        register_model = self.env['nh.clinical.adt.patient.register']
+        registration = register_model.create({
+            'other_identifier': 'HOS001',
+            'given_name': 'Given',
+            'family_name': 'Family'
+        })
+
+        activity_model = self.env['nh.activity']
+        data_ref = '{},{}'.format(register_model._name, registration.id)
+        domain = [('data_ref', '=', data_ref)]
+        registration_activity_search_results_before = \
+            activity_model.search(domain)
+        self.assertFalse(registration_activity_search_results_before)
+
+        self.spellboard_model.create({
+            'registration': registration.id,
+            'location_id': self.test_utils.bed.id
+        })
+
+        registration_activity_search_results_after = \
+            activity_model.search(domain)
+        self.assertTrue(registration_activity_search_results_after)
+
+    def test_returns_friendly_error_if_registration_not_already_created(self):
+        """
+        Spellboard records cannot be created without an existing registration
+        to reference (`registration` is a required field). A friendly error
+        message should be returned explaining this is a valid registration ID
+        is not passed at creation.
+        """
+        self.test_utils.create_locations()
+        with self.assertRaises(ValidationError) as error:
+            self.spellboard_model.create({
+                'location_id': self.test_utils.bed.id
+            })
+        expected = "Missing required field registration. A registration " \
+                   "must be created first!"
+        actual = error.exception.value
+        self.assertEqual(expected, actual)

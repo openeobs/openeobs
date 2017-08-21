@@ -13,6 +13,7 @@ import copy
 import logging
 
 import re
+from openerp.exceptions import ValidationError
 from openerp.osv import orm, fields, osv
 
 _logger = logging.getLogger(__name__)
@@ -160,6 +161,10 @@ class nh_clinical_spellboard(orm.Model):
             self.fetch_patient_id(cr, uid, vals, context=context)
             if not vals.get('patient_id'):
                 raise orm.except_orm('Validation Error!', 'Patient not found!')
+        if not vals.get('registration'):
+            raise ValidationError("Missing required field registration. "
+                                  "A registration must be created first!")
+
         api = self.pool['nh.eobs.api']
         location_pool = self.pool['nh.clinical.location']
         activity_pool = self.pool['nh.activity']
@@ -175,7 +180,7 @@ class nh_clinical_spellboard(orm.Model):
         # activity before the registration record.
         if not registration.activity_id:
             data_ref = '{},{}'.format(adt_register_pool._name, registration.id)
-            adt_register_pool.create_activity(
+            registration_activity_id = adt_register_pool.create_activity(
                 cr, uid,
                 {
                     'data_ref': data_ref
@@ -183,6 +188,9 @@ class nh_clinical_spellboard(orm.Model):
                 {},
                 context=context
             )
+            registration.write({
+                'activity_id': registration_activity_id
+            })
         if registration.activity_id.state not in ['completed', 'cancelled']:
             # Creates the patient.
             registration.complete(registration.activity_id.id, context=context)
