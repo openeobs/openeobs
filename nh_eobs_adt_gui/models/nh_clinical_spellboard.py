@@ -164,7 +164,7 @@ class nh_clinical_spellboard(orm.Model):
         registration = adt_register_pool.browse(
             cr, uid, vals.get('registration'), context=context)
         data_ref = '{},{}'.format(adt_register_pool._name, registration.id)
-        registration_activity_id = registration.create_activity(
+        registration_activity_id = adt_register_pool.create_activity(
             cr, uid,
             {
                 'data_ref': data_ref
