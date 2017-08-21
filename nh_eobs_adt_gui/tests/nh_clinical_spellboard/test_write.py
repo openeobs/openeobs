@@ -11,6 +11,7 @@ class TestWrite(TransactionCase):
         self.test_utils.create_locations()
         self.test_utils.copy_instance_variables(self)
         self.ward = self.test_utils.ward
+        self.register = self.test_utils.register
 
         self.spellboard_model = self.env['nh.clinical.spellboard']
         self.start_date = '2017-06-01 10:00:00'
@@ -21,7 +22,8 @@ class TestWrite(TransactionCase):
         values = {
             'patient_id': self.patient.id,
             'location_id': self.ward.id,
-            'start_date': start_date
+            'start_date': start_date,
+            'registration': self.register.id
         }
         self.spellboard = self.spellboard_model.create(values)
 

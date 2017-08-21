@@ -33,7 +33,7 @@ class TestSpellManagementPatientUpdate(SingleTransactionCase):
             adt = adt[0]
 
         # Create a patient
-        self.api_pool.register(cr, adt, 'HOSPTESTPATIENT', {
+        register_id = self.api_pool.register(cr, adt, 'HOSPTESTPATIENT', {
             'given_name': 'Test',
             'family_name': 'Patient',
             'patient_identifier': 'NHSTESTPATIENT'
@@ -60,7 +60,8 @@ class TestSpellManagementPatientUpdate(SingleTransactionCase):
             'patient_id': patient,
             'location_id': location,
             'code': 'TESTPATIENTSPELL',
-            'start_date': '2016-07-18 00:00:00'
+            'start_date': '2016-07-18 00:00:00',
+            'registration': register_id
         })
 
     def test_updates_patient_name(self):

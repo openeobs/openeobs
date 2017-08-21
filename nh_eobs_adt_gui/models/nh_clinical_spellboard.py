@@ -142,6 +142,10 @@ class nh_clinical_spellboard(orm.Model):
     def create(self, cr, uid, vals, context=None):
         """
         Admits a patients or raises an exception.
+        A registration must already exist before this is called as the UI flow
+        for the user means that they click through on the registration field
+        to create one before going back to the spellboard view to create a
+        spellboard record (calling this method).
 
         :param vals: must contain keys ``patient_id``, ``location_id``,
             ``code``, ``start_date``, ``ref_doctor_ids`` and
@@ -163,17 +167,25 @@ class nh_clinical_spellboard(orm.Model):
 
         registration = adt_register_pool.browse(
             cr, uid, vals.get('registration'), context=context)
-        data_ref = '{},{}'.format(adt_register_pool._name, registration.id)
-        registration_activity_id = adt_register_pool.create_activity(
-            cr, uid,
-            {
-                'data_ref': data_ref
-            },
-            {},
-            context=context
-        )
-        # Creates the patient.
-        registration.complete(registration_activity_id, context=context)
+
+        # The conditions below are necessary to accommodate both the UI flow
+        # (where a register record is created from the view without an
+        # activity) and calls from the code where the
+        # `create_activity` -> `submit` pattern can be used to create the
+        # activity before the registration record.
+        if not registration.activity_id:
+            data_ref = '{},{}'.format(adt_register_pool._name, registration.id)
+            adt_register_pool.create_activity(
+                cr, uid,
+                {
+                    'data_ref': data_ref
+                },
+                {},
+                context=context
+            )
+        if registration.activity_id.state not in ['completed', 'cancelled']:
+            # Creates the patient.
+            registration.complete(registration.activity_id.id, context=context)
 
         patient = registration.patient_id
         location = location_pool.read(
