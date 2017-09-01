@@ -491,13 +491,6 @@ openerp.nh_eobs = function (instance) {
                         if (d.partial_reason === 'refused' && self.refused || d.is_partial && self.partial_type === 'character'){
                             d.score = false;
                         }
-
-
-                        var date_els = d.date_terminated.match(date_regex);
-                        var dt = new Date(date_els[1], (parseInt(date_els[2]) - 1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
-                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
-                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0' + (dt.getMonth() + 1)).slice(-2) + "/" + ('0' + (dt.getFullYear())).slice(-2) + " " + ('0' + (dt.getHours())).slice(-2) + ":" + ('0' + (dt.getMinutes())).slice(-2);
-
                         d.oxygen_administration_device = 'No';
                         if (d.flow_rate && d.flow_rate > -1 || d.concentration && d.concentration > -1 || d.oxygen_administration_flag) {
                             plotO2 = true;
@@ -713,156 +706,6 @@ openerp.nh_eobs = function (instance) {
         }
     });
     instance.web.form.widgets.add('nh_prescribe', 'instance.nh_eobs.PrescribeWidget');
-
-    //Blood Sugar Observations Graph widget
-    instance.nh_eobs.BloodSugarChartWidget = instance.web.form.AbstractField.extend({
-        template: 'nh_bschart',
-        className: 'nh_bsschart',
-
-
-        init: function (field_manager, node) {
-            console.log("SUGARCHART INIT");
-            this._super(field_manager, node);
-            this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
-            this.dataset.o2m = this;
-            this.dataset.parent_view = this.view;
-            this.dataset.child_name = this.name;
-            var self = this
-        },
-        start: function () {
-            this._super();
-            var self = this;
-
-            var vid = this.view.dataset.context.active_id;
-            this.model = new instance.web.Model('nh.eobs.api');
-
-            var recData = this.model.call('get_activities_for_spell', [this.view.dataset.ids[0], 'blood_sugar'], {context: this.view.dataset.context}).done(function (records) {
-                var svg = new window.NH.NHGraphLib('#chart');
-
-                var obs = records.reverse();
-                if (obs.length > 0) {
-                    /*records.forEach(function(d){
-                     d.date_started = svg.startParse(d.date_terminated);
-                     d.score = d.blood_sugar;
-                     d.blood_sugar_null = false;
-                     });*/
-
-                    obs.forEach(function (d) {
-                        var date_els = d.date_terminated.match(date_regex);
-                        var dt = new Date(date_els[1], (parseInt(date_els[2]) - 1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
-                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
-                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0' + (dt.getMonth() + 1)).slice(-2) + "/" + ('0' + (dt.getFullYear())).slice(-2) + " " + ('0' + (dt.getHours())).slice(-2) + ":" + ('0' + (dt.getMinutes())).slice(-2);
-                    });
-
-                    var bs_extent = nh_graphs.extent(obs, function (d) {
-                        return d['blood_sugar'];
-                    });
-
-                    var bs_graph = new window.NH.NHGraph();
-                    bs_graph.options.keys = ['blood_sugar'];
-                    bs_graph.options.label = 'BS';
-                    bs_graph.options.measurement = 'mmol/L';
-                    bs_graph.axes.y.min = bs_extent[0] - 10;
-                    bs_graph.axes.y.max = bs_extent[1] + 10;
-                    bs_graph.options.normal.min = 4;
-                    bs_graph.options.normal.max = 7;
-                    bs_graph.style.dimensions.height = 250;
-                    bs_graph.style.data_style = 'linear';
-                    bs_graph.style.label_width = 60;
-
-
-                    var focus = new window.NH.NHFocus();
-                    focus.graphs.push(bs_graph);
-                    focus.style.padding.right = 0;
-                    focus.style.margin.top = 80;
-                    svg.focus = focus;
-                    svg.data.raw = obs;
-                    svg.init();
-                    svg.draw();
-
-
-                } else {
-                    d3.select(svg.el).append("text").text("No data available for this patient");
-                }
-            });
-        }
-    });
-    instance.web.form.widgets.add('nh_bschart', 'instance.nh_eobs.BloodSugarChartWidget');
-
-    //Weight Observations Graph widget.
-    instance.nh_eobs.WeightChartWidget = instance.web.form.AbstractField.extend({
-        template: 'nh_weightchart',
-        className: 'nh_weightchart',
-
-
-        init: function (field_manager, node) {
-            console.log("WEIGHTCHART INIT");
-            this._super(field_manager, node);
-            this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
-            this.dataset.o2m = this;
-            this.dataset.parent_view = this.view;
-            this.dataset.child_name = this.name;
-            var self = this
-        },
-        start: function () {
-            this._super();
-            var self = this;
-
-
-            var vid = this.view.dataset.context.active_id;
-            var height = this.view.dataset.context.height;
-            this.model = new instance.web.Model('nh.eobs.api');
-
-            var recData = this.model.call('get_activities_for_spell', [this.view.dataset.ids[0], 'weight'], {context: this.view.dataset.context}).done(function (records) {
-                var svg = new window.NH.NHGraphLib('#chart');
-                var obs = records.reverse();
-                if (obs.length > 0) {
-
-                    obs.forEach(function (d) {
-                        var date_els = d.date_terminated.match(date_regex);
-                        var dt = new Date(date_els[1], (parseInt(date_els[2]) - 1), date_els[3], date_els[4], date_els[5], date_els[6], 0);
-                        var days = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
-                        d.date_terminated = days[dt.getDay()] + " " + +dt.getDate() + '/' + ('0' + (dt.getMonth() + 1)).slice(-2) + "/" + ('0' + (dt.getFullYear())).slice(-2) + " " + ('0' + (dt.getHours())).slice(-2) + ":" + ('0' + (dt.getMinutes())).slice(-2);
-                    });
-
-                    var wmin = (18 * (height * height)).toFixed(0);
-                    var wmax = (25 * (height * height)).toFixed(0);
-                    var wmax2 = (50 * (height * height)).toFixed(0);
-
-                    var w_extent = nh_graphs.extent(obs, function (d) {
-                        return d['weight'];
-                    });
-
-                    var w_graph = new window.NH.NHGraph();
-                    w_graph.options.keys = ['weight'];
-                    w_graph.options.label = 'W';
-                    w_graph.options.measurement = 'kg';
-                    w_graph.axes.y.min = w_extent[0] - 10;
-                    w_graph.axes.y.max = w_extent[1] + 10;
-                    w_graph.options.normal.min = wmin;
-                    w_graph.options.normal.max = wmax;
-                    w_graph.style.dimensions.height = 250;
-                    w_graph.style.data_style = 'linear';
-                    w_graph.style.label_width = 60;
-
-
-                    var focus = new window.NH.NHFocus();
-                    focus.graphs.push(w_graph);
-                    focus.style.padding.right = 0;
-                    focus.style.margin.top = 80;
-                    svg.focus = focus;
-                    svg.data.raw = obs;
-                    svg.init();
-                    svg.draw();
-
-                } else {
-                    d3.select(svg.el).append("text").text("No data available for this patient");
-                }
-            });
-        },
-    });
-
-    instance.web.form.widgets.add('nh_weightchart', 'instance.nh_eobs.WeightChartWidget');
 
     instance.web.FormView.include({
 
@@ -1626,4 +1469,29 @@ openerp.nh_eobs = function (instance) {
             }
         }
     })
+
+    instance.web.StaleDataExceptionHandler = instance.web.Dialog.extend(instance.web.ExceptionHandler, {
+        init: function(parent, error) {
+            this._super(parent);
+            this.error = error;
+        },
+        display: function() {
+            var self = this;
+            error = this.error;
+            error.data.message = error.data.arguments[0];
+
+            new instance.web.Dialog(this, {
+                size: 'medium',
+                title: error.data.arguments[1],
+                buttons: [
+                    {text: "Reload Page",
+                     click: function() {
+                        location.reload();
+                    }}
+                ],
+            }, QWeb.render('CrashManager.warning', {error: error})).open();
+        }
+    });
+
+    instance.web.crash_manager_registry.add('openerp.addons.nh_eobs.exceptions.StaleDataException', 'instance.web.StaleDataExceptionHandler');
 }

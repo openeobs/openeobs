@@ -389,10 +389,6 @@
                 waitFor: "select[name='pbp_monitoring']"
             },
             {
-                title: _t("They can change the Weight monitoring status"),
-                waitFor: "select[name='weight_monitoring']"
-            },
-            {
                 title: _t("They can change the O2 Sats Target"),
                 waitFor: "select[name='o2target']"
             },

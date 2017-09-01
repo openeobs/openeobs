@@ -41,7 +41,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                    'blood_pressure_diastolic', 'pulse_rate', 'flow_rate',
                    'concentration', 'cpap_peep', 'niv_backup', 'niv_ipap',
                    'niv_epap']
-    _description = "NEWS Observation"
+    _description = "NEWS"
 
     _RR_RANGES = {'ranges': [8, 11, 20, 24], 'scores': '31023'}
     _O2_RANGES = {'ranges': [91, 93, 95], 'scores': '3210'}
@@ -142,6 +142,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 return [('id', 'in', [ews_id for ews_id in all_ids
                                       if ews_id not in partial_ews_ids])]
 
+    @api.model
     def calculate_score(self, ews_data):
         """
         Computes the score and clinical risk values based on the NEWS
@@ -235,7 +236,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 res[ews.id] = {'score': False, 'three_in_one': False,
                                'clinical_risk': 'Unknown'}
             else:
-                res[ews.id] = self.calculate_score(ews)
+                res[ews.id] = self.calculate_score(cr, uid, ews)
             _logger.debug(
                 "Observation EWS activity_id=%s ews_id=%s score: %s"
                 % (ews.activity_id.id, ews.id, res[ews.id]))
@@ -440,7 +441,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     'fields': ['device_id'],
                     'condition': [
                         ['oxygen_administration_flag', '==', 'True']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['device_id', 'flow_rate', 'concentration',
@@ -448,7 +450,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
                                'niv_epap'],
                     'condition': [
                         ['oxygen_administration_flag', '!=', 'True']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
         },
@@ -461,32 +464,38 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['flow_rate', 'concentration'],
                     'condition': [['device_id', '!=', '']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['flow_rate', 'concentration'],
                     'condition': [['device_id', '==', '']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 },
                 {
                     'fields': ['cpap_peep'],
                     'condition': [['device_id', '==', 44]],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['cpap_peep'],
                     'condition': [['device_id', '!=', 44]],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
                     'condition': [['device_id', '==', 45]],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['niv_backup', 'niv_ipap', 'niv_epap'],
                     'condition': [['device_id', '!=', 45]],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
             'initially_hidden': True
@@ -503,12 +512,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['concentration'],
                     'condition': [['flow_rate', '!=', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['concentration'],
                     'condition': [['flow_rate', '==', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ]
         },
@@ -523,12 +534,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 {
                     'fields': ['flow_rate'],
                     'condition': [['concentration', '!=', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['flow_rate'],
                     'condition': [['concentration', '==', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ]
         },
@@ -822,7 +835,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         frequency = previous_obs_activity.data_ref.frequency
         spell_activity_id = previous_obs_activity.spell_activity_id.id
 
-        if self.patient_monitoring_exception_before_refusals(
+        if self.obs_stop_before_refusals(
                 spell_activity_id):
             case = 'Obs Restart'
         elif frequency == 15 \
@@ -1076,15 +1089,53 @@ class nh_clinical_patient_observation_ews(orm.Model):
             else case
         return case
 
-    @api.model
-    def get_last_risk(self, patient_id):
-        case = self.get_last_case(patient_id)
-        if case is not False:
-            return self.convert_case_to_risk(case)
-        else:
-            return 'Unknown'
-
     def patient_has_spell(self, cr, uid, patient_id):
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(cr, uid, patient_id)
         return bool(spell_id)
+
+    @classmethod
+    def get_data_visualisation_resource(cls):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return '/nh_ews/static/src/js/chart.js'
+
+    @api.multi
+    def get_submission_message(self):
+        """
+        Override of `nh.clincal.patient.observation` method.
+
+        :return:
+        """
+        if self.is_partial:
+            score_dict = self.calculate_score(self)
+            clinical_risk = score_dict['clinical_risk']
+            score = score_dict['score']
+            if clinical_risk == 'None':
+                clinical_risk = 'No'
+            if clinical_risk:
+                submission_message = \
+                    '<strong>At least {0} clinical risk</strong>, ' \
+                    'real risk may be higher <br>' \
+                    '<strong>At least {1} NEWS score</strong>, ' \
+                    'real NEWS score may be higher<br>' \
+                    'This Partial Observation will not update the ' \
+                    'NEWS score and clinical risk of the ' \
+                    'patient'.format(clinical_risk, score)
+            else:
+                submission_message = \
+                    '<strong>Clinical risk:</strong> Unknown<br>' \
+                    '<strong>NEWS Score:</strong> Unknown<br>' \
+                    'This Partial Observation will not update the ' \
+                    'NEWS score and clinical risk of the patient'
+        else:
+            triggered_tasks = self.get_triggered_tasks()
+            submission_message = \
+                'Here are related tasks based on the observation' \
+                if len(triggered_tasks) > 0 else ''
+        return submission_message

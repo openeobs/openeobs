@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from openerp.models import AbstractModel
 
 
@@ -33,7 +32,8 @@ class NhClinicalTestUtils(AbstractModel):
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
             'family_name': 'Snow',
-            'patient_identifier': 'he_knows_nothing'
+            'patient_identifier': 'he_knows_nothing',
+            'other_identifier': 'nothing_he_knows'
         })
 
         self.spell_activity_id = self.spell_model.create_activity(
@@ -43,7 +43,8 @@ class NhClinicalTestUtils(AbstractModel):
                 'pos_id': 1
             }
         )
-        self.activity_model.start(self.spell_activity_id)
+        activity = self.activity_model.browse(self.spell_activity_id)
+        activity.start()
 
         self.clinical_review_notification_activity_id = \
             self.clinical_review_model.sudo(self.nurse).create_activity(
@@ -59,11 +60,18 @@ class NhClinicalTestUtils(AbstractModel):
             self.activity_model.sudo(self.nurse).browse(
                 self.clinical_review_notification_activity_id
             )
-        self.activity_model.sudo(self.nurse).complete(
-            self.clinical_review_notification_activity_id
-        )
+        self.clinical_review_notification_activity.sudo(self.nurse).complete()
 
+    # TODO rename this to `start_obs_stop`.
     def start_pme(self, spell=None, reason=None):
+        """
+        Start a patient monitoring exception for the patient created using
+        test utils methods.
+        :param spell:
+        :param reason:
+        :type reason: `nh.clinical.patient_monitoring_exception.reason`
+        :return:
+        """
         if not spell:
             spell = self.spell
         if not reason:
@@ -72,12 +80,11 @@ class NhClinicalTestUtils(AbstractModel):
             reason = reason_model.create({'display_text': 'reason one'})
         wardboard_model = self.env['nh.clinical.wardboard']
         self.wardboard = wardboard_model.browse(spell.id)
-        self.wardboard.start_patient_monitoring_exception(
-            reason, spell.id, spell.activity_id.id
-        )
+        self.wardboard.start_obs_stop(
+            reason, spell.id, spell.activity_id.id)
 
     def end_pme(self):
-        self.wardboard.end_patient_monitoring_exception()
+        self.wardboard.end_obs_stop()
 
     def find_and_complete_clinical_review(self, ews_id=None):
         if not ews_id:
@@ -88,7 +95,9 @@ class NhClinicalTestUtils(AbstractModel):
             ['state', 'not in', ['completed', 'cancelled']]
         ])
         if clinical_review:
-            self.activity_model.sudo(self.doctor).complete(clinical_review.id)
+            clinical_review.sudo(self.doctor).complete()
+            # self.activity_model.sudo(self.doctor)
+            # .complete(clinical_review.id)
         return clinical_review
 
     def find_and_complete_clinical_review_freq(self, review_id=None):
@@ -99,5 +108,40 @@ class NhClinicalTestUtils(AbstractModel):
             ['state', 'not in', ['completed', 'cancelled']]
         ])
         if clinical_review_freq:
-            self.activity_model.sudo(self.doctor).complete(
-                clinical_review_freq.id)
+            clinical_review_freq.sudo(self.doctor).complete()
+
+    def create_activity_obs_stop(self):
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
+        pme_reason_acute_ed = self.browse_ref('nh_eobs.acute_hospital_ed')
+        activity_id_obs_stop = obs_stop_model.create_activity(
+            {
+                'parent_id': self.spell_activity.id,
+                'spell_activity_id': self.spell_activity.id
+            },
+            {
+                'reason': pme_reason_acute_ed.id,
+                'spell': self.spell.id
+            }
+        )
+        activity_obs_stop = self.activity_model.browse(activity_id_obs_stop)
+        return activity_obs_stop
+
+    def create_activity_rapid_tranq(self, reason_id=None):
+        rapid_tranq_model = self.env['nh.clinical.pme.rapid_tranq']
+
+        vals_data_activity = {
+            'parent_id': self.spell_activity.id,
+            'spell_activity_id': self.spell_activity.id
+        }
+        vals_data_ref = {'spell': self.spell.id}
+        if reason_id:
+            vals_data_ref['reason'] = reason_id
+
+        activity_id_rapid_tranq = rapid_tranq_model.create_activity(
+            vals_data_activity,
+            vals_data_ref
+        )
+
+        activity_rapid_tranq = \
+            self.activity_model.browse(activity_id_rapid_tranq)
+        return activity_rapid_tranq

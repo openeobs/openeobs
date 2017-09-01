@@ -125,7 +125,7 @@ class RefusedObservationsSQL(orm.AbstractModel):
         :return: SQL statement used in nh_eobs.init()
         """
         wardboard = self.get_wardboard(interval)
-        wardboard = wardboard.replace(
+        return wardboard.replace(
             'ORDER BY ews_acts.sequence DESC '
             'LIMIT 1'
             ') '
@@ -134,20 +134,8 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'LIMIT 1'
             ') '
             'THEN \'NoScore\' '
-            'WHEN refused_last_ews.refused = true '
-            'AND coalesce(refused_last_ews.date_terminated '
-            '>= spell.move_date, TRUE) '
+            'WHEN spell.refusing_obs = true '
             'THEN \'Refused\' '
-            'WHEN refused_last_ews.refused = true '
-            'AND coalesce(refused_last_ews.date_terminated '
-            '<= spell.move_date, TRUE) '
-            'THEN \'NoScore\' '
-        )
-        return wardboard.replace(
-            'LEFT JOIN param ON param.spell_id = spell.id',
-            'LEFT JOIN param ON param.spell_id = spell.id '
-            'LEFT JOIN refused_last_ews '
-            'ON refused_last_ews.spell_id = spell.id'
         )
 
     def get_collect_activities_sql(self, activity_ids_sql):
@@ -156,18 +144,13 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'left join ews1 on ews1.spell_activity_id = spell_activity.id '
             'LEFT JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = spell_activity.id '
-            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
-            'LEFT JOIN refused_last_ews '
-            'ON refused_last_ews.spell_activity_id = spell_activity.id '
-            'AND coalesce(refused_last_ews.date_terminated '
-            '>= spell.move_date, TRUE) '
-            'AND coalesce(refused_last_ews.date_terminated >= '
-            'pme.activity_date_terminated, TRUE) '
+            'LEFT JOIN last_finished_obs_stop AS obs_stop '
+            'ON obs_stop.spell_id = spell.id '
         )
         sql = sql.replace(
             'end as deadline_time,',
             'end as deadline_time, '
-            'refused_last_ews.refused AS refusal_in_effect, '
+            'spell.refusing_obs AS refusal_in_effect, '
         )
         return sql.format(activity_ids=activity_ids_sql)
 
@@ -177,19 +160,14 @@ class RefusedObservationsSQL(orm.AbstractModel):
             'left join ews0 on ews0.spell_activity_id = activity.id '
             'LEFT JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = activity.id '
-            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
-            'LEFT JOIN refused_last_ews '
-            'ON refused_last_ews.spell_activity_id = activity.id '
-            'AND coalesce(refused_last_ews.date_terminated '
-            '>= spell.move_date, TRUE) '
-            'AND coalesce(refused_last_ews.date_terminated >= '
-            'pme.activity_date_terminated, TRUE) '
-            'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
+            'LEFT JOIN last_finished_obs_stop AS obs_stop '
+            'ON obs_stop.spell_id = spell.id '
         )
         sql = sql.replace(
             'patient.other_identifier,',
             'patient.other_identifier, '
-            'refused_last_ews.refused AS refusal_in_effect,'
+            'spell.refusing_obs AS refusal_in_effect, '
+            'spell.rapid_tranq AS rapid_tranq, '
         )
         return sql.format(spell_ids=spell_ids)
 

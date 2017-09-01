@@ -1,8 +1,9 @@
+import logging
+import time
+
 from openerp.addons.nh_eobs_mental_health\
     .tests.common.transaction_observation import TransactionObservationCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
-import logging
-import time
 
 _logger = logging.getLogger(__name__)
 
@@ -122,7 +123,7 @@ class TestGetPatientsRefused(TransactionObservationCase):
             ]
         )
         wardboard = self.wardboard_model.browse(self.spell_id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             self.pme_reason, self.spell_id, self.spell_activity_id)
         patient = self.api_pool.get_patients(
             self.cr, self.user_id, [self.patient_id])
@@ -141,9 +142,9 @@ class TestGetPatientsRefused(TransactionObservationCase):
         )
         time.sleep(2)
         wardboard = self.wardboard_model.browse(self.spell_id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             self.pme_reason, self.spell_id, self.spell_activity_id)
-        wardboard.end_patient_monitoring_exception()
+        wardboard.end_obs_stop()
         patient = self.api_pool.get_patients(
             self.cr, self.user_id, [self.patient_id])
         self.assertFalse(patient[0].get('refusal_in_effect'))
@@ -163,7 +164,9 @@ class TestGetPatientsRefused(TransactionObservationCase):
         time.sleep(2)
         self.api_pool.transfer(
             cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
-        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {})
+        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {
+            'location': 'U'
+        })
         placement_id = self.activity_pool.search(
             cr, uid, [
                 ['data_model', '=', 'nh.clinical.patient.placement'],

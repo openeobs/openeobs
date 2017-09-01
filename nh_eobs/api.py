@@ -6,7 +6,7 @@ Defines the core methods for `Open eObs` in the taking of
 import logging
 from datetime import datetime as dt, timedelta as td
 
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, osv
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 from openerp.tools.translate import _
@@ -25,40 +25,6 @@ class nh_eobs_api(orm.AbstractModel):
 
     # TODO How come this doesn't inherit nh.clinical.api?
     _name = 'nh.eobs.api'
-    _active_observations = [
-        {
-            'type': 'ews',
-            'name': 'NEWS'
-        },
-        {
-            'type': 'height',
-            'name': 'Height'
-        },
-        {
-            'type': 'weight',
-            'name': 'Weight'
-        },
-        {
-            'type': 'blood_product',
-            'name': 'Blood Product'
-        },
-        {
-            'type': 'blood_sugar',
-            'name': 'Blood Sugar'
-        },
-        {
-            'type': 'stools',
-            'name': 'Bristol Stool Scale'
-        },
-        {
-            'type': 'gcs',
-            'name': 'Glasgow Coma Scale (GCS)'
-        },
-        {
-            'type': 'pbp',
-            'name': 'Postural Blood Pressure'
-        }
-    ]
 
     def _get_activity_type(self, cr, uid, activity_type, observation=False,
                            context=None):
@@ -84,30 +50,6 @@ class nh_eobs_api(orm.AbstractModel):
                 _('Error!'), 'Activity ID not found: %s' % activity_id)
         return True
 
-    def check_activity_access(self, cr, uid, activity_id, context=None):
-        """
-        Verifies if an :class:`activity<activity.nh_activity>` is
-        assigned to a :class:`user<base.res_users>`.
-
-        :param uid: id of user to verify
-        :type uid: int
-        :param activity_id: id of activity to verify
-        :type activity_id: int
-        :returns: ``True`` if user is assigned. Otherwise ``False``
-        :rtype: bool
-        """
-        activity_pool = self.pool['nh.activity']
-        domain = [('id', '=', activity_id), '|', ('user_ids', 'in', [uid]),
-                  ('user_id', '=', uid)]
-        activity_ids = activity_pool.search(cr, uid, domain, context=context)
-        if not activity_ids:
-            return False
-        user_id = activity_pool.read(
-            cr, uid, activity_id, ['user_id'], context=context)['user_id']
-        if user_id and user_id[0] != uid:
-            return False
-        return True
-
     def _create_activity(self, cr, uid, data_model, vals_activity=None,
                          vals_data=None, context=None):
         model_pool = self.pool[data_model]
@@ -126,7 +68,7 @@ class nh_eobs_api(orm.AbstractModel):
 
         :param spell_id: id for the patient spell
         :type spell_id: int
-        :param activity_type: type of activity [optional]
+        :param activity_type: The part of the model name after 'observation.'
         :type activity_type: str
         :param start_date: retrieve activities only on or after this
             date. Must be provided if ``activity_type`` has also been
@@ -140,7 +82,6 @@ class nh_eobs_api(orm.AbstractModel):
             fields and values
         :rtype: list
         """
-
         spell_pool = self.pool['nh.clinical.spell']
         if not spell_pool.search(
                 cr, uid, [['id', '=', spell_id]], context=context):
@@ -172,8 +113,14 @@ class nh_eobs_api(orm.AbstractModel):
                                         "received." % type(end_date))
                 domain.append(
                     ('date_terminated', '<=', end_date.strftime(DTF)))
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+
+        order = 'date_terminated desc, id desc'
+        obs_ids = model_pool.search(cr, uid, domain, order=order,
+                                    context=context)
+        obs = model_pool.get_formatted_obs(
+            cr, uid, obs_ids, context=context,
+            convert_datetimes_to_client_timezone=True)
+        return obs
 
     def get_share_users(self, cr, uid, context=None):
         """
@@ -502,7 +449,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: a list of dictionaries
         :rtype: list
         """
-
         model_pool = self.pool[data_model]
         return model_pool.get_form_description(
             cr, uid, patient_id, context=context)
@@ -538,8 +484,11 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: dict
         """
         model_pool = self.pool[data_model]
-        return model_pool.calculate_score(
-            data) if 'observation' in data_model else False
+        if hasattr(model_pool, 'calculate_score'):
+            score = model_pool.calculate_score(cr, uid, data, context=context)
+        else:
+            score = False
+        return score
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """
@@ -552,17 +501,69 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of all observation types
         :rtype: list
         """
-
         activity_pool = self.pool['nh.activity']
         spell_id = activity_pool.search(
             cr, uid, [['location_id.user_ids', 'in', [uid]],
-                      ['patient_id', '=', patient_id],
+                      ['patient_id', '=', int(patient_id)],
                       ['state', '=', 'started'],
                       ['data_model', '=', 'nh.clinical.spell']],
             context=context)
         if spell_id:
-            return self._active_observations
+            return self._get_active_observations(cr, uid)
         return []
+
+    # TODO EOBS-1004: Refactor nh_eobs
+    # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
+    @api.model
+    def _get_active_observations(self):
+        active_observations = []
+        obs_prefix = 'nh.clinical.patient.observation.'
+        obs_models = self.get_observation_models()
+        for obs_model in obs_models:
+            model = self.env[obs_model]
+            # 'type' is the suffix of an observation model name.
+            # e.g. 'nh.clinical.patient.observation.ews'
+            #
+            # 'name' is the label that will appear in the UI when selecting
+            # the type of observation to perform.
+            active_observations.append({
+                'type': obs_model.replace(obs_prefix, ''),
+                'name': model.get_description(append_observation=False)
+            })
+        return active_observations
+
+    @api.model
+    def get_data_visualisation_resources(self):
+        """
+        Get data visualisation resources for all installed observations that
+        have data visualisation JS files defined
+
+        :return: list of JS file URLs used for drawing graphs
+        """
+        obs_prefix = 'nh.clinical.patient.observation.'
+        mod_list = self.get_observation_models()
+        resource_list = []
+        for mod in mod_list:
+            model = self.env[mod]
+            mod_data_vis = model.get_data_visualisation_resource()
+
+            if mod_data_vis:
+                resource_list.append(
+                    {
+                        'data_model': mod.replace(obs_prefix, ''),
+                        'resource': mod_data_vis,
+                        'model_name': model.get_description(
+                            append_observation=False
+                        )
+                    }
+                )
+        return resource_list
+
+    def get_observation_models(self):
+        obs_prefix = 'nh.clinical.patient.observation.'
+        observation_model_list = [mod for mod in self.env.registry.models
+                                  if obs_prefix in mod]
+        return observation_model_list
 
     # # # # # # #
     #  PATIENTS #
@@ -859,31 +860,31 @@ class nh_eobs_api(orm.AbstractModel):
         return self.pool['nh.clinical.api'].admit_update(
             cr, uid, patient_id, data, context=context)
 
-    def cancel_admit(self, cr, uid, patient_id, context=None):
+    def cancel_admit(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_admit()<api.nh_clinical_api.cancel_admit>`,
         cancelling the open :class:`spell<spell.nh_clinical_spell>` of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         return self.pool['nh.clinical.api'].cancel_admit(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
 
-    def discharge(self, cr, uid, patient_id, data, context=None):
+    def discharge(self, cr, uid, hospital_number, data, context=None):
         """
         Extends
         :meth:`discharge()<api.nh_clinical_api.discharge>`,
         closing the :class:`spell<spell.nh_clinical_spell>` of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :param data: may contain the key ``discharge_date``
         :type data: dict
         :returns: ``True``
@@ -891,44 +892,44 @@ class nh_eobs_api(orm.AbstractModel):
         """
 
         return self.pool['nh.clinical.api'].discharge(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
-    def cancel_discharge(self, cr, uid, patient_id, context=None):
+    def cancel_discharge(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_discharge()<api.nh_clinical_api.cancel_discharge>`
         of a :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         res = self.pool['nh.clinical.api'].cancel_discharge(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         return res
 
-    def merge(self, cr, uid, patient_id, data, context=None):
+    def merge(self, cr, uid, hospital_number, data, context=None):
         """
         Wraps
         :meth:`merge()<api.nh_clinical_patient.merge>`
         of a :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient to merge
+        :param hospital_number: `hospital number` of the patient to merge
             INTO
-        :type patient_id: str
+        :type hospital_number: str
         :param data: dictionary parameter that may contain the following
             keys ``from_identifier``, the `hospital number` of the
             patient merged FROM
         :type data: dict
-        :type patient_id: str
+        :type hospital_number: str
         :returns: ``True``
         :rtype: bool
         """
 
         return self.pool['nh.clinical.api'].merge(
-            cr, uid, patient_id, data, context=context)
+            cr, uid, hospital_number, data, context=context)
 
     def transfer(self, cr, uid, hospital_number, data, context=None):
         """
@@ -944,45 +945,64 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         res = self.pool['nh.clinical.api'].transfer(
             cr, uid, hospital_number, data, context=context)
         return res
 
-    def cancel_transfer(self, cr, uid, patient_id, context=None):
+    def get_spell_activity_id(self, hospital_number):
+        """
+        Return the spell activity ID for the patient with the given hospital
+        number. Raises an exception if more than one spell is found.
+        :param hospital_number:
+        :type hospital_number: str
+        :return:
+        """
+        patient_model = self.env['nh.clinical.patient']
+        domain = [('other_identifier', '=', hospital_number)]
+        patient = patient_model.search(domain)
+        patient.ensure_one()
+
+        spell_model = self.env['nh.clinical.spell']
+        domain = [('patient_id', '=', patient.id)]
+        spell = spell_model.search(domain)
+        spell.ensure_one()
+
+        return spell.activity_id.id
+
+    def cancel_transfer(self, cr, uid, hospital_number, context=None):
         """
         Extends
         :meth:`cancel_transfer()<api.nh_clinical_api.cancel_transfer>`,
         cancelling the transfer of a
         :class:`patient<base.nh_clinical_patient>`.
 
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
             ``location``
         :returns: ``True``
         :rtype: bool
         """
-
         res = self.pool['nh.clinical.api'].cancel_transfer(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         return res
 
-    def check_patient_responsibility(self, cr, uid, patient_id, context=None):
+    def check_patient_responsibility(
+            self, cr, uid, hospital_number, context=None):
         """
         Verifies that a :class:`user<base.res_users>` is responsible for
         a :class:`patient<base.nh_clinical_patient>`.
 
         :param uid: id of the user
         :type uid: int
-        :param patient_id: `hospital number` of the patient
-        :type patient_id: str
+        :param hospital_number: `hospital number` of the patient
+        :type hospital_number: str
         :returns: ``True`` if user is responsible. Otherwise ``False``
         :rtype: bool
         """
 
         spell_pool = self.pool['nh.clinical.spell']
         spell_id = spell_pool.get_by_patient_id(
-            cr, uid, patient_id, context=context)
+            cr, uid, hospital_number, context=context)
         spell = spell_pool.browse(cr, uid, spell_id, context=context)
         return self.check_activity_access(
             cr, uid, spell.activity_id.id, context=context)
@@ -1040,9 +1060,9 @@ class nh_eobs_api(orm.AbstractModel):
         activity_pool.complete(cr, uid, unfollow_activity_id, context=context)
         return True
 
-    def get_activities_for_patient(self, cr, uid, patient_id, activity_type,
-                                   start_date=None, end_date=None,
-                                   context=None):
+    def get_activities_for_patient(
+            self, cr, uid, patient_id, activity_type,
+            start_date=None, end_date=None, context=None):
         """
         Returns a list of
         :class:`activities<activity.nh_activity>` for a
@@ -1062,12 +1082,16 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of activity dictionaries for patient
         :rtype: list
         """
-
         start_date = dt.now()-td(days=30) if not start_date else start_date
         end_date = dt.now() if not end_date else end_date
-        model_pool = self.pool[self._get_activity_type(
-            cr, uid, activity_type, observation=True, context=context)] \
-            if activity_type else self.pool['nh.activity']
+
+        if activity_type:
+            model_name = self._get_activity_type(
+                cr, uid, activity_type, observation=True, context=context
+            )
+        else:
+            model_name = 'nh.activity'
+        model_pool = self.pool[model_name]
         domain = [
             ('patient_id', '=', patient_id),
             ('state', '=', 'completed'),
@@ -1077,10 +1101,17 @@ class nh_eobs_api(orm.AbstractModel):
             else [('patient_id', '=', patient_id),
                   ('state', 'not in', ['completed', 'cancelled']),
                   ('data_model', '!=', 'nh.clinical.spell')]
-        ids = model_pool.search(cr, uid, domain, context=context)
-        return model_pool.read(cr, uid, ids, [], context=context)
+
+        obs_ids = model_pool.search(cr, uid, domain, context=context)
+        obs = []
+        if obs_ids:
+            obs = model_pool.get_formatted_obs(
+                cr, uid, obs_ids, context=context,
+                convert_datetimes_to_client_timezone=True)
+        return obs
 
     def create_activity_for_patient(self, cr, uid, patient_id, activity_type,
+                                    vals_activity=None, vals_data=None,
                                     context=None):
         """
         Creates an :class:`activity<activity.nh_activity>` of specified
@@ -1098,7 +1129,10 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: id of activity
         :rtype: int
         """
-
+        if not vals_activity:
+            vals_activity = {}
+        if not vals_data:
+            vals_data = {}
         if not activity_type:
             raise osv.except_osv(_('Error!'), 'Activity type not valid')
         model_name = self._get_activity_type(
@@ -1134,6 +1168,12 @@ class nh_eobs_api(orm.AbstractModel):
                 ('data_model', '=', model_name)], context=context)
         if activity_ids:
             return activity_ids[0]
+        if 'patient_id' not in vals_data:
+            vals_data['patient_id'] = patient_id
         return self._create_activity(
-            cr, SUPERUSER_ID, model_name, {}, {'patient_id': patient_id},
+            cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)
+
+    def check_activity_access(self, *args, **kwargs):
+        api_pool = self.pool['nh.clinical.api']
+        return api_pool.check_activity_access(*args, **kwargs)

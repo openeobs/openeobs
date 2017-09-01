@@ -106,8 +106,8 @@ class MentalHealthObservationReport(models.AbstractModel):
         datetime_utils = self.env['datetime_utils']
         first_refusal_column_data = \
             datetime_utils.reformat_server_datetime_for_frontend(
-                refusal_episode[key], date_first=True
-            )
+                refusal_episode[key], date_first=True,
+                context_with_timezone=self.env.context)
         return first_refusal_column_data
 
     def get_refusals_until_news_obs_taken_column_data(self, refusal_episode):
@@ -206,7 +206,8 @@ class MentalHealthObservationReport(models.AbstractModel):
             datetime_utils = self.env['datetime_utils']
             date_terminated = datetime_utils\
                 .reformat_server_datetime_for_frontend(
-                    refusal_episode[date_terminated_key], date_first=True
+                    refusal_episode[date_terminated_key], date_first=True,
+                    context_with_timezone=self.env.context
                 )
             # Get name of user who completed task.
             user_model = self.env['res.users']

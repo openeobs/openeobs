@@ -40,10 +40,6 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
                 'name': 'Blood Product'
             },
             {
-                'type': 'blood_sugar',
-                'name': 'Blood Sugar'
-            },
-            {
                 'type': 'stools',
                 'name': 'Bristol Stool Scale'
             },
@@ -86,7 +82,8 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
             'section': 'patient',
             'obs_list': [],
             'notification_count': 0,
-            'username': 'norah'
+            'username': 'norah',
+            'data_vis_list': []
         }
 
         # Test the template rendering.
@@ -139,7 +136,8 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
             'section': 'patient',
             'obs_list': self.observations,
             'notification_count': 0,
-            'username': 'norah'
+            'username': 'norah',
+            'data_vis_list': []
         }
 
         # Test the template rendering.
@@ -193,7 +191,8 @@ class TestPatientDetailHTML(MobileHTMLRenderingCase):
             'section': 'patient',
             'obs_list': self.observations,
             'notification_count': 666,
-            'username': 'norah'
+            'username': 'norah',
+            'data_vis_list': []
         }
 
         # Test the template rendering.

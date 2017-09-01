@@ -1,8 +1,9 @@
+import logging
+import time
+
 from openerp.addons.nh_eobs_mental_health\
     .tests.common.transaction_observation import TransactionObservationCase
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
-import logging
-import time
 
 _logger = logging.getLogger(__name__)
 
@@ -60,10 +61,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         return False
 
     def test_refused_first_obs(self):
-        """
-        Test that if the patient refuses their first observation then
-        refusal_in_effect is set to True
-        """
         self.assertTrue(
             self.get_refusal_in_effect(
                 [
@@ -73,10 +70,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         )
 
     def test_refused_no_risk(self):
-        """
-        Test that if the patient refuses and has No clinical risk then
-        refusal_in_effect is set to True
-        """
         self.assertTrue(
             self.get_refusal_in_effect(
                 [
@@ -87,10 +80,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         )
 
     def test_refused_low_risk(self):
-        """
-        Test that if the patient refuses and has Low clinical risk then
-        refusal_in_effect is set to True
-        """
         self.assertTrue(
             self.get_refusal_in_effect(
                 [
@@ -101,10 +90,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         )
 
     def test_refused_medium_risk(self):
-        """
-        Test that if the patient refuses and has Medium clinical risk then
-        refusal_in_effect is set to True
-        """
         self.assertTrue(
             self.get_refusal_in_effect(
                 [
@@ -115,10 +100,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         )
 
     def test_refused_high_risk(self):
-        """
-        Test that if the patient refuses and has High clinical risk then
-        refusal_in_effect is set to True
-        """
         self.assertTrue(
             self.get_refusal_in_effect(
                 [
@@ -130,8 +111,7 @@ class TestGetActivitiesRefused(TransactionObservationCase):
 
     def test_refused_obs_stop(self):
         """
-        Test that if the patient refuses and has High clinical risk then
-        refusal_in_effect is set to True
+        Test that refusal not in effect after refusal -> stop obs.
         """
         self.get_refusal_in_effect(
             [
@@ -140,7 +120,7 @@ class TestGetActivitiesRefused(TransactionObservationCase):
             ]
         )
         wardboard = self.wardboard_model.browse(self.spell_id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             self.pme_reason, self.spell_id, self.spell_activity_id)
         activities = self.api_pool.get_activities(self.cr, self.user_id, [])
         refusal_in_effect = [
@@ -150,8 +130,8 @@ class TestGetActivitiesRefused(TransactionObservationCase):
 
     def test_refused_obs_restart(self):
         """
-        Test that if the patient refuses and has High clinical risk then
-        refusal_in_effect is set to True
+        Test that refusal not in effect after refusal -> stop obs -> restart
+        obs.
         """
         self.get_refusal_in_effect(
             [
@@ -161,9 +141,9 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         )
         time.sleep(2)
         wardboard = self.wardboard_model.browse(self.spell_id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             self.pme_reason, self.spell_id, self.spell_activity_id)
-        wardboard.end_patient_monitoring_exception()
+        wardboard.end_obs_stop()
         self.get_obs()
         activities = self.api_pool.get_activities(self.cr, self.user_id, [])
         refusal_in_effect = [
@@ -172,10 +152,6 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         self.assertFalse(refusal_in_effect[0])
 
     def test_refused_transfer(self):
-        """
-        Test that if the patient refuses and has High clinical risk then
-        refusal_in_effect is set to True
-        """
         cr, uid = self.cr, self.uid
         self.get_refusal_in_effect(
             [
@@ -186,7 +162,9 @@ class TestGetActivitiesRefused(TransactionObservationCase):
         time.sleep(2)
         self.api_pool.transfer(
             cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
-        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {})
+        self.api_pool.discharge(self.cr, self.adt_id, 'TESTHN001', {
+            'location': 'U'
+        })
         placement_id = self.activity_pool.search(
             cr, uid, [
                 ['data_model', '=', 'nh.clinical.patient.placement'],

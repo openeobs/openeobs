@@ -25,7 +25,7 @@ class nh_clinical_patient_observation_pbp(orm.Model):
     _inherit = ['nh.clinical.patient.observation']
     _required = ['systolic_sitting', 'diastolic_sitting',
                  'systolic_standing', 'diastolic_standing']
-    _description = "Postural Blood Pressure Observation"
+    _description = "Postural Blood Pressure"
 
     _POLICY = {'schedule': [[6, 0], [18, 0]], 'notifications': [
         [],
@@ -71,13 +71,15 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                     'fields': ['systolic_standing', 'diastolic_standing'],
                     'condition': [['systolic_sitting', '!=', ''],
                                   ['diastolic_sitting', '!=', '']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
                     'condition': ['||', ['systolic_sitting', '==', ''],
                                   ['diastolic_sitting', '==', '']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
             'validation': [
@@ -108,13 +110,15 @@ class nh_clinical_patient_observation_pbp(orm.Model):
                     'fields': ['systolic_standing', 'diastolic_standing'],
                     'condition': [['systolic_sitting', '!=', ''],
                                   ['diastolic_sitting', '!=', '']],
-                    'action': 'show'
+                    'action': 'show',
+                    'type': 'value'
                 },
                 {
                     'fields': ['systolic_standing', 'diastolic_standing'],
                     'condition': ['||', ['systolic_sitting', '==', ''],
                                   ['diastolic_sitting', '==', '']],
-                    'action': 'hide'
+                    'action': 'hide',
+                    'type': 'value'
                 }
             ],
             'validation': [

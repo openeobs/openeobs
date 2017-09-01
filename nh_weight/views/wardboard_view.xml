@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="view_wardboard_weight_chart_form">
+            <field name="name">Wardboard Weight Chart Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Weight Chart Form View" version="7.0" create="0">
+                    <sheet>
+                        <field name="weight_ids" widget="nh_weightchart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_form">
+            <field name="name">Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/header" position="inside">
+                    <button name="wardboard_weight_chart" string="Weight Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string = 'Other Obs']" position="inside">
+                    <group string="Weight">
+                        <field name="weight_ids" class="nhc_obs" readonly="1" nolabel="1">
+                            <tree>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="weight" string="Weight (kg)"/>
+                                <field name="waist_measurement" string="Waist Measurement (cm)" attrs="{'invisible':[['waist_measurement','=',0.0]]}"/>
+                                <field name="score" string="BMI"/>
+                                <field name="terminate_uid" string="Completed By"/>
+                            </tree>
+                            <form>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="weight" string="Weight (kg)"/>
+                                <field name="waist_measurement" string="Waist Measurement (cm)"/>
+                                <field name="score" string="BMI"/>
+                                <field name="terminate_uid" string="Completed By"/>
+                            </form>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

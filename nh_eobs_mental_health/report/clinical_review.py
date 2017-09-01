@@ -22,8 +22,7 @@ class NhClinicalObservationReport(models.Model):
         )
 
     def add_extra_ews_with_clinical_review_in_datetime_range(
-            self, data, ews_activities, spell_activity_id
-    ):
+            self, data, ews_activities, spell_activity_id):
         ews_activities_outside_datetime_range = \
             self.get_ews_activity_ids_with_clinical_review_in_datetime_range(
                 spell_activity_id, data.start_time, data.end_time

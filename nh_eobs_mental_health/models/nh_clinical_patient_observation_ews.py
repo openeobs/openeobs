@@ -63,14 +63,10 @@ class NHClinicalPatientObservationEWS(orm.Model):
         activity_model = self.pool['nh.activity']
         activity = activity_model.browse(cr, uid, activity_id, context=context)
         ews = activity.data_ref
-        ews_parent = activity.creator_id
-        ews_model_name = 'nh.clinical.patient.observation.ews'
-
-        if ews_parent.data_ref and ews_parent.data_ref._name == ews_model_name:
-            patient_refusing = self.is_refusal_in_effect(
-                cr, uid, ews_parent.id, context=context)
-        else:
-            patient_refusing = False
+        patient_spell = activity.spell_activity_id.data_ref
+        patient_refusing = patient_spell.refusing_obs
+        if not ews.is_partial:
+            patient_spell.write({'refusing_obs': False})
         if ews.is_partial and not patient_refusing \
                 and ews.partial_reason == 'refused':
             api_model = self.pool['nh.eobs.api']
@@ -82,6 +78,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
             if patient[0].get('clinical_risk') in higher_risks:
                 days_to_schedule = 7
             schedule_date = datetime.now() + timedelta(days=days_to_schedule)
+            patient_spell.write({'refusing_obs': True})
             cron_model.create(cr, SUPERUSER_ID, {
                 'name': 'Clinical Review Task '
                         'for Activity:{0}'.format(activity_id),
@@ -152,6 +149,11 @@ class NHClinicalPatientObservationEWS(orm.Model):
         :param context: Odoo Context
         :return: If the patient is currently in refusal
         """
+        activity_model = self.pool['nh.activity']
+        activity = activity_model.browse(cr, uid, activity_id)
+        if activity.spell_activity_id.state in ['completed', 'cancelled']:
+            return False
+
         column = 'last_activity_id'
         first_act_order = 'DESC'
         if mode == 'child':
@@ -166,11 +168,16 @@ class NHClinicalPatientObservationEWS(orm.Model):
             'ON acts.id = refused.id '
             'RIGHT OUTER JOIN nh_clinical_spell AS spell '
             'ON spell.activity_id = refused.spell_activity_id '
-            'LEFT JOIN last_finished_pme AS pme ON pme.spell_id = spell.id '
+            'LEFT JOIN wb_transfer_ranked as transfer '
+            'ON transfer.spell_id = spell.id '
+            'AND transfer.rank = 1 '
+            'LEFT JOIN last_finished_obs_stop AS obs_stop '
+            'ON obs_stop.spell_id = spell.id '
             'WHERE {column} = {id} '
-            'AND coalesce(acts.date_terminated >= spell.move_date, TRUE) '
+            'AND coalesce(acts.date_terminated '
+            '>= transfer.date_terminated, TRUE) '
             'AND coalesce(acts.date_terminated >= '
-            'pme.activity_date_terminated, TRUE) '
+            'obs_stop.activity_date_terminated, TRUE) '
             'AND (spell.obs_stop <> TRUE OR spell.obs_stop IS NULL) '
             'ORDER BY refused.spell_activity_id ASC, '
             'refused.first_activity_id {first_act_order}, '

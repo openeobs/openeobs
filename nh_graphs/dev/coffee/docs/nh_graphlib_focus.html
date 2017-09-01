@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>nh_graphlib_focus.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>nh_graphlib_focus.coffee</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <p>NHFocus provides a grouping of many graphs together so they can all be
+manipulated at the same time</p>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-next">istanbul ignore next</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NHFocus</span></span>
+  constructor: <span class="hljs-function"><span class="hljs-params">()</span> -&gt;</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Style defines the styling of the main SVG block:</p>
+<ul>
+<li>Margin: The offset of the SVG</li>
+<li>Padding: The internal offset of elements drawn within the SVG</li>
+<li>Dimensions: The required height and width of the SVG</li>
+<li>Title Height: The height of the title used above context graph</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @style = {
+      spacing: <span class="hljs-number">20</span>,
+      margin: {
+        top: <span class="hljs-number">0</span>,
+        left: <span class="hljs-number">0</span>,
+        right: <span class="hljs-number">0</span>,
+        bottom: <span class="hljs-number">0</span>
+      },
+      padding: {
+        top: <span class="hljs-number">20</span>,
+        left: <span class="hljs-number">0</span>,
+        right: <span class="hljs-number">0</span>,
+        bottom: <span class="hljs-number">20</span>
+      },
+      dimensions: {
+        height: <span class="hljs-number">0</span>,
+        width: <span class="hljs-number">0</span>
+      }
+      title_height: <span class="hljs-number">70</span>
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Array of NHGraph objects for the focus to handle</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @graphs = <span class="hljs-keyword">new</span> Array()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Array of NHTable objects for the focus to handle</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @tables = <span class="hljs-keyword">new</span> Array()</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>The X &amp; Y axes used with the graph</p>
+<ul>
+<li>Scale: The scale that the axis is drawn to</li>
+<li>Axis: The D3 axis object</li>
+<li>Min &amp; Max: The start and end of the scale</li>
+</ul>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @axes = {
+      x: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>
+      },
+      y: {
+        scale: <span class="hljs-literal">null</span>,
+        axis: <span class="hljs-literal">null</span>,
+        min: <span class="hljs-number">0</span>,
+        max: <span class="hljs-number">0</span>
+      }
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>The parent SVG object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @parent_obj = <span class="hljs-literal">null</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>The string for the title and the object it creates</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    @title = <span class="hljs-literal">null</span>
+    @title_obj = <span class="hljs-literal">null</span>
+    self = @</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>Handle resize event</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  handle_resize: <span class="hljs-function"><span class="hljs-params">(self, event)</span> -&gt;</span>
+    <span class="hljs-keyword">if</span> !event.handled
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width -
+        ((self.parent_obj.style.padding.left +
+        self.parent_obj.style.padding.right) + (self.style.margin.left +
+        self.style.margin.right))
+      self.obj.attr(<span class="hljs-string">'width'</span>, self.style.dimensions.width)
+      self.axes.x.scale?.range()[<span class="hljs-number">1</span>] = self.style.dimensions.width
+      <span class="hljs-keyword">if</span> self.parent_obj.options.mobile.is_mob
+        <span class="hljs-keyword">if</span> self.parent_obj.is_landscape()
+          new_date = <span class="hljs-keyword">new</span> Date(self.axes.x.max)
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.landscape
+          new_date.setDate(d)
+          self.redraw([new_date, self.axes.x.max])
+        <span class="hljs-keyword">else</span>
+          new_date = <span class="hljs-keyword">new</span> Date(self.axes.x.max)
+          d = new_date.getDate()-
+            self.parent_obj.options.mobile.date_range.portrait
+          new_date.setDate(d)
+          self.redraw([new_date, self.axes.x.max])
+      <span class="hljs-keyword">else</span>
+        self.redraw([self.axes.x.min, self.axes.x.max])
+      event.handled = <span class="hljs-literal">true</span>
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Setup the focus object, this involves:</p>
+<ol>
+<li>Setup up the parent SVG object</li>
+<li>Add title if needed</li>
+<li>Setup the title offset from context if present</li>
+<li>Add the focus group to the SVG and position it properly</li>
+<li>Setup the focus offset from context if present</li>
+<li>Setup the axis based on the axis of the parent SVG object</li>
+<li>Initialise the graphs and tables associated with the focus. For each
+graph add the height to the height of the focus so it contains them all</li>
+<li>Setup the resize event listener</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  init: <span class="hljs-function"><span class="hljs-params">(parent_svg)</span> =&gt;</span>
+    <span class="hljs-keyword">if</span> parent_svg?
+      @.parent_obj = parent_svg
+      <span class="hljs-keyword">if</span> @.title?
+        @.title_obj = @.parent_obj.obj.append(<span class="hljs-string">'text'</span>).text(@.title)
+        .attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'title'</span>)
+        <span class="hljs-keyword">if</span> parent_svg.context?
+          h_mb = parent_svg.context.style.dimensions.height +
+            parent_svg.context.style.margin.bottom
+          h_mn_pt = h_mb + parent_svg.style.padding.top
+          final = h_mn_pt + @.style.margin.top
+          @.title_obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate(0,'</span>+final+<span class="hljs-string">')'</span>)
+        <span class="hljs-keyword">else</span>
+          h_mt = parent_svg.style.padding.top + @.style.margin.top
+          @.title_obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate(0,'</span>+h_mt+<span class="hljs-string">')'</span>)
+      @.obj = parent_svg.obj.append(<span class="hljs-string">'g'</span>)
+      @.obj.attr(<span class="hljs-string">'class'</span>, <span class="hljs-string">'nhfocus'</span>)
+      top_offset = (parent_svg.style.padding.top + @.style.margin.top)
+      <span class="hljs-keyword">if</span> @.title?
+        top_offset += @.style.title_height
+      <span class="hljs-keyword">if</span> parent_svg.context?
+        pl_ml = parent_svg.style.padding.left + @.style.margin.left
+        h_mb = parent_svg.context.style.dimensions.height +
+          parent_svg.context.style.margin.bottom
+        final = h_mb + top_offset
+        @.obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate('</span>+pl_ml+<span class="hljs-string">','</span>+final+<span class="hljs-string">')'</span>)
+      <span class="hljs-keyword">else</span>
+        @.obj.attr(<span class="hljs-string">'transform'</span>, <span class="hljs-string">'translate('</span>+
+          (parent_svg.style.padding.left + @.style.margin.left)+
+          <span class="hljs-string">','</span>+top_offset+<span class="hljs-string">')'</span>)
+      @.style.dimensions.width = parent_svg.style.dimensions.width -
+        ((parent_svg.style.padding.left + parent_svg.style.padding.right) +
+        (@.style.margin.left + @.style.margin.right))
+      @.obj.attr(<span class="hljs-string">'width'</span>, @.style.dimensions.width)
+      @.axes.x.min = parent_svg.data.extent.start
+      @.axes.x.max = parent_svg.data.extent.end
+
+      <span class="hljs-keyword">for</span> graph <span class="hljs-keyword">in</span> @.graphs
+        graph.init(@)
+        @.style.dimensions.height += graph.style.dimensions.height +
+          @.style.spacing
+
+      <span class="hljs-keyword">for</span> table <span class="hljs-keyword">in</span> @.tables
+        table.init(@)
+
+      <span class="hljs-keyword">if</span> @.title?
+        @.style.dimensions.height += @.style.title_height
+
+
+      parent_svg.style.dimensions.height += @.style.dimensions.height +
+        (@.style.margin.top + @.style.margin.bottom)
+
+      self = @</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>If no parent SVG object then it either doesn’t exist or the focus has
+been initialised before the SVG has been</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">else</span>
+      <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> Error(<span class="hljs-string">'Focus init being called before SVG initialised'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Draw the graphs and tables associated with the focus</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  draw: <span class="hljs-function"><span class="hljs-params">(parent_svg)</span> =&gt;</span>
+    <span class="hljs-keyword">for</span> graph <span class="hljs-keyword">in</span> @.graphs
+      graph.draw(@)
+    <span class="hljs-keyword">for</span> table <span class="hljs-keyword">in</span> @.tables
+      table.draw(@)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Redraw the graphs and tables</p>
+<ol>
+<li>Update the axis and scales with new extent</li>
+<li>Trigger the redraw on the NHGraph object</li>
+</ol>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  redraw: <span class="hljs-function"><span class="hljs-params">(extent)</span> =&gt;</span>
+    <span class="hljs-keyword">for</span> graph <span class="hljs-keyword">in</span> @.graphs
+      graph.axes.x.scale.domain([extent[<span class="hljs-number">0</span>], extent[<span class="hljs-number">1</span>]])
+      graph.axes.x.axis.ticks((@.style.dimensions.width/<span class="hljs-number">100</span>))
+      graph.axes.x.scale.range([<span class="hljs-number">0</span>, @.style.dimensions.width -
+        graph.style.label_width])
+      graph.redraw(@)
+
+    <span class="hljs-keyword">for</span> table <span class="hljs-keyword">in</span> @.tables
+      table.range = extent
+      table.redraw(@)
+    <span class="hljs-keyword">return</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <h2 id="istanbul-ignore-if">istanbul ignore if</h2>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">if</span> !<span class="hljs-built_in">window</span>.NH
+  <span class="hljs-built_in">window</span>.NH = {}
+<span class="hljs-built_in">window</span>.NH.NHFocus = NHFocus</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

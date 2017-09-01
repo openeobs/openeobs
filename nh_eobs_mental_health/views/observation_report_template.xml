@@ -3,9 +3,9 @@
         <template id="observation_report" inherit_id="nh_eobs.triggered_actions" name="Observation Report">
             <!-- Set some variables. -->
             <xpath expr="tr[@class = 'main-entry']" position="before">
-                <t t-set="is_partial" t-value="observation['values']['is_partial']"/>
+                <t t-set="is_partial" t-value="observation.get('values', {}).get('is_partial', '')"/>
                 <t t-set="partial_message" t-value="'Partial - N/A'"/>
-                <t t-set="refused_reason" t-value="'Reason: {}'.format(observation['values']['partial_reason'])"/>
+                <t t-set="refused_reason" t-value="'Reason: {}'.format(observation.get('values', {}).get('partial_reason', ''))"/>
             </xpath>
             <!-- Change what's in score column when obs is partial. -->
             <xpath expr="tr[@class = 'main-entry']/td[@id = 'triggered_actions_score']" position="replace">
@@ -62,16 +62,16 @@
         <template id="patient_refusal_event">
             <tr class="main-entry">
                 <td class="col-xs-3">
-                    <t t-esc="patient_refusal_event['first_refusal']"/>
+                    <t t-esc="patient_refusal_event.get('first_refusal', '')"/>
                 </td>
                 <td class="col-xs-3">
-                    <t t-esc="patient_refusal_event['refusals_until_news_obs_taken']"/>
+                    <t t-esc="patient_refusal_event.get('refusals_until_news_obs_taken', '')"/>
                 </td>
                 <td class="col-xs-3 pre-pre-compact-data">
                     <table class="pre-compact-data col-xs-12 row">
-                        <t t-set="clinical_review" t-value="patient_refusal_event['clinical_review']"/>
+                        <t t-set="clinical_review" t-value="patient_refusal_event.get('clinical_review', '')"/>
                         <t t-if="isinstance(clinical_review, dict)">
-                            <t t-esc="clinical_review['date_terminated']"/><br/><t t-esc="clinical_review['user_id']"/>
+                            <t t-esc="clinical_review.get('date_terminated', '')"/><br/><t t-esc="clinical_review.get('user_id', '')"/>
                         </t>
                         <t t-if="not isinstance(clinical_review, dict)">
                             <t t-esc="clinical_review"/>
@@ -80,9 +80,9 @@
                 </td>
                 <td class="col-xs-3 pre-pre-compact-data">
                     <table class="pre-compact-data col-xs-12 row">
-                        <t t-set="clinical_review_frequency_set" t-value="patient_refusal_event['clinical_review_frequency_set']"/>
+                        <t t-set="clinical_review_frequency_set" t-value="patient_refusal_event.get('clinical_review_frequency_set', '')"/>
                         <t t-if="isinstance(clinical_review_frequency_set, dict)">
-                            <t t-esc="clinical_review_frequency_set['date_terminated']"/><br/><t t-esc="clinical_review_frequency_set['user_id']"/>
+                            <t t-esc="clinical_review_frequency_set.get('date_terminated', '')"/><br/><t t-esc="clinical_review_frequency_set.get('user_id', '')"/>
                         </t>
                         <t t-if="not isinstance(clinical_review_frequency_set, dict)">
                             <t t-esc="clinical_review_frequency_set"/>

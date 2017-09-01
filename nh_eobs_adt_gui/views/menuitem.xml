@@ -28,6 +28,7 @@
                   action="nh_clinical.action_patient"
                   groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,base.user_root"/>
 
+        <!-- Admins version of Visits In-Progress, only visible to them. -->
         <menuitem name="Patient Visits"
                   id="menu_eobs_data_spells"
                   sequence="3"

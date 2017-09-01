@@ -31,6 +31,17 @@ class NHMobileForm extends NHMobile
                 )
 #                input.addEventListener('change', self.trigger_actions)
               when 'submit' then input.addEventListener('click', (e) ->
+                form = document.getElementsByTagName('form')?[0]
+                errored_els = (el for el in form.elements \
+                  when el.classList.contains('error'))
+                for inp in errored_els
+                  self.reset_input_errors(inp)
+                form_elements = (element for element in form.elements \
+                  when not element.classList.contains('exclude'))
+                for el in form_elements
+                  change_event = document.createEvent('CustomEvent')
+                  change_event.initCustomEvent('change', false, true, false)
+                  el.dispatchEvent(change_event)
                 self.handle_event(e, self.submit, true)
               )
               when 'reset' then input.addEventListener('click', (e) ->
@@ -39,6 +50,17 @@ class NHMobileForm extends NHMobile
               when 'radio' then input.addEventListener('click', (e) ->
                 self.handle_event(e, self.trigger_actions, true)
               )
+              when 'checkbox'
+                input.addEventListener('click', (e) ->
+                  self.handle_event(e, self.validate, false)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, false)
+                )
+                input.addEventListener('change', (e) ->
+                  self.handle_event(e, self.validate, false)
+                  e.handled = false
+                  self.handle_event(e, self.trigger_actions, false)
+                )
               when 'text'
                 input.addEventListener('change', (e) ->
                   self.handle_event(e, self.validate, true)
@@ -46,11 +68,19 @@ class NHMobileForm extends NHMobile
                   self.handle_event(e, self.trigger_actions, true)
                 )
           when 'select' then input.addEventListener('change', (e) ->
+            self.handle_event(e, self.validate, true)
+            e.handled = false
             self.handle_event(e, self.trigger_actions, true)
           )
           when 'button' then input.addEventListener('click', (e) ->
             self.handle_event(e, self.show_reference, true)
           )
+          when 'textarea'
+            input.addEventListener('change', (e) ->
+              self.handle_event(e, self.validate, true)
+              e.handled = false
+              self.handle_event(e, self.trigger_actions, true)
+            )
 
     # Set up form timeout so that the task is put back in the task list after
     # a certain time
@@ -68,15 +98,14 @@ class NHMobileForm extends NHMobile
 
     document.addEventListener 'post_score_submit', (event) ->
       self.handle_event(event, self.process_post_score_submit, true, self)
-#      if not event.handled
-#        self.process_post_score_submit(self, event)
-#        event.handled = true
 
     document.addEventListener 'partial_submit', (event) ->
       self.handle_event(event, self.process_partial_submit, true, self)
-#      if not event.handled
-#        self.process_partial_submit(self,event)
-#        event.handled = true
+
+    document.addEventListener(
+      'display_partial_reasons',
+      self.handle_display_partial_reasons.bind(self)
+    )
 
     @patient_name_el.addEventListener 'click', (event) ->
       event.preventDefault()
@@ -108,9 +137,9 @@ class NHMobileForm extends NHMobile
       input.value
     @reset_input_errors(input)
     if typeof(value) isnt 'undefined' and value isnt ''
-      if input.getAttribute('type') is 'number' and not isNaN(value)
+      if input_type is 'number'
         @validate_number_input(input)
-        if input.getAttribute('data-validation')
+        if input.getAttribute('data-validation') and not isNaN(value)
           criterias = eval(input.getAttribute('data-validation'))
           for criteria in criterias
             crit_target = criteria['condition']['target']
@@ -134,12 +163,17 @@ class NHMobileForm extends NHMobile
               @.add_input_errors(other_input, 'Please enter a value')
           @validate_number_input(other_input)
           @validate_number_input(target_input)
-      if input.getAttribute('type') is 'text'
+      if input_type is 'text'
         if input.getAttribute('pattern')
           regex_res = input.validity.patternMismatch
           if regex_res
             @.add_input_errors(input, 'Invalid value')
             return
+    else
+      if input.getAttribute('data-required').toLowerCase() is 'true'
+        @.add_input_errors(input, 'Missing value')
+        return
+
 
   # Validate number input to make sure it fits within the defined range and is
   # float or int
@@ -157,6 +191,9 @@ class NHMobileForm extends NHMobile
       if value > max
         @.add_input_errors(input, 'Input too high')
         return
+    else
+      if input.getAttribute('data-required').toLowerCase() is 'true'
+        @.add_input_errors(input, 'Missing value')
   
   # Certain inputs will affect other inputs, this function takes the JSON string
   # in the input's data-onchange attribute and does the appropriate action
@@ -165,9 +202,16 @@ class NHMobileForm extends NHMobile
 #    input = if event.srcElement then event.srcElement else event.target
     input = event.src_el
     value = input.value
-    if input.getAttribute('type') is 'radio'
+    type = input.getAttribute('type')
+    if type is 'radio'
       for el in document.getElementsByName(input.name)
         if el.value isnt value
+          el.classList.add('exclude')
+        else
+          el.classList.remove('exclude')
+    if type is 'checkbox'
+      for el in document.getElementsByName(input.name)
+        if not el.checked
           el.classList.add('exclude')
         else
           el.classList.remove('exclude')
@@ -178,15 +222,14 @@ class NHMobileForm extends NHMobile
       # TODO: needs a refactor if passing over a select value that is string
       # this blows up
       for action in actions
+        type = action['type']
         for condition in action['condition']
-          if condition[0] not in ['True', 'False'] and
-          typeof condition[0] is 'string'
-            condition[0] = 'document.getElementById("'+condition[0]+'").value'
-          if condition[2] not in ['True', 'False'] and
-          typeof condition[2] is 'string' and condition[2] isnt ''
-            condition[2] = 'document.getElementById("'+condition[2]+'").value'
-          if condition[2] in ['True', 'False', '']
-            condition[2] = "'"+condition[2]+"'"
+          condition[0] = 'document.getElementById("'+condition[0]+'").value'
+          condition[2] = switch
+            when type is 'value' then "'"+condition[2]+"'"
+            when type is 'field' then \
+              'document.getElementById("'+condition[2]+'").value'
+            else "'"+condition[2]+"'"
         mode = ' && '
         conditions = []
         for condition in action['condition']
@@ -198,24 +241,34 @@ class NHMobileForm extends NHMobile
         conditions = conditions.join(mode)
         # TODO: doesn't work with comparative number inputs i.e. a > b
         if eval(conditions)
-          if action['action'] is 'hide'
-            for field in action['fields']
+          actionToTrigger = action['action']
+          fieldsToAffect = action['fields']
+          if actionToTrigger is 'hide'
+            for field in fieldsToAffect
               @.hide_triggered_elements(field)
-          if action['action'] is 'show'
-            for field in action['fields']
+          if actionToTrigger is 'show'
+            for field in fieldsToAffect
               @.show_triggered_elements(field)
-          if action['action'] is 'disable'
-            for field in action['fields']
+          if actionToTrigger is 'disable'
+            for field in fieldsToAffect
               @.disable_triggered_elements(field)
-          if action['action'] is 'enable'
-            for field in action['fields']
+          if actionToTrigger is 'enable'
+            for field in fieldsToAffect
               @.enable_triggered_elements(field)
+          if actionToTrigger is 'require'
+            for field in fieldsToAffect
+              @.require_triggered_elements(field)
+          if actionToTrigger is 'unrequire'
+            for field in fieldsToAffect
+              @.unrequire_triggered_elements(field)
     return
    
   submit: (event) =>
 #    event.preventDefault()
     @.reset_form_timeout(@)
     ajax_act = @form.getAttribute('ajax-action')
+    ajax_partial_act = @form.getAttribute('ajax-partial-action')
+    ajax_args = @form.getAttribute('ajax-args')
     form_elements =
       (element for element in @form.elements \
         when not element.classList.contains('exclude'))
@@ -223,23 +276,30 @@ class NHMobileForm extends NHMobile
       (element for element in form_elements \
         when element.classList.contains('error'))
     empty_elements =
-      (element for element in form_elements when not element.value or \
-      element.value is '')
+      (el for el in form_elements when not el.value and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true') or \
+        el.value is '' and \
+        (el.getAttribute('data-necessary').toLowerCase() is 'true'))
+    empty_mandatory =
+      (el for el in form_elements when not el.value and \
+        (el.getAttribute('data-required').toLowerCase() is 'true') \
+        or el.value is '' \
+        and (el.getAttribute('data-required').toLowerCase() is 'true'))
     if invalid_elements.length<1 and empty_elements.length<1
       # do something with the form
       action_buttons = (element for element in @form.elements \
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @submit_observation(@, form_elements, @form.getAttribute('ajax-action'),
-        @form.getAttribute('ajax-args'))
-    else if empty_elements.length>0 and ajax_act.indexOf('notification') > 0
-      msg = '<p>The form contains empty fields, please enter '+
-        'data into these fields and resubmit</p>'
-      btn = '<a href="#" data-action="close" data-target="invalid_form">'+
-        'Cancel</a>'
-      new window.NH.NHModal('invalid_form', 'Form contains empty fields',
-        msg, [btn], 0, @.form)
+      @submit_observation(@, form_elements, ajax_act, ajax_args)
+    else if empty_mandatory.length > 0 or empty_elements.length>0 and \
+      ajax_act.indexOf('notification') > 0
+        msg = '<p>The form contains empty fields, please enter '+
+          'data into these fields and resubmit</p>'
+        btn = '<a href="#" data-action="close" data-target="invalid_form">'+
+          'Cancel</a>'
+        new window.NH.NHModal('invalid_form', 'Form contains empty fields',
+          msg, [btn], 0, @.form)
     else if invalid_elements.length>0
       msg = '<p>The form contains errors, please correct '+
         'the errors and resubmit</p>'
@@ -253,7 +313,10 @@ class NHMobileForm extends NHMobile
         when element.getAttribute('type') in ['submit', 'reset'])
       for button in action_buttons
         button.setAttribute('disabled', 'disabled')
-      @display_partial_reasons(@)
+      if ajax_partial_act is 'score'
+        @submit_observation(@, form_elements, ajax_act, ajax_args, true)
+      else
+        @display_partial_reasons(@)
 
   show_reference: (event) =>
 #    event.preventDefault()
@@ -273,7 +336,6 @@ class NHMobileForm extends NHMobile
       btn = '<a href="#" data-action="close" data-target="popup_iframe">'+
         'Cancel</a>'
       new window.NH.NHModal('popup_iframe', ref_title, iframe, [btn], 0, @.form)
-
 
   display_partial_reasons: (self) =>
     form_type = self.form.getAttribute('data-source')
@@ -300,9 +362,21 @@ class NHMobileForm extends NHMobile
       new window.NH.NHModal('partial_reasons', server_data.title,
         msg+select, [can_btn, con_btn], 0, self.form)
 
-  submit_observation: (self, elements, endpoint, args) =>
+  submit_observation: (self, elements, endpoint, args, partial = false) =>
     # turn form data in to serialised string and ping off to server
-    serialised_string = (el.name+'='+el.value for el in elements).join("&")
+    formValues = {}
+    for el in elements
+      type = el.getAttribute('type')
+      if not formValues.hasOwnProperty(el.name)
+        if type is 'checkbox'
+          formValues[el.name] = [el.value]
+        else
+          formValues[el.name] = el.value
+      else
+        if type is 'checkbox'
+          formValues[el.name].push(el.value)
+    serialised_string = (key+'='+encodeURIComponent(value) \
+      for key, value of formValues).join("&")
     url = @.urls[endpoint].apply(this, args.split(','))
     # Disable the action buttons
     Promise.when(@call_resource(url, serialised_string)).then (raw_data) ->
@@ -310,10 +384,12 @@ class NHMobileForm extends NHMobile
       data = server_data.data
       body = document.getElementsByTagName('body')[0]
       if server_data.status is 'success' and data.status is 3
+        data_action = if not partial then \
+          'submit' else 'display_partial_reasons'
         can_btn = '<a href="#" data-action="renable" '+
           'data-target="submit_observation">Cancel</a>'
         act_btn = '<a href="#" data-target="submit_observation" '+
-          'data-action="submit" data-ajax-action="'+
+          'data-action="' + data_action + '" data-ajax-action="'+
           data.next_action+'">Submit</a>'
         new window.NH.NHModal('submit_observation',
           server_data.title + ' for ' + self.patient_name() + '?',
@@ -407,14 +483,14 @@ class NHMobileForm extends NHMobile
     window.form_timeout = setTimeout(window.timeout_func, self.form_timeout)
 
   reset_input_errors: (input) ->
-    container_el = input.parentNode.parentNode
+    container_el = @.findParentWithClass(input, 'block')
     error_el = container_el.getElementsByClassName('errors')[0]
     container_el.classList.remove('error')
     input.classList.remove('error')
     error_el.innerHTML = ''
 
   add_input_errors: (input, error_string) ->
-    container_el = input.parentNode.parentNode
+    container_el = @.findParentWithClass(input, 'block')
     error_el = container_el.getElementsByClassName('errors')[0]
     container_el.classList.add('error')
     input.classList.add('error')
@@ -426,22 +502,36 @@ class NHMobileForm extends NHMobile
     el.style.display = 'none'
     inp = document.getElementById(field)
     inp.classList.add('exclude')
+    inp.setAttribute('data-necessary', 'false')
 
   show_triggered_elements: (field) ->
     el = document.getElementById('parent_'+field)
     el.style.display = 'block'
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
+    inp.setAttribute('data-necessary', 'true')
 
   disable_triggered_elements: (field) ->
     inp = document.getElementById(field)
     inp.classList.add('exclude')
+    inp.setAttribute('data-necessary', 'false')
     inp.disabled = true
 
   enable_triggered_elements: (field) ->
     inp = document.getElementById(field)
     inp.classList.remove('exclude')
+    inp.setAttribute('data-necessary', 'true')
     inp.disabled = false
+
+  require_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.remove('exclude')
+    inp.setAttribute('data-required', 'true')
+
+  unrequire_triggered_elements: (field) ->
+    inp = document.getElementById(field)
+    inp.classList.add('exclude')
+    inp.setAttribute('data-required', 'false')
 
   process_partial_submit: (event, self) ->
     form_elements = (element for element in self.form.elements when not
@@ -470,6 +560,16 @@ class NHMobileForm extends NHMobile
     endpoint = event.detail.endpoint
     self.submit_observation(self,
       form_elements, endpoint, self.form.getAttribute('ajax-args'))
+
+  handle_display_partial_reasons: (event) ->
+    this.display_partial_reasons(this)
+
+  findParentWithClass: (el, className) ->
+    while el.parentNode
+      el = el.parentNode
+      if el and className in el.classList
+        return el
+    return null
 
 ### istanbul ignore if ###
 if !window.NH

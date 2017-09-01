@@ -81,6 +81,25 @@ Markup:
       </div>
     </a>
   </li>
+  <li class="status-alert">
+    <div class="status-flag">
+      Rapid Tranquilisation
+    </div>
+    <a class="block level-not-set">
+      <div class="task-meta">
+        <div class="task-right">
+          <p class="aside">02:00 Hours</p>
+        </div>
+        <div class="task-left">
+          <strong>Unknown Patient 5</strong><br>
+          <em>Bed 05, Ward A</em>
+        </div>
+      </div>
+      <div class="task-meta">
+        <p class="taskInfo">NEWS Observation<br></p>
+      </div>
+    </a>
+  </li>
 </ul>
 
 Styleguide 2.2.0
@@ -92,60 +111,70 @@ Styleguide 2.2.0
   margin: 0;
   padding: 0;
   list-style: none;
-  li a{
-    display: block;
-    padding-top: 0.7em;
-    padding-bottom: 0.7em;
-    border-bottom: 1px solid #eeeeee;
-    position: relative;
-    .task-meta{
-      width: 100%;
-      clear: both;
-      float: none;
-      display: inline-block;
+  li {
+    &.status-alert{
+      border: 3px solid black;
     }
-    .task-right{
-      float: right;
-      width: 27.5%;
-      margin-left: 2.5%;
-      margin-top: 0px;
-      text-align: right;
+    .status-flag {
+      background-color: black;
+      color: white;
       font-weight: bold;
-      p{
+      padding: 0.2em 5%;
+    }
+    a {
+      display: block;
+      padding-top: 0.7em;
+      padding-bottom: 0.7em;
+      border-bottom: 1px solid #eeeeee;
+      position: relative;
+      .task-meta {
+        width: 100%;
+        clear: both;
+        float: none;
+        display: inline-block;
+      }
+      .task-right {
+        float: right;
+        width: 27.5%;
+        margin-left: 2.5%;
         margin-top: 0px;
-        margin-bottom: 1em;
+        text-align: right;
+        font-weight: bold;
+        p {
+          margin-top: 0px;
+          margin-bottom: 1em;
+        }
       }
-    }
-    .task-left{
-      float: left;
-      width: 67.5%;
-      margin-right: 2.5%;
-      text-align: left;
-      margin-top: 0px;
-    }
-
-
-    h2{
-      width: 65%;
-      color: #262626;
-    }
-    p{
-      color: #000000;
-      &.taskInfo{
-        text-decoration: underline;
+      .task-left {
+        float: left;
+        width: 67.5%;
+        margin-right: 2.5%;
+        text-align: left;
+        margin-top: 0px;
       }
-    }
-    &.level-one{
-      .subtle-bgcolour(@ok-colour);
-    }
-    &.level-two{
-      .not-as-subtle-bgcolour(@warning-colour);
-    }
-    &.level-three, &.urgent{
-      .subtle-bgcolour(@error-color);
-    }
-    &.level-not-set{
-      background-color: @not-set-colour;
+
+      h2 {
+        width: 65%;
+        color: #262626;
+      }
+      p {
+        color: #000000;
+        &.taskInfo {
+          text-decoration: underline;
+        }
+      }
+      &.level-one {
+        .subtle-bgcolour(@ok-colour);
+      }
+      &.level-two {
+        .not-as-subtle-bgcolour(@warning-colour);
+      }
+      &.level-three, &.urgent {
+        .subtle-bgcolour(@error-color);
+      }
+      &.level-not-set {
+        background-color: @not-set-colour;
+      }
     }
   }
 }
@@ -213,7 +242,7 @@ Markup:
 Styleguide 2.2.1
 */
 
-.sharelist{
+.sharelist, .checklist{
   list-style: none;
   width: 100%;
   li{
@@ -221,7 +250,7 @@ Styleguide 2.2.1
     display: flex;
     flex-direction: row;
     border-bottom: 1px solid #eeeeee;
-    .patient-share, .patient_share_nurse{
+    .patient-share, .patient_share_nurse, .checklist_box{
       flex: 1 0 0 ;
       align-self: center;
     }

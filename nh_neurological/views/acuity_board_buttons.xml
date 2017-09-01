@@ -1,0 +1,84 @@
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="view_wardboard_neuro_chart_form">
+            <field name="name">Wardboard Neurological Observation Chart View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Neurological Observation Chart View" version="7.0" edit="0" create="0">
+                    <sheet>
+                        <field name="neuro_ids" widget="neuro_chart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_neuro_list_form">
+            <field name="name">Wardboard Neurological Observation List View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Neurological Observation List View" version="7.0" edit="0" create="0" class="paged_table">
+                    <sheet>
+                        <field name="neuro_ids" no_open="1"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_wardboard_neuro_chart">
+            <field name="name">Neurological Observation Chart</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_neuro_chart_form"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_wardboard_neuro_list">
+            <field name="name">Neurological Observation List</field>
+            <field name="target">new</field>
+            <field name="res_model">nh.clinical.wardboard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_wardboard_neuro_list_form"/>
+        </record>
+
+        <record model="ir.ui.view" id="view_neuro_wardboard_form">
+            <field name="name">Neuro Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="wardboard_neuro_chart" string="Neurological Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                    <button name="wardboard_neuro_list" string="Neurological List" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="view_tree_observation_neurological">
+            <field name="name">Tree View Observation Neurological</field>
+            <field name="model">nh.clinical.patient.observation.neurological</field>
+            <field name="arch" type="xml">
+                <tree string="Neurological Observations" class="nhc_obs_list">
+                    <field name="date_terminated" widget="nhc_datetime" string="Terminated Time"/>
+                    <field name="score" string="Total Coma Score"/>
+                    <field name="eyes" string="Eyes"/>
+                    <field name="verbal" string="Verbal"/>
+                    <field name="motor" string="Motor"/>
+                    <field name="pupil_right_size" class="nhc_obs_group_separation"/>
+                    <field name="pupil_right_reaction"/>
+                    <field name="pupil_left_size"/>
+                    <field name="pupil_left_reaction"/>
+                    <field name="limb_movement_left_arm" class="nhc_obs_group_separation"/>
+                    <field name="limb_movement_right_arm"/>
+                    <field name="limb_movement_left_leg"/>
+                    <field name="limb_movement_right_leg"/>
+                    <field name="terminate_uid"  class="nhc_obs_group_separation" string="Completed By"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</openerp>
