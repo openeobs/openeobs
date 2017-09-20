@@ -55,25 +55,43 @@ class APITestCommon(openerp.tests.common.HttpCase):
                                       cookies=self.session_resp.cookies)
         return auth_response
 
-    def check_response_json(self, resp, status, title, description, data):
-        """Test the response JSON for correct status, title, desc and
-        data values.
+    def check_response_json(self, response, status, title, description, data):
+        """
+        Wraps `check_json` to handle passing of a response, performs the
+        additional step of converting the response into a dictionary before
+        passing it on to the wrapped method.
 
-        :param resp: Raw response from requests
+        :param response: Raw response from requests
         :param status: The expected status code for the response
         :param title: The title to be shown on the popup on Frontend
         :param description: The description to be used in the popup on Frontend
         :param data: Data the be sent to the Frontend to show in popup
         :returns: ``True`` cos the tests will cause the thing to fail anyways
         """
-        returned_json = json.loads(resp.text)
-        for k in self.json_response_structure_keys:
-            self.assertIn(k, returned_json)
+        response_json_str = response.read()
+        response_json_dict = json.loads(response_json_str)
+        return self.check_json(response_json_dict, status, title, description, data)
 
-        self.assertEqual(returned_json['status'], status)
-        self.assertEqual(returned_json['title'], title)
-        self.assertEqual(returned_json['description'], description)
-        returned_data = json.dumps(returned_json['data'])
+    def check_json(self, json_data, status, title, description, data):
+        """
+        Test the response JSON for correct status, title, desc and
+        data values.
+
+        :param json_data: JSON data.
+        :type json_data: dict
+        :param status: The expected status code for the response
+        :param title: The title to be shown on the popup on Frontend
+        :param description: The description to be used in the popup on Frontend
+        :param data: Data the be sent to the Frontend to show in popup
+        :returns: ``True`` cos the tests will cause the thing to fail anyways
+        """
+        for k in self.json_response_structure_keys:
+            self.assertIn(k, json_data)
+
+        self.assertEqual(json_data['status'], status)
+        self.assertEqual(json_data['title'], title)
+        self.assertEqual(json_data['description'], description)
+        returned_data = json.dumps(json_data['data'])
         json_data = json.dumps(data)
         self.assertEqual(json.loads(returned_data), json.loads(json_data))
         return True
@@ -243,33 +261,9 @@ class APITestCommon(openerp.tests.common.HttpCase):
         the session cookie for subsequent calls.
         """
         super(APITestCommon, self).setUp()
-        self.session_resp = requests.post(route_manager.BASE_URL + '/web',
-                                          {'db': DB_NAME})
-        if 'session_id' not in self.session_resp.cookies:
-            self._safely_exit_test_during_setup(
-                exit_type='skip',
-                reason='Cannot retrieve a valid session to be used '
-                       'for the test.'
-            )
 
-        # Authenticate as a 'nurse' user and check the login was successful
-        user_data = self._get_user_belonging_to_group(
-            'NH Clinical Nurse Group'
-        )
-        if user_data:
-            self.login_name = user_data.get('login')
-        else:
-            self._safely_exit_test_during_setup(
-                exit_type='skip',
-                reason='Cannot retrieve any user for authentication '
-                       'before running the test.'
-            )
-        self.user_id = user_data.get('id')
-        if not self.login_name:
-            self._safely_exit_test_during_setup(
-                exit_type='skip',
-                reason='Cannot retrieve the login name for authentication '
-                       'before running the test.'
-            )
-        self.auth_resp = self._get_authenticated_response(self.login_name)
-        self.assertEqual(self.auth_resp.status_code, 200)
+        # TODO [EOBS-1462] Stop Using demo data in HTTP test cases
+        self.login_name = 'nasir'
+        self.user_id = 40
+
+        self.authenticate(self.login_name, self.login_name)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp import tests
 from openerp.addons.nh_eobs_mobile.controllers.urls import routes
@@ -12,14 +13,15 @@ import mock
 import re
 import requests
 
+
+test_logger = logging.getLogger(__name__)
+
 SERVER_PROTOCOL = "http"
 SERVER_ADDRESS = "localhost"
 SERVER_PORT = "{0}".format(config['xmlrpc_port'])
 MOBILE_URL_PREFIX = 'mobile/'
 BASE_URL = SERVER_PROTOCOL + '://' + SERVER_ADDRESS + ':' + SERVER_PORT + '/'
 BASE_MOBILE_URL = BASE_URL + MOBILE_URL_PREFIX
-
-test_logger = logging.getLogger(__name__)
 
 
 class TestMobileControllerMethods(tests.common.HttpCase):
@@ -245,7 +247,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     def test_method_get_font(self):
         font_url = self._build_url(
             'src/fonts/{}'.format('non-existing-font'), None, mobile=True)
-        test_resp = requests.get(font_url, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(font_url)
         self.assertEqual(test_resp.status_code, 404)
 
     def test_method_take_patient_observation(self):
@@ -267,8 +269,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             take_patient_obs_route[0]['endpoint'],
             '{}/1'.format(test_observation)
         )
-        test_resp = requests.get(patient_obs_url,
-                                 cookies=self.auth_resp.cookies)
+        test_resp = requests.get(patient_obs_url)
         self.assertEqual(test_resp.status_code, 404)
 
     def test_method_take_patient_observation_returns_404_when_no_rel_pat(self):
@@ -321,8 +322,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
 
         # Actually reach the 'single task' page
         try:
-            test_resp = requests.get(patient_obs_url,
-                                     cookies=self.auth_resp.cookies)
+            test_resp = requests.get(patient_obs_url)
         finally:
             # Just the first element of every tuple is needed for
             # reverting the patchers
@@ -352,7 +352,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
             login_route[0]['endpoint'], None, mobile=True)
 
         # Actually logout and test the response
-        test_resp = requests.get(logout_url, cookies=self.auth_resp.cookies)
+        test_resp = requests.get(logout_url)
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.url, login_url)
 
@@ -443,8 +443,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 HttpRequest,
                 'render',
                 side_effect=mock_httprequest_render) as mocked_method:
-            requests.get(get_patients_url,
-                         cookies=self.auth_resp.cookies)
+            requests.get(get_patients_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -575,8 +574,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 HttpRequest,
                 'render',
                 side_effect=mock_httprequest_render) as mocked_method:
-            requests.get(get_tasks_url,
-                         cookies=self.auth_resp.cookies)
+            requests.get(get_tasks_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -701,8 +699,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 HttpRequest,
                 'render',
                 side_effect=mock_httprequest_render) as mocked_method:
-            requests.get(get_patient_url,
-                         cookies=self.auth_resp.cookies)
+            requests.get(get_patient_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -769,8 +766,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
     #         'get_patients', mock_method_returning_empty_list)
     #
     #     # Reach the route under tests
-    #     test_resp = requests.get(get_patient_url,
-    #                              cookies=self.auth_resp.cookies)
+    #     test_resp = requests.get(get_patient_url)
     #
     #     # Stop Odoo's patchers
     #     eobs_api._revert_method('get_patients')
@@ -868,8 +864,7 @@ class TestMobileControllerMethods(tests.common.HttpCase):
                 HttpRequest,
                 'render',
                 side_effect=mock_httprequest_render) as mocked_method:
-            requests.get(get_share_patients_url,
-                         cookies=self.auth_resp.cookies)
+            requests.get(get_share_patients_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -1261,8 +1256,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 patched_now_method.strftime.return_value = '1400000000'
 
                 requests.get(
-                    self.get_task_url,
-                    cookies=self.auth_resp.cookies)
+                    self.get_task_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -1493,8 +1487,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 patched_now_method.strftime.return_value = '1400000000'
 
                 requests.get(
-                    self.get_task_url,
-                    cookies=self.auth_resp.cookies)
+                    self.get_task_url)
 
         # Just the first element of every tuple is needed for
         # reverting the patchers
@@ -1717,7 +1710,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 patched_now_method.strftime.return_value = '1400000000'
 
                 requests.get(
-                    self.get_task_url, cookies=self.auth_resp.cookies)
+                    self.get_task_url)
 
         # Just the first element of every tuple is needed for reverting
         # the patchers
@@ -1878,7 +1871,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
                 'render',
                 side_effect=mock_httprequest_render) as mocked_method:
             requests.get(
-                self.get_task_url, cookies=self.auth_resp.cookies)
+                self.get_task_url)
 
         # Just the first element of every tuple is needed for reverting
         # the patchers
@@ -1932,8 +1925,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
             'read', TestGetSingleTaskMethod.mock_nh_activity_read)
 
         try:
-            test_resp = requests.get(self.get_task_url,
-                                     cookies=self.auth_resp.cookies)
+            test_resp = requests.get(self.get_task_url)
         except except_orm:
             self.fail(
                 'Method under test raised an exception it is '
@@ -2005,7 +1997,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
         # Actually reach the 'single task' page
         try:
             test_resp = requests.get(
-                self.get_task_url, cookies=self.auth_resp.cookies)
+                self.get_task_url)
         finally:
             # Just the first element of every tuple is needed for
             #  reverting the patchers
@@ -2058,7 +2050,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     #     # Actually reach the 'single task' page
     #     try:
     #         test_resp = requests.get(
-    #             self.get_task_url, cookies=self.auth_resp.cookies)
+    #             self.get_task_url)
     #     finally:
     #         # Just the first element of every tuple is needed for reverting
     #         #  the patchers
@@ -2111,7 +2103,7 @@ class TestGetSingleTaskMethod(tests.common.HttpCase):
     #     # Actually reach the 'single task' page
     #     try:
     #         test_resp = requests.get(
-    #             self.get_task_url, cookies=self.auth_resp.cookies)
+    #             self.get_task_url)
     #     finally:
     #         # Just the first element of every tuple is needed
     #         # for reverting the patchers

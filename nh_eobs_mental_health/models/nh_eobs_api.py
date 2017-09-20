@@ -157,8 +157,8 @@ class NHeObsAPI(orm.AbstractModel):
         The response will be the same as for the POST, but additionally will
         return a title and description with appropriate messages. If there will
         be no change in the state of the resource then the messages advise the
-        user to reload their page, as of writing this that is the only known
-        scenario a case where the user attempts to update the `rapid_tranq`
+        user to reload their page. As of writing this that is the only known
+        scenario where the user attempts to update the `rapid_tranq`
         field to a value it already has. Otherwise if the POST would result in
         an update, confirmation messages are returned.
 
