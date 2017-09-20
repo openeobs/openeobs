@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-from urllib import urlencode
 import logging
+from urllib import urlencode
 
-from openerp.addons.nh_eobs_api.routing import Route
-from openerp.addons.nh_eobs_api.routing import ResponseJSON
 from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
+from openerp.addons.nh_eobs_api.routing import ResponseJSON
+from openerp.addons.nh_eobs_api.routing import Route
 
 from . import api_test_common
-
 
 test_logger = logging.getLogger(__name__)
 
@@ -381,7 +380,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             test_response = self.url_open(url_under_test)
         finally:
             methods_to_revert = [m[0] for m in methods_patching_list]
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(eobs_api,
+                                                      methods_to_revert)
 
         self.assertEqual(test_response.code, 200)
         self.assertEqual(test_response.headers.type, 'application/json')
@@ -425,7 +425,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             test_response = self.url_open(url_under_test, data='')
         finally:
             methods_to_revert = [m[0] for m in methods_patching_list]
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(eobs_api,
+                                                      methods_to_revert)
 
         self.assertEqual(test_response.code, 200)
         self.assertEqual(test_response.headers.type, 'application/json')
@@ -474,7 +475,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             test_response = self.url_open(url_under_test, data='')
         finally:
             methods_to_revert = [m[0] for m in methods_patching_list]
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(eobs_api,
+                                                      methods_to_revert)
 
         self.assertEqual(test_response.code, 200)
         self.assertEqual(test_response.headers.type, 'application/json')
@@ -519,7 +521,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             test_response = self.url_open(url_under_test, data='')
         finally:
             methods_to_revert = [m[0] for m in methods_patching_list]
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(eobs_api,
+                                                      methods_to_revert)
 
         self.assertEqual(test_response.code, 200)
         self.assertEqual(test_response.headers.type, 'application/json')
@@ -568,7 +571,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             test_response = self.url_open(url_under_test, data='')
         finally:
             methods_to_revert = [m[0] for m in methods_patching_list]
-            self._revert_bulk_patch_odoo_model_method(eobs_api, methods_to_revert)
+            self._revert_bulk_patch_odoo_model_method(eobs_api,
+                                                      methods_to_revert)
 
         self.assertEqual(test_response.code, 200)
         self.assertEqual(test_response.headers.type, 'application/json')
@@ -1627,7 +1631,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         )
 
         try:
-            test_response = self.url_open(url_under_test, data=url_encoded_demo_data)
+            test_response = self.url_open(url_under_test,
+                                          data=url_encoded_demo_data)
         finally:
             activity_pool._revert_method('search')
             obs_pool._revert_method('get_triggered_tasks')
