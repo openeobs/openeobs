@@ -1040,11 +1040,6 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             route_manager.URL_PREFIX
         )
 
-        # Access the route
-        demo_data = {
-            'taskId': 5061
-        }
-
         def mock_method_returning_list_of_ids(*args, **kwargs):
             return [123, 456, 789]
 

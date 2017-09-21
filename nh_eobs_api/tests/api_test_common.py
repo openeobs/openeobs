@@ -1,11 +1,12 @@
-from random import choice as random_choice
-from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
-from openerp.tests import DB as DB_NAME
-from openerp.osv import osv
 import json
 import logging
+from random import choice as random_choice
+
 import openerp.tests
 import requests
+from openerp.addons.nh_eobs_api.controllers.route_api import route_manager
+from openerp.osv import osv
+from openerp.tests import DB as DB_NAME
 
 test_logger = logging.getLogger(__name__)
 
@@ -70,7 +71,8 @@ class APITestCommon(openerp.tests.common.HttpCase):
         """
         response_json_str = response.read()
         response_json_dict = json.loads(response_json_str)
-        return self.check_json(response_json_dict, status, title, description, data)
+        return self.check_json(
+            response_json_dict, status, title, description, data)
 
     def check_json(self, json_data, status, title, description, data):
         """
