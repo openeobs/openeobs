@@ -505,7 +505,7 @@ class NH_API(openerp.addons.web.controllers.main.Home):
             patient_info = api_pool.get_patient_info(cr, uid,
                                                      hospital_number,
                                                      context=context)
-            if len(patient_info) > 0:
+            if patient_info:
                 response_json = ResponseJSON.get_json_data(
                     status=ResponseJSON.STATUS_SUCCESS,
                     title=patient_info[0]['full_name'],

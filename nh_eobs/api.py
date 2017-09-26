@@ -582,39 +582,41 @@ class nh_eobs_api(orm.AbstractModel):
 
         patient_pool = self.pool['nh.clinical.patient']
         activity_pool = self.pool['nh.activity']
-        patient_pool.check_hospital_number(
-            cr, uid, hospital_number, exception='False', context=context)
+        #patient_pool.check_hospital_number(
+        #    cr, uid, hospital_number, exception='False', context=context)
         patient_ids = patient_pool.search(
             cr, uid, [['other_identifier', '=', hospital_number]],
             context=context)
-        domain = [
-            ('patient_id', '=', patient_ids[0]),
-            ('state', 'not in', ['cancelled', 'completed']),
-            ('data_model', 'not in', ['nh.clinical.spell'])
-        ]
-        activity_ids = activity_pool.search(cr, uid, domain, context=context)
-        activities = activity_pool.read(
-            cr, uid, activity_ids, [], context=context)
-        for a in activities:
-            if a.get('date_scheduled'):
-                scheduled = dt.strptime(a['date_scheduled'], DTF)
-                time = scheduled - dt.now() if dt.now() <= scheduled \
-                    else dt.now() - scheduled
-                hours = time.seconds/3600
-                minutes = time.seconds/60 - time.seconds/3600*60
-                time_string = '{overdue}{days}{hours}:{minutes}'.format(
-                    overdue='overdue: ' if dt.now() > scheduled else '',
-                    days=str(time.days) + 'Days ' if time.days else '',
-                    hours=hours if hours > 9 else '0' + str(hours),
-                    minutes=str(
-                        minutes if minutes > 9 else '0' + str(minutes)
-                    ) + ' hours')
-                a['time'] = time_string
-            else:
-                a['time'] = ''
-        patient = self.get_patients(cr, uid, patient_ids, context=context)
-        patient[0]['activities'] = activities
-        return patient
+        if patient_ids:
+            domain = [
+                ('patient_id', '=', patient_ids[0]),
+                ('state', 'not in', ['cancelled', 'completed']),
+                ('data_model', 'not in', ['nh.clinical.spell'])
+            ]
+            activity_ids = activity_pool.search(cr, uid, domain, context=context)
+            activities = activity_pool.read(
+                cr, uid, activity_ids, [], context=context)
+            for a in activities:
+                if a.get('date_scheduled'):
+                    scheduled = dt.strptime(a['date_scheduled'], DTF)
+                    time = scheduled - dt.now() if dt.now() <= scheduled \
+                        else dt.now() - scheduled
+                    hours = time.seconds/3600
+                    minutes = time.seconds/60 - time.seconds/3600*60
+                    time_string = '{overdue}{days}{hours}:{minutes}'.format(
+                        overdue='overdue: ' if dt.now() > scheduled else '',
+                        days=str(time.days) + 'Days ' if time.days else '',
+                        hours=hours if hours > 9 else '0' + str(hours),
+                        minutes=str(
+                            minutes if minutes > 9 else '0' + str(minutes)
+                        ) + ' hours')
+                    a['time'] = time_string
+                else:
+                    a['time'] = ''
+            patient = self.get_patients(cr, uid, patient_ids, context=context)
+            if patient:
+                patient[0]['activities'] = activities
+            return patient
 
     def get_patients(self, cr, uid, ids, context=None):
         """
