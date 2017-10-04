@@ -33,10 +33,17 @@ class TestPatientTransferCancel(TransactionCase):
         transfer.ensure_one()
         transfer.cancel(transfer.activity_id.id)
 
+    def get_open_placements(self):
+        return self.placement_model.search([
+            ('patient_id', '=', self.patient.id),
+            ('state', 'not in', ['completed', 'cancelled'])
+        ])
+
     def test_new_placement_scheduled_when_original_bed_is_not_available(self):
         """
         If the bed the patient was in before is no longer available then a new
         placement should be created for their original ward.
+        The first 2 placements should be closed.
         """
         self.call_test()
         placement = self.get_open_placements()
