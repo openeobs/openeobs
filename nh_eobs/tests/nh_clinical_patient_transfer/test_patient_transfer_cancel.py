@@ -39,6 +39,16 @@ class TestPatientTransferCancel(TransactionCase):
             ('state', 'not in', ['completed', 'cancelled'])
         ])
 
+    def test_no_open_placements_when_original_bed_is_available(self):
+        """
+        If the bed the patient was in before is still
+        available, then the new, scheduled placement should
+        be cancelled leaving no open placements.
+        """
+        self.call_test()
+        placements = self.get_open_placements()
+        self.assertEqual(0, len(placements))
+
     def test_new_placement_scheduled_when_original_bed_is_not_available(self):
         """
         If the bed the patient was in before is no longer available then a new
