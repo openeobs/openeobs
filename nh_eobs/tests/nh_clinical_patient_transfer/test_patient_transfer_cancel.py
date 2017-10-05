@@ -73,8 +73,12 @@ class TestPatientTransferCancel(TransactionCase):
 
         self.call_test()
 
-        placement = self.get_open_placements()
-        placement.ensure_one()
+        placement_view_model = self.env['nh.clinical.placement']
+        placement_view_model.init()
+        placement = placement_view_model.search([
+            ('patient_id', '=', self.patient.id),
+            ('state', 'not in', ['completed', 'cancelled'])
+        ])
 
-        self.assertNotIn(shift_coordinator_ward_b.id, placement.user_ids)
-        self.assertIn(shift_coordinator_ward_a.id, placement.user_ids)
+        self.assertNotIn(shift_coordinator_ward_b, placement.user_ids)
+        self.assertIn(shift_coordinator_ward_a, placement.user_ids)
