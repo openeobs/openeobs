@@ -89,8 +89,9 @@ class TestPatientTransferCancel(TransactionCase):
         to the test cursor so the test data is not returned by those
         queries.
 
-        Instead this is tested less directly by asserting that the location of
-        the latest placement is correct.
+        Instead this is tested less directly by asserting that the parent
+        location of the latest placement is the original ward and not the
+        destination ward of the cancelled transfer.
         """
         # Get latest placement
         placement = self.placement_model.search([
