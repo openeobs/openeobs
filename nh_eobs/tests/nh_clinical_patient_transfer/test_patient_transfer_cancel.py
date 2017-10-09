@@ -17,8 +17,16 @@ class TestPatientTransferCancel(TransactionCase):
         self.placement_ward_a.ensure_one()
         self.bed_id_before_transfer = self.patient.current_location_id
 
-    def call_test(self):
+    def call_test(self, original_bed_available=True):
         self._transfer_patient()
+
+        if not original_bed_available:
+            # Put another patient in their original bed.
+            self.test_utils.create_patient()
+            self.test_utils.admit_patient()
+            self.test_utils.create_placement()
+            self.test_utils.place_patient(self.test_utils.bed.id)
+
         self._cancel_transfer()
 
     def _transfer_patient(self):
@@ -60,45 +68,20 @@ class TestPatientTransferCancel(TransactionCase):
         placement should be created for their original ward.
         The first 2 placements should be closed.
         """
-        self._transfer_patient()
-
-        # Put another patient in their original bed.
-        self.test_utils.create_patient()
-        self.test_utils.admit_patient()
-        self.test_utils.create_placement()
-        self.test_utils.place_patient(self.test_utils.bed.id)
-
-        self._cancel_transfer()
-
+        self.call_test(original_bed_available=False)
         placement = self.get_open_placements()
         self.assertEqual(1, len(placement))
         self.assertEqual('scheduled', placement.state)
         self.assertNotEqual(placement.id, self.placement_ward_a.id)
         self.assertNotEqual(placement.id, self.placement_ward_b.id)
 
-    def test_only_shift_coordinator_from_original_ward_in_user_ids(self):
+    def test_open_placement_is_for_original_ward(self):
         """
-        Regression for EOBS-1631. Patients should not be visible in the
-        'Patients by Ward' view after their transfer to that ward has been
-        cancelled.
-
-        It seems that this view only shows placements when the ID of the
-        viewing user (a shift coordinator) is in the `user_ids` of the
-        placement record. Unfortunately this cannot be easily tested as it
-        uses SQL to get records and SQL statements do not seem to have access
-        to the test cursor so the test data is not returned by those
-        queries.
-
-        Instead this is tested less directly by asserting that the parent
-        location of the latest placement is the original ward and not the
-        destination ward of the cancelled transfer.
+        When the patient's original bed is no longer available a new placement
+        is scheduled, that placement should be for the original ward.
         """
-        # Get latest placement
-        placement = self.placement_model.search([
-            ('patient_id', '=', self.patient.id),
-        ], order='id desc', limit=1)
-        placement.ensure_one()
-
+        self.call_test(original_bed_available=False)
+        placement = self.get_open_placements()
         expected = self.test_utils.ward.id
-        actual = placement.location_id.parent_id.id
+        actual = placement.suggested_location_id.id
         self.assertEqual(expected, actual)
