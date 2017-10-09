@@ -7,7 +7,7 @@ class TestPatientTransferCancel(TransactionCase):
     def setUp(self):
         super(TestPatientTransferCancel, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
-        self.test_utils.admit_and_place_patient()
+        self.test_utils.admit_and_place_patient(create_placement=False)
         self.test_utils.copy_instance_variables(self)
 
         self.placement_model = self.env['nh.clinical.patient.placement']
