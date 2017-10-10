@@ -22,13 +22,6 @@ module.exports = function (config) {
             version: '50.0',
             platform: 'Windows 10',
             timeZone: 'Universal'
-        },
-        'SL_WebKit': {
-            base: 'SauceLabs',
-            browserName: 'safari',
-            version: '5.1',
-            platform: 'Windows 7',
-            timeZone: 'Universal'
         }
     };
 
