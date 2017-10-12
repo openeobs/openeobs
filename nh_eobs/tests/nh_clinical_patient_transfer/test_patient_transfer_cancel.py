@@ -3,7 +3,9 @@ from openerp.tests.common import TransactionCase
 
 
 class TestPatientTransferCancel(TransactionCase):
-
+    """
+    Test cancelling of a patient transfer.
+    """
     def setUp(self):
         super(TestPatientTransferCancel, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
