@@ -1,6 +1,9 @@
 Open-eObs is an open source project and is open to contributions from the 
 community via the creation of issues and pull requests.
 
+It's recommended before starting work on new functionality that you create an issue
+to communicate your need to the team as we may already have started working on this.
+
 There are a number of standards that the core development team hold themselves
 to that we ask any contributors to honour, these are explained in the 
 pull request and issue templates.
@@ -70,6 +73,7 @@ code we are looking at:
   - If user configurable data is hardcoded or non-overridable
   - If the code is cohesive or could be broken into different modules
   - If the functionality is more applicable to the lower level `NHClinical` repository
+  - Naming conventions (i.e. do variables names make sense)
 
 If we have any changes we will set the pull request to the `Request Changes` state
 and explain which changes we'd like. 
