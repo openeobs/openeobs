@@ -16,6 +16,7 @@ class TestRestartsEWSTasks(TransactionCase):
         self.spell_model = self.env['nh.clinical.spell']
         self.activity_model = self.env['nh.activity']
         self.wardboard_model = self.env['nh.clinical.wardboard']
+        self.obs_stop_model = self.env['nh.clinical.pme.obs_stop']
         self.wizard_model = \
             self.env['nh.clinical.patient_monitoring_exception.select_reason']
 
@@ -29,6 +30,20 @@ class TestRestartsEWSTasks(TransactionCase):
             {'state': 'started'},  # Fails a search later without this.
             {'patient_id': self.patient.id, 'pos_id': 1}
         )
+        self.spell_activity = \
+            self.activity_model.browse(self.spell_activity_id)
+        self.spell = self.spell_activity.data_ref
+
+        pme_reason_acute_ed = self.browse_ref('nh_eobs.acute_hospital_ed')
+        activity_id_obs_stop = self.obs_stop_model.create_activity(
+            {'spell_activity_id': self.spell_activity.id},
+            {
+                'reason': pme_reason_acute_ed.id,
+                'spell': self.spell.id
+            }
+        )
+        activity_obs_stop = self.activity_model.browse(activity_id_obs_stop)
+        self.obs_stop = activity_obs_stop.data_ref
 
         self.wardboard = self.wardboard_model.new(
             {
@@ -41,14 +56,13 @@ class TestRestartsEWSTasks(TransactionCase):
         """
         Test that when obs_stop flag is set to False then a new EWS observation
         is scheduled for 1 hours time.
-        :return:
         """
         domain = [
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
             ('spell_activity_id', '=', self.wardboard.spell_activity_id.id)
         ]
         ews_activities_before = len(self.activity_model.search(domain))
-        self.wardboard.create_new_ews(None)
+        self.obs_stop.create_new_ews()
         ews_activities_after = len(self.activity_model.search(domain))
         self.assertTrue(ews_activities_before + 1, ews_activities_after)
 
@@ -58,7 +72,7 @@ class TestRestartsEWSTasks(TransactionCase):
         """
         time_before_ews_creation = datetime.now()
         expected_time_due = time_before_ews_creation + timedelta(hours=1)
-        new_ews_id = self.wardboard.create_new_ews(None)
+        new_ews_id = self.obs_stop.create_new_ews()
         actual_time_due_str = \
             self.activity_model.browse(new_ews_id).date_scheduled
         actual_time_due = datetime.strptime(actual_time_due_str, DTF)

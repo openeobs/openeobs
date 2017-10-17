@@ -121,11 +121,6 @@
         <div id="chart" class="chart"></div>
     </div>
 
-    <div t-name="nh_weightchart" class="nh_weightchart">
-        <h3 id="chartTitle">Weight</h3>
-        <div id="chart" class="chart"></div>
-    </div>
-
     <table t-name="ListViewPBP" class="oe_list_content">
         <t t-set="columns_count" t-value="visible_columns.length + (options.selectable ? 1 : 0) + (options.deletable ? 1 : 0)"/>
         <thead>

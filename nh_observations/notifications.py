@@ -39,12 +39,40 @@ class nh_clinical_notification(orm.AbstractModel):
         Returns a description in dictionary format of the input fields
         that would be required in the user gui when the notification is
         shown.
+
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id
         :type patient_id: int
         :returns: a list of dictionaries
         :rtype: list
         """
         return self._form_description
+
+    @api.model
+    def get_view_description(self, form_desc):
+        """
+        Transform the form description into view description that can
+        be used by the mobile. This will return a list of dicts similar to :
+        [
+            {
+                'type': 'template',
+                'template': 'nh_observation.custom_template'
+            },
+            {
+                'type': 'task',
+                'inputs': []
+            }
+        ]
+        :param form_desc: List of dicts representing the inputs for the form
+        :type form_desc: list
+        :return: list of dicts representing view description
+        """
+        return [
+            {
+                'type': 'task',
+                'inputs': form_desc,
+                'cancellable': self.is_cancellable()
+            }
+        ]
 
     def is_cancellable(self, cr, uid, context=None):
         """
@@ -63,6 +91,18 @@ class nh_clinical_notification(orm.AbstractModel):
         :rtype: bool
         """
         return True
+
+    def get_triggered_tasks(self):
+        """
+        Get any tasks triggered by this observation.
+        :return:
+        :rtype: list
+        """
+        domain = [
+            ('creator_id', '=', self.activity_id.id)
+        ]
+        activity_model = self.env['nh.activity']
+        return activity_model.search(domain)
 
 
 class nh_clinical_notification_hca(orm.Model):
@@ -144,12 +184,14 @@ class nh_clinical_notification_frequency(orm.Model):
                 {
                     'fields': ['submitButton'],
                     'condition': [['frequency', '==', '']],
-                    'action': 'disable'
+                    'action': 'disable',
+                    'type': 'value'
                 },
                 {
                     'fields': ['submitButton'],
                     'condition': [['frequency', '!=', '']],
-                    'action': 'enable'
+                    'action': 'enable',
+                    'type': 'value'
                 }
             ],
         }

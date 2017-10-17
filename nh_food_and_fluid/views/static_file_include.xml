@@ -1,0 +1,11 @@
+<openerp>
+    <data>
+        <template id="assets_backend" name="food and fluid assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/nh_food_and_fluid/static/src/js/chart.js"></script>
+                <script type="text/javascript" src="/nh_food_and_fluid/static/src/js/desktop.js"></script>
+                <link href="/nh_food_and_fluid/static/src/css/style.css" rel="stylesheet"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

@@ -85,25 +85,26 @@ class TestRefusedObsCount(TransactionObservationCase):
             self.user_id, [self.patient_id], PARTIAL_DATA_ASLEEP)
         self.assertEqual(self.get_refused_count(), 1)
 
-    def test_returns_correct_number_of_patients_after_pme(self):
+    def test_returns_correct_number_of_patients_after_obs_stop(self):
         """
         Test refused obs decreases by 1 when a patient who was refusing is
-        put on PME
+        put on obs stop.
         """
         self.complete_observation(
             self.user_id, [self.patient_id], REFUSED_DATA)
         self.assertEqual(self.get_refused_count(), 1)
         spell = self.spell_model.browse(self.spell_id)
         spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        activity_id = pme_model.create_activity(
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
+        activity_id = obs_stop_model.create_activity(
             {},
             {'reason': 1, 'spell': spell.id}
         )
         activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell.activity_id
-        pme_model.start(activity_id)
+        activity = activity_model.browse(activity_id)
+        activity.spell_activity_id = spell.activity_id
+        obs_stop = activity.data_ref
+        obs_stop.start(activity_id)
         self.assertEqual(self.get_refused_count(), 0)
 
     def test_returns_correct_number_of_patients_after_transfer_in(self):
@@ -169,10 +170,10 @@ class TestRefusedObsCount(TransactionObservationCase):
             self.env['nh.clinical.patient_monitoring_exception.reason']
         reason = self.pme_reason.browse(1)
         wardboard = wardboard_model.browse(spell.id)
-        wardboard.start_patient_monitoring_exception(
+        wardboard.start_obs_stop(
             reason, self.spell_id, self.spell_activity_id)
         self.assertEqual(self.get_refused_count(), 0)
-        wardboard.end_patient_monitoring_exception()
+        wardboard.end_obs_stop()
         self.assertEqual(self.get_refused_count(), 0)
 
     def test_returns_correct_number_of_patients_after_discharge(self):

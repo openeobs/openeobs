@@ -1,0 +1,5 @@
+<templates>
+    <div t-name="nh_weightchart" class="nh_weightchart">
+        <div id="weight_chart" class="chart"></div>
+    </div>
+</templates>

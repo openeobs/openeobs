@@ -8,10 +8,18 @@
                 <xpath expr="//form/header" position="inside">
                     <button name="toggle_obs_stop" string="Stop Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',True]]}"/>
                     <button name="toggle_obs_stop" string="Restart Observations" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['obs_stop','=',False]]}"/>
+                    <button name="set_rapid_tranq" context="{'value': True}" string="Start Rapid Tranq" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['rapid_tranq','=',True]]}"/>
+                    <button name="set_rapid_tranq" context="{'value': False}" string="Stop Rapid Tranq" type="object" groups="nh_clinical.group_nhc_ward_manager" attrs="{'invisible':[['rapid_tranq','=',False]]}"/>
                 </xpath>
                 <xpath expr="//sheet/field" position="after">
                     <field name="obs_stop" readonly="1" invisible="1"/>
                     <field name="acuity_index" readonly="1" invisible="1"/>
+                    <field name="rapid_tranq" readonly="1" invisible="1"/>
+                </xpath>
+                <xpath expr="//sheet/group/group" position="after">
+                    <group string="Rapid Tranquilisation" attrs="{'invisible':[['rapid_tranq','=',False]]}">
+                        <field name="rapid_tranq" string="Active"/>
+                    </group>
                 </xpath>
             </field>
         </record>
@@ -21,8 +29,18 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
             <field name="arch" type="xml">
+                <xpath expr="//kanban" position="attributes">
+                    <attribute name="default_order">rapid_tranq desc</attribute>
+                </xpath>
                 <xpath expr="//kanban/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
+                    <field name="rapid_tranq" readonly="1" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//templates/t/div/div[@class='oe_dropdown_toggle oe_dropdown_kanban']" position="before">
+                    <t t-if="record.rapid_tranq.raw_value === true">
+                        <p class="kanban-card-header-alert">RAPID TRANQUILISATION</p>
+                    </t>
                 </xpath>
             </field>
         </record>
@@ -63,6 +81,9 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_tree"/>
             <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='sex']" position="after">
+                    <field name="rapid_tranq" string="" widget="nh_rapid_tranq" readonly="1"/>
+                </xpath>
                 <xpath expr="//tree/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
                     <field name="acuity_index" readonly="1" invisible="1"/>

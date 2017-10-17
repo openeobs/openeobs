@@ -50,6 +50,11 @@ Styleguide 1.6
 */
 
 @import "utils.less";
+
+button {
+  margin: 0.5em 0;
+}
+
 button, .button, input[type="submit"], input[type="reset"]{
   padding: .3em 2% .3em 2%;
   //font-size: 1em;
@@ -99,7 +104,7 @@ button, .button, input[type="submit"], input[type="reset"]{
     font-size: 1.5rem;
   }
   &.full-width{
-    width: 96%;
+    width: 100%;
     display: block;
   }
   &.rounder{
@@ -161,7 +166,8 @@ Styleguide 2.5
   margin-bottom: 5em;
   li{
     border: 1px solid #eeeeee;
-    width: 49.5% !important;
+    width: 50% !important;
+    box-sizing: border-box;
     &:first-child{
       border-bottom-left-radius: 5px;
       border-top-left-radius: 5px;
@@ -179,5 +185,25 @@ Styleguide 2.5
         border-top-right-radius: 5px;
       }
     }
+  }
+}
+
+/*
+Black Buttons With White Text
+
+.white-on-black - White text on a black background.
+*/
+
+// TODO Need to amend stylesheet to include a new concept for activating /
+// deactivating patient statuses so that this visual language is reusable.
+// From there we can have the start / stop rapid tranq buttons keep this class
+// (which is fine as it only specifies colour) but in addition have a new class
+// that gives some semantics to tell us that the button is for changing a
+// patient's status.
+button.white-on-black{
+  background-color: @not-quite-black;
+  color: white;
+  &:hover, &.disabled, &[disabled]{
+    background-color: darken(@not-quite-black, 10%);
   }
 }

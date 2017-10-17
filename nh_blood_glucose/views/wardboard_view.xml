@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+       <record model="ir.ui.view" id="view_wardboard_blood_glucose_chart_form">
+            <field name="name">Wardboard Blood Glucose Chart Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="arch" type="xml">
+                <form string="Wardboard Blood Glucose Chart Form View" version="7.0" create="0">
+                    <sheet>
+                        <field name="blood_glucose_ids" widget="nh_blood_glucose_chart"/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_form">
+            <field name="name">Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form/header" position="inside">
+                    <button name="wardboard_blood_glucose_chart" string="Blood Glucose Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string = 'Other Obs']" position="inside">
+                    <group string="Blood Glucose">
+                        <field name="blood_glucose_ids" class="nhc_obs" readonly="1" nolabel="1">
+                            <tree>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="blood_glucose" string="Blood Glucose (mmol/L)"/>
+                                <field name="terminate_uid"/>
+                            </tree>
+                            <form>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="blood_glucose"/>
+                                <field name="terminate_uid"/>
+                            </form>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_wardboard_form_discharged">
+            <field name="name">Wardboard Form View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form_discharged"/>
+            <field name="arch" type="xml">
+                <xpath expr="/form/header" position="inside">
+                    <button name="wardboard_blood_glucose_chart" string="Blood Glucose Chart" type="object" groups="base.group_user" attrs="{'invisible':[['patient_id','=',False]]}"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@string = 'Other Obs']" position="inside">
+                    <group string="Blood Glucose">
+                        <field name="blood_glucose_ids" class="nhc_obs" readonly="1" nolabel="1">
+                            <tree>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="terminate_uid"/>
+                                <field name="blood_glucose"/>
+                            </tree>
+                            <form>
+                                <field name="blood_glucose"/>
+                                <field name="date_terminated" string="Date" widget="nhc_datetime"/>
+                                <field name="terminate_uid"/>
+                            </form>
+                        </field>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

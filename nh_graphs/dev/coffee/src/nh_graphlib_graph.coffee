@@ -15,6 +15,7 @@ class NHGraph extends NHGraphLib
     # - Axis: The D3 axis used for the the axis
     # - Min & Max: The extent of the axis
     # - Obj: The object that holds the axis
+    # - valueLabels: value to label mapping so can show custom labels on Y-Axis
     @axes = {
       x: {
         scale: null,
@@ -29,7 +30,8 @@ class NHGraph extends NHGraphLib
         min: 0,
         max: 0,
         obj: null,
-        ranged_extent: null
+        ranged_extent: null,
+        valueLabels: null
       }
       obj: null
     }
@@ -104,7 +106,8 @@ class NHGraph extends NHGraphLib
         }
         width: 2
       },
-      range_padding: 1
+      range_padding: 1,
+      pointRadius: 3
     }
     # Options
     # - Keys: The keys from the dataset to plot. Normal a single item for
@@ -165,6 +168,10 @@ class NHGraph extends NHGraphLib
     cp = document.getElementById('chart_popup')
     cp.classList.add('hidden')
 
+  validValue: (value) ->
+    return value isnt false and value isnt null and \
+        typeof(value) isnt 'undefined'
+
   # Handles rangify input event which changes the Y Axis to it's ranged scale
   # or to initial scale
   rangify_graph: (self, ranged) ->
@@ -210,8 +217,8 @@ class NHGraph extends NHGraphLib
     @.obj = parent_obj.obj.append('g')
     @.obj.attr('class', 'nhgraph')
     @.style.dimensions.width = parent_obj.style.dimensions.width -
-      ((parent_obj.style.padding.left + parent_obj.style.padding.right) +
-      (@.style.margin.left + @.style.margin.right)) - @.style.label_width
+      ((parent_obj.style.padding.left + parent_obj.style.padding.right)
+      ) - @.style.label_width
     @.obj.attr('width', @.style.dimensions.width)
     left_offset = (parent_obj.style.padding.left + @.style.margin.left)
     top_offset = (parent_obj.style.dimensions.height + @.style.margin.top)
@@ -299,12 +306,21 @@ class NHGraph extends NHGraphLib
     else
       @.axes.y.scale = scaleNot
 
+    self = @
     @.axes.y.axis = nh_graphs.svg.axis().scale(@.axes.y.scale).orient('left')
-    .tickFormat(if @.style.axis.step > 0 then \
-      nh_graphs.format(",." + @.style.axis.step + "f") else \
-      nh_graphs.format("d")).tickSubdivide(@.style.axis.step)
+    .tickFormat((d) ->
+      labels = self.axes.y.valueLabels
+      if labels and d of labels
+        return labels[d]
+      if self.style.axis.step > 0
+        return nh_graphs.format(",." + self.style.axis.step + "f")(d)
+      else
+        return nh_graphs.format("d")(d)
+    ).tickSubdivide(self.style.axis.step)
     if not @.style.axis.y.hide
-      @.axes.y.obj = @.axes.obj.append('g').attr('class', 'y axis')
+      @.axes.y.obj = @.axes.obj.append('g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate('+self.style.margin.left+', 0)')
       .call(@.axes.y.axis)
       @.style.axis.y.size = @.axes.y.obj[0][0].getBBox()
 
@@ -318,25 +334,28 @@ class NHGraph extends NHGraphLib
         'class': 'label'
       })
 
-      @.drawables.background.obj.selectAll('text.measurement')
-      .data(@.options.keys).enter().append('text').text((d, i) ->
-        raw = self.parent_obj.parent_obj.data.raw
-        if i isnt self.options.keys.length-1
-          ## Used in case of partial observation
-          if raw[raw.length-1][d] != false
-            return raw[raw.length-1][d]
-          else return 'NA'
-        else
-          if raw[raw.length-1][d] != false
-            return raw[raw.length-1][d] + '' + self.options.measurement
-          else return 'NA'
-      ).attr({
-        'x': self.style.dimensions.width + self.style.label_text_height,
-        'y': (d, i) ->
-          scaleNot(self.axes.y.min) -
-            (self.style.label_text_height * (self.options.keys.length - i))
-        ,'class': 'measurement'
-      })
+      if @.style.label_width
+        @.drawables.background.obj.selectAll('text.measurement')
+        .data(@.options.keys).enter().append('text').text((d, i) ->
+          raw = self.parent_obj.parent_obj.data.raw
+          if i isnt self.options.keys.length-1
+            ## Used in case of partial observation
+            value = raw[raw.length-1][d]
+            if self.validValue(value)
+              return raw[raw.length-1][d]
+            else return 'NA'
+          else
+            value = raw[raw.length-1][d]
+            if self.validValue(value)
+              return raw[raw.length-1][d] + '' + self.options.measurement
+            else return 'NA'
+        ).attr({
+          'x': self.style.dimensions.width + self.style.label_text_height,
+          'y': (d, i) ->
+            scaleNot(self.axes.y.min) -
+              (self.style.label_text_height * (self.options.keys.length - i))
+          ,'class': 'measurement'
+        })
 
     # Check normal range background data validity
     ((self) ->
@@ -450,7 +469,8 @@ class NHGraph extends NHGraphLib
         .interpolate(if self.style.data_style is \
           'stepped' then "step-after" else "linear")
         .defined((d) ->
-          if d.none_values is "[]"
+          value = d[self.options.keys[0]]
+          if d.none_values is "[]" and self.validValue(value)
             return d
         )
         .x((d) ->
@@ -469,7 +489,8 @@ class NHGraph extends NHGraphLib
 
         self.drawables.data.selectAll(".point")
         .data(self.parent_obj.parent_obj.data.raw.filter((d) ->
-          if d.none_values is "[]"
+          value = d[self.options.keys[0]]
+          if d.none_values is "[]" and self.validValue(value)
             return d
           )
         )
@@ -477,7 +498,7 @@ class NHGraph extends NHGraphLib
           return self.axes.x.scale(self.date_from_string(d.date_terminated))
         ).attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
-        ).attr("r", 3).attr("class", "point")
+        ).attr("r", self.style.pointRadius).attr("class", "point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
           self.show_popup(d[self.options.keys[0]],event.pageX,event.pageY)
@@ -492,9 +513,11 @@ class NHGraph extends NHGraphLib
           plot_partial = self.options.plot_partial
           partial_type = self.parent_obj.parent_obj.options.partial_type
           partial = plot_partial and partial_type is 'dot'
-          if plot_partial and partial_type is 'character' and d[key] isnt false
+          value = d[key]
+          hasValue = self.validValue(value)
+          if plot_partial and partial_type is 'character' and hasValue
             partial = true
-          if none_vals isnt "[]" and d[key] isnt false and partial
+          if none_vals isnt "[]" and hasValue and partial
             return d
           )
         )
@@ -505,7 +528,7 @@ class NHGraph extends NHGraphLib
         .attr("cy", (d) ->
           return self.axes.y.scale(d[self.options.keys[0]])
         )
-        .attr("r", 3)
+        .attr("r", self.style.pointRadius)
         .attr("class", "empty_point")
         .attr("clip-path", "url(#"+ self.options.keys.join('-')+'-clip' +")")
         .on('mouseover', (d) ->
@@ -563,7 +586,7 @@ class NHGraph extends NHGraphLib
           key = self.options.keys[0]
           refused = self.parent_obj.parent_obj.options.refused
           refused_ob = refused and d.partial_reason is 'refused'
-          if none_vals isnt "[]" and d[key] is false and refused_ob
+          if none_vals isnt "[]" and !d[key] and refused_ob
             return d
           )
         )
@@ -707,9 +730,11 @@ class NHGraph extends NHGraphLib
             partial_type = self.parent_obj.parent_obj.options.partial_type
             partial = plot_partial and partial_type is 'dot'
             character_plot = plot_partial and partial_type is 'character'
-            if character_plot and d[key] isnt false
+            value = d[key]
+            hasValue = self.validValue(value)
+            if character_plot and hasValue
               partial = true
-            if none_vals isnt "[]" and d[key] isnt false and partial
+            if none_vals isnt "[]" and hasValue and partial
               return d
             )
           ).enter()
@@ -749,9 +774,11 @@ class NHGraph extends NHGraphLib
             partial_type = self.parent_obj.parent_obj.options.partial_type
             partial = plot_partial and partial_type is 'dot'
             character_plot = plot_partial and partial_type is 'character'
-            if character_plot and d[key] isnt false
+            value = d[key]
+            hasValue = self.validValue(value)
+            if character_plot and hasValue
               partial = true
-            if none_vals isnt "[]" and d[key] isnt false and partial
+            if none_vals isnt "[]" and hasValue and partial
               return d
             )
           ).enter()
@@ -789,7 +816,9 @@ class NHGraph extends NHGraphLib
             top = d[self.options.keys[0]]
             bottom = d[self.options.keys[1]]
             none_vals = d.none_values
-            keys_valid = top isnt false and bottom isnt false
+            topHasValue = top isnt false and top isnt null
+            bottomHasValue = bottom isnt false and bottom isnt null
+            keys_valid = topHasValue and bottomHasValue
             if plot_partial and partial_type is 'character' and keys_valid
               partial = true
             if none_vals isnt "[]" and keys_valid and partial
@@ -869,7 +898,7 @@ class NHGraph extends NHGraphLib
             key = self.options.keys[0]
             refused = self.parent_obj.parent_obj.options.refused
             refused_ob = refused and d.partial_reason is 'refused'
-            if none_vals isnt "[]" and d[key] is false and refused_ob
+            if none_vals isnt "[]" and !d[key] and refused_ob
               return d
             )
           )

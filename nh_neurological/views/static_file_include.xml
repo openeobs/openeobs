@@ -1,0 +1,10 @@
+<openerp>
+    <data>
+        <template id="assets_backend" name="neurological assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/nh_neurological/static/src/js/chart.js"></script>
+                <script type="text/javascript" src="/nh_neurological/static/src/js/desktop.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,49 @@
+.modal-dialog.food_fluid_modal{
+    width: 80%;
+}
+
+.food_fluid_table{
+    margin-bottom: 3em;
+}
+.food_fluid_table .nhtable{
+    table-layout: fixed;
+    /*width: 100%;*/
+    word-wrap: break-word;
+    white-space: pre-line;
+}
+.food_fluid_table > .nhtable thead tr th:first-child, .food_fluid_table > .nhtable tbody tr td:first-child {
+    text-align: center;
+}
+
+.food_fluid_table > .nhtable thead tr th{
+    border-color: lightgray;
+    border-top: 1px solid lightgray;
+}
+
+.food_fluid_table > .nhtable thead tr th:first-child, .food_fluid_table > .nhtable thead tr th:last-child{
+    width: 90px;
+}
+
+.food_fluid_table > .nhtable thead tr th:nth-child(2), .food_fluid_table > .nhtable thead tr th:nth-child(3){
+    width: 120px;
+}
+
+.food_fluid_table > .nhtable thead tr th:nth-child(4){
+    width: 70px;
+}
+
+.food_fluid_table > .nhtable thead tr th:nth-child(5), .food_fluid_table > .nhtable thead tr th:nth-child(6), .food_fluid_table > .nhtable thead tr th:nth-child(7){
+    width: 200px;
+}
+
+.food_fluid_table > .nhtable thead tr th:nth-child(8), .food_fluid_table > .nhtable thead tr th:nth-child(9){
+    width: 100px;
+}
+.food_fluid_table > .nhtable tbody tr td {
+    border-color: lightgray;
+    border-bottom: 1px solid lightgray;
+}
+
+.food_fluid_table > .nhtable tbody tr:nth-child(even){
+    background-color: white;
+}

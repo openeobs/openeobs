@@ -5,10 +5,37 @@
 Warning Score policy triggers.
 """
 from openerp.osv import orm
+from openerp.models import AbstractModel
 from openerp.addons.nh_observations import frequencies
 import logging
 import copy
 _logger = logging.getLogger(__name__)
+
+
+class NhClinicalNotification(AbstractModel):
+
+    _name = 'nh.clinical.notification'
+    _inherit = 'nh.clinical.notification'
+
+    def get_triggering_ews_risk(self):
+        """
+        Follow the chain of escalation tasks backwards to get the EWS
+        observation that started the 'escalation flow' and return its risk.
+        :return: Clinical risk of the original triggering EWS observation.
+        :rtype: str
+        """
+        ews_model_name = 'nh.clinical.patient.observation.ews'
+        creator_is_ews = False
+        activity = self.activity_id
+
+        while not creator_is_ews:
+            creator = activity.creator_id
+            creator_is_ews = creator.data_model == ews_model_name
+            activity = creator
+
+        ews_activity = activity
+        clinical_risk = ews_activity.data_ref.clinical_risk
+        return clinical_risk
 
 
 class nh_clinical_notification_assessment(orm.Model):

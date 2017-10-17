@@ -26,7 +26,7 @@ class nh_clinical_patient_observation_vips(orm.Model):
     _name = 'nh.clinical.patient.observation.vips'
     _inherit = ['nh.clinical.patient.observation']
     _required = ['pain', 'redness', 'swelling', 'cord', 'pyrexia']
-    _description = "VIPS Observation"
+    _description = "VIPS"
     _selection = [('no', 'No'), ('yes', 'Yes')]
 
     """
@@ -89,7 +89,7 @@ class nh_clinical_patient_observation_vips(orm.Model):
     def _get_score(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for vips in self.browse(cr, uid, ids, context):
-            res[vips.id] = self.calculate_score(vips)
+            res[vips.id] = self.calculate_score(cr, uid, vips)
             _logger.debug(
                 "Observation VIPS activity_id=%s vips_id=%s score: %s"
                 % (vips.activity_id.id, vips.id, res[vips.id]))

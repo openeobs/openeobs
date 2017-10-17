@@ -24,17 +24,21 @@ class TestAcuityIndex(TransactionObservationCase):
         self.wardboard_model = self.env['nh.clinical.wardboard']
         self.spell_model = self.env['nh.clinical.spell']
 
-    def start_patient_monitoring_exception(self, spell):
+    def start_obs_stop(self, spell):
         spell.write({'obs_stop': True})
-        pme_model = self.env['nh.clinical.patient_monitoring_exception']
-        activity_id = pme_model.create_activity(
-            {},
+        obs_stop_model = self.env['nh.clinical.pme.obs_stop']
+        activity_id = obs_stop_model.create_activity(
+            {
+                'parent_id': self.spell_activity_id,
+                'data_model': 'nh.clinical.pme.obs_stop'
+            },
             {'reason': 1, 'spell': spell.id}
         )
         activity_model = self.env['nh.activity']
-        pme_activity = activity_model.browse(activity_id)
-        pme_activity.spell_activity_id = spell.activity_id
-        pme_model.start(activity_id)
+        obs_stop_activity = activity_model.browse(activity_id)
+        obs_stop_activity.spell_activity_id = spell.activity_id
+        obs_stop = obs_stop_activity.data_ref
+        obs_stop.start(activity_id)
 
     def test_no_risk(self):
         """
@@ -96,7 +100,7 @@ class TestAcuityIndex(TransactionObservationCase):
         Test that patient on PME/Obs Stop has an acuity index of 'ObsStop'
         """
         spell = self.spell_model.browse(self.spell_id)
-        self.start_patient_monitoring_exception(spell)
+        self.start_obs_stop(spell)
         wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'ObsStop')
 
@@ -108,9 +112,9 @@ class TestAcuityIndex(TransactionObservationCase):
         self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
         time.sleep(2)
         spell = self.spell_model.browse(self.spell_id)
-        self.start_patient_monitoring_exception(spell)
+        self.start_obs_stop(spell)
         wardboard = self.wardboard_model.browse(self.spell_id)
-        wardboard.end_patient_monitoring_exception()
+        wardboard.end_obs_stop()
         # Have to invalidate the cache as the browse was still returning the
         # old cached value
         self.env.invalidate_all()
@@ -161,7 +165,7 @@ class TestAcuityIndex(TransactionObservationCase):
         time.sleep(2)
 
         spell = self.spell_model.browse(self.spell_id)
-        self.start_patient_monitoring_exception(spell)
+        self.start_obs_stop(spell)
 
         wardboard = self.wardboard_model.browse(self.spell_id)
         self.assertEqual(wardboard.acuity_index, 'ObsStop')

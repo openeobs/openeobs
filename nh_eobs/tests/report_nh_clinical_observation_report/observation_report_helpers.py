@@ -67,14 +67,6 @@ class ObservationReportHelpers(TransactionCase):
         'terminate_uid': [1, 'Test'],
     }
 
-    weight_data = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'data_ref': 'WEIGHT,1',
-        'terminate_uid': [1, 'Test'],
-    }
-
     pain_data = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -112,14 +104,6 @@ class ObservationReportHelpers(TransactionCase):
         'date_terminated': '1988-01-12 06:00:01',
         'id': 1,
         'data_ref': 'GCS,1',
-        'terminate_uid': [1, 'Test'],
-    }
-
-    blood_sugar_data = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'data_ref': 'BLOODSUGAR,1',
         'terminate_uid': [1, 'Test'],
     }
 
@@ -206,13 +190,6 @@ class ObservationReportHelpers(TransactionCase):
         'height': 1.2
     }
 
-    weight_values = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'weight': 1.2
-    }
-
     pain_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
@@ -265,13 +242,6 @@ class ObservationReportHelpers(TransactionCase):
         'verbal': 'T',
         'motor': '6',
         'score': 1
-    }
-
-    blood_sugar_values = {
-        'date_started': '1988-01-12 06:00:00',
-        'date_terminated': '1988-01-12 06:00:01',
-        'id': 1,
-        'blood_sugar': 1.2
     }
 
     o2target_values = {
@@ -403,8 +373,6 @@ class ObservationReportHelpers(TransactionCase):
         self.ews_pool = self.registry('nh.clinical.patient.observation.ews')
         self.height_pool = \
             self.registry('nh.clinical.patient.observation.height')
-        self.weight_pool = \
-            self.registry('nh.clinical.patient.observation.weight')
         self.api_pool = self.registry('nh.eobs.api')
         self.o2level_pool = self.registry('nh.clinical.o2level')
         self.o2target_pool = self.registry('nh.clinical.patient.o2target')
@@ -416,8 +384,6 @@ class ObservationReportHelpers(TransactionCase):
             self.registry('nh.clinical.patient.observation.stools')
         self.pbp_pool = self.registry('nh.clinical.patient.observation.pbp')
         self.gcs_pool = self.registry('nh.clinical.patient.observation.gcs')
-        self.blood_sugar_pool = \
-            self.registry('nh.clinical.patient.observation.blood_sugar')
         self.mrsa_pool = self.registry('nh.clinical.patient.mrsa')
         self.diabetes_pool = self.registry('nh.clinical.patient.diabetes')
         self.palliative_care_pool = \
@@ -467,13 +433,11 @@ class ObservationReportHelpers(TransactionCase):
             models = [
                 'nh.clinical.patient.observation.ews',
                 'nh.clinical.patient.observation.height',
-                'nh.clinical.patient.observation.weight',
                 'nh.clinical.patient.observation.pain',
                 'nh.clinical.patient.observation.blood_product',
                 'nh.clinical.patient.observation.stools',
                 'nh.clinical.patient.observation.pbp',
                 'nh.clinical.patient.observation.gcs',
-                'nh.clinical.patient.observation.blood_sugar',
                 'nh.clinical.patient.observation.o2target',
                 'nh.clinical.patient.mrsa',
                 'nh.clinical.patient.diabetes',
@@ -497,13 +461,11 @@ class ObservationReportHelpers(TransactionCase):
             responses = [
                 self.ews_data,
                 self.height_data,
-                self.weight_data,
                 self.pain_data,
                 self.blood_product_data,
                 self.stools_data,
                 self.pbp_data,
                 self.gcs_data,
-                self.blood_sugar_data,
                 self.o2target_data,
                 self.mrsa_data,
                 self.diabetes_data,
@@ -528,9 +490,6 @@ class ObservationReportHelpers(TransactionCase):
         def height_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.height_values)
 
-        def weight_pool_mock_read(*args, **kwargs):
-            return copy.deepcopy(self.weight_values)
-
         def pain_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.pain_values)
 
@@ -545,9 +504,6 @@ class ObservationReportHelpers(TransactionCase):
 
         def gcs_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.gcs_values)
-
-        def blood_sugar_pool_mock_read(*args, **kwargs):
-            return copy.deepcopy(self.blood_sugar_values)
 
         def o2target_pool_mock_read(*args, **kwargs):
             return copy.deepcopy(self.o2target_values)
@@ -601,15 +557,12 @@ class ObservationReportHelpers(TransactionCase):
         self.o2target_pool._patch_method('get_last',
                                          o2target_pool_mock_get_last)
         self.height_pool._patch_method('read', height_pool_mock_read)
-        self.weight_pool._patch_method('read', weight_pool_mock_read)
         self.pain_pool._patch_method('read', pain_pool_mock_read)
         self.blood_product_pool._patch_method('read',
                                               blood_product_pool_mock_read)
         self.stools_pool._patch_method('read', stools_pool_mock_read)
         self.pbp_pool._patch_method('read', pbp_pool_mock_read)
         self.gcs_pool._patch_method('read', gcs_pool_mock_read)
-        self.blood_sugar_pool._patch_method('read',
-                                            blood_sugar_pool_mock_read)
         self.o2target_pool._patch_method('read', o2target_pool_mock_read)
         self.o2level_pool._patch_method('browse', o2level_pool_mock_browse)
         self.mrsa_pool._patch_method('read', mrsa_pool_mock_read)
@@ -639,13 +592,11 @@ class ObservationReportHelpers(TransactionCase):
         self.ews_pool._revert_method('read')
         self.o2target_pool._revert_method('get_last')
         self.height_pool._revert_method('read')
-        self.weight_pool._revert_method('read')
         self.pain_pool._revert_method('read')
         self.blood_product_pool._revert_method('read')
         self.stools_pool._revert_method('read')
         self.pbp_pool._revert_method('read')
         self.gcs_pool._revert_method('read')
-        self.blood_sugar_pool._revert_method('read')
         self.o2target_pool._revert_method('read')
         self.mrsa_pool._revert_method('read')
         self.diabetes_pool._revert_method('read')

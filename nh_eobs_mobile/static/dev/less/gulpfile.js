@@ -6,15 +6,17 @@ var gulp = require('gulp'),
 	flatten = require('gulp-flatten');
 
 gulp.task('compileLESS', function(){
-	gulp.src('src/compile.less')
+	gulp.src('src/nhc.less')
 	.pipe(less().on('error', util.log))
-	.pipe(gulp.dest('style/'));
+	.pipe(gulp.dest('../../src/css/'));
 });
 
 gulp.task('Styleguide', function(){
 	del(['styleguide/**']);
-	gulp.src(['src/general.less',
+	gulp.src([
+		'src/general.less',
 		'src/modal.less',
+		'src/alert.less',
 		'src/button.less',
 		'src/form.less',
 		'src/list.less',
@@ -26,7 +28,7 @@ gulp.task('Styleguide', function(){
 	}))
 	.pipe(gulp.dest('styleguide/'));
 
-	gulp.src(['src/compile.less'])
+	gulp.src(['src/nhc.less'])
 	.pipe(less().on('error', util.log))
 	.pipe(gulp.dest('styleguide/public'));
 
