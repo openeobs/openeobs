@@ -10,7 +10,6 @@
     "gulp-coffee": "2.3.1",
     "gulp-notify": "2.2.0",
     "gulp-concat": "2.5.2 ",
-    "gulp-docco": "0.0.4",
     "karma-jasmine": "0.3.5",
     "karma-jasmine-ajax": "0.1.13",
     "karma-junit-reporter": "0.2.2",
@@ -21,6 +20,7 @@
     "karma-html-reporter": "*",
     "gulp-delete-lines": "0.0.7",
     "karma-sauce-launcher": "0.2.14",
-    "jasmine-core": "2.4.1"
+    "jasmine-core": "2.4.1",
+    "karma-chrome-launcher": "^0.2.2"
   }
 }

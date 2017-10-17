@@ -1,13 +1,37 @@
 <openerp>
     <data>
         <template id="nh_eobs_mental_health.patient_task_list" inherit_id="nh_eobs_mobile.patient_task_list">
-            <xpath expr="//t/div/ul/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
+            <xpath expr="//t/div/ul/t/li/a" position="before">
+                <t t-if="item.get('rapid_tranq') == True">
+                    <div class="status-flag">
+                        RAPID TRANQUILISATION
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//t/div/ul/t/li" position="attributes">
+                <attribute name="t-att-class">'status-alert' if item.get('rapid_tranq') == True else ''</attribute>
+            </xpath>
+            <xpath expr="//t/div/ul/t/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
                  <p class="aside">
                      <t t-if="item.get('refusal_in_effect') == True">
                          Refused -
                      </t>
                      <t t-esc="item['deadline_time']"/>
                  </p>
+            </xpath>
+        </template>
+        <template id="nh_eobs_mental_health.patient" inherit_id="nh_eobs_mobile.patient">
+            <xpath expr="//*[@id = 'obsMenu']" position="after">
+                <t t-if="'NH Clinical / NH Clinical Nurse Group' in user_groups">
+                    <button id="toggle-rapid-tranq" t-att-class="'big full-width white-on-black' if patient.get('rapid_tranq') == True else 'big full-width dont-do-it'" t-att-data-state-to-set="'false' if patient.get('rapid_tranq') == True else 'true'">
+                        <t t-if="patient.get('rapid_tranq') == True">
+                            Stop
+                        </t>
+                        <t t-if="patient.get('rapid_tranq') != True">
+                            Start
+                        </t>
+                        Rapid Tranquilisation</button>
+                </t>
             </xpath>
         </template>
         <template id="nh_eobs_mental_health.base" inherit_id="nh_eobs_mobile.base">

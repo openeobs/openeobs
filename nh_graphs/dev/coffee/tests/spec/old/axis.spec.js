@@ -130,7 +130,7 @@ describe('Axis', function () {
             graphlib.init();
 
             // As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
-            expect(graphlib.style.time_padding).toBe(100);
+            expect(graphlib.style.timePadding).toBe(100);
             var start = new Date(data_point);
             var end = new Date(data_point);
 
@@ -148,13 +148,13 @@ describe('Axis', function () {
             var data_point = graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']);
 
             // set time padding to 3
-            graphlib.style.time_padding = 3;
+            graphlib.style.timePadding = 3;
 
             // initalise the graph
             graphlib.init();
 
             // As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
-            expect(graphlib.style.time_padding).toBe(3);
+            expect(graphlib.style.timePadding).toBe(3);
             var start = new Date(data_point);
             var end = new Date(data_point);
 
@@ -173,7 +173,7 @@ describe('Axis', function () {
             graphlib.init();
 
             // dates are 1 hour apart (3600000), svg is 500px (500px - 0 margins) and 3600000 / 500 / 500 = 14.4
-            expect(graphlib.style.time_padding).toBe(14.4);
+            expect(graphlib.style.timePadding).toBe(14.4);
             var start = new Date(original_extent[0]);
             var end = new Date(original_extent[1]);
 
@@ -190,11 +190,11 @@ describe('Axis', function () {
             var original_extent = [graphlib.date_from_string(graphlib.data.raw[0]['date_terminated']), graphlib.date_from_string(graphlib.data.raw[1]['date_terminated'])];
 
              // set time padding to 3
-            graphlib.style.time_padding = 3;
+            graphlib.style.timePadding = 3;
             graphlib.init();
 
             // As we're dealing with a single data point the initialisation should pad the extent by 100 minutes
-            expect(graphlib.style.time_padding).toBe(3);
+            expect(graphlib.style.timePadding).toBe(3);
             var start = new Date(original_extent[0]);
             var end = new Date(original_extent[1]);
 

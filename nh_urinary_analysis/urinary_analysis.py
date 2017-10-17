@@ -24,7 +24,7 @@ class nh_clinical_patient_observation_urinary_analysis(orm.Model):
     _name = 'nh.clinical.patient.observation.urinary_analysis'
     _inherit = ['nh.clinical.patient.observation']
     _required = []
-    _description = "Urinary Analysis Observation"
+    _description = "Urinary Analysis"
     _num_fields = ['ph']
     _values = [['neg', 'NEG'], ['trace', 'TRACE'], ['1', '+'], ['2', '++'],
                ['3', '+++'], ['4', '++++']]

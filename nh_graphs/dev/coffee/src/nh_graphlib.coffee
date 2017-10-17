@@ -29,7 +29,7 @@ class NHGraphLib
       label_gap: 10,
       transition_duration: 1e3,
       axis_label_text_height: 10,
-      time_padding: null
+      timePadding: null
     }
     # Patient defines the details of the patient
     # - ID: The patient_id from the server
@@ -97,19 +97,50 @@ class NHGraphLib
     # - Keys: List of keys to use with the data set to render table
     @table = {
       element: null,
-      keys: null
+      keys: null,
+      type: null
     }
     @version = '0.0.1'
     self = @
 
   # Create a Date Object from a string. As Odoo gives dates in a silly string
-  # format need to convert to proper Date to use with D3. Attempts to convert;
-  # falls back to use hack with T instead of space and finally throws error if
-  # cannot convert
+  # format need to convert to proper Date to use with D3 across all browsers.
+  # Because of issues with older webkit have to be deconstruct the date parts
+  # from the string (also adding the ability to change format) and put these
+  # into a new Date object
+  parseDateTime: (input, format='YYYY-mm-DD HH:MM:SS') ->
+    parts = input.match(/(\d+)/g)
+    i = 0
+    fmt = {}
+    format.replace /(YYYY|mm|DD|HH|MM|SS)/g, (part) ->
+      fmt[part] = i++
+    if parts is null or fmt is null
+      throw new Error("Invalid date format")
+    new Date(
+      parts[fmt['YYYY']],
+      (parts[fmt['mm']]-1),
+      parts[fmt['DD']],
+      parts[fmt['HH']],
+      parts[fmt['MM']],
+      parts[fmt['SS']]
+    )
+
+  parseDate: (input, format='YYYY-mm-DD') ->
+    parts = input.match(/(\d+)/g)
+    i = 0
+    fmt = {}
+    format.replace /(YYYY|mm|DD)/g, (part) ->
+      fmt[part] = i++
+    if parts is null or fmt is null
+      throw new Error("Invalid date format")
+    new Date(
+      parts[fmt['YYYY']],
+      (parts[fmt['mm']]-1),
+      parts[fmt['DD']]
+    )
+
   date_from_string: (date_string) ->
-    date = new Date(date_string)
-    if isNaN(date.getTime())
-      date = new Date(date_string.replace(' ', 'T'))
+    date = @parseDateTime(date_string)
     if isNaN(date.getTime())
       throw new Error("Invalid date format")
     return date
@@ -209,11 +240,12 @@ class NHGraphLib
   # 3. ping off a resize event to the context to handle this lower down
   redraw_resize: (event) ->
     if @is_alive() and !event.handled
-      @style.dimensions.width = \
-        nh_graphs.select(@el)?[0]?[0]?.clientWidth -
-        (@style.margin.left + @style.margin.right)
+      @style.dimensions.width = nh_graphs.select(@el)?[0]?[0]?.clientWidth
       @obj?.attr('width', @style.dimensions.width)
-      @.context?.handle_resize(@.context, @.obj, event)
+      if @.context?
+        @.context?.handle_resize(@.context, @.obj, event)
+      else
+        @.focus?.handle_resize(@.focus, @.obj, event)
       event.handled = true
     return
 
@@ -280,17 +312,20 @@ class NHGraphLib
       @.style.dimensions.width = container_el?[0]?[0].clientWidth -
         (@.style.margin.left + @.style.margin.right)
       @.obj = container_el.append('svg')
-      if @.data.raw.length < 2 and not @.style.time_padding
-        @.style.time_padding = 100
+      if @.data.raw.length < 2 and not @.style.timePadding
+        @.oneHundredSecondsInMilliseconds = 6000000
+        @.style.timePadding = @.oneHundredSecondsInMilliseconds
       if @.data.raw.length > 0
         start = @.date_from_string(@.data.raw[0]['date_terminated'])
         end = \
           @.date_from_string(@.data.raw[@.data.raw.length-1]['date_terminated'])
-        if not @.style.time_padding
-          @.style.time_padding = ((end-start)/@.style.dimensions.width)/500
-        start.setMinutes(start.getMinutes()-@.style.time_padding)
+        if not @.style.timePadding
+          @.rangeInMilliseconds = end.getTime() - start.getTime()
+          @.fivePercentOfRange = @.rangeInMilliseconds * 0.05
+          @.style.timePadding = @.fivePercentOfRange
+        start.setTime(start.getTime()-@.style.timePadding)
         @.data.extent.start = start
-        end.setMinutes(end.getMinutes()+@.style.time_padding)
+        end.setTime(end.getTime()+@.style.timePadding)
         @.data.extent.end = end
         @.context?.init(@)
         @.focus?.init(@)
@@ -352,7 +387,19 @@ class NHGraphLib
     tbody = container.append('tbody').attr('class', 'tbody')
     header_row = [{'date_terminated': 'Date'}]
     raw_data = self.data.raw.reverse()
-    thead.append('tr').selectAll('th')
+    if self.table.type is 'nested'
+      first_row = [{'period_title': '', 'observations': [{}]}]
+      thead.append('tr').selectAll('.group-header')
+        .data(first_row.concat(raw_data)).enter()
+        .append('th').html((d) ->
+          return d.period_title
+        ).attr('colspan', (d) ->
+          return d.observations.length
+        ).attr('class', 'group-header')
+      raw_data = raw_data.reduce((a, b) ->
+        return a.concat(b.observations)
+      , [])
+    thead.append('tr').selectAll('.column-header')
     .data(header_row.concat(raw_data)).enter()
     .append('th').html((d) ->
       term_date = d.date_terminated
@@ -363,32 +410,56 @@ class NHGraphLib
       if date_rotate.length is 1
         return date_rotate[0]
       return date_rotate[1] + '<br>' + date_rotate[0]
+    ).attr('class', (d) ->
+      cls = 'column-header '
+      if d.class
+        cls += d.class
+      return cls
     )
     rows = tbody.selectAll('tr.row')
     .data(self.table.keys).enter()
     .append('tr').attr('class', 'row')
 
     cells = rows.selectAll('td').data((d) ->
-      data = [{title: d['title'], value: d['title']}]
+      data = [
+        {
+          title: d['title'],
+          value: d['title'],
+          presentation: d['presentation']
+          class: false
+        }
+      ]
       for obj in raw_data
         if d['keys'].length is 1
           key = d['keys'][0]
+          fix_val = undefined
           if obj.hasOwnProperty(key)
             fix_val = obj[key]
             fix_val = 'No' if fix_val is false
             fix_val = 'Yes' if fix_val is true
-            if d['title']
-              data.push {title: d['title'], value: fix_val}
+          if d['title']
+            data.push {
+              title: d['title'],
+              value: fix_val,
+              presentation: d['presentation'],
+              class: obj["class"]
+            }
         else
           t = d['title']
           v = []
+          p = d['presentation']
           for o in d['keys']
-            v.push {title: o['title'], value: obj[o['keys'][0]]}
+            v.push {
+              title: o['title'],
+              value: obj[o['keys'][0]],
+              presentation: p,
+              class: obj[o["class"]]
+            }
           if t
-            data.push {title: t, value: v}
+            data.push {title: t, value: v, presentation: p, class: false}
       return data
     ).enter().append('td').html((d) ->
-      if typeof d.value is 'object'
+      if typeof d.value is 'object' and d.value isnt null
         text = ''
         for o in d.value
           if o.value
@@ -397,7 +468,12 @@ class NHGraphLib
             text += '<strong>'+ o.title + ':</strong> ' + o.value + '<br>'
         return text
       else
-        return d.value
+        if d.presentation is 'bold'
+          return '<strong>' + d.value + '</strong>'
+        else
+          return d.value
+     ).attr("class", (d) ->
+       return d.class
      )
 
 ### istanbul ignore if ###

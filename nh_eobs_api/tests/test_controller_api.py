@@ -55,7 +55,6 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
                 'three_in_one': True
             },
             'modal_vals': {
-                'next_action': 'json_task_form_action',
                 'title': 'Submit NEWS score of 3',
                 'content': '<p><strong>Clinical risk: Medium</strong>'
                            '</p><p>Please confirm you want to '
@@ -83,9 +82,9 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
 
         # Create demo data
         demo_data = {
-            'eyes': '4',
-            'verbal': '5',
-            'motor': '6',
+            'eyes': 'SP',
+            'verbal': 'WO',
+            'motor': 'LO',
             'startTimestamp': '0',
         }
 
@@ -103,22 +102,22 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
 
         expected_json = {
             'score': {
-                'score': 15
+                'score': 12
             },
             'modal_vals': {
-                'next_action': 'json_patient_form_action',
-                'title': 'Submit GCS score of 15',
+                'title': 'Submit GCS score of 12',
                 'content': '<p>Please confirm you want to submit '
                            'this score</p>'
             },
             'status': 3,
             'next_action': 'json_patient_form_action'
         }
-        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 'Submit GCS score of 15',
-                                 '<p>Please confirm you want to '
-                                 'submit this score</p>',
-                                 expected_json)
+        self.check_response_json(
+            test_resp, ResponseJSON.STATUS_SUCCESS,
+            'Submit GCS score of 12',
+            '<p>Please confirm you want to submit this score</p>',
+            expected_json
+        )
 
     def test_route_calculate_non_scoring_observation_score(self):
         """
@@ -134,13 +133,13 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
 
         # Create demo data
         demo_data = {
-            'weight': '4',
+            'height': '4',
             'startTimestamp': '0',
         }
 
         # Access the route
         test_resp = requests.post(
-            '{0}{1}/observation/score/weight/'.format(
+            '{0}{1}/observation/score/height/'.format(
                 route_manager.BASE_URL,
                 route_manager.URL_PREFIX
             ),
@@ -926,34 +925,35 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         def mock_method_returning_list_of_activities(*args, **kwargs):
             activities_list = [
                 {
-                    'id': 123,
-                    'data_model': 'nh.clinical.patient.observation.ews',
-                    'state': 'new'
-                },
-                {
                     'id': 456,
                     'data_model': 'nh.clinical.notification.frequency',
                     'state': 'scheduled'
-                },
-                {
-                    'id': 789,
-                    'data_model': 'nh.clinical.notification.assessment',
-                    'state': 'completed'
-                },
+                }
             ]
             return activities_list
+
+        def mock_browse(*args, **kwargs):
+            if 1605 in args:
+                activity_pool = self.registry('nh.activity')
+                activity = activity_pool.new(self.cr, self.uid, {})
+                obs_pool = self.registry('nh.clinical.patient.observation.ews')
+                obs = obs_pool.new(self.cr, self.uid, {})
+                activity.data_ref = obs
+                return activity
+            return mock_browse.origin(*args, **kwargs)
 
         # Start Odoo's patchers
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
         ir_fields_converter = self.registry('ir.fields.converter')
+        ews_pool = self.registry('nh.clinical.patient.observation.ews')
 
         activity_pool._patch_method(
             'search',
             mock_method_returning_list_of_ids
         )
-        activity_pool._patch_method('read',
-                                    mock_method_returning_list_of_activities)
+        ews_pool._patch_method('get_triggered_tasks',
+                               mock_method_returning_list_of_activities)
         api_pool._patch_method(
             'complete',
             TestOdooRouteDecoratorIntegration.mock_method_returning_true
@@ -966,19 +966,20 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             'for_model',
             mock_method_returning_converter_function
         )
+        activity_pool._patch_method('browse', mock_browse)
 
         # Access the route
-        test_resp = requests.post(url_under_test,
-                                  data=demo_data,
-                                  cookies=self.auth_resp.cookies
-                                  )
+        test_resp = requests.post(
+            url_under_test, data=demo_data, cookies=self.auth_resp.cookies
+        )
 
         # Stop Odoo's patchers
         activity_pool._revert_method('search')
-        activity_pool._revert_method('read')
+        ews_pool._revert_method('get_triggered_tasks')
         api_pool._revert_method('complete')
         api_pool._revert_method('check_activity_access')
         ir_fields_converter._revert_method('for_model')
+        activity_pool._revert_method('browse')
 
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
@@ -1140,7 +1141,7 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
                                  'The notification was successfully cancelled',
                                  expected_json)
 
-    def test_route_cancel_notification_manages_exceptn_while_cancelling(self):
+    def test_route_cancel_notification_manages_except_while_cancelling(self):
         """
         Test if the route for cancelling notifications manages exceptions.
         """
@@ -1437,20 +1438,16 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         """
         route_under_test = route_manager.get_route('ajax_get_patient_obs')
         self.assertIsInstance(route_under_test, Route)
-        url_under_test = '{0}{1}/patient/ajax_obs/2'.format(
+        url_under_test = '{0}{1}/patient/ajax_obs/ews/2'.format(
             route_manager.BASE_URL,
             route_manager.URL_PREFIX
         )
 
         def mock_get_activities_for_patient(*args, **kwargs):
-            activities_list = [
+            activities_list_reverse_chronological = [
                 {
-                    'activity_id': (23, 'NEWS Observation'),
-                    'date_terminated': '2010-12-25 08:00:00',
-                },
-                {
-                    'activity_id': (24, 'NEWS Observation'),
-                    'create_date': '2011-02-15 18:00:30',
+                    'activity_id': (26, 'NEWS Observation'),
+                    'clinical_risk': 'Low'
                 },
                 {
                     'activity_id': (25, 'NEWS Observation'),
@@ -1458,11 +1455,15 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
                     'date_started': '2007-12-02 08:13:03'
                 },
                 {
-                    'activity_id': (26, 'NEWS Observation'),
-                    'clinical_risk': 'Low'
+                    'activity_id': (24, 'NEWS Observation'),
+                    'create_date': '2011-02-15 18:00:30',
+                },
+                {
+                    'activity_id': (23, 'NEWS Observation'),
+                    'date_terminated': '2010-12-25 08:00:00',
                 }
             ]
-            return activities_list
+            return activities_list_reverse_chronological
 
         # Start Odoo's patchers
         api_pool = self.registry('nh.eobs.api')
@@ -1486,16 +1487,19 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         self.assertEqual(test_resp.status_code, 200)
         self.assertEqual(test_resp.headers['content-type'], 'application/json')
 
+        obs = mock_get_activities_for_patient()
+        obs.reverse()
         expected_json = {
-            'obs': mock_get_activities_for_patient(),
+            'obs': obs,
             'obsType': 'ews'
         }
 
         # Check the returned JSON data against the expected ones
-        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 'Campbell, Bruce',
-                                 'Observations for Campbell, Bruce',
-                                 expected_json)
+        self.check_response_json(
+            test_resp, ResponseJSON.STATUS_SUCCESS,
+            'Campbell, Bruce', 'Observations for Campbell, Bruce',
+            expected_json
+        )
 
     def test_route_patient_form_action(self):
         """
@@ -1542,54 +1546,53 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
         def mock_method_returning_list_of_activities(*args, **kwargs):
             activities_list = [
                 {
-                    'id': 123,
-                    'data_model': 'nh.clinical.patient.observation.ews',
-                    'state': 'new'
-                },
-                {
                     'id': 456,
                     'data_model': 'nh.clinical.notification.frequency',
                     'state': 'scheduled'
-                },
-                {
-                    'id': 789,
-                    'data_model': 'nh.clinical.notification.assessment',
-                    'state': 'completed'
-                },
+                }
             ]
             return activities_list
 
         def mock_create_activity_for_patient(*args, **kwargs):
             return 444
 
+        def mock_browse(*args, **kwargs):
+            if 444 in args:
+                activity_pool = self.registry('nh.activity')
+                activity = activity_pool.new(self.cr, self.uid, {})
+                obs_pool = self.registry('nh.clinical.patient.observation.ews')
+                obs = obs_pool.new(self.cr, self.uid, {})
+                obs.is_partial = False
+                activity.data_ref = obs
+                return activity
+            return mock_browse.origin(*args, **kwargs)
+
         # Start Odoo's patchers
         activity_pool = self.registry('nh.activity')
         api_pool = self.registry('nh.eobs.api')
+        obs_pool = self.registry('nh.clinical.patient.observation.ews')
         ir_fields_converter = self.registry('ir.fields.converter')
 
         activity_pool._patch_method(
-            'search',
-            mock_method_returning_list_of_ids
+            'search', mock_method_returning_list_of_ids
         )
-        activity_pool._patch_method(
-            'read',
-            mock_method_returning_list_of_activities
+        obs_pool._patch_method(
+            'get_triggered_tasks', mock_method_returning_list_of_activities
         )
         api_pool._patch_method(
             'complete',
             TestOdooRouteDecoratorIntegration.mock_method_returning_true
         )
         api_pool._patch_method(
-            'create_activity_for_patient',
-            mock_create_activity_for_patient
+            'create_activity_for_patient', mock_create_activity_for_patient
         )
+        activity_pool._patch_method('browse', mock_browse)
         api_pool._patch_method(
             'check_activity_access',
             TestOdooRouteDecoratorIntegration.mock_method_returning_true
         )
         ir_fields_converter._patch_method(
-            'for_model',
-            mock_method_returning_converter_function
+            'for_model', mock_method_returning_converter_function
         )
 
         # Access the route
@@ -1599,9 +1602,10 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
 
         # Stop Odoo's patchers
         activity_pool._revert_method('search')
-        activity_pool._revert_method('read')
+        obs_pool._revert_method('get_triggered_tasks')
         api_pool._revert_method('complete')
         api_pool._revert_method('create_activity_for_patient')
+        activity_pool._revert_method('browse')
         api_pool._revert_method('check_activity_access')
         ir_fields_converter._revert_method('for_model')
 
@@ -1619,8 +1623,8 @@ class TestOdooRouteDecoratorIntegration(api_test_common.APITestCommon):
             'status': 1
         }
 
-        self.check_response_json(test_resp, ResponseJSON.STATUS_SUCCESS,
-                                 'Successfully Submitted NEWS Observation',
-                                 'Here are related tasks based on the '
-                                 'observation',
-                                 expected_json)
+        self.check_response_json(
+            test_resp, ResponseJSON.STATUS_SUCCESS,
+            'Successfully Submitted NEWS Observation',
+            'Here are related tasks based on the observation', expected_json
+        )

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+
+        <template id="observation_report" inherit_id="nh_eobs.observation_report" name="Observation Report">
+            <xpath expr="//*[@id = 'news_values']" position="after">
+                <t t-if="len(food_and_fluid) &gt; 0">
+                    <div class="col-xs-12 row" id="food_and_fluid_log">
+                        <h3>Food and Fluid Log</h3>
+                        <t t-foreach="food_and_fluid" t-as="observation_period">
+                            <t t-call="nh_food_and_fluid.observation_period"/>
+                        </t>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+
+        <template id="observation_period">
+            <h4 class="col-xs-12"><strong><t t-esc="observation_period['period_start_datetime']"/> - <t t-esc="observation_period['period_end_datetime']"/><t t-if="observation_period.get('current_period') == True"> - Active</t><br/>
+                Total Fluid Intake: <t t-esc="observation_period['total_fluid_intake']"/> - Score: <t t-esc="observation_period['score']"/> - Fluid Balance: <t t-esc="observation_period['fluid_balance']"/></strong></h4>
+            <t t-call="nh_food_and_fluid.observation_period_table"/>
+        </template>
+
+        <template id="observation_period_table">
+            <table class="striped col-xs-12 row">
+                <thead>
+                    <tr>
+                        <th class="col-xs-3">Date / Time</th>
+                        <th class="col-xs-1">Recorded Concern</th>
+                        <th class="col-xs-1">Dietary Needs</th>
+                        <th class="col-xs-1">Fluid Intake</th>
+                        <th class="col-xs-1">Fluid Description</th>
+                        <th class="col-xs-1">Food Intake</th>
+                        <th class="col-xs-1">F and F Offered but Rejected</th>
+                        <th class="col-xs-1">Passed Urine</th>
+                        <th class="col-xs-1">Bowels Open</th>
+                        <th class="col-xs-1">User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="observation_period['observations']" t-as="observation">
+                        <tr>
+                            <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['recorded_concerns']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['dietary_needs']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['fluid_taken']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['fluid_description']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['food_taken']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['food_fluid_rejected']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['passed_urine']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['values']['bowels_open']"/></td>
+                            <td class="col-xs-1"><t t-esc="observation['user']"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </template>
+
+    </data>
+</openerp>

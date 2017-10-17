@@ -348,6 +348,18 @@ var frontend_routes = {}; (function(_root){
 		   url: base_url+'test/' + (function(k,v){ return v })('test_ob', observation) + '/' + (function(k,v){ return v })('test_pt', patient_id)
 	   })
    }
+
+    _nS('rapid_tranq');
+   _root.rapid_tranq = function(patient_id) {
+       return _wA({
+           method: 'GET',
+           url: base_url + 'patient/' +
+           (function (k, v) {
+               return v
+           })('patient_id', patient_id) +
+           '/rapid_tranq'
+       })
+   }
     
     
 

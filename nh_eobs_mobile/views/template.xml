@@ -4,7 +4,6 @@
 <openerp>
     <data>
 
-
         <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
@@ -90,28 +89,30 @@
                                 <!--</li>-->
                             </t>
                         </t>
-                        <li t-foreach="items" t-as="item">
-                            <a t-att-href="item['url']" t-att-class="item['color']+' block'">
-                                <div class="task-meta">
-                                    <div class="task-right">
-                                        <p class="aside"><t t-esc="item['deadline_time']"/></p>
-                                        <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
-                                            <p class="aside">Claim</p>
-                                        </t>
+                        <t t-foreach="items" t-as="item">
+                            <li>
+                                <a t-att-href="item['url']" t-att-class="item['color']+' block'">
+                                    <div class="task-meta">
+                                        <div class="task-right">
+                                            <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                            <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
+                                                <p class="aside">Claim</p>
+                                            </t>
+                                        </div>
+                                        <div class="task-left">
+                                            <t t-if="'notification' in item and item['notification']==True">
+                                                <i class="icon-alert"></i>
+                                            </t>
+                                            <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
+                                            <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                        </div>
                                     </div>
-                                    <div class="task-left">
-                                        <t t-if="'notification' in item and item['notification']==True">
-                                            <i class="icon-alert"></i>
-                                        </t>
-                                        <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
-                                        <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                    <div class="task-meta">
+                                        <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
                                     </div>
-                                </div>
-                                <div class="task-meta">
-                                    <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
-                                </div>
-                            </a>
-                        </li>
+                                </a>
+                            </li>
+                        </t>
                         <t t-if="followed_items">
                             <li><hr/></li>
                             <li t-foreach="followed_items" t-as="item">
@@ -182,84 +183,129 @@
             </t>
         </template>
 
-         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
-             <t t-call="nh_eobs_mobile.base">
-                 <div class="content">
-                     <h2 id="patientName" class="block">
-                         <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
-                     </h2>
-                     <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
-                         <h3>Confirm action taken?</h3>
-                         <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
-                         <t t-if="len(inputs) > 0">
-                            <div t-foreach="inputs" t-as="item">
-                                <t t-if="item['type']=='selection'">
-                                    <t t-call="nh_eobs_mobile.observation_data_select"/>
-                                </t>
-                                <t t-if="item['type']=='text'">
-                                    <t t-call="nh_eobs_mobile.observation_data_text_input"/>
-                                </t>
-                            </div>
-                         </t>
-
-                         <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
-                         <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                         <div class="block obsSubmit" id="parent_submitButton">
-                             <input type="submit" value="Confirm action" class="exclude" id="submitButton"/>
-                         </div>
-                         <t t-if="cancellable==True">
-                            <p class="obsConfirm">
-                                <input type="reset" t-att-ajax-action="form['cancel_url']" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
-                            </p>
-                         </t>
-                     </form>
-                     <script type="text/javascript">
-                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
-                     </script>
-                 </div>
-             </t>
-        </template>
-
-        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+        <template name="Observation / Notification Data Input Screen" t-name="nh_eobs_mobile.data_input_screen">
             <t t-call="nh_eobs_mobile.base">
                 <div class="content">
                     <h2 id="patientName" class="block">
-                        <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']"><t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i></a>
+                        <a t-att-href="patient['url']" t-att-patient-id="form['patient-id']">
+                            <t t-esc="patient['name']"/><i class="icon-info" t-att-patient-id="form['patient-id']"></i>
+                        </a>
                     </h2>
-                    <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])">
-                        <div t-foreach="inputs" t-as="item">
-                            <t t-if="item['name']=='systolic_sitting'">
-                                <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                    <t t-foreach="view_description" t-as="view_element">
+                        <t t-set="inputs" t-value="view_element.get('inputs', [])"/>
+                        <t t-set="view_data" t-value="view_element.get('view_data', {})"/>
+                        <t t-if="view_element.get('type')=='task'">
+                            <t t-if="task_valid">
+                                <t t-call="nh_eobs_mobile.notification_confirm_cancel"/>
                             </t>
-                            <t t-if="item['name']=='systolic_standing'">
-                                <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                            <t t-if="not task_valid">
+                                <t t-call="nh_eobs_mobile.notification_not_valid"/>
                             </t>
-                            <t t-if="item['type']=='number'">
-                                <t t-call="nh_eobs_mobile.observation_data_input"/>
-                            </t>
-                            <t t-if="item['type']=='text'">
-                                <t t-call="nh_eobs_mobile.observation_data_text_input"/>
-                            </t>
-                            <t t-if="item['type']=='selection'">
-                                <t t-call="nh_eobs_mobile.observation_data_select"/>
-                            </t>
-                        </div>
-                        <t t-if="section=='task'">
-                            <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
                         </t>
-                        <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
-                        <div class="block obsSubmit" id="parent_submitButton">
-                            <input type="submit" value="Submit" class="exclude" id="submitButton"/>
-                        </div>
-                    </form>
-                    <!-- <script t-att-src="urls['jquery']" type="text/javascript"></script> -->
-                    <!-- <script t-att-src="urls['observation_form_validation']" type="text/javascript"></script>
-                    <script t-att-src="urls['observation_form_js']" type="text/javascript"></script> -->
+                        <t t-if="view_element.get('type')=='form'">
+                            <t t-call="nh_eobs_mobile.observation_entry"/>
+                        </t>
+                        <t t-if="view_element.get('type')=='template'">
+                            <t t-call="{{view_element.get('template')}}"/>
+                        </t>
+                    </t>
                     <script type="text/javascript">
-                        document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
+                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobileForm(), false);
                     </script>
                 </div>
             </t>
+        </template>
+
+        <template name="Notifcation No Longer Valid Screen" t-name="nh_eobs_mobile.notification_not_valid">
+            <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
+                 <h3>This <t t-esc="name"/> task is no longer valid</h3>
+                 <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                 <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="not task_valid">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+             </form>
+        </template>
+
+         <template name="Notification Confirm/Cancel Screen" t-name="nh_eobs_mobile.notification_confirm_cancel">
+             <form t-att-action="form['confirm_url']" method="POST" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-class="'obsChange block' if form['type']=='frequency' else 'block'" t-att-data-type="form['type']" ajax-action="confirm_clinical_notification" t-att-ajax-args="'{id}'.format(id=form['task-id'])">
+                 <h3>Confirm action taken?</h3>
+                 <t t-if="view_data.get('title')">
+                     <p><t t-raw="view_data.get('title')"/></p>
+                 </t>
+                 <t t-if="not view_data.get('title')">
+                     <p>Press the button below to confirm that you have completed the task <t t-esc="name"/></p>
+                 </t>
+                 <t t-raw="0"/>
+                 <t t-if="len(inputs) > 0">
+                    <div t-foreach="inputs" t-as="item">
+                        <t t-if="item['type']=='selection'">
+                            <t t-call="nh_eobs_mobile.observation_data_select"/>
+                        </t>
+                        <t t-if="item['type']=='text'">
+                            <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                        </t>
+                    </div>
+                 </t>
+                 <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                 <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                 <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" t-att-value="view_data.get('submit_title', 'Submit')" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="cancellable">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+             </form>
+        </template>
+
+        <template name="Observation Data Entry Screen" t-name="nh_eobs_mobile.observation_entry">
+            <form t-att-action="form['action']" method="POST" t-att-data-type="form['type']" t-att-task-id="form['task-id']" t-att-patient-id="form['patient-id']" id="obsForm" t-att-data-source="form['source']" t-att-ajax-action="'calculate_obs_score' if 'obs_needs_score' in form and form['obs_needs_score'] else 'json_task_form_action' if section == 'task' else 'json_patient_form_action'" t-att-ajax-args="'{type},{id}'.format(type=form['type'], id=form['task-id'] if section == 'task' else form['patient-id'])"  t-att-ajax-partial-action="form.get('partial_flow')">
+                <div t-foreach="inputs" t-as="item">
+                    <t t-if="item['name']=='systolic_sitting'">
+                        <h3 class="block">Lying/Sitting Blood Pressure</h3>
+                    </t>
+                    <t t-if="item['name']=='systolic_standing'">
+                        <h3 class="block valHide" id="standing_title">Standing Blood Pressure</h3>
+                    </t>
+                    <t t-if="item['type']=='number'">
+                        <t t-call="nh_eobs_mobile.observation_data_input"/>
+                    </t>
+                    <t t-if="item['type']=='text'">
+                        <t t-call="nh_eobs_mobile.observation_data_text_input"/>
+                    </t>
+                    <t t-if="item['type']=='selection'">
+                        <t t-call="nh_eobs_mobile.observation_data_select"/>
+                    </t>
+                    <t t-if="item['type']=='multiselect'">
+                        <t t-call="nh_eobs_mobile.observation_data_multiselect"/>
+                    </t>
+                </div>
+                <t t-if="section=='task'">
+                    <input type="hidden" name="taskId" t-att-value="form['task-id']"/>
+                </t>
+                <input type="hidden" name="startTimestamp" id="startTimestamp" t-att-value="form['start']"/>
+                <t t-if="task_valid">
+                    <div class="block obsSubmit" id="parent_submitButton">
+                        <input type="submit" value="Submit" class="exclude" id="submitButton"/>
+                    </div>
+                </t>
+                <t t-if="not task_valid">
+                    <p class="obsConfirm">
+                        <input type="reset" t-att-ajax-action="form.get('cancel_url', '')" class="button cancelButton exclude" id="cancelSubmit" value="Cancel action"/>
+                    </p>
+                </t>
+            </form>
         </template>
 
 
@@ -269,19 +315,18 @@
                    <label t-att-for="item['name']"><t t-esc="item['label']"/></label>
                </div>
                <div class="input-body">
-                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''">
-
+                   <select t-att-id="item['name']" t-att-name="item['name']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-onchange="'{0}'.format(item['on_change']) if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true') if not item.get('initially_hidden') else 'false'">
                         <option value="">Please Select</option>
                         <t t-foreach="item['selection_options']" t-as="option">
                             <option t-att-value="option['value']" t-att-selected="'selected' if 'default_value' in option and option['default_value'] else ''"><t t-esc="option['label']"/></option>
                         </t>
                    </select>
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                   <t t-if="reference">
-                       <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
-                   </t>
                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                    <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                   <t t-set="reference" t-value="item.get('reference')"/>
+                   <t t-if="reference">
+                       <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                   </t>
                </div>
            </div>
         </template>
@@ -290,24 +335,15 @@
             <div t-att-class="'block obsField valHide' if 'initially_hidden' in item and item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
                     <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
-                        <!-- <t t-if="item['target']">
-                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
-                        </t> -->
-
-                    <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''"/>
-                    <!-- </t>
-                    <t t-if="item['text']">
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
-                    </t>  -->
+                    <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-min="item['min']" t-att-max="item['max']" t-att-step="item['step']" t-att-class="'exclude' if 'initially_hidden' in item and item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true') if not item.get('initially_hidden') else 'false'"/>
                 </div>
                 <div class="input-body">
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                    <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
-                    </t>
                     <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                    </t>
                 </div>
             </div>
         </template>
@@ -315,42 +351,53 @@
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_text_input">
             <div t-att-class="'block obsField valHide' if item['initially_hidden']==True else 'block obsField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
-                    <label t-att-for="item['name']"><t t-esc="item['label']"/><t t-if="'secondary_label' in item and item['secondary_label']"><br/><span class="secondary-label"><t t-esc="item['secondary_label']"/></span></t></label>
-                        <!-- <t t-if="item['target']">
-                            <br/><span class="targetString">Target: <t t-esc="item['target']"/></span>
-                        </t> -->
-
-                    <!-- <t t-if="item['number']">-->
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-pattern="item['regex'] if 'regex' in item and item['regex'] else ''"/>
-                    <!-- </t>
-                    <t t-if="item['text']">
-                        <input t-att-type="item['type']" t-att-name="item['name']" t-att-id="item['name']"/>
-                    </t>  -->
+                    <label t-att-for="item['name']">
+                        <t t-esc="item['label']"/>
+                        <t t-if="'secondary_label' in item and item['secondary_label']">
+                            <br/>
+                            <span class="secondary-label"><t t-esc="item['secondary_label']"/></span>
+                        </t>
+                    </label>
                 </div>
                 <div class="input-body">
-                    <t t-set="reference" t-value="item.get('reference')"/>
-                    <t t-if="reference">
-                        <p><button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button exclude"><t t-esc="reference['label']"/></button></p>
-                    </t>
-                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span>
                     <span class="help"><t t-esc="item['info'] if 'info' in item and item['info'] else ''"/></span>
+                    <textarea t-att-name="item['name']" t-att-id="item['name']" t-att-class="'exclude' if item['initially_hidden']==True else ''" t-att-data-validation="item['validation'] if 'validation' in item else ''" t-att-data-onchange="item['on_change'] if 'on_change' in item else ''" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true') if not item.get('initially_hidden') else 'false'"></textarea>
+                    <span class="errors"><t t-esc="item['errors'] if 'errors' in item and item['errors'] else ''"/></span><t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference['type']" t-att-data-url="reference['url']" t-att-data-title="reference['title']" class="button reference exclude"><t t-esc="reference['label']"/></button>
+                    </t>
                 </div>
-                <!--<div class="input-body">-->
-                    <!--<span class="errors">-->
-                        <!--<t t-if="item['errors']">-->
-                            <!--<t t-esc="item['errors']"/>-->
-                        <!--</t>-->
-                    <!--</span>-->
-                    <!--<span class="help">-->
-                        <!--<t t-if="item['info']">-->
-                            <!--<t t-esc="item['info']"/>-->
-                        <!--</t>-->
-                    <!--</span>-->
-                <!--</div>-->
             </div>
         </template>
 
-
+        <template name="Checkboxes" t-name="nh_eobs_mobile.observation_data_multiselect">
+            <div t-att-class="'block obsSelectField valHide' if item.get('initially_hidden')==True else 'block obsSelectField'" t-att-id="'parent_{0}'.format(item.get('name'))">
+                <div class="input-header">
+                    <label t-att-for="item.get('name')">
+                        <t t-esc="item.get('label')"/>
+                        <t t-if="item.get('secondary_label')">
+                            <br/>
+                            <span class="secondary-label"><t t-esc="item.get('secondary_label')"/></span>
+                        </t>
+                    </label>
+                </div>
+                <div class="input-body">
+                    <t t-set="options" t-value="item.get('selection')"/>
+                    <ul class="checklist">
+                        <li t-foreach="options" t-as="option">
+                            <input type="checkbox" t-att-name="item.get('name')" t-att-value="option[0]" class="checklist_box" t-att-data-required="item.get('required', 'false')" t-att-data-necessary="item.get('necessary', 'true') if not item.get('initially_hidden') else 'false'"/>
+                            <label><t t-esc="option[1]"/></label>
+                        </li>
+                    </ul>
+                    <span class="errors"><t t-esc="item.get('errors', '')"/></span>
+                    <span class="help"><t t-esc="item.get('info', '')"/></span>
+                    <t t-set="reference" t-value="item.get('reference')"/>
+                    <t t-if="reference">
+                        <button t-att-data-type="reference.get('type')" t-att-data-url="reference.get('url')" t-att-data-title="reference.get('title')" class="button reference exclude"><t t-esc="reference.get('label')"/></button>
+                    </t>
+                </div>
+            </div>
+        </template>
 
         <template name="Error Screen" t-name="nh_eobs_mobile.error">
             <t t-call="nh_eobs_mobile.base">
@@ -369,23 +416,33 @@
                     <div class="block">
                         <a class="patientInfo" href="#" id="obsButton">
                             <h3 class="name" t-att-data-id="patient['id']">
-                                <strong><t t-esc="patient['full_name']"/></strong><br/>
+                                <strong><t t-esc="patient['full_name']"/></strong>
+                            </h3>
+                            <h5 id="patient-location" class="location">
                                 <t t-if="'parent_location' in patient">
                                     <t t-esc="patient['parent_location']"/>,
                                 </t>
                                 <t t-if="'location' in patient">
                                     <t t-esc="patient['location']"/>
                                 </t>
-                            </h3>
-                            <t t-if="len(obs_list) > 0">
-                                <h3 class="obs">Take observation</h3>
-                            </t>
+                            </h5>
                         </a>
+                        <t t-if="len(obs_list) > 0">
+                            <button id="take-observation" class="big full-width do-it">Take observation</button>
+                        </t>
                         <ul t-if="len(obs_list) > 0" id="obsMenu" class="menu hidden">
                             <t t-foreach="obs_list" t-as="ob">
                                 <li t-att-class="'rightContent' if ob['type']=='ews' else ''"><a t-att-href="'{0}{1}/{2}'.format(urls['patient_ob'],ob['type'],+patient['id'])"><t t-esc="ob['name']"/><t t-if="ob['type']=='ews'"><span class="aside"><t t-esc="patient['next_ews_time']"/></span></t></a></li>
                             </t>
                         </ul>
+                        <t t-if="len(data_vis_list) > 0">
+                            <h4>See Observation Data For:</h4>
+                            <select id="chart_select" name="chart_select">
+                                <t t-foreach="data_vis_list" t-as="data_vis">
+                                    <option t-att-value="data_vis.get('data_model')" t-att-selected="'selected' if data_vis.get('data_model') == 'ews' else False"><t t-esc="data_vis.get('model_name')"/></option>
+                                </t>
+                            </select>
+                        </t>
                         <ul class="two-col tabs">
                             <li><a href="#graph-content" class="selected">Graph</a></li>
                             <li><a href="#table-content">Table</a></li>
@@ -428,11 +485,13 @@
                     <script type="text/javascript">
                         document.addEventListener('DOMContentLoaded', new window.NH.NHMobilePatient(), false);
                     </script>
+                    <t t-if="len(data_vis_list) > 0">
+                        <t t-foreach="data_vis_list" t-as="data_vis">
+                            <script t-att-src="data_vis.get('resource')" type="text/javascript"></script>
+                        </t>
+                    </t>
                 </div>
             </t>
         </template>
-
-
-
     </data>
 </openerp>

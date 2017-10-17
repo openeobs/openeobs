@@ -3,7 +3,8 @@
 var NHMobileForm,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-  hasProp = {}.hasOwnProperty;
+  hasProp = {}.hasOwnProperty,
+  indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 NHMobileForm = (function(superClass) {
   extend(NHMobileForm, superClass);
@@ -45,6 +46,42 @@ NHMobileForm = (function(superClass) {
               });
             case 'submit':
               return input.addEventListener('click', function(e) {
+                var change_event, el, element, errored_els, form, form_elements, inp, j, k, len1, len2, ref1;
+                form = (ref1 = document.getElementsByTagName('form')) != null ? ref1[0] : void 0;
+                errored_els = (function() {
+                  var j, len1, ref2, results;
+                  ref2 = form.elements;
+                  results = [];
+                  for (j = 0, len1 = ref2.length; j < len1; j++) {
+                    el = ref2[j];
+                    if (el.classList.contains('error')) {
+                      results.push(el);
+                    }
+                  }
+                  return results;
+                })();
+                for (j = 0, len1 = errored_els.length; j < len1; j++) {
+                  inp = errored_els[j];
+                  self.reset_input_errors(inp);
+                }
+                form_elements = (function() {
+                  var k, len2, ref2, results;
+                  ref2 = form.elements;
+                  results = [];
+                  for (k = 0, len2 = ref2.length; k < len2; k++) {
+                    element = ref2[k];
+                    if (!element.classList.contains('exclude')) {
+                      results.push(element);
+                    }
+                  }
+                  return results;
+                })();
+                for (k = 0, len2 = form_elements.length; k < len2; k++) {
+                  el = form_elements[k];
+                  change_event = document.createEvent('CustomEvent');
+                  change_event.initCustomEvent('change', false, true, false);
+                  el.dispatchEvent(change_event);
+                }
                 return self.handle_event(e, self.submit, true);
               });
             case 'reset':
@@ -54,6 +91,17 @@ NHMobileForm = (function(superClass) {
             case 'radio':
               return input.addEventListener('click', function(e) {
                 return self.handle_event(e, self.trigger_actions, true);
+              });
+            case 'checkbox':
+              input.addEventListener('click', function(e) {
+                self.handle_event(e, self.validate, false);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, false);
+              });
+              return input.addEventListener('change', function(e) {
+                self.handle_event(e, self.validate, false);
+                e.handled = false;
+                return self.handle_event(e, self.trigger_actions, false);
               });
             case 'text':
               return input.addEventListener('change', function(e) {
@@ -65,11 +113,19 @@ NHMobileForm = (function(superClass) {
           break;
         case 'select':
           return input.addEventListener('change', function(e) {
+            self.handle_event(e, self.validate, true);
+            e.handled = false;
             return self.handle_event(e, self.trigger_actions, true);
           });
         case 'button':
           return input.addEventListener('click', function(e) {
             return self.handle_event(e, self.show_reference, true);
+          });
+        case 'textarea':
+          return input.addEventListener('change', function(e) {
+            self.handle_event(e, self.validate, true);
+            e.handled = false;
+            return self.handle_event(e, self.trigger_actions, true);
           });
       }
     };
@@ -101,6 +157,7 @@ NHMobileForm = (function(superClass) {
     document.addEventListener('partial_submit', function(event) {
       return self.handle_event(event, self.process_partial_submit, true, self);
     });
+    document.addEventListener('display_partial_reasons', self.handle_display_partial_reasons.bind(self));
     return this.patient_name_el.addEventListener('click', function(event) {
       var can_btn, patient_id;
       event.preventDefault();
@@ -123,9 +180,9 @@ NHMobileForm = (function(superClass) {
     value = input_type === 'number' ? parseFloat(input.value) : input.value;
     this.reset_input_errors(input);
     if (typeof value !== 'undefined' && value !== '') {
-      if (input.getAttribute('type') === 'number' && !isNaN(value)) {
+      if (input_type === 'number') {
         this.validate_number_input(input);
-        if (input.getAttribute('data-validation')) {
+        if (input.getAttribute('data-validation') && !isNaN(value)) {
           criterias = eval(input.getAttribute('data-validation'));
           for (i = 0, len = criterias.length; i < len; i++) {
             criteria = criterias[i];
@@ -154,13 +211,17 @@ NHMobileForm = (function(superClass) {
           this.validate_number_input(target_input);
         }
       }
-      if (input.getAttribute('type') === 'text') {
+      if (input_type === 'text') {
         if (input.getAttribute('pattern')) {
           regex_res = input.validity.patternMismatch;
           if (regex_res) {
             this.add_input_errors(input, 'Invalid value');
           }
         }
+      }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        this.add_input_errors(input, 'Missing value');
       }
     }
   };
@@ -182,19 +243,35 @@ NHMobileForm = (function(superClass) {
       if (value > max) {
         this.add_input_errors(input, 'Input too high');
       }
+    } else {
+      if (input.getAttribute('data-required').toLowerCase() === 'true') {
+        return this.add_input_errors(input, 'Missing value');
+      }
     }
   };
 
   NHMobileForm.prototype.trigger_actions = function(event) {
-    var action, actions, condition, conditions, el, field, i, input, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, mode, n, o, p, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, ref9, value;
+    var action, actionToTrigger, actions, condition, conditions, el, field, fieldsToAffect, i, input, j, k, l, len, len1, len10, len2, len3, len4, len5, len6, len7, len8, len9, m, mode, n, o, p, q, r, ref, ref1, ref2, ref3, s, type, value;
     this.reset_form_timeout(this);
     input = event.src_el;
     value = input.value;
-    if (input.getAttribute('type') === 'radio') {
+    type = input.getAttribute('type');
+    if (type === 'radio') {
       ref = document.getElementsByName(input.name);
       for (i = 0, len = ref.length; i < len; i++) {
         el = ref[i];
         if (el.value !== value) {
+          el.classList.add('exclude');
+        } else {
+          el.classList.remove('exclude');
+        }
+      }
+    }
+    if (type === 'checkbox') {
+      ref1 = document.getElementsByName(input.name);
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        el = ref1[j];
+        if (!el.checked) {
           el.classList.add('exclude');
         } else {
           el.classList.remove('exclude');
@@ -206,26 +283,29 @@ NHMobileForm = (function(superClass) {
     }
     if (input.getAttribute('data-onchange')) {
       actions = eval(input.getAttribute('data-onchange'));
-      for (j = 0, len1 = actions.length; j < len1; j++) {
-        action = actions[j];
-        ref1 = action['condition'];
-        for (k = 0, len2 = ref1.length; k < len2; k++) {
-          condition = ref1[k];
-          if (((ref2 = condition[0]) !== 'True' && ref2 !== 'False') && typeof condition[0] === 'string') {
-            condition[0] = 'document.getElementById("' + condition[0] + '").value';
-          }
-          if (((ref3 = condition[2]) !== 'True' && ref3 !== 'False') && typeof condition[2] === 'string' && condition[2] !== '') {
-            condition[2] = 'document.getElementById("' + condition[2] + '").value';
-          }
-          if ((ref4 = condition[2]) === 'True' || ref4 === 'False' || ref4 === '') {
-            condition[2] = "'" + condition[2] + "'";
-          }
+      for (k = 0, len2 = actions.length; k < len2; k++) {
+        action = actions[k];
+        type = action['type'];
+        ref2 = action['condition'];
+        for (l = 0, len3 = ref2.length; l < len3; l++) {
+          condition = ref2[l];
+          condition[0] = 'document.getElementById("' + condition[0] + '").value';
+          condition[2] = (function() {
+            switch (false) {
+              case type !== 'value':
+                return "'" + condition[2] + "'";
+              case type !== 'field':
+                return 'document.getElementById("' + condition[2] + '").value';
+              default:
+                return "'" + condition[2] + "'";
+            }
+          })();
         }
         mode = ' && ';
         conditions = [];
-        ref5 = action['condition'];
-        for (l = 0, len3 = ref5.length; l < len3; l++) {
-          condition = ref5[l];
+        ref3 = action['condition'];
+        for (m = 0, len4 = ref3.length; m < len4; m++) {
+          condition = ref3[m];
 
           /* istanbul ignore else */
           if (typeof condition === 'object') {
@@ -236,32 +316,42 @@ NHMobileForm = (function(superClass) {
         }
         conditions = conditions.join(mode);
         if (eval(conditions)) {
-          if (action['action'] === 'hide') {
-            ref6 = action['fields'];
-            for (m = 0, len4 = ref6.length; m < len4; m++) {
-              field = ref6[m];
+          actionToTrigger = action['action'];
+          fieldsToAffect = action['fields'];
+          if (actionToTrigger === 'hide') {
+            for (n = 0, len5 = fieldsToAffect.length; n < len5; n++) {
+              field = fieldsToAffect[n];
               this.hide_triggered_elements(field);
             }
           }
-          if (action['action'] === 'show') {
-            ref7 = action['fields'];
-            for (n = 0, len5 = ref7.length; n < len5; n++) {
-              field = ref7[n];
+          if (actionToTrigger === 'show') {
+            for (o = 0, len6 = fieldsToAffect.length; o < len6; o++) {
+              field = fieldsToAffect[o];
               this.show_triggered_elements(field);
             }
           }
-          if (action['action'] === 'disable') {
-            ref8 = action['fields'];
-            for (o = 0, len6 = ref8.length; o < len6; o++) {
-              field = ref8[o];
+          if (actionToTrigger === 'disable') {
+            for (p = 0, len7 = fieldsToAffect.length; p < len7; p++) {
+              field = fieldsToAffect[p];
               this.disable_triggered_elements(field);
             }
           }
-          if (action['action'] === 'enable') {
-            ref9 = action['fields'];
-            for (p = 0, len7 = ref9.length; p < len7; p++) {
-              field = ref9[p];
+          if (actionToTrigger === 'enable') {
+            for (q = 0, len8 = fieldsToAffect.length; q < len8; q++) {
+              field = fieldsToAffect[q];
               this.enable_triggered_elements(field);
+            }
+          }
+          if (actionToTrigger === 'require') {
+            for (r = 0, len9 = fieldsToAffect.length; r < len9; r++) {
+              field = fieldsToAffect[r];
+              this.require_triggered_elements(field);
+            }
+          }
+          if (actionToTrigger === 'unrequire') {
+            for (s = 0, len10 = fieldsToAffect.length; s < len10; s++) {
+              field = fieldsToAffect[s];
+              this.unrequire_triggered_elements(field);
             }
           }
         }
@@ -270,9 +360,11 @@ NHMobileForm = (function(superClass) {
   };
 
   NHMobileForm.prototype.submit = function(event) {
-    var action_buttons, ajax_act, btn, button, element, empty_elements, form_elements, i, invalid_elements, j, len, len1, msg;
+    var action_buttons, ajax_act, ajax_args, ajax_partial_act, btn, button, el, element, empty_elements, empty_mandatory, form_elements, i, invalid_elements, j, len, len1, msg;
     this.reset_form_timeout(this);
     ajax_act = this.form.getAttribute('ajax-action');
+    ajax_partial_act = this.form.getAttribute('ajax-partial-action');
+    ajax_args = this.form.getAttribute('ajax-args');
     form_elements = (function() {
       var i, len, ref, results;
       ref = this.form.elements;
@@ -300,9 +392,20 @@ NHMobileForm = (function(superClass) {
       var i, len, results;
       results = [];
       for (i = 0, len = form_elements.length; i < len; i++) {
-        element = form_elements[i];
-        if (!element.value || element.value === '') {
-          results.push(element);
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-necessary').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-necessary').toLowerCase() === 'true')) {
+          results.push(el);
+        }
+      }
+      return results;
+    })();
+    empty_mandatory = (function() {
+      var i, len, results;
+      results = [];
+      for (i = 0, len = form_elements.length; i < len; i++) {
+        el = form_elements[i];
+        if (!el.value && (el.getAttribute('data-required').toLowerCase() === 'true') || el.value === '' && (el.getAttribute('data-required').toLowerCase() === 'true')) {
+          results.push(el);
         }
       }
       return results;
@@ -324,8 +427,8 @@ NHMobileForm = (function(superClass) {
         button = action_buttons[i];
         button.setAttribute('disabled', 'disabled');
       }
-      return this.submit_observation(this, form_elements, this.form.getAttribute('ajax-action'), this.form.getAttribute('ajax-args'));
-    } else if (empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
+      return this.submit_observation(this, form_elements, ajax_act, ajax_args);
+    } else if (empty_mandatory.length > 0 || empty_elements.length > 0 && ajax_act.indexOf('notification') > 0) {
       msg = '<p>The form contains empty fields, please enter ' + 'data into these fields and resubmit</p>';
       btn = '<a href="#" data-action="close" data-target="invalid_form">' + 'Cancel</a>';
       return new window.NH.NHModal('invalid_form', 'Form contains empty fields', msg, [btn], 0, this.form);
@@ -350,7 +453,11 @@ NHMobileForm = (function(superClass) {
         button = action_buttons[j];
         button.setAttribute('disabled', 'disabled');
       }
-      return this.display_partial_reasons(this);
+      if (ajax_partial_act === 'score') {
+        return this.submit_observation(this, form_elements, ajax_act, ajax_args, true);
+      } else {
+        return this.display_partial_reasons(this);
+      }
     }
   };
 
@@ -397,26 +504,46 @@ NHMobileForm = (function(superClass) {
     });
   };
 
-  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args) {
-    var el, serialised_string, url;
+  NHMobileForm.prototype.submit_observation = function(self, elements, endpoint, args, partial) {
+    var el, formValues, i, key, len, serialised_string, type, url, value;
+    if (partial == null) {
+      partial = false;
+    }
+    formValues = {};
+    for (i = 0, len = elements.length; i < len; i++) {
+      el = elements[i];
+      type = el.getAttribute('type');
+      if (!formValues.hasOwnProperty(el.name)) {
+        if (type === 'checkbox') {
+          formValues[el.name] = [el.value];
+        } else {
+          formValues[el.name] = el.value;
+        }
+      } else {
+        if (type === 'checkbox') {
+          formValues[el.name].push(el.value);
+        }
+      }
+    }
     serialised_string = ((function() {
-      var i, len, results;
+      var results;
       results = [];
-      for (i = 0, len = elements.length; i < len; i++) {
-        el = elements[i];
-        results.push(el.name + '=' + el.value);
+      for (key in formValues) {
+        value = formValues[key];
+        results.push(key + '=' + encodeURIComponent(value));
       }
       return results;
     })()).join("&");
     url = this.urls[endpoint].apply(this, args.split(','));
     return Promise.when(this.call_resource(url, serialised_string)).then(function(raw_data) {
-      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, element, i, j, k, len, len1, len2, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
+      var act_btn, action_buttons, body, btn, button, buttons, can_btn, cls, data, data_action, element, j, k, l, len1, len2, len3, os, pos, ref, ref1, rt_url, server_data, st_url, sub_ob, task, task_list, tasks, triggered_tasks;
       server_data = raw_data[0];
       data = server_data.data;
       body = document.getElementsByTagName('body')[0];
       if (server_data.status === 'success' && data.status === 3) {
+        data_action = !partial ? 'submit' : 'display_partial_reasons';
         can_btn = '<a href="#" data-action="renable" ' + 'data-target="submit_observation">Cancel</a>';
-        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="submit" data-ajax-action="' + data.next_action + '">Submit</a>';
+        act_btn = '<a href="#" data-target="submit_observation" ' + 'data-action="' + data_action + '" data-ajax-action="' + data.next_action + '">Submit</a>';
         new window.NH.NHModal('submit_observation', server_data.title + ' for ' + self.patient_name() + '?', server_data.desc, [can_btn, act_btn], 0, body);
         if ('clinical_risk' in data.score) {
           sub_ob = document.getElementById('submit_observation');
@@ -433,8 +560,8 @@ NHMobileForm = (function(superClass) {
         } else if (data.related_tasks.length > 1) {
           tasks = '';
           ref = data.related_tasks;
-          for (i = 0, len = ref.length; i < len; i++) {
-            task = ref[i];
+          for (j = 0, len1 = ref.length; j < len1; j++) {
+            task = ref[j];
             st_url = self.urls['single_task'](task.id).url;
             tasks += '<li><a href="' + st_url + '">' + task.summary + '</a></li>';
           }
@@ -454,8 +581,8 @@ NHMobileForm = (function(superClass) {
         } else if (data.related_tasks.length > 1) {
           tasks = '';
           ref1 = data.related_tasks;
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            task = ref1[j];
+          for (k = 0, len2 = ref1.length; k < len2; k++) {
+            task = ref1[k];
             st_url = self.urls['single_task'](task.id).url;
             tasks += '<li><a href="' + st_url + '">' + task.summary + '</a></li>';
           }
@@ -466,19 +593,19 @@ NHMobileForm = (function(superClass) {
         return new window.NH.NHModal('cancel_success', server_data.title, task_list, buttons, 0, self.form);
       } else {
         action_buttons = (function() {
-          var k, len2, ref2, ref3, results;
+          var l, len3, ref2, ref3, results;
           ref2 = self.form.elements;
           results = [];
-          for (k = 0, len2 = ref2.length; k < len2; k++) {
-            element = ref2[k];
+          for (l = 0, len3 = ref2.length; l < len3; l++) {
+            element = ref2[l];
             if ((ref3 = element.getAttribute('type')) === 'submit' || ref3 === 'reset') {
               results.push(element);
             }
           }
           return results;
         })();
-        for (k = 0, len2 = action_buttons.length; k < len2; k++) {
-          button = action_buttons[k];
+        for (l = 0, len3 = action_buttons.length; l < len3; l++) {
+          button = action_buttons[l];
           button.removeAttribute('disabled');
         }
         btn = '<a href="#" data-action="close" ' + 'data-target="submit_error">Cancel</a>';
@@ -529,7 +656,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.reset_input_errors = function(input) {
     var container_el, error_el;
-    container_el = input.parentNode.parentNode;
+    container_el = this.findParentWithClass(input, 'block');
     error_el = container_el.getElementsByClassName('errors')[0];
     container_el.classList.remove('error');
     input.classList.remove('error');
@@ -538,7 +665,7 @@ NHMobileForm = (function(superClass) {
 
   NHMobileForm.prototype.add_input_errors = function(input, error_string) {
     var container_el, error_el;
-    container_el = input.parentNode.parentNode;
+    container_el = this.findParentWithClass(input, 'block');
     error_el = container_el.getElementsByClassName('errors')[0];
     container_el.classList.add('error');
     input.classList.add('error');
@@ -550,7 +677,8 @@ NHMobileForm = (function(superClass) {
     el = document.getElementById('parent_' + field);
     el.style.display = 'none';
     inp = document.getElementById(field);
-    return inp.classList.add('exclude');
+    inp.classList.add('exclude');
+    return inp.setAttribute('data-necessary', 'false');
   };
 
   NHMobileForm.prototype.show_triggered_elements = function(field) {
@@ -558,13 +686,15 @@ NHMobileForm = (function(superClass) {
     el = document.getElementById('parent_' + field);
     el.style.display = 'block';
     inp = document.getElementById(field);
-    return inp.classList.remove('exclude');
+    inp.classList.remove('exclude');
+    return inp.setAttribute('data-necessary', 'true');
   };
 
   NHMobileForm.prototype.disable_triggered_elements = function(field) {
     var inp;
     inp = document.getElementById(field);
     inp.classList.add('exclude');
+    inp.setAttribute('data-necessary', 'false');
     return inp.disabled = true;
   };
 
@@ -572,7 +702,22 @@ NHMobileForm = (function(superClass) {
     var inp;
     inp = document.getElementById(field);
     inp.classList.remove('exclude');
+    inp.setAttribute('data-necessary', 'true');
     return inp.disabled = false;
+  };
+
+  NHMobileForm.prototype.require_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.remove('exclude');
+    return inp.setAttribute('data-required', 'true');
+  };
+
+  NHMobileForm.prototype.unrequire_triggered_elements = function(field) {
+    var inp;
+    inp = document.getElementById(field);
+    inp.classList.add('exclude');
+    return inp.setAttribute('data-required', 'false');
   };
 
   NHMobileForm.prototype.process_partial_submit = function(event, self) {
@@ -625,6 +770,20 @@ NHMobileForm = (function(superClass) {
     })();
     endpoint = event.detail.endpoint;
     return self.submit_observation(self, form_elements, endpoint, self.form.getAttribute('ajax-args'));
+  };
+
+  NHMobileForm.prototype.handle_display_partial_reasons = function(event) {
+    return this.display_partial_reasons(this);
+  };
+
+  NHMobileForm.prototype.findParentWithClass = function(el, className) {
+    while (el.parentNode) {
+      el = el.parentNode;
+      if (el && indexOf.call(el.classList, className) >= 0) {
+        return el;
+      }
+    }
+    return null;
   };
 
   return NHMobileForm;

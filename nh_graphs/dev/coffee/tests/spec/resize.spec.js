@@ -179,7 +179,7 @@ describe('Resize', function() {
         });
 
         it("NHContext.handle_resize() fires on 'resize' event",function() {
-
+            skipIfCantResize();
             spyOn(context, 'handle_resize').and.callThrough();
 
             graphlib.init();
@@ -192,7 +192,7 @@ describe('Resize', function() {
 
         it("NHFocus.handle_resize() fires on 'resize' event",function() {
             spyOn(NHFocus.prototype, 'handle_resize').and.callThrough();
-
+            skipIfCantResize();
             graphlib.init();
             graphlib.draw();
 
@@ -203,7 +203,7 @@ describe('Resize', function() {
 
         it("NHGraph.resize_graph() fires on 'resize' event",function() {
             spyOn(NHGraph.prototype, 'resize_graph').and.callThrough();
-
+            skipIfCantResize();
             graphlib.init();
             graphlib.draw();
 
@@ -492,7 +492,7 @@ describe('Resize', function() {
 
                 it("updates start date input with new date", function() {
                     var actual, expected;
-                    actual = new Date(graphlib.options.controls.date.start.value);
+                    actual = graphlib.parseDate(graphlib.options.controls.date.start.value);
                     expected = new Date(context.graph.axes.x.scale.domain()[0]);
                     actual = actual.toString().substr(0,10);
                     expected = expected.toString().substr(0,10);
@@ -511,7 +511,7 @@ describe('Resize', function() {
 
                 it("updates end date input with new date", function() {
                     var actual, expected;
-                    actual = new Date(graphlib.options.controls.date.end.value);
+                    actual = graphlib.parseDate(graphlib.options.controls.date.end.value);
                     expected = new Date(context.axes.x.max);
                     actual = actual.toString().substr(0,10);
                     expected = expected.toString().substr(0,10);
@@ -548,7 +548,7 @@ describe('Resize', function() {
 
                 it("updates start date input with new date", function() {
                     var actual, expected;
-                    actual = new Date(graphlib.options.controls.date.start.value);
+                    actual = graphlib.parseDate(graphlib.options.controls.date.start.value);
                     expected = new Date(context.graph.axes.x.scale.domain()[0]);
                     actual = actual.toString().substr(0, 10);
                     expected = expected.toString().substr(0, 10);
@@ -567,7 +567,7 @@ describe('Resize', function() {
 
                 it("updates end date input with new date", function() {
                     var actual, expected;
-                    actual = new Date(graphlib.options.controls.date.end.value);
+                    actual = graphlib.parseDate(graphlib.options.controls.date.end.value);
                     expected = new Date(context.axes.x.max);
                     actual = actual.toString().substr(0, 10);
                     expected = expected.toString().substr(0, 10);

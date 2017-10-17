@@ -17,8 +17,7 @@ import json
 from datetime import datetime
 
 from openerp import api, models
-from openerp.osv import fields
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 from . import helpers
 
@@ -27,8 +26,6 @@ class ObservationReport(models.AbstractModel):
 
     _name = 'report.nh.clinical.observation_report'
 
-    pretty_date_format = '%H:%M %d/%m/%y'
-    wkhtmltopdf_format = "%a %b %d %Y %H:%M:%S GMT"
     patient_id = None
     spell_activity_id = None
 
@@ -41,6 +38,8 @@ class ObservationReport(models.AbstractModel):
         'critical_care_history': 'nh.clinical.patient.critical_care'
     }
 
+    _graph_data_keys_mapping = {}
+
     @api.multi
     def render_html(self, data=None):
         """"
@@ -52,16 +51,32 @@ class ObservationReport(models.AbstractModel):
 
         if data and data.spell_id:
             report_obj = self.env['report']
+
             if hasattr(data, 'ews_only') and data.ews_only:
                 ews_report = self.get_report_data(data, ews_only=True)
                 return report_obj.render('nh_eobs.observation_report',
                                          ews_report)
-            rep_data = self.get_report_data(data)
+
+            report_data = self.get_and_process_report_data(data)
+
             return report_obj.render(
                 'nh_eobs.observation_report',
-                rep_data)
+                report_data)
         else:
             return None
+
+    def get_and_process_report_data(self, data):
+        """
+        Calls get_report_data as well as some additional methods that massage
+        the data.
+        :param data:
+        :return:
+        :rtype: dict
+        """
+        report_data = self.get_report_data(data)
+        self._create_graph_data(report_data)
+        self._localise_and_format_datetimes(report_data)
+        return report_data
 
     def get_report_data(self, data, ews_only=False):
         """
@@ -83,49 +98,46 @@ class ObservationReport(models.AbstractModel):
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
         partner_pool = self.pool['res.partner']
+
         base_report = self.create_report_data(data)
+
         spell_id = int(data.spell_id)
         spell = spell_pool.read(cr, uid, [spell_id])[0]
         dates = self.process_report_dates(data, spell, base_report)
         spell_activity_id = spell['activity_id'][0]
         self.spell_activity_id = spell_activity_id
-
         spell_docs = spell['con_doctor_ids']
         spell['consultants'] = False
         if len(spell_docs) > 0:
             spell['consultants'] = partner_pool.read(cr, uid, spell_docs)
-        #
-        # # - get patient id
         self.patient_id = spell['patient_id'][0]
         patient_id = self.patient_id
-        #
-        # get patient information
+
+        # Get patient information
         patient = patient_pool.read(cr, uid, [patient_id])[0]
         patient_location = patient.get('current_location_id')
-        patient['dob'] = helpers.convert_db_date_to_context_date(
-            cr, uid, datetime.strptime(patient['dob'], dtf),
-            '%d/%m/%Y', context=None) if patient.get('dob', False) else ''
+
+        self._get_patient_dob(patient)
+
         ews = self.get_ews_observations(data, spell_activity_id)
-        json_data = []
         table_ews = []
         for activity in ews:
-            json_data.append(copy.deepcopy(activity['values']))
             table_ews.append(copy.deepcopy(activity['values']))
-        json_ews = self.get_model_data_as_json(json_data)
 
         # Get the script files to load
         observation_report = '/nh_eobs/static/src/js/observation_report.js'
 
-        height_weight_dict = {
-            'height': 'nh.clinical.patient.observation.height',
-            'weight': 'nh.clinical.patient.observation.weight'
+        height_dict = {
+            'height': 'nh.clinical.patient.observation.height'
         }
-        height_weight = self.get_activity_data_from_dict(
-            height_weight_dict,
-            spell_activity_id,
+
+        height = self.get_activity_data_from_dict(
+            height_dict,
+            self.spell_activity_id,
             data
         )
-        patient = self.process_patient_height_weight(patient, height_weight)
+
+        patient = self.process_patient_height(patient, height)
 
         monitoring = self.create_patient_monitoring_exception_dictionary(
             data, spell_activity_id
@@ -161,7 +173,6 @@ class ObservationReport(models.AbstractModel):
             'report_start': dates.report_start,
             'report_end': dates.report_end,
             'spell_start': dates.spell_start,
-            'ews_data': json_ews,
             'draw_graph_js': observation_report,
             'device_session_history': device_session_history,
             'transfer_history': transfer_history,
@@ -170,12 +181,12 @@ class ObservationReport(models.AbstractModel):
         ews_report = helpers.merge_dicts(ews_dict,
                                          base_report.footer_values,
                                          monitoring)
+        self._register_graph_data('ews', 'ews_data')
         if ews_only:
             return ews_report
 
         basic_obs_dict = {
             'gcs': 'nh.clinical.patient.observation.gcs',
-            'bs': 'nh.clinical.patient.observation.blood_sugar',
             'pains': 'nh.clinical.patient.observation.pain',
             'blood_products': 'nh.clinical.patient.observation.blood_product'
         }
@@ -199,28 +210,40 @@ class ObservationReport(models.AbstractModel):
                 'nh.clinical.patient.observation.stools',
                 data.start_time, data.end_time))
 
-        weights = height_weight['weight']
-
         non_basic_obs = {
             'bristol_stools': bristol_stools,
-            'weights': weights,
             'pbps': pbps
         }
 
-        rep_data = helpers.merge_dicts(
+        report_data = helpers.merge_dicts(
             basic_obs,
             non_basic_obs,
             ews_report
         )
-        return rep_data
+        return report_data
+
+    def _get_patient_dob(self, patient):
+        datetime_utils = self.env['datetime_utils']
+        patient_dob = patient.get('dob', False)
+
+        if patient_dob:
+            self._localise_dict_time(patient, 'dob')
+            datetime_utils.convert_datetime_str_to_format(
+                patient['dob'], '%d/%m/%Y')
+        else:
+            patient_dob = ''
+
+        formatted_patient_dob = patient_dob
+        patient['dob'] = formatted_patient_dob
 
     @api.multi
-    def get_activity_data(self, spell_id, model, start_time, end_time):
+    def get_activity_data(
+            self, spell_activity_id, model, start_time, end_time):
         """
         Returns a list of dictionaries, each one representing the values of one
         :class:<nh_activity.activity.nh_activity> record.
 
-        :param spell_id:
+        :param spell_activity_id:
         :param model: The name of the model matching the type of activity data
         to retrieve activities for.
         :type model: str
@@ -234,11 +257,28 @@ class ObservationReport(models.AbstractModel):
 
         states = self._get_allowed_activity_states_for_model(model)
         domain = helpers.create_search_filter(
-            spell_id, model, start_time, end_time, states=states
+            spell_activity_id, model, start_time, end_time, states=states
         )
         self.add_exclude_placement_cancel_reason_parameter_to_domain(domain)
-        activity_ids = activity_model.search(cr, uid, domain)
-        return activity_model.read(cr, uid, activity_ids)
+
+        activity_ids = activity_model.search(cr, uid, domain,
+                                             order='date_terminated asc')
+        activity_data = activity_model.read(cr, uid, activity_ids)
+        self.add_user_key(activity_data)
+
+        return activity_data
+
+    def add_user_key(self, activity_data_list):
+        for activity_data in activity_data_list:
+            terminate_user_tuple = activity_data.get('terminate_uid')
+            is_tuple = isinstance(terminate_user_tuple, tuple)
+            user_name = terminate_user_tuple[1] \
+                if is_tuple and len(terminate_user_tuple) > 1 else False
+            if not user_name and is_tuple:
+                user_id = terminate_user_tuple[0]
+                user_model = self.env['res.users']
+                user_name = user_model.get_name(user_id)
+            activity_data['user'] = user_name
 
     def add_exclude_placement_cancel_reason_parameter_to_domain(self, domain):
         model_data = self.env['ir.model.data']
@@ -272,13 +312,13 @@ class ObservationReport(models.AbstractModel):
         else:
             return 'completed'
 
-    def get_model_data(self, spell_id, model, start, end):
+    def get_model_data(self, spell_activity_id, model, start, end):
         """
-        Get activities associated with the passed model and return them as
-        a dictionary.
+        Get activities associated with the passed model and spell id and
+        return them as a dictionary.
 
-        :param spell_id:
-        :type spell_id: int
+        :param spell_activity_id:
+        :type spell_activity_id: int
         :param model:
         :type model: str
         :param start:
@@ -289,9 +329,8 @@ class ObservationReport(models.AbstractModel):
         range.
         :rtype: dict
         """
-        activity_data = self.get_activity_data(spell_id, model, start, end)
-        if activity_data:
-            self.convert_activities_dates_to_context_dates(activity_data)
+        activity_data = \
+            self.get_activity_data(spell_activity_id, model, start, end)
         return self.get_model_values(model, activity_data)
 
     def get_model_values(self, model, activity_data):
@@ -310,36 +349,27 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         model_pool = self.pool[model]
         for activity in activity_data:
-            model_data = model_pool.read(
-                cr, uid, self._get_data_ref_id(activity), []
-            )
+            obs_id = self._get_data_ref_id(activity)
+            # TODO EOBS-1011: Report shouldn't have to check whether to call
+            # read or read_labels
+            if 'nh.clinical.patient.observation' in model_pool._name:
+                model_data = model_pool.read_labels(cr, uid, obs_id, [])
+            else:
+                model_data = model_pool.read(cr, uid, obs_id, [])
+            if isinstance(model_data, list):
+                # V8 read always returns a list, V7 doesn't when single int is
+                # passed as id instead of a list.
+                if len(model_data) > 1:
+                    message = "Should have read data for only one record " \
+                              "but more than one was found."
+                    raise ValueError(message)
+                model_data = model_data[0]
+
             if model_data:
-                stat = 'No'
-                date_terminated = 'date_terminated'
                 if 'status' in model_data and model_data['status']:
-                    stat = 'Yes'
-                    model_data['status'] = stat
-                if 'date_started' in model_data and model_data['date_started']:
-                    model_data['date_started'] = \
-                        helpers.convert_db_date_to_context_date(
-                            cr, uid,
-                            datetime.strptime(
-                                model_data['date_started'],
-                                dtf
-                            ),
-                            self.pretty_date_format
-                        )
-                if date_terminated in model_data \
-                        and model_data[date_terminated]:
-                    model_data['date_terminated'] = \
-                        helpers.convert_db_date_to_context_date(
-                            cr, uid,
-                            datetime.strptime(
-                                model_data['date_terminated'],
-                                dtf
-                            ),
-                            self.pretty_date_format
-                        )
+                    status = 'Yes'
+                    model_data['status'] = status
+
             activity['values'] = model_data
         return activity_data
 
@@ -373,39 +403,8 @@ class ObservationReport(models.AbstractModel):
         act_data = self.get_activity_data(spell_id, model_one, start, end)
         return self.get_model_values(model_two, act_data)
 
-    def get_model_data_as_json(self, model_data):
-        for data in model_data:
-            if 'write_date' in data and data['write_date']:
-                data['write_date'] = datetime.strftime(
-                    datetime.strptime(data['write_date'], dtf),
-                    self.wkhtmltopdf_format
-                )
-            if 'create_date' in data and data['create_date']:
-                data['create_date'] = datetime.strftime(
-                    datetime.strptime(data['create_date'], dtf),
-                    self.wkhtmltopdf_format
-                )
-            if 'date_started' in data and data['date_started']:
-                data['date_started'] = datetime.strftime(
-                    datetime.strptime(
-                        data['date_started'],
-                        self.pretty_date_format
-                    ),
-                    self.wkhtmltopdf_format
-                )
-            if 'date_terminated' in data and data['date_terminated']:
-                data['date_terminated'] = datetime.strftime(
-                    datetime.strptime(
-                        data['date_terminated'],
-                        self.pretty_date_format
-                    ),
-                    self.wkhtmltopdf_format
-                )
-        return json.dumps(model_data)
-
     def create_report_data(self, data):
         cr, uid = self._cr, self._uid
-        pretty_date_format = self.pretty_date_format
 
         # set up pools
         company_pool = self.pool['res.company']
@@ -420,11 +419,8 @@ class ObservationReport(models.AbstractModel):
         company_logo = partner_pool.read(cr, uid, 1, ['image'])['image']
 
         # generate report timestamp
-        time_generated = fields.datetime.context_timestamp(
-            cr, uid,
-            datetime.now(),
-            context=None
-        ).strftime(pretty_date_format)
+        datetime_utils = self.env['datetime_utils']
+        time_generated = datetime_utils.get_current_time(as_string=True)
         return helpers.BaseReport(
             user,
             company_name,
@@ -436,23 +432,6 @@ class ObservationReport(models.AbstractModel):
     def add_triggered_action_keys_to_obs_dicts(self, obs_dict_list):
         for observation in obs_dict_list:
             triggered_actions = self.get_triggered_actions(observation['id'])
-            for t in triggered_actions:
-                ds = t.get('date_started', False)
-                dt = t.get('date_terminated', False)
-                if ds:
-                    t['date_started'] = \
-                        helpers.convert_db_date_to_context_date(
-                            self.env.cr, self.env.uid,
-                            datetime.strptime(t['date_started'], dtf),
-                            self.pretty_date_format
-                        )
-                if dt:
-                    t['date_terminated'] = \
-                        helpers.convert_db_date_to_context_date(
-                            self.env.cr, self.env.uid,
-                            datetime.strptime(t['date_terminated'], dtf),
-                            self.pretty_date_format
-                        )
             observation['triggered_actions'] = triggered_actions
 
     @api.model
@@ -510,11 +489,12 @@ class ObservationReport(models.AbstractModel):
                                   ews_model,
                                   data.start_time, data.end_time)
         ews = self.convert_partial_reasons_to_labels(ews)
+
         for observation in ews:
             o2target_dt = datetime.strptime(
                 observation['values']['date_terminated'],
-                self.pretty_date_format
-            ).strftime(dtf)
+                DTF
+            ).strftime(DTF)
             o2_level_id = self.pool['nh.clinical.patient.o2target'].get_last(
                 cr, uid, self.patient_id,
                 datetime=o2target_dt)
@@ -525,7 +505,9 @@ class ObservationReport(models.AbstractModel):
             observation['values']['o2_target'] = False
             if o2_level:
                 observation['values']['o2_target'] = o2_level.name
+
         self.add_triggered_action_keys_to_obs_dicts(ews)
+
         return ews
 
     @api.model
@@ -577,35 +559,26 @@ class ObservationReport(models.AbstractModel):
                     observation['ward'] = ward[1]
         return model_data
 
-    def process_report_dates(self, data, spell, base_report):
-        start_time = False
-        end_time = False
-        if data.start_time:
-            if isinstance(data.start_time, str):
-                start_time = datetime.strptime(data.start_time, dtf)
-                data.start_time = start_time
-        if data.end_time:
-            if isinstance(data.end_time, str):
-                end_time = datetime.strptime(data.end_time, dtf)
-                data.end_time = end_time
-
-        # - get the start and end date of spell
-        spell_start = helpers.convert_db_date_to_context_date(
-            self._cr, self._uid, datetime.strptime(spell['date_started'], dtf),
-            self.pretty_date_format, context=None)
+    @staticmethod
+    def process_report_dates(data, spell, base_report):
+        # Set spell datetimes.
+        spell_start = spell['date_started']
         spell_end = spell['date_terminated']
-        report_start = spell_start
-        report_end = base_report.time_generated
-        if start_time:
-            report_start = start_time.strftime(self.pretty_date_format)
-        if end_time:
-            report_end = end_time.strftime(self.pretty_date_format)
+
+        # Set report start.
+        if data.start_time:
+            report_start = data.start_time
         else:
-            if spell_end:
-                report_end = helpers.convert_db_date_to_context_date(
-                    self._cr, self._uid, datetime.strptime(spell_end, dtf),
-                    self.pretty_date_format,
-                    context=None)
+            report_start = spell_start
+
+        # Set report end.
+        if data.end_time:
+            report_end = data.end_time
+        elif spell_end:
+            report_end = spell_end
+        elif base_report.time_generated:
+            report_end = base_report.time_generated
+
         return helpers.ReportDates(
             report_start,
             report_end,
@@ -620,19 +593,12 @@ class ObservationReport(models.AbstractModel):
         return dict
 
     @staticmethod
-    def process_patient_height_weight(patient, height_weight):
-        heights = height_weight['height']
+    def process_patient_height(patient, height):
+        heights = height['height']
         height = False
         if len(heights) > 0:
             height = heights[-1]['values']['height']
         patient['height'] = height
-
-        # get weight observations
-        weights = height_weight['weight']
-        weight = False
-        if len(weights) > 0:
-            weight = weights[-1]['values']['weight']
-        patient['weight'] = weight
         return patient
 
     def create_patient_monitoring_exception_dictionary(self, data,
@@ -657,7 +623,8 @@ class ObservationReport(models.AbstractModel):
 
         new_style_patient_monitoring_exceptions = \
             self.get_patient_monitoring_exception_report_data(
-                spell_activity_id, data.start_time, data.end_time
+                spell_activity_id,
+                start_date=data.start_time, end_date=data.end_time
             )
 
         patient_monitoring_exception_dictionary = helpers.merge_dicts(
@@ -667,18 +634,21 @@ class ObservationReport(models.AbstractModel):
 
         return patient_monitoring_exception_dictionary
 
-    def get_patient_monitoring_exception_report_data(self,
-                                                     spell_activity_id,
-                                                     start_date=None,
-                                                     end_date=None):
+    def get_patient_monitoring_exception_report_data(
+            self, spell_activity_id, start_date=None, end_date=None):
         """
-        Returns a dictionary containing data for 'new style' patient monitoring
-        exceptions. These are patient monitoring exceptions which are records
-        of the :class:<nh_eobs.models.PatientMonitoringException> model.
+        Returns a dictionary with a 'patient_monitoring_exception_history'
+        key which contains a list of dictionaries containing data for
+        'new style' patient monitoring exceptions. These are patient
+        monitoring exceptions which are records of the
+        :class:<nh_eobs.models.PatientMonitoringException> model.
 
         The data returned is meant for use on the observation report, it is
         not a full representation of the record, just a few fields that
         are ready to be mapped directly onto the report.
+
+        The 'patient_monitoring_exception_history' list is sorted
+        chronologically.
 
         :param spell_activity_id:
         :type spell_activity_id: int
@@ -689,25 +659,25 @@ class ObservationReport(models.AbstractModel):
         :return:
         :rtype: dict
         """
-        pme_activity_ids = \
-            self.get_monitoring_exception_activity_ids_for_report(
-                spell_activity_id, start_date, end_date
-            )
+        pme_activity_ids = self.get_patient_monitoring_exception_activity_ids(
+            spell_activity_id, start_date, end_date)
 
         report_data = \
             self.get_monitoring_exception_report_data_from_activities(
-                pme_activity_ids, start_date, end_date
-            )
+                pme_activity_ids)
 
-        dictionary = {
-            'patient_monitoring_exception_history': report_data
-        }
+        def extract_datetime_for_compare(item):
+            datetime_str = item['date']
+            date_time = datetime.strptime(datetime_str, DTF)
+            return date_time
+
+        report_data = sorted(report_data, key=extract_datetime_for_compare)
+
+        dictionary = {'patient_monitoring_exception_history': report_data}
         return dictionary
 
-    def get_monitoring_exception_activity_ids_for_report(self,
-                                                         spell_activity_id,
-                                                         start_date=None,
-                                                         end_date=None):
+    def get_patient_monitoring_exception_activity_ids(
+            self, spell_activity_id, start_date=None, end_date=None):
         """
         Returns a list of ids for all activities whose information should be
         included in the report. Exactly what entries should be created for
@@ -724,19 +694,19 @@ class ObservationReport(models.AbstractModel):
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
 
-        domain = self.build_monitoring_exception_domain(spell_activity_id,
-                                                        start_date, end_date)
+        domain = self.build_monitoring_exception_domain(
+            spell_activity_id, start_date, end_date)
         activity_ids = activity_model.search(cr, uid, domain)
         if not isinstance(activity_ids, list):
             activity_ids = [activity_ids]
         return activity_ids
 
     @classmethod
-    def build_monitoring_exception_domain(cls, spell_activity_id,
-                                          start_date=None, end_date=None):
+    def build_monitoring_exception_domain(
+            cls, spell_activity_id, start_date=None, end_date=None):
         """
         Contained in the domain is all the business logic for deciding whether
-        an activity may need to included on the report in some way.
+        an activity may need to be included on the report in some way.
 
         The domain uses Polish Notation. You can learn how to read it
         `on Wikipedia
@@ -747,15 +717,14 @@ class ObservationReport(models.AbstractModel):
         :param end_date:
         :return:
         """
-        model = 'nh.clinical.patient_monitoring_exception'
-
         base_domain = [
             ('parent_id', '=', spell_activity_id),
-            ('data_model', '=', model),
+            ('data_model', 'ilike', 'nh.clinical.pme%'),
         ]
         include_all_parameters = [
             ('state', 'in', ['started', 'completed', 'cancelled'])
         ]
+        include_pme_active_throughout_report_range = start_date and end_date
         filter_on_date_parameters = [
             '|',
             ('state', '=', 'started'),
@@ -765,32 +734,39 @@ class ObservationReport(models.AbstractModel):
             '&' if start_date and end_date else None,
             ('date_started', '>=', start_date) if start_date else None,
             ('date_started', '<=', end_date) if end_date else None,
+            '|' if include_pme_active_throughout_report_range else None,
             '&' if start_date and end_date else None,
             ('date_terminated', '>=', start_date) if start_date else None,
-            ('date_terminated', '<=', end_date) if end_date else None
+            ('date_terminated', '<=', end_date) if end_date else None,
         ]
-        domain = base_domain
+        if include_pme_active_throughout_report_range:
+            pme_active_throughout_report_date_range_parameters = [
+                '&' if start_date and end_date else None,
+                ('date_started', '<=', start_date) if start_date and end_date
+                else None,
+                ('date_terminated', '>=', end_date) if start_date and end_date
+                else None
+            ]
+            filter_on_date_parameters.extend(
+                pme_active_throughout_report_date_range_parameters)
+
         if not start_date and not end_date:
-            return domain + include_all_parameters
+            return base_domain + include_all_parameters
         else:
             # Get rid of any Nones.
             filter_on_date_parameters = \
                 [parameter for parameter in filter_on_date_parameters
                  if parameter is not None]
-            return domain + filter_on_date_parameters
+            return base_domain + filter_on_date_parameters
 
     def get_monitoring_exception_report_data_from_activities(
-            self, pme_activity_ids, start_date=None, end_date=None):
+            self, pme_activity_ids):
         """
         Calls :method:<get_monitoring_exception_report_data_from_activity>
         recursively.
 
         :param pme_activity_ids:
         :type pme_activity_ids: list
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
         :return:
         :rtype: dict
         """
@@ -799,14 +775,13 @@ class ObservationReport(models.AbstractModel):
         for pme_activity_id in pme_activity_ids:
             some_more_report_entries = \
                 self.get_monitoring_exception_report_data_from_activity(
-                    pme_activity_id, start_date, end_date
-                )
+                    pme_activity_id)
             report_entries += some_more_report_entries
 
         return report_entries
 
     def get_monitoring_exception_report_data_from_activity(
-            self, pme_activity_id, start_date=None, end_date=None):
+            self, pme_activity_id):
         """
         Gets data from the activities with the passed ids and returns a
         dictionary containing just the values needed for the observation
@@ -814,10 +789,6 @@ class ObservationReport(models.AbstractModel):
 
         :param pme_activity_id:
         :type pme_activity_id: int
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
         :return:
         :rtype: dict
         """
@@ -830,75 +801,18 @@ class ObservationReport(models.AbstractModel):
 
         report_entries = []
         # Get report entry for start of patient monitoring exception.
-        if self.include_stop_obs_entry(activity, start_date, end_date):
-            stop_obs_report_entry = \
-                self.get_report_entry_dictionary(pme_activity_id)
-            report_entries.append(stop_obs_report_entry)
+        pme_started_entry = self.get_report_entry_dictionary(pme_activity_id,
+                                                             pme_started=True)
+        report_entries.append(pme_started_entry)
 
         # Get report entry for end of patient monitoring exception if it is not
         # still open.
-        if self.include_restart_obs_entry(activity, start_date, end_date):
-            restart_obs_report_entry = \
-                self.get_report_entry_dictionary(pme_activity_id,
-                                                 restart_obs=True)
-            report_entries.append(restart_obs_report_entry)
+        if activity['date_terminated']:
+            pme_completed_entry = self.get_report_entry_dictionary(
+                pme_activity_id, pme_started=False)
+            report_entries.append(pme_completed_entry)
 
         return report_entries
-
-    def include_stop_obs_entry(self, activity, start_date=None, end_date=None):
-        """
-        Encapsulates the logic for deciding if a 'Stop Observations' entry
-        should be included on the report for the passed activity dictionary.
-
-        :param activity: dictionary as returned by :method:<read>
-        :type activity: dict
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
-        :return:
-        :rtype: bool
-        """
-        if not start_date and end_date:
-            return True
-        try:
-            if activity['state'] == 'started':
-                return True
-            if activity['date_started']:
-                if self.is_datetime_within_range(activity['date_started'],
-                                                 start_date, end_date):
-                    return True
-                if self.is_activity_date_terminated_within_date_range(
-                    activity, start_date, end_date
-                ):
-                    return True
-            return False
-        except KeyError, e:
-            raise ValueError("A KeyError was raised because the activity did "
-                             "not have the expected keys.", e)
-
-    def include_restart_obs_entry(self, activity,
-                                  start_date=None, end_date=None):
-        """
-        Encapsulates the logic for deciding if a 'Restart Observations' entry
-        should be included on the report for the passed activity dictionary.
-
-        :param activity: dictionary as returned by :method:<read>
-        :type activity: dict
-        :param start_date:
-        :type start_date: str
-        :param end_date:
-        :type end_date: str
-        :return:
-        :rtype: bool
-        """
-        if activity['date_terminated']:
-            if not start_date and end_date:
-                return True
-            return self.is_activity_date_terminated_within_date_range(
-                activity, start_date, end_date
-            )
-        return False
 
     def is_activity_date_terminated_within_date_range(self, activity,
                                                       start_date=None,
@@ -939,63 +853,96 @@ class ObservationReport(models.AbstractModel):
         :rtype: bool
         """
         if isinstance(date_time, str):
-            date_time = datetime.strptime(date_time, dtf)
+            date_time = datetime.strptime(date_time, DTF)
 
         if start_date:
             if isinstance(start_date, str):
-                start_date = datetime.strptime(start_date, dtf)
+                start_date = datetime.strptime(start_date, DTF)
             if not date_time >= start_date:
                 return False
 
         if end_date:
             if isinstance(end_date, str):
-                end_date = datetime.strptime(end_date, dtf)
+                end_date = datetime.strptime(end_date, DTF)
             if not date_time <= end_date:
                 return False
 
         return True
 
-    def get_report_entry_dictionary(self, pme_activity_id,
-                                    restart_obs=False):
+    @staticmethod
+    def is_date_range_within_active_pme(activity, start_date, end_date):
+        """
+        Checks to see if supplied start and end dates are within a PME event
+        :param activity: PME activity
+        :param start_date: report start date
+        :param end_date: report end date
+        :return: True if date range within activities date range, False if not
+        :rtype: bool
+        """
+        if not start_date or not end_date:
+            raise ValueError("Need both dates to test if within range.")
+
+        pme_start = activity.get('date_started')
+        pme_end = activity.get('date_terminated')
+        if not pme_start and not pme_end:
+            return False
+        if not start_date and not end_date:
+            return False
+        pme_start = datetime.strptime(pme_start, DTF)
+        pme_end = datetime.strptime(pme_end, DTF)
+        if isinstance(start_date, str):
+            start_date = datetime.strptime(start_date, DTF)
+        if isinstance(end_date, str):
+            end_date = datetime.strptime(end_date, DTF)
+        if not pme_start <= start_date or not pme_end >= end_date:
+                return False
+        return True
+
+    def get_report_entry_dictionary(
+            self, pme_activity_id, pme_started=True):
         """
         Creates a dictionary that contains the data that will be used to
         populate the report for a single entry concerning a
         patient monitoring exception activity.
 
         Contains various bits of logic to return different values depending on
-        whether it has been instructed to create a 'Stop Observations' entry or
-        a 'Restart Observations' entry, or if the patient monitoring exception
-        activity was cancelled due to a transfer.
+        whether the PME has been started, stopped, or cancelled.
 
         :param pme_activity_id:
         :type pme_activity_id: int
-        :param restart_obs:
-        :type restart_obs: bool
+        :param pme_started:
+        :type pme_started: bool
         :return:
         :rtype: dict
         """
         cr, uid = self._cr, self._uid
         activity_model = self.pool['nh.activity']
-        pme_model = \
-            self.pool['nh.clinical.patient_monitoring_exception']
         cancel_reason_model = self.pool['nh.cancel.reason']
-        users_model = self.pool['res.users']
+        user_model = self.pool['res.users']
 
         activity = activity_model.read(cr, uid, pme_activity_id)
         if isinstance(activity, list):
             activity = activity[0]
+        data_ref_model = activity['data_model']
+        data_ref_model = \
+            self.pool[data_ref_model]
 
-        self.convert_activity_dates_to_context_dates(activity)
+        start_pme = data_ref_model.get_start_message()
+        stop_pme = data_ref_model.get_stop_message()
+
+        if isinstance(activity, list):
+            activity = activity[0]
 
         pme_id = self._get_data_ref_id(activity)
-        pme = pme_model.read(cr, uid, pme_id)
+        pme = data_ref_model.read(cr, uid, pme_id)
 
-        date = activity['date_started'] if not restart_obs \
+        date = activity['date_started'] if pme_started \
             else activity['date_terminated']
-        status = 'Stop Observations' if not restart_obs \
-            else 'Restart Observations'
+        status = start_pme if pme_started \
+            else stop_pme
+        uid_field = 'create_uid' if pme_started else 'terminate_uid'
 
-        if restart_obs and activity['cancel_reason_id']:
+        if not pme_started and activity['cancel_reason_id']:
             cancel_reason_id = \
                 self._get_id_from_tuple(activity['cancel_reason_id'])
             cancel_reason = \
@@ -1004,13 +951,16 @@ class ObservationReport(models.AbstractModel):
                 user = 'Transfer'
                 reason = 'Transfer'
         else:
-            user_id = activity['create_uid']
+            user_id = activity[uid_field]
             user_id = self._get_id_from_tuple(user_id)
-            user_dict = users_model.read(cr, uid, user_id, fields=['name'])
+            user_dict = user_model.read(cr, uid, user_id, fields=['name'])
+            if isinstance(user_dict, list):
+                user_dict = user_dict[0]
             user = user_dict['name']
 
             # pme['reason'] is a tuple: (id, display_name)
-            reason = pme['reason'][1] if not restart_obs else None
+            reason = pme['reason'][1] if pme['reason'] and pme_started \
+                else None
 
         return {
             'date': date,
@@ -1019,44 +969,154 @@ class ObservationReport(models.AbstractModel):
             'reason': reason
         }
 
-    def convert_activities_dates_to_context_dates(self, activity_data):
-        """
-        Calls :method:<convert_activity_dates_to_context_dates> recursively.
+    def _localise_and_format_datetimes(self, report_data):
+        date_started = 'date_started'
+        date_terminated = 'date_terminated'
 
-        :param activity_data:
-        :type activity_data: list
-        :return: No return, just side effects.
-        """
-        for activity in activity_data:
-            self.convert_activity_dates_to_context_dates(activity)
+        # Report period datetimes
+        self._localise_dict_time(report_data, 'report_start')
+        self._localise_dict_time(report_data, 'report_end')
 
-    def convert_activity_dates_to_context_dates(self, activity):
-        """
-        Ensures dates on the passed activity are in the correct format and
-        timezone.
+        # Spell datetimes
+        spell = report_data['spell']
+        self._localise_dict_time(spell, date_terminated)
+        self._localise_dict_time(report_data, 'spell_start')
 
-        :param activity:
-        :type activity: dict
+        # Patient date of birth
+        patient = report_data['patient']
+        datetime_utils = self.env['datetime_utils']
+        return_string_format = datetime_utils.date_format_front_end
+        self._localise_dict_time(patient, 'dob',
+                                 return_string_format=return_string_format)
+
+        # EWS activity datetimes
+        for obs_activity in report_data['ews']:
+            self._localise_dict_time(obs_activity, date_started)
+            self._localise_dict_time(obs_activity, date_terminated)
+            # EWS model datetimes
+            obs = obs_activity['values']
+            self._localise_dict_time(obs, date_started)
+            self._localise_dict_time(obs, date_terminated)
+            # EWS triggered tasks
+            for action in obs_activity['triggered_actions']:
+                self._localise_dict_time(action, date_terminated)
+
+        # EWS table datetimes
+        for obs in report_data['table_ews']:
+            self._localise_dict_time(obs, date_terminated)
+
+        # Blood product datetimes
+        for obs in report_data.get('blood_products', []):
+            self._localise_dict_time(obs['values'], date_terminated)
+
+        # PBPS (blood pressure) datetimes
+        for obs in report_data.get('pbps', []):
+            self._localise_dict_time(obs, date_terminated)
+
+        # Patient monitoring exception history datetimes
+        for pme in report_data['patient_monitoring_exception_history']:
+            self._localise_dict_time(pme, 'date')
+
+        # Transfer history
+        for transfer in report_data['transfer_history']:
+            self._localise_dict_time(transfer, date_terminated)
+
+    def _localise_dict_time(self, dictionary, key, return_string_format=None):
+        date_time = dictionary[key]
+
+        if not date_time:
+            # Some datetimes will not be populated and so will be `False`,
+            # this is perfectly acceptable. They may also be `None`, for
+            # example if the patient has no date of birth.
+            return
+
+        datetime_utils = self.env['datetime_utils']
+        if return_string_format is None:
+            return_string_format = \
+                datetime_utils.datetime_format_front_end_two_character_year
+
+        localised_date_time = datetime_utils.get_localised_time(
+            date_time, return_string=True,
+            return_string_format=return_string_format)
+
+        dictionary[key] = localised_date_time
+
+    def _register_graph_data(self, key_to_copy_from, key_to_copy_to):
+        """
+        Allows observations to register their need to display graphs on the
+        report. Updates a dictionary which is used later to add the necessary
+        data for the graphs to the overall report data dictionary.
+        :param key_to_copy_from: A key for the report data dictionary which
+        points to a nested dictionary of all the observation data that will be
+        used for the graphs.
+        :type key_to_copy_from: str
+        :param key_to_copy_to: A key for the report data dictionary which is
+        which will be created for the graph data to be stored.
+        :type key_to_copy_to: str
         :return:
-        :rtype: No return, just side effects.
         """
-        cr, uid = self._cr, self._uid
-        date_started = False
-        date_terminated = False
-        if 'date_started' in activity and activity['date_started']:
-            date_started = activity['date_started']
-        if 'date_terminated' in activity \
-                and activity['date_terminated']:
-            date_terminated = activity['date_terminated']
-        if date_started:
-            date_started = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(date_started, dtf),
-                self.pretty_date_format
-            )
-            activity['date_started'] = date_started
-        if date_terminated:
-            date_terminated = helpers.convert_db_date_to_context_date(
-                cr, uid, datetime.strptime(date_terminated, dtf),
-                self.pretty_date_format
-            )
-            activity['date_terminated'] = date_terminated
+        if key_to_copy_from not in self._graph_data_keys_mapping:
+            self._graph_data_keys_mapping[key_to_copy_from] = key_to_copy_to
+
+    def _create_graph_data(self, report_data):
+        """
+        Creates new graph data and stores it in new keys which are created on
+        the overall report data dictionary. Graph data is a JSON encoded
+        string used by JS in the report templates to render the graphs before
+        they are converted to PDFs.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        self._copy_data_for_graphs(report_data)
+        self._localise_graph_data_datetimes(report_data)
+        self._convert_graph_data_to_json(report_data)
+
+    def _copy_data_for_graphs(self, report_data):
+        """
+        Copies observation data from other keys in the report data dictionary
+        and stores them in new keys to be used specifically by the graphs.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        for key_to_copy_from in self._graph_data_keys_mapping:
+            obs_data_list = []
+            for obs_data in report_data[key_to_copy_from]:
+                obs_data_copy = copy.deepcopy(obs_data['values'])
+                obs_data_list.append(obs_data_copy)
+
+            key_to_copy_to = self._graph_data_keys_mapping[key_to_copy_from]
+            report_data[key_to_copy_to] = obs_data_list
+
+    def _localise_graph_data_datetimes(self, report_data):
+        """
+        Localises the date terminated datetimes of the graph data stored in
+        their respective keys in the report data dictionary. Must be called
+        before the graph data is converted to JSON.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        graph_data_keys = self._graph_data_keys_mapping.values()
+        for graph_data_key in graph_data_keys:
+            graph_data = report_data[graph_data_key]
+
+            for obs_data in graph_data:
+                self._localise_dict_time(
+                    obs_data, 'date_terminated', return_string_format=DTF)
+
+    def _convert_graph_data_to_json(self, report_data):
+        """
+        Converts the graph data stored in their respective keys in the report
+        data dictionary to JSON encoded strings.
+        :param report_data:
+        :type report_data: dict
+        :return:
+        """
+        keys_to_copy_to = self._graph_data_keys_mapping.values()
+        for key_to_copy_to in keys_to_copy_to:
+            graph_data = report_data[key_to_copy_to]
+            graph_data_json = json.dumps(graph_data)
+
+            report_data[key_to_copy_to] = graph_data_json

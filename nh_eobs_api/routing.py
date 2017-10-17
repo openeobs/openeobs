@@ -1,6 +1,7 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
-import jinja2
 import json
+
+import jinja2
 import re
 from openerp.tools import config
 
@@ -136,7 +137,7 @@ class RouteManager(object):
         # TODO: Need to sort out args
         return self.ROUTES.get(route_name, None)
 
-    # TODO: name this "explode_route" ?
+    # TODO: name this "explode_route"?
     def expose_route(self, route_name, url_prefix=None):
         """Expose all the properties of an existing route,
         formatted as a dictionary.

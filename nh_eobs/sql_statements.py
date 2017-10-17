@@ -117,7 +117,6 @@ class NHEobsSQL(orm.AbstractModel):
         CASE WHEN param.mrsa THEN 'yes' ELSE 'no' END AS mrsa,
         CASE WHEN param.diabetes THEN 'yes' ELSE 'no' END AS diabetes,
         CASE WHEN pbp.status THEN 'yes' ELSE 'no' END AS pbp_monitoring,
-        CASE WHEN weight.status THEN 'yes' ELSE 'no' END AS weight_monitoring,
         CASE WHEN param.status THEN 'yes' ELSE 'no' END AS palliative_care,
         CASE
             WHEN param.post_surgery AND param.post_surgery_date > now() -
@@ -148,7 +147,6 @@ class NHEobsSQL(orm.AbstractModel):
     LEFT JOIN ews0 ON spell.id = ews0.spell_id
     LEFT JOIN ward_locations wlocation ON wlocation.id = location.id
     LEFT JOIN consulting_doctors ON consulting_doctors.spell_id = spell.id
-    LEFT JOIN weight ON weight.spell_id = spell.id
     LEFT JOIN pbp pbp ON pbp.spell_id = spell.id
     LEFT JOIN param ON param.spell_id = spell.id
     ORDER BY location.name"""

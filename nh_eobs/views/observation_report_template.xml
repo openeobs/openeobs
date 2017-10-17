@@ -9,9 +9,7 @@
                             <t t-esc="user_name"/> -
                             <t t-esc="time_generated"/> -
                             <t t-esc="hospital_name"/> -
-                            <t t-if="'other_identifier' in patient">
-                                <t t-esc="patient['other_identifier']"/>
-                            </t>
+                            <t t-esc="patient.get('other_identifier', '')"/>
                         </p>
                 </div>
                 <div class="col-xs-3 pull-right">
@@ -24,7 +22,7 @@
             <div class="header">
                 <div class="row">
                     <div class="col-xs-9">
-                        <h2><t t-esc="patient['full_name']"/></h2>
+                        <h2><t t-esc="patient.get('full_name', '')"/></h2>
                     </div>
                     <div class="col-xs-3 pull-right">
                         <img t-if="company_logo" t-att-src="'data:image/png;base64,{0}'.format(company_logo)" t-att-alt="company_name" style="max-height: 45px;" class="col-xs-12"/>
@@ -210,40 +208,28 @@
                             <tr>
                                 <td class="col-xs-4">
                                     <h2>Patient</h2>
-                                    <table class="col-xs-12">
+                                    <table class="col-xs-12" id="patient_demographic">
                                         <tr>
-                                            <td><strong>Hospital No:</strong></td><td>
-                                            <t t-if="'other_identifier' in patient">
-                                                <t t-esc="patient['other_identifier']"/>
-                                            </t></td>
+                                            <td><strong>Hospital No:</strong></td>
+                                            <td><t t-esc="patient.get('other_identifier', '')"/></td>
                                         </tr>
                                         <tr>
-                                            <td><strong>DOB:</strong></td><td><t t-esc="patient['dob']"/></td>
+                                            <td><strong>DOB:</strong></td><td><t t-esc="patient.get('dob', '')"/></td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Gender:</strong></td><td><t t-esc="patient['gender']"/></td>
+                                            <td><strong>Gender:</strong></td><td><t t-esc="patient.get('gender', '')"/></td>
                                         </tr>
-                                        <t t-if="patient['patient_identifier']">
+                                        <t t-if="patient.get('patient_identifier')">
                                             <tr>
-                                                <td><strong>NHS No:</strong></td><td><t t-esc="patient['patient_identifier']"/></td>
+                                                <td><strong>NHS No:</strong></td><td><t t-esc="patient.get('patient_identifier', '')"/></td>
                                             </tr>
                                         </t>
-                                        <t t-if="patient['height']">
+                                        <t t-if="patient.get('height')">
                                             <tr>
-                                                <td><strong>Height:</strong></td><td><t t-esc="patient['height']"/>m</td>
+                                                <td><strong>Height:</strong></td><td><t t-esc="patient.get('height', '')"/>m</td>
                                             </tr>
                                         </t>
-                                        <t t-if="not patient['height']">
-                                            <tr>
-                                                <td></td><td></td>
-                                            </tr>
-                                        </t>
-                                        <t t-if="patient['weight']">
-                                            <tr>
-                                                <td><strong>Weight:</strong></td><td><t t-esc="patient['weight']"/>kg</td>
-                                            </tr>
-                                        </t>
-                                        <t t-if="not patient['weight']">
+                                        <t t-if="not patient.get('height')">
                                             <tr>
                                                 <td></td><td></td>
                                             </tr>
@@ -256,9 +242,7 @@
                                         <tr>
                                             <td class="col-xs-4"><strong>Location:</strong></td>
                                             <td class="col-xs-8">
-                                                <t t-if="'location' in patient">
-                                                    <t t-esc="patient['location']"/>
-                                                </t>
+                                                <t t-esc="patient.get('location', '')"/>
                                             </td>
                                         </tr>
                                         <t t-if="transfer_history and len(transfer_history) &gt; 1">
@@ -274,18 +258,18 @@
                                         <tr>
                                             <td class="col-xs-4"><strong>Report Period:</strong></td><td class="col-xs-8"><t t-esc="report_start"/> - <t t-esc="report_end"/></td>
                                         </tr>
-                                        <t t-if="spell['consultants']">
+                                        <t t-if="spell.get('consultants')">
                                             <tr>
-                                                <td class="col-xs-4"><strong>Consulting Doctor(s):</strong></td><td class="col-xs-8"><ul><li t-foreach="spell['consultants']" t-as="doctor"><t t-esc="doctor['name']"/></li></ul></td>
+                                                <td class="col-xs-4"><strong>Consulting Doctor(s):</strong></td><td class="col-xs-8"><ul><li t-foreach="spell.get('consultants', [])" t-as="doctor"><t t-esc="doctor.get('name', '')"/></li></ul></td>
                                             </tr>
                                         </t>
-                                        <t t-if="not spell['consultants']">
+                                        <t t-if="not spell.get('consultants')">
                                             <tr>
                                                 <td class="col-xs-4"></td><td class="col-xs-8"></td>
                                             </tr>
                                         </t>
                                         <tr>
-                                            <td class="col-xs-4"><strong>Admission:</strong></td><td class="col-xs-8"><t t-esc="spell['code']"/> - <t t-esc="spell_start"/></td>
+                                            <td class="col-xs-4"><strong>Admission:</strong></td><td class="col-xs-8"><t t-esc="spell.get('code', '')"/> - <t t-esc="spell_start"/></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -300,8 +284,9 @@
                         <script type="text/javascript">var obs_data = <t t-raw="ews_data"/>;</script>
                         <script type="text/javascript" t-att-src="draw_graph_js"></script>
                     </div>
-                    <t t-if="table_ews">
-                        <div class="col-xs-12 row">
+
+                    <div class="col-xs-12 row" id="news_values">
+                        <t t-if="table_ews">
                             <h3>NEWS Values</h3>
                             <table class="striped col-xs-12 row">
                                 <thead class="small-header">
@@ -320,16 +305,17 @@
                                 <tbody>
                                     <t t-foreach="table_ews" t-as="ew">
                                         <tr>
-                                            <td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['respiration_rate']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['indirect_oxymetry_spo2']"/><t t-if="'o2_target' in ew and ew['o2_target']"><br/><strong>Target:</strong> <t t-esc="ew['o2_target']"/></t></td>
-                                            <td class="col-xs-1"><t t-esc="ew['body_temperature']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['blood_pressure_systolic']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['blood_pressure_diastolic']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['pulse_rate']"/></td>
-                                            <td class="col-xs-1"><t t-esc="ew['avpu_text']"/></td>
+                                            <td class="col-xs-3"><t t-esc="ew.get('date_terminated', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('respiration_rate', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('indirect_oxymetry_spo2', '')"/>
+                                                <t t-if="ew.get('o2_target')"><br/><strong>Target:</strong> <t t-esc="ew.get('o2_target', '')"/></t></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('body_temperature', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('blood_pressure_systolic', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('blood_pressure_diastolic', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('pulse_rate', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="ew.get('avpu_text', '')"/></td>
                                             <td class="col-xs-1">
-                                                <t t-if="ew['oxygen_administration_flag']">
+                                                <t t-if="ew.get('oxygen_administration_flag', '')">
                                                     See table
                                                 </t>
                                             </td>
@@ -348,46 +334,50 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="table_ews" t-as="ew">
-                                        <t t-if="ew['oxygen_administration_flag']">
+                                        <t t-if="ew.get('oxygen_administration_flag')">
                                             <tr>
-                                                <td class="col-xs-3"><t t-esc="ew['date_terminated']"/></td>
-                                                <td class="col-xs-3"><t t-if="ew['device_id'] and len(ew['device_id']) > 1"><t t-esc="ew['device_id'][1]"/></t></td>
+                                                <td class="col-xs-3"><t t-esc="ew.get('date_terminated', '')"/></td>
+                                                <td class="col-xs-3">
+                                                    <t t-if="ew.get('device_id') and len(ew.get('device_id', [])) > 1">
+                                                        <t t-esc="ew.get('device_id')[1]"/>
+                                                    </t>
+                                                </td>
                                                 <td class="col-xs-6">
                                                     <table class="col-xs-12 row">
-                                                        <t t-if="ew['flow_rate']">
+                                                        <t t-if="ew.get('flow_rate')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>Flow Rate:</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['flow_rate']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('flow_rate', '')"/></td>
                                                             </tr>
                                                         </t>
-                                                        <t t-if="ew['concentration']">
+                                                        <t t-if="ew.get('concentration')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>Concentration:</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['concentration']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('concentration', '')"/></td>
                                                             </tr>
                                                         </t>
-                                                        <t t-if="ew['cpap_peep']">
+                                                        <t t-if="ew.get('cpap_peep')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>CPAP PEEP (cmH2O):</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['cpap_peep']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('cpap_peep', '')"/></td>
                                                             </tr>
                                                         </t>
-                                                        <t t-if="ew['niv_backup']">
+                                                        <t t-if="ew.get('niv_backup')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>NIV Back-up rate (br/min):</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['niv_backup']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('niv_backup', '')"/></td>
                                                             </tr>
                                                         </t>
-                                                        <t t-if="ew['niv_ipap']">
+                                                        <t t-if="ew.get('niv_ipap')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>NIV IPAP (cmH2O):</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['niv_ipap']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('niv_ipap', '')"/></td>
                                                             </tr>
                                                         </t>
-                                                        <t t-if="ew['niv_epap']">
+                                                        <t t-if="ew.get('niv_epap')">
                                                             <tr>
                                                                 <td class="col-xs-6"><strong>NIV EPAP (cmH2O):</strong></td>
-                                                                <td class="col-xs-6"><t t-esc="ew['niv_epap']"/></td>
+                                                                <td class="col-xs-6"><t t-esc="ew.get('niv_epap', '')"/></td>
                                                             </tr>
                                                         </t>
                                                     </table>
@@ -397,31 +387,8 @@
                                     </t>
                                 </tbody>
                             </table>
-                        </div>
-                    </t>
-
-                    <t t-if="weights and len(weights) > 0">
-                        <div class="col-xs-12 row">
-                            <h3>Weight Values</h3>
-                            <table class="striped col-xs-12 row">
-                                <thead>
-                                    <tr>
-                                        <th class="col-xs-3">Date</th>
-                                        <th class="col-xs-9">Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="weights" t-as="weight">
-                                        <tr>
-                                            <td class="col-xs-3"><t t-esc="weight['values']['date_terminated']"/></td>
-                                            <td class="col-xs-9"><t t-esc="weight['values']['weight']"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                            <p></p>
-                        </div>
-                    </t>
+                        </t>
+                    </div>
 
                     <t t-if="gcs and len(gcs) > 0">
                         <div class="col-xs-12 row">
@@ -438,32 +405,10 @@
                                 <tbody>
                                     <t t-foreach="gcs" t-as="gcs_score">
                                         <tr>
-                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['date_terminated']"/></td>
-                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['eyes']"/></td>
-                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['verbal']"/></td>
-                                            <td class="col-xs-3"><t t-esc="gcs_score['values']['motor']"/></td>
-                                        </tr>
-                                    </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </t>
-
-                    <t t-if="bs and len(bs) > 0">
-                        <div class="col-xs-12 row">
-                            <h3>Blood Sugar Values</h3>
-                            <table class="striped col-xs-12 row">
-                                <thead>
-                                    <tr>
-                                        <th class="col-xs-3">Date</th>
-                                        <th class="col-xs-9">Blood Sugar (mmol/L)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <t t-foreach="bs" t-as="bs_score">
-                                        <tr>
-                                            <td class="col-xs-3"><t t-esc="bs_score['values']['date_terminated']"/></td>
-                                            <td class="col-xs-9"><t t-esc="bs_score['values']['blood_sugar']"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score.get('values', {}).get('eyes', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score.get('values', {}).get('verbal', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="gcs_score.get('values', {}).get('motor', '')"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -485,9 +430,9 @@
                                 <tbody>
                                     <t t-foreach="pains" t-as="pain">
                                         <tr>
-                                            <td class="col-xs-3"><t t-esc="pain['values']['date_terminated']"/></td>
-                                            <td class="col-xs-4"><t t-if="pain['values']['rest_score']"><t t-esc="pain['values']['rest_score']"/></t></td>
-                                            <td class="col-xs-4"><t t-if="pain['values']['movement_score']"><t t-esc="pain['values']['movement_score']"/></t></td>
+                                            <td class="col-xs-3"><t t-esc="pain.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-4"><t t-esc="pain.get('values', {}).get('rest_score', '')"/></td>
+                                            <td class="col-xs-4"><t t-esc="pain.get('values', {}).get('movement_score', '')"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -509,9 +454,9 @@
                                 <tbody>
                                     <t t-foreach="blood_products" t-as="blood_product">
                                         <tr>
-                                            <td class="col-xs-3"><t t-esc="blood_product['values']['date_terminated']"/></td>
-                                            <td class="col-xs-3"><t t-esc="blood_product['values']['vol']"/></td>
-                                            <td class="col-xs-6"><t t-esc="blood_product['values']['product']"/></td>
+                                            <td class="col-xs-3"><t t-esc="blood_product.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="blood_product.get('values', {}).get('vol', '')"/></td>
+                                            <td class="col-xs-6"><t t-esc="blood_product.get('values', {}).get('product', '')"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -542,18 +487,18 @@
                                 <tbody>
                                     <t t-foreach="bristol_stools" t-as="bristol_stool">
                                         <tr>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['date_terminated']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bowel_open']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['nausea']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['vomiting']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['quantity']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['colour']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['bristol_type']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['offensive']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['strain']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['laxatives']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['samples']"/></td>
-                                            <td class="col-xs-1"><t t-esc="bristol_stool['values']['rectal_exam']"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('bowel_open', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('nausea', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('vomiting', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('quantity', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('colour', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('bristol_type', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('offensive', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('strain', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('laxatives', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('samples', '')"/></td>
+                                            <td class="col-xs-1"><t t-esc="bristol_stool.get('values', {}).get('rectal_exam', '')"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -576,9 +521,9 @@
                                 <tbody>
                                     <t t-foreach="pbps" t-as="pbp_ob">
                                         <tr>
-                                            <td class="col-xs-3"><t t-esc="pbp_ob['date_terminated']"/></td>
-                                            <td class="col-xs-2"><t t-esc="pbp_ob['terminate_uid'][1]"/></td>
-                                            <td class="col-xs-2"><t t-esc="pbp_ob['values']['result']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pbp_ob.get('date_terminated', '')"/></td>
+                                            <td class="col-xs-2"><t t-esc="pbp_ob.get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-2"><t t-esc="pbp_ob.get('values', {}).get('result', '')"/></td>
                                             <td class="col-xs-5 pre-pre-compact-data">
                                                 <table class="pre-compact-data striped col-xs-12 row">
                                                     <thead>
@@ -591,13 +536,13 @@
                                                     <tbody>
                                                         <tr>
                                                             <td class="col-xs-4">Sitting</td>
-                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['systolic_sitting']"/></td>
-                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['diastolic_sitting']"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob.get('values', {}).get('systolic_sitting', '')"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob.get('values', {}).get('diastolic_sitting', '')"/></td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-xs-4">Standing</td>
-                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['systolic_standing']"/></td>
-                                                            <td class="col-xs-4"><t t-esc="pbp_ob['values']['diastolic_standing']"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob.get('values', {}).get('systolic_standing', '')"/></td>
+                                                            <td class="col-xs-4"><t t-esc="pbp_ob.get('values', {}).get('diastolic_standing', '')"/></td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -623,11 +568,14 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="targeto2" t-as="o2">
-                                        <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="o2['values']['date_terminated']"/></td>
-                                            <td class="col-xs-3"><t t-esc="o2['values']['level_id'][1]"/></td>
-                                            <td class="col-xs-6"><t t-esc="o2['write_uid'][1]"/></td>
-                                        </tr>
+                                        <t t-if="isinstance(o2, dict)">
+                                            <tr class="main-entry">
+                                                <td class="col-xs-3"><t t-esc="o2.get('values', {}).get('date_terminated', '')"/></td>
+                                                <t t-set="level_id" t-value="o2.get('values', {}).get('level_id', ['', ''])"/>
+                                                <td class="col-xs-3"><t t-esc="level_id[1] if isinstance(level_id, (tuple, list)) else ''"/></td>
+                                                <td class="col-xs-6"><t t-esc="o2.get('write_uid', ['', ''])[1]"/></td>
+                                            </tr>
+                                        </t>
                                     </t>
                                 </tbody>
                             </table>
@@ -649,13 +597,13 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="device_session_history" t-as="device_session">
-                                        <t t-if="'values' in device_session and device_session['values']">
-                                            <t t-if="'date_terminated' in device_session['values'] and not device_session['values']['date_terminated']">
+                                        <t t-if="device_session.get('values')">
+                                            <t t-if="not device_session.get('values', {}).get('date_terminated')">
                                                 <tr class="main-entry">
-                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
-                                                    <td class="col-xs-3"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
-                                                    <td class="col-xs-3"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
-                                                    <td class="col-xs-3"><t t-esc="device_session['values']['date_started']"/></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session.get('values', {}).get('device_type_id', ['', ''])[1]"/></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session.get('values', {}).get('device_category_id', ['', ''])[1]"/></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session.get('values', {}).get('location', '')"/></td>
+                                                    <td class="col-xs-3"><t t-esc="device_session.get('values', {}).get('date_started', '')"/></td>
                                                 </tr>
                                             </t>
                                         </t>
@@ -683,16 +631,16 @@
                                 </thead>
                                 <tbody>
                                     <t t-foreach="device_session_history" t-as="device_session">
-                                        <t t-if="'values' in device_session and device_session['values']">
-                                            <t t-if="'date_terminated' in device_session['values'] and device_session['values']['date_terminated']">
+                                        <t t-if="device_session.get('values')">
+                                            <t t-if="device_session.get('values', {}).get('date_terminated')">
                                                 <tr class="main-entry">
-                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_type_id']"><t t-esc="device_session['values']['device_type_id'][1]"/></t></td>
-                                                    <td class="col-xs-1"><t t-if="device_session['values']['device_category_id']"><t t-esc="device_session['values']['device_category_id'][1]"/></t></td>
-                                                    <td class="col-xs-1"><t t-if="device_session['values']['location']"><t t-esc="device_session['values']['location']"/></t></td>
-                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_started']"/></td>
-                                                    <td class="col-xs-1"><t t-esc="device_session['values']['date_terminated']"/></td>
-                                                    <td class="col-xs-1"><t t-if="device_session['values']['planned']"><t t-esc="device_session['values']['planned']"/></t></td>
-                                                    <td class="col-xs-1"><t t-if="device_session['values']['removal_reason']"><t t-esc="device_session['values']['removal_reason']"/></t></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('device_type_id', ['', ''])[1]"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('device_category_id', ['', ''])[1]"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('location', '')"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('date_started', '')"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('date_terminated', '')"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('planned', '')"/></td>
+                                                    <td class="col-xs-1"><t t-esc="device_session.get('values', {}).get('removal_reason', '')"/></td>
                                                 </tr>
                                             </t>
                                         </t>
@@ -717,9 +665,9 @@
                                 <tbody>
                                     <t t-foreach="transfer_history" t-as="transfer">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-if="'date_terminated' in transfer"><t t-esc="transfer['date_terminated']"/></t></td>
-                                            <td class="col-xs-2"><t t-if="'bed' in transfer"><t t-esc="transfer['bed']"/></t></td>
-                                            <td class="col-xs-7"><t t-if="'ward' in transfer"><t t-esc="transfer['ward']"/></t></td>
+                                            <td class="col-xs-3"><t t-esc="transfer.get('date_terminated', '')"/></td>
+                                            <td class="col-xs-2"><t t-esc="transfer.get('bed', '')"/></td>
+                                            <td class="col-xs-7"><t t-esc="transfer.get('ward', '')"/></td>
                                         </tr>
                                     </t>
                                 </tbody>
@@ -743,60 +691,60 @@
                                 <t t-if="patient_monitoring_exception_history">
                                     <t t-foreach="patient_monitoring_exception_history" t-as="pme">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="pme['date']"/></td>
-                                            <td class="col-xs-3"><t t-esc="pme['user']"/></td>
-                                            <td class="col-xs-3"><t t-esc="pme['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="pme['reason']"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme.get('date', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme.get('user', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme.get('status', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="pme.get('reason', '')"/></td>
                                         </tr>
                                     </t>
                                 </t>
                                 <t t-if="mrsa_history">
                                     <t t-foreach="mrsa_history" t-as="mrsa">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="mrsa['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="mrsa.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="mrsa.get('values', {}).get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-3"><t t-esc="mrsa.get('values', {}).get('status', '')"/></td>
                                             <td class="col-xs-3">MRSA</td>
-                                            <td class="col-xs-3"><t t-esc="mrsa['values']['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="mrsa['values']['terminate_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </t>
                                 <t t-if="diabetes_history">
                                     <t t-foreach="diabetes_history" t-as="diabetes">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="diabetes['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="diabetes.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="diabetes.get('values', {}).get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-3"><t t-esc="diabetes.get('values', {}).get('status', '')"/></td>
                                             <td class="col-xs-3">Diabetes</td>
-                                            <td class="col-xs-3"><t t-esc="diabetes['values']['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="diabetes['values']['terminate_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </t>
                                 <t t-if="palliative_care_history">
                                     <t t-foreach="palliative_care_history" t-as="palliative_care">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="palliative_care.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="palliative_care.get('values', {}).get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-3"><t t-esc="palliative_care.get('values', {}).get('status', '')"/></td>
                                             <td class="col-xs-3">Palliative Care</td>
-                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="palliative_care['values']['terminate_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </t>
                                 <t t-if="post_surgery_history">
                                     <t t-foreach="post_surgery_history" t-as="post_surgery">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="post_surgery.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="post_surgery.get('values', {}).get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-3"><t t-esc="post_surgery.get('values', {}).get('status', '')"/></td>
                                             <td class="col-xs-3">Post Surgery</td>
-                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="post_surgery['values']['terminate_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </t>
                                 <t t-if="critical_care_history">
                                     <t t-foreach="critical_care_history" t-as="critical_care">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="critical_care['values']['date_terminated']"/></td>
+                                            <td class="col-xs-3"><t t-esc="critical_care.get('values', {}).get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="critical_care.get('values', {}).get('terminate_uid', ['', ''])[1]"/></td>
+                                            <td class="col-xs-3"><t t-esc="critical_care.get('values', {}).get('status', '')"/></td>
                                             <td class="col-xs-3">Critical Care</td>
-                                            <td class="col-xs-3"><t t-esc="critical_care['values']['status']"/></td>
-                                            <td class="col-xs-3"><t t-esc="critical_care['values']['terminate_uid'][1]"/></td>
                                         </tr>
                                     </t>
                                 </t>
@@ -835,10 +783,10 @@
         </template>
 
         <template id="triggered_actions">
-            <t t-set="score" t-value="observation['values']['score']"/>
-            <t t-set="clinical_risk" t-value="observation['values']['clinical_risk']"/>
+            <t t-set="score" t-value="observation.get('values', {}).get('score', '')"/>
+            <t t-set="clinical_risk" t-value="observation.get('values', {}).get('clinical_risk', '')"/>
             <tr class="main-entry">
-                <td id="triggered_actions_date" class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                <td id="triggered_actions_date" class="col-xs-3"><t t-esc="observation.get('date_terminated', '')"/></td>
                 <td id="triggered_actions_score" class="col-xs-2"><t t-esc="score"/></td>
                 <td id="triggered_actions_clinical_risk" class="col-xs-2"><t t-esc="clinical_risk"/></td>
                 <td class="col-xs-5 pre-pre-compact-data">
@@ -858,29 +806,29 @@
                         <tr>
                             <td colspan="2" class="header col-xs-12">
                                 <h4 class="triggered_action_task_header">
-                                    <t t-if="'summary' in task and task['summary']">
-                                        <t t-esc="task['summary']"/>
-                                    </t>
+                                    <t t-esc="task.get('summary', '')"/>
                                 </h4>
                             </td>
                         </tr>
-                        <t t-if="'notes' in task and task['notes']">
+                        <t t-if="task.get('notes')">
                             <tr>
-                                <td colspan="2" class="col-xs-12"><t t-esc="task['notes']"/></td>
+                                <td colspan="2" class="col-xs-12"><t t-esc="task.get('notes', '')"/></td>
                             </tr>
                         </t>
                         <tr>
                             <!-- Tried prettifying the <td> elements below but `test_23_triggered_actions_table_structure` fails if they are not on one row. -->
-                            <t t-if="'user_id' in task and task['user_id']">
+                            <t t-if="task.get('user_id')">
                                 <!-- task['user_id'] can either be a a tuple like (id ,name) or just a string like 'name'. -->
-                                <t t-set="user_id" t-value="task['user_id'][1] if isinstance(task['user_id'], tuple) else task['user_id']"/>
+                                <t t-set="user_id" t-value="task.get('user_id', ['', ''])[1] if isinstance(task.get('user_id'), tuple) else task.get('user_id', '')"/>
                                 <td class="col-xs-6"><strong>By:</strong> <t t-esc="user_id"/></td>
                             </t>
                             <td class="col-xs-6 triggered_action_task_body">
                                 <t t-set="freq_models" t-value="['nh.clinical.notification.frequency', 'nh.clinical.notification.select_frequency']"/>
                                 <t t-if="task.get('date_terminated') and (task.get('data_model') not in freq_models or task.get('data_model') in freq_models and task.get('state') != 'cancelled')">
-                                    <strong>Date:</strong> <t t-esc="task['date_terminated']"/>
+                                    <strong>Date:</strong> <t t-esc="task.get('date_terminated', '')"/>
                                 </t><br/>
+                                <!-- TODO For cancelled frequency tasks we still display 'Task Still in Progress' as a temporary measure until EOBS-485 is implemented.
+                                     This isn't very nice, but before it was misleading because it looked as though the tasks had been completed (see EOBS-513). -->
                                 <t t-if="task.get('date_terminated')==False or (task.get('data_model') in freq_models and task.get('date_terminated') and task.get('state') == 'cancelled')">
                                     Task still in progress
                                 </t>
@@ -893,7 +841,7 @@
 
         <template id="observation_cancellation">
             <tr class="main-entry">
-                <td class="col-xs-3"><t t-esc="observation['date_terminated']"/></td>
+                <td class="col-xs-3"><t t-esc="observation.get('date_terminated', '')"/></td>
                 <td class="col-xs-2">N/A</td>
                 <td class="col-xs-2">N/A</td>
                 <td class="col-xs-5 pre-pre-compact-data">
@@ -908,15 +856,15 @@
                                     </tr>
                                     <tr>
                                         <td class="col-xs-6">
-                                            <t t-if="'terminate_uid' in observation and observation['terminate_uid']">
+                                            <t t-if="observation.get('terminate_uid')">
                                                 <strong>By:</strong>
-                                                <t t-esc="observation['terminate_uid'][1]"/>
+                                                <t t-esc="observation.get('terminate_uid', ['', ''])[1]"/>
                                             </t>
                                         </td>
                                         <td class="col-xs-6">
-                                            <t t-if="'date_terminated' in observation and observation['date_terminated']">
+                                            <t t-if="observation.get('date_terminated')">
                                                 <strong>Date:</strong>
-                                                <t t-esc="observation['date_terminated']"/>
+                                                <t t-esc="observation.get('date_terminated', '')"/>
                                             </t>
                                         </td>
                                     </tr>

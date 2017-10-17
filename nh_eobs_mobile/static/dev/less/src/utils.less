@@ -8,6 +8,7 @@
 @ok-colour:  green;
 @go-colour: #22b232;
 @not-set-colour: #e5dfff;
+@not-quite-black: #252525;
 .font-awesome(){
   font-family: 'FontAwesome';
   src: url('../fonts/fontawesome-webfont.eot?v=4.0.3');
@@ -26,6 +27,9 @@
 }
 .not-as-subtle-bgcolour(@colourToMakeSubtle: #000000){
   background-color: (@colourToMakeSubtle + rgb(10, 10, 10))
+}
+.make-subtle-bgcolour(@colourToMakeSubtle: #000000, @subtleAmount: 10){
+  background-color: (@colourToMakeSubtle + rgb(@subtleAmount, @subtleAmount, @subtleAmount))
 }
 .subtle-fill(@colourToMakeSubtle: #000000){
   fill:(@colourToMakeSubtle + rgb(204, 204, 204))

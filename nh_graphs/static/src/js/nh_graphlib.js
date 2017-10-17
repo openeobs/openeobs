@@ -25,7 +25,7 @@ NHGraphLib = (function() {
       label_gap: 10,
       transition_duration: 1e3,
       axis_label_text_height: 10,
-      time_padding: null
+      timePadding: null
     };
     this.patient = {
       id: 0,
@@ -72,18 +72,50 @@ NHGraphLib = (function() {
     this.focus = null;
     this.table = {
       element: null,
-      keys: null
+      keys: null,
+      type: null
     };
     this.version = '0.0.1';
     self = this;
   }
 
+  NHGraphLib.prototype.parseDateTime = function(input, format) {
+    var fmt, i, parts;
+    if (format == null) {
+      format = 'YYYY-mm-DD HH:MM:SS';
+    }
+    parts = input.match(/(\d+)/g);
+    i = 0;
+    fmt = {};
+    format.replace(/(YYYY|mm|DD|HH|MM|SS)/g, function(part) {
+      return fmt[part] = i++;
+    });
+    if (parts === null || fmt === null) {
+      throw new Error("Invalid date format");
+    }
+    return new Date(parts[fmt['YYYY']], parts[fmt['mm']] - 1, parts[fmt['DD']], parts[fmt['HH']], parts[fmt['MM']], parts[fmt['SS']]);
+  };
+
+  NHGraphLib.prototype.parseDate = function(input, format) {
+    var fmt, i, parts;
+    if (format == null) {
+      format = 'YYYY-mm-DD';
+    }
+    parts = input.match(/(\d+)/g);
+    i = 0;
+    fmt = {};
+    format.replace(/(YYYY|mm|DD)/g, function(part) {
+      return fmt[part] = i++;
+    });
+    if (parts === null || fmt === null) {
+      throw new Error("Invalid date format");
+    }
+    return new Date(parts[fmt['YYYY']], parts[fmt['mm']] - 1, parts[fmt['DD']]);
+  };
+
   NHGraphLib.prototype.date_from_string = function(date_string) {
     var date;
-    date = new Date(date_string);
-    if (isNaN(date.getTime())) {
-      date = new Date(date_string.replace(' ', 'T'));
-    }
+    date = this.parseDateTime(date_string);
     if (isNaN(date.getTime())) {
       throw new Error("Invalid date format");
     }
@@ -163,28 +195,34 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.redraw_resize = function(event) {
-    var ref, ref1, ref2, ref3, ref4;
+    var ref, ref1, ref2, ref3, ref4, ref5;
     if (this.is_alive() && !event.handled) {
-      this.style.dimensions.width = ((ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
+      this.style.dimensions.width = (ref = nh_graphs.select(this.el)) != null ? (ref1 = ref[0]) != null ? (ref2 = ref1[0]) != null ? ref2.clientWidth : void 0 : void 0 : void 0;
       if ((ref3 = this.obj) != null) {
         ref3.attr('width', this.style.dimensions.width);
       }
-      if ((ref4 = this.context) != null) {
-        ref4.handle_resize(this.context, this.obj, event);
+      if (this.context != null) {
+        if ((ref4 = this.context) != null) {
+          ref4.handle_resize(this.context, this.obj, event);
+        }
+      } else {
+        if ((ref5 = this.focus) != null) {
+          ref5.handle_resize(this.focus, this.obj, event);
+        }
       }
       event.handled = true;
     }
   };
 
   NHGraphLib.prototype.rangify_graphs = function() {
-    var graph, i, len, ranged, ref;
+    var graph, j, len, ranged, ref;
     this.options.ranged = this.options.controls.rangify.checked;
     ranged = this.options.ranged;
     if (this.is_alive()) {
       this.context.graph.rangify_graph(this.context.graph, ranged);
       ref = this.focus.graphs;
-      for (i = 0, len = ref.length; i < len; i++) {
-        graph = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        graph = ref[j];
         graph.rangify_graph(graph, ranged);
       }
     }
@@ -197,6 +235,7 @@ NHGraphLib = (function() {
     } else {
       this.options.handler.resize = this.redraw_resize.bind(this);
     }
+    this.remove_listeners();
     window.addEventListener('resize', this.options.handler.resize);
     rangify = this.options.controls.rangify;
     this.options.handler.rangify = this.rangify_graphs.bind(this);
@@ -229,18 +268,21 @@ NHGraphLib = (function() {
       container_el = nh_graphs.select(this.el);
       this.style.dimensions.width = (container_el != null ? (ref = container_el[0]) != null ? ref[0].clientWidth : void 0 : void 0) - (this.style.margin.left + this.style.margin.right);
       this.obj = container_el.append('svg');
-      if (this.data.raw.length < 2 && !this.style.time_padding) {
-        this.style.time_padding = 100;
+      if (this.data.raw.length < 2 && !this.style.timePadding) {
+        this.oneHundredSecondsInMilliseconds = 6000000;
+        this.style.timePadding = this.oneHundredSecondsInMilliseconds;
       }
       if (this.data.raw.length > 0) {
         start = this.date_from_string(this.data.raw[0]['date_terminated']);
         end = this.date_from_string(this.data.raw[this.data.raw.length - 1]['date_terminated']);
-        if (!this.style.time_padding) {
-          this.style.time_padding = ((end - start) / this.style.dimensions.width) / 500;
+        if (!this.style.timePadding) {
+          this.rangeInMilliseconds = end.getTime() - start.getTime();
+          this.fivePercentOfRange = this.rangeInMilliseconds * 0.05;
+          this.style.timePadding = this.fivePercentOfRange;
         }
-        start.setMinutes(start.getMinutes() - this.style.time_padding);
+        start.setTime(start.getTime() - this.style.timePadding);
         this.data.extent.start = start;
-        end.setMinutes(end.getMinutes() + this.style.time_padding);
+        end.setTime(end.getTime() + this.style.timePadding);
         this.data.extent.end = end;
         if ((ref1 = this.context) != null) {
           ref1.init(this);
@@ -300,7 +342,7 @@ NHGraphLib = (function() {
   };
 
   NHGraphLib.prototype.draw_table = function(self) {
-    var cells, container, header_row, raw_data, rows, table_el, tbody, thead;
+    var cells, container, first_row, header_row, raw_data, rows, table_el, tbody, thead;
     table_el = nh_graphs.select(self.table.element);
     container = nh_graphs.select('#table-content').append('table');
     thead = container.append('thead').attr('class', 'thead');
@@ -311,7 +353,23 @@ NHGraphLib = (function() {
       }
     ];
     raw_data = self.data.raw.reverse();
-    thead.append('tr').selectAll('th').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
+    if (self.table.type === 'nested') {
+      first_row = [
+        {
+          'period_title': '',
+          'observations': [{}]
+        }
+      ];
+      thead.append('tr').selectAll('.group-header').data(first_row.concat(raw_data)).enter().append('th').html(function(d) {
+        return d.period_title;
+      }).attr('colspan', function(d) {
+        return d.observations.length;
+      }).attr('class', 'group-header');
+      raw_data = raw_data.reduce(function(a, b) {
+        return a.concat(b.observations);
+      }, []);
+    }
+    thead.append('tr').selectAll('.column-header').data(header_row.concat(raw_data)).enter().append('th').html(function(d) {
       var date_rotate, term_date;
       term_date = d.date_terminated;
       if (d.date_terminated !== "Date") {
@@ -322,20 +380,30 @@ NHGraphLib = (function() {
         return date_rotate[0];
       }
       return date_rotate[1] + '<br>' + date_rotate[0];
+    }).attr('class', function(d) {
+      var cls;
+      cls = 'column-header ';
+      if (d["class"]) {
+        cls += d["class"];
+      }
+      return cls;
     });
     rows = tbody.selectAll('tr.row').data(self.table.keys).enter().append('tr').attr('class', 'row');
     return cells = rows.selectAll('td').data(function(d) {
-      var data, fix_val, i, j, key, len, len1, o, obj, ref, t, v;
+      var data, fix_val, j, k, key, len, len1, o, obj, p, ref, t, v;
       data = [
         {
           title: d['title'],
-          value: d['title']
+          value: d['title'],
+          presentation: d['presentation'],
+          "class": false
         }
       ];
-      for (i = 0, len = raw_data.length; i < len; i++) {
-        obj = raw_data[i];
+      for (j = 0, len = raw_data.length; j < len; j++) {
+        obj = raw_data[j];
         if (d['keys'].length === 1) {
           key = d['keys'][0];
+          fix_val = void 0;
           if (obj.hasOwnProperty(key)) {
             fix_val = obj[key];
             if (fix_val === false) {
@@ -344,40 +412,47 @@ NHGraphLib = (function() {
             if (fix_val === true) {
               fix_val = 'Yes';
             }
-            if (d['title']) {
-              data.push({
-                title: d['title'],
-                value: fix_val
-              });
-            }
+          }
+          if (d['title']) {
+            data.push({
+              title: d['title'],
+              value: fix_val,
+              presentation: d['presentation'],
+              "class": obj["class"]
+            });
           }
         } else {
           t = d['title'];
           v = [];
+          p = d['presentation'];
           ref = d['keys'];
-          for (j = 0, len1 = ref.length; j < len1; j++) {
-            o = ref[j];
+          for (k = 0, len1 = ref.length; k < len1; k++) {
+            o = ref[k];
             v.push({
               title: o['title'],
-              value: obj[o['keys'][0]]
+              value: obj[o['keys'][0]],
+              presentation: p,
+              "class": obj[o["class"]]
             });
           }
           if (t) {
             data.push({
               title: t,
-              value: v
+              value: v,
+              presentation: p,
+              "class": false
             });
           }
         }
       }
       return data;
     }).enter().append('td').html(function(d) {
-      var i, len, o, ref, text;
-      if (typeof d.value === 'object') {
+      var j, len, o, ref, text;
+      if (typeof d.value === 'object' && d.value !== null) {
         text = '';
         ref = d.value;
-        for (i = 0, len = ref.length; i < len; i++) {
-          o = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          o = ref[j];
           if (o.value) {
             if (Array.isArray(o.value) && o.value.length > 1) {
               o.value = o.value[1];
@@ -387,8 +462,14 @@ NHGraphLib = (function() {
         }
         return text;
       } else {
-        return d.value;
+        if (d.presentation === 'bold') {
+          return '<strong>' + d.value + '</strong>';
+        } else {
+          return d.value;
+        }
       }
+    }).attr("class", function(d) {
+      return d["class"];
     });
   };
 
@@ -639,7 +720,7 @@ NHFocus = (function() {
   NHFocus.prototype.handle_resize = function(self, event) {
     var d, new_date, ref;
     if (!event.handled) {
-      self.style.dimensions.width = self.parent_obj.style.dimensions.width - ((self.parent_obj.style.padding.left + self.parent_obj.style.padding.right) + (self.style.margin.left + self.style.margin.right));
+      self.style.dimensions.width = self.parent_obj.style.dimensions.width - (self.parent_obj.style.padding.left + self.parent_obj.style.padding.right);
       self.obj.attr('width', self.style.dimensions.width);
       if ((ref = self.axes.x.scale) != null) {
         ref.range()[1] = self.style.dimensions.width;
@@ -795,7 +876,8 @@ NHGraph = (function(superClass) {
         min: 0,
         max: 0,
         obj: null,
-        ranged_extent: null
+        ranged_extent: null,
+        valueLabels: null
       },
       obj: null
     };
@@ -842,7 +924,8 @@ NHGraph = (function(superClass) {
         },
         width: 2
       },
-      range_padding: 1
+      range_padding: 1,
+      pointRadius: 3
     };
     this.options = {
       keys: new Array(),
@@ -886,6 +969,10 @@ NHGraph = (function(superClass) {
     return cp.classList.add('hidden');
   };
 
+  NHGraph.prototype.validValue = function(value) {
+    return value !== false && value !== null && typeof value !== 'undefined';
+  };
+
   NHGraph.prototype.rangify_graph = function(self, ranged) {
     var d0, d1;
     if (ranged) {
@@ -920,7 +1007,7 @@ NHGraph = (function(superClass) {
     this.parent_obj = parent_obj;
     this.obj = parent_obj.obj.append('g');
     this.obj.attr('class', 'nhgraph');
-    this.style.dimensions.width = parent_obj.style.dimensions.width - ((parent_obj.style.padding.left + parent_obj.style.padding.right) + (this.style.margin.left + this.style.margin.right)) - this.style.label_width;
+    this.style.dimensions.width = parent_obj.style.dimensions.width - (parent_obj.style.padding.left + parent_obj.style.padding.right) - this.style.label_width;
     this.obj.attr('width', this.style.dimensions.width);
     left_offset = parent_obj.style.padding.left + this.style.margin.left;
     top_offset = parent_obj.style.dimensions.height + this.style.margin.top;
@@ -998,9 +1085,21 @@ NHGraph = (function(superClass) {
     } else {
       this.axes.y.scale = scaleNot;
     }
-    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(this.style.axis.step > 0 ? nh_graphs.format(",." + this.style.axis.step + "f") : nh_graphs.format("d")).tickSubdivide(this.style.axis.step);
+    self = this;
+    this.axes.y.axis = nh_graphs.svg.axis().scale(this.axes.y.scale).orient('left').tickFormat(function(d) {
+      var labels;
+      labels = self.axes.y.valueLabels;
+      if (labels && d in labels) {
+        return labels[d];
+      }
+      if (self.style.axis.step > 0) {
+        return nh_graphs.format(",." + self.style.axis.step + "f")(d);
+      } else {
+        return nh_graphs.format("d")(d);
+      }
+    }).tickSubdivide(self.style.axis.step);
     if (!this.style.axis.y.hide) {
-      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').call(this.axes.y.axis);
+      this.axes.y.obj = this.axes.obj.append('g').attr('class', 'y axis').attr('transform', 'translate(' + self.style.margin.left + ', 0)').call(this.axes.y.axis);
       this.style.axis.y.size = this.axes.y.obj[0][0].getBBox();
     }
     if (this.options.label != null) {
@@ -1010,29 +1109,33 @@ NHGraph = (function(superClass) {
         'y': y_label,
         'class': 'label'
       });
-      this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
-        var raw;
-        raw = self.parent_obj.parent_obj.data.raw;
-        if (i !== self.options.keys.length - 1) {
-          if (raw[raw.length - 1][d] !== false) {
-            return raw[raw.length - 1][d];
+      if (this.style.label_width) {
+        this.drawables.background.obj.selectAll('text.measurement').data(this.options.keys).enter().append('text').text(function(d, i) {
+          var raw, value;
+          raw = self.parent_obj.parent_obj.data.raw;
+          if (i !== self.options.keys.length - 1) {
+            value = raw[raw.length - 1][d];
+            if (self.validValue(value)) {
+              return raw[raw.length - 1][d];
+            } else {
+              return 'NA';
+            }
           } else {
-            return 'NA';
+            value = raw[raw.length - 1][d];
+            if (self.validValue(value)) {
+              return raw[raw.length - 1][d] + '' + self.options.measurement;
+            } else {
+              return 'NA';
+            }
           }
-        } else {
-          if (raw[raw.length - 1][d] !== false) {
-            return raw[raw.length - 1][d] + '' + self.options.measurement;
-          } else {
-            return 'NA';
-          }
-        }
-      }).attr({
-        'x': self.style.dimensions.width + self.style.label_text_height,
-        'y': function(d, i) {
-          return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
-        },
-        'class': 'measurement'
-      });
+        }).attr({
+          'x': self.style.dimensions.width + self.style.label_text_height,
+          'y': function(d, i) {
+            return scaleNot(self.axes.y.min) - (self.style.label_text_height * (self.options.keys.length - i));
+          },
+          'class': 'measurement'
+        });
+      }
     }
     (function(self) {
       var max, min, valid, yMax, yMin;
@@ -1124,7 +1227,9 @@ NHGraph = (function(superClass) {
       case 'stepped':
       case 'linear':
         self.drawables.area = nh_graphs.svg.line().interpolate(self.style.data_style === 'stepped' ? "step-after" : "linear").defined(function(d) {
-          if (d.none_values === "[]") {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         }).x(function(d) {
@@ -1136,36 +1241,40 @@ NHGraph = (function(superClass) {
           self.drawables.data.append("path").datum(self.parent_obj.parent_obj.data.raw).attr("d", self.drawables.area).attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").attr("class", "path");
         }
         self.drawables.data.selectAll(".point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          if (d.none_values === "[]") {
+          var value;
+          value = d[self.options.keys[0]];
+          if (d.none_values === "[]" && self.validValue(value)) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", self.style.pointRadius).attr("class", "point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup(d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
         });
         self.drawables.data.selectAll(".empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-          var key, none_vals, partial, partial_type, plot_partial;
+          var hasValue, key, none_vals, partial, partial_type, plot_partial, value;
           none_vals = d.none_values;
           key = self.options.keys[0];
           plot_partial = self.options.plot_partial;
           partial_type = self.parent_obj.parent_obj.options.partial_type;
           partial = plot_partial && partial_type === 'dot';
-          if (plot_partial && partial_type === 'character' && d[key] !== false) {
+          value = d[key];
+          hasValue = self.validValue(value);
+          if (plot_partial && partial_type === 'character' && hasValue) {
             partial = true;
           }
-          if (none_vals !== "[]" && d[key] !== false && partial) {
+          if (none_vals !== "[]" && hasValue && partial) {
             return d;
           }
         })).enter().append("circle").attr("cx", function(d) {
           return self.axes.x.scale(self.date_from_string(d.date_terminated));
         }).attr("cy", function(d) {
           return self.axes.y.scale(d[self.options.keys[0]]);
-        }).attr("r", 3).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
+        }).attr("r", self.style.pointRadius).attr("class", "empty_point").attr("clip-path", "url(#" + self.options.keys.join('-') + '-clip' + ")").on('mouseover', function(d) {
           return self.show_popup('Partial observation: ' + d[self.options.keys[0]], event.pageX, event.pageY);
         }).on('mouseout', function(d) {
           return self.hide_popup();
@@ -1206,7 +1315,7 @@ NHGraph = (function(superClass) {
           key = self.options.keys[0];
           refused = self.parent_obj.parent_obj.options.refused;
           refused_ob = refused && d.partial_reason === 'refused';
-          if (none_vals !== "[]" && d[key] === false && refused_ob) {
+          if (none_vals !== "[]" && !d[key] && refused_ob) {
             return d;
           }
         })).enter().append("text").attr("x", function(d) {
@@ -1313,17 +1422,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.top.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[0];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1350,17 +1461,19 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.bottom.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var character_plot, key, none_vals, partial, partial_type, plot_partial;
+            var character_plot, hasValue, key, none_vals, partial, partial_type, plot_partial, value;
             none_vals = d.none_values;
             key = self.options.keys[1];
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             character_plot = plot_partial && partial_type === 'character';
-            if (character_plot && d[key] !== false) {
+            value = d[key];
+            hasValue = self.validValue(value);
+            if (character_plot && hasValue) {
               partial = true;
             }
-            if (none_vals !== "[]" && d[key] !== false && partial) {
+            if (none_vals !== "[]" && hasValue && partial) {
               return d;
             }
           })).enter().append("rect").attr({
@@ -1387,14 +1500,16 @@ NHGraph = (function(superClass) {
             return self.hide_popup();
           });
           self.drawables.data.selectAll(".range.extent.empty_point").data(self.parent_obj.parent_obj.data.raw.filter(function(d) {
-            var bottom, keys_valid, none_vals, partial, partial_type, plot_partial, top;
+            var bottom, bottomHasValue, keys_valid, none_vals, partial, partial_type, plot_partial, top, topHasValue;
             plot_partial = self.options.plot_partial;
             partial_type = self.parent_obj.parent_obj.options.partial_type;
             partial = plot_partial && partial_type === 'dot';
             top = d[self.options.keys[0]];
             bottom = d[self.options.keys[1]];
             none_vals = d.none_values;
-            keys_valid = top !== false && bottom !== false;
+            topHasValue = top !== false && top !== null;
+            bottomHasValue = bottom !== false && bottom !== null;
+            keys_valid = topHasValue && bottomHasValue;
             if (plot_partial && partial_type === 'character' && keys_valid) {
               partial = true;
             }
@@ -1462,7 +1577,7 @@ NHGraph = (function(superClass) {
             key = self.options.keys[0];
             refused = self.parent_obj.parent_obj.options.refused;
             refused_ob = refused && d.partial_reason === 'refused';
-            if (none_vals !== "[]" && d[key] === false && refused_ob) {
+            if (none_vals !== "[]" && !d[key] && refused_ob) {
               return d;
             }
           })).enter().append("text").attr("x", function(d) {
