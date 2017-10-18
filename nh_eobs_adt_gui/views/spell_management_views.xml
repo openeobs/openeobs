@@ -91,7 +91,7 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]" context="{'form_view_ref': 'nh_eobs_adt_gui.view_spell_patient_form'}"/>
+                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" attrs="{'readonly': True}" options="{'no_open': True}" />
                             <field name="hospital_number" attrs="{'readonly': True}" options="{'no_open': True}" />
@@ -127,7 +127,7 @@
                         <button name="discharge_button" string="Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','in',['new','completed','cancelled'])]}"/>
                         <button name="cancel_discharge" string="Cancel Discharge" type="object" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_ward_manager" attrs="{'invisible': [('state','!=','completed')]}"/>
                         <group>
-                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]" context="{'form_view_ref': 'nh_eobs_adt_gui.view_spell_patient_form'}"/>
+                            <field name="patient_id" placeholder="Please Select or Enter Name" on_change="patient_id_change(patient_id)" domain="[['not_admitted', '=', True]]"/>
                             <field name="state" attrs="{'invisible': True}" />
                             <field name="nhs_number" placeholder="Enter Patient NHS Number" attrs="{'readonly': True}"/>
                             <field name="hospital_number" placeholder="Enter Patient Hospital Number" attrs="{'readonly': True}" />

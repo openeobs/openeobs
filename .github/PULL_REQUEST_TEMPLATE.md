@@ -5,7 +5,6 @@
 Before this pull request can be merged the following must be true.
 - [ ] Unit tests pass (Travis integration).
 - [ ] No code quality issues (Codacy integration).
-- [ ] Code review conducted (request a review by assigning a *reviewer* on the right-hand side).
 - [ ] Approval from at least one developer and at least one tester.
 
 If you are a BJSS contributor there are some additional conditions.

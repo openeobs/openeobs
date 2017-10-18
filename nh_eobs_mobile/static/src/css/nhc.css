@@ -633,6 +633,7 @@ Styleguide 1.1
 */
 .content {
   margin-top: 6.5em;
+  margin-bottom: 2em;
 }
 .content.no-menu {
   margin-top: 4em;

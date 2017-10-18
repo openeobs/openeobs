@@ -2,6 +2,7 @@
 from openerp.osv import orm, fields
 
 from openerp.addons.nh_eobs.wardboard import nh_clinical_wardboard
+import copy
 
 
 class NhClinicalWardboardWeight(orm.Model):
@@ -37,7 +38,8 @@ class NhClinicalWardboardWeight(orm.Model):
             context=context)
         view_id = model_data_pool.read(
             cr, uid, model_data_ids, ['res_id'], context=context)[0]['res_id']
-        context.update({'height': wardboard.height})
+        new_context = copy.deepcopy(context)
+        new_context.update({'height': wardboard.height})
         return {
             'name': wardboard.full_name,
             'type': 'ir.actions.act_window',
@@ -46,6 +48,6 @@ class NhClinicalWardboardWeight(orm.Model):
             'view_mode': 'form',
             'view_type': 'form',
             'target': 'new',
-            'context': context,
+            'context': new_context,
             'view_id': int(view_id)
         }

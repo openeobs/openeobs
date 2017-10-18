@@ -23,7 +23,8 @@ class TestRestartsEWSTasks(TransactionCase):
         self.patient = self.patient_model.create({
             'given_name': 'Jon',
             'family_name': 'Snow',
-            'patient_identifier': 'a_patient_identifier'
+            'patient_identifier': 'a_patient_identifier',
+            'other_identifier': 'another_identifier'
         })
 
         self.spell_activity_id = self.spell_model.create_activity(
