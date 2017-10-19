@@ -9,11 +9,9 @@ The Open-eObs Base module provides all the functionality needed for an Acute
 hospital to manage it's wards. Combined with the mobile module for observation
 entry this is all that's needed for an Acute hospital.
 
-Module Reference
-----------------
-
 .. toctree::
    :maxdepth: 2
+   :caption: Module Reference
 
    api
    base_extension
