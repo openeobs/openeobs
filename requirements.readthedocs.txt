@@ -1,0 +1,2 @@
+git+git://github.com/bjss/odoo.git@odoo-sans-ldap
+odoo-sphinx-autodoc==0.3.2
