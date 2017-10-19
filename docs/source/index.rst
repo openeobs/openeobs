@@ -13,7 +13,7 @@ for Acute and Mental Health hospitals.
    :maxdepth: 2
    :caption: Contents:
 
-
+   nh_blood_glucose/index
 
 Indices and tables
 ==================
