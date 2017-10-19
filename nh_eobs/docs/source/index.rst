@@ -21,10 +21,13 @@ entry this is all that's needed for an Acute hospital.
    nh_clinical_extension
    observation_extension
    overdue
+   patient_monitoring_exception
    placement
    policy
+   report
    settings
    sql_statements
    ward_dashboard
    wardboard
+   wizard
    workload
