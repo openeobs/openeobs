@@ -14,6 +14,7 @@ for Acute and Mental Health hospitals.
    :caption: Contents:
 
    nh_blood_glucose/index
+   nh_eobs/index
 
 Indices and tables
 ==================

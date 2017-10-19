@@ -1,5 +1,5 @@
 Wardboard extension
 -------------------
-.. autoclass:: models.nh_clinical_wardboard.NhClinicalWardboardBloodGlucose
+.. autoclass:: nh_blood_glucose.models.nh_clinical_wardboard.NhClinicalWardboardBloodGlucose
     :members:
     :undoc-members:

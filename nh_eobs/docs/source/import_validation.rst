@@ -1,10 +1,10 @@
-Patient Placement
+Import Validation
 =================
-.. automodule:: placement
+.. automodule:: import_validation
 
 .. toctree::
    :maxdepth: 2
    :caption: Classes
    :glob:
 
-   placement/*
+   import_validation/*

@@ -3,19 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-NH Open eObs
-============
-
-If it fits, i sits stretch, or spot something, big eyes, big eyes, crouch,
-shake butt, prepare to pounce leave fur on owners clothes refuse to drink water
-except out of someone's glass meow all night having their mate disturbing
-sleeping humans so refuse to drink water except out of someone's glass.
-
-User's Guide
-------------
-
-.. toctree::
-   :maxdepth: 2
+Open-eObs Base
+==============
+The Open-eObs Base module provides all the functionality needed for an Acute
+hospital to manage it's wards. Combined with the mobile module for observation
+entry this is all that's needed for an Acute hospital.
 
 Module Reference
 ----------------
@@ -25,18 +17,16 @@ Module Reference
 
    api
    base_extension
+   exceptions
+   helpers
+   import_validation
+   nh_clinical_extension
+   observation_extension
    overdue
    placement
    policy
-   spell_management
+   settings
+   sql_statements
    ward_dashboard
    wardboard
    workload
-
-
-Additional Notes
-----------------
-
-.. toctree::
-   :maxdepth: 2
-

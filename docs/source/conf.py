@@ -187,7 +187,7 @@ intersphinx_mapping = {'https://docs.python.org/': None}
 
 # h4xX0r time: Move All module docs under this directory so can use glob in
 # toctree
-projects = ['nh_blood_glucose']
+projects = ['nh_blood_glucose', 'nh_eobs']
 for project in projects:
     source = os.path.abspath('../../{}/docs/source/'.format(project))
     destination = os.path.abspath('./{}'.format(project))
