@@ -53,7 +53,7 @@ if os.environ.get('READTHEDOCS'):
             version=os.environ.get('READTHEDOCS_VERSION')
         ),
         'home/docs/checkouts/readthedocs.org/user_builds/'
-        'openeobs/envs/read-the-docs/openeobs'
+        '{project}/'
     ]
 else:
     sphinxodoo_addons_path += [
