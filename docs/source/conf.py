@@ -51,7 +51,9 @@ if os.environ.get('READTHEDOCS'):
         'openerp/addons'.format(
             project=os.environ.get('READTHEDOCS_PROJECT'),
             version=os.environ.get('READTHEDOCS_VERSION')
-        )
+        ),
+        'home/docs/checkouts/readthedocs.org/user_builds/'
+        'openeobs/envs/read-the-docs/openeobs'
     ]
 else:
     sphinxodoo_addons_path += [
