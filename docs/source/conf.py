@@ -53,7 +53,7 @@ if os.environ.get('READTHEDOCS'):
             version=os.environ.get('READTHEDOCS_VERSION')
         ),
         'home/docs/checkouts/readthedocs.org/user_builds/'
-        '{project}/'.format(os.environ.get('READTHEDOCS_PROJECT'))
+        '{project}/'.format(project=os.environ.get('READTHEDOCS_PROJECT'))
     ]
 else:
     sphinxodoo_addons_path += [
