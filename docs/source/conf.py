@@ -66,17 +66,19 @@ if os.environ.get('READTHEDOCS'):
         branch = archive_match.groups()[1]
         if repo == 'odoo':
             sphinxodoo_addons_path.append(
-                '{base}/{repo}-{branch}/addons',
-                base=repo_path,
-                repo=repo,
-                branch=branch
+                '{base}/{repo}-{branch}/addons'.format(
+                    base=repo_path,
+                    repo=repo,
+                    branch=branch
+                )
             )
         else:
             sphinxodoo_addons_path.append(
-                '{base}/{repo}-{branch}',
-                base=repo_path,
-                repo=repo,
-                branch=branch
+                '{base}/{repo}-{branch}'.format(
+                    base=repo_path,
+                    repo=repo,
+                    branch=branch
+                )
             )
 
 else:
