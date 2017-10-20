@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Open-eObs documentation build configuration file, created by
-# sphinx-quickstart on Wed Oct 18 18:35:36 2017.
+# Open-eObs REST API documentation build configuration file, created by
+# sphinx-quickstart on Thu Oct 19 01:09:51 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -16,10 +16,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-from shutil import copytree, ignore_patterns, rmtree
-sys.path.insert(0, os.path.abspath('../../'))
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- General configuration ------------------------------------------------
@@ -33,39 +32,11 @@ sys.path.insert(0, os.path.abspath('../../'))
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinxodoo.ext.autodoc'
+    'sphinx.ext.viewcode'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-sphinxodoo_addons_path = []
-if os.environ.get('READTHEDOCS'):
-    sphinxodoo_addons_path += [
-        '/home/docs/checkouts/readthedocs.org/user_builds/'
-        '{project}/envs/{version}/lib/python2.7/site-packages/'
-        'odoo/addons'.format(
-            project=os.environ.get('READTHEDOCS_PROJECT'),
-            version=os.environ.get('READTHEDOCS_VERSION')
-        )
-    ]
-else:
-    sphinxodoo_addons_path += [
-        '/opt/nh/odoo/addons',
-        '/vagrant/data/openeobs',
-        '/vagrant/data/nhclinical'
-    ]
-sphinxodoo_addons = ['web', 'nh_eobs', 'nh_eobs_api']
-
-autodoc_mock_imports = [
-    'openerp',
-    'faker',
-    'ldap'
-]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -77,9 +48,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Open-eObs'
-copyright = u'2017, NeovaHealth,BJSS'
-author = u'NeovaHealth,BJSS'
+project = u'Open-eObs REST API'
+copyright = u'2017, Neovahealth, BJSS'
+author = u'Neovahealth, BJSS'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -114,7 +85,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -146,7 +117,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Open-eObsdoc'
+htmlhelp_basename = 'Open-eObsRESTAPIdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -173,8 +144,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Open-eObs.tex', u'Open-eObs Documentation',
-     u'NeovaHealth,BJSS', 'manual'),
+    (master_doc, 'Open-eObsRESTAPI.tex', u'Open-eObs REST API Documentation',
+     u'Neovahealth, BJSS', 'manual'),
 ]
 
 
@@ -183,7 +154,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'open-eobs', u'Open-eObs Documentation',
+    (master_doc, 'open-eobsrestapi', u'Open-eObs REST API Documentation',
      [author], 1)
 ]
 
@@ -194,27 +165,10 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Open-eObs', u'Open-eObs Documentation',
-     author, 'Open-eObs', 'One line description of project.',
+    (master_doc, 'Open-eObsRESTAPI', u'Open-eObs REST API Documentation',
+     author, 'Open-eObsRESTAPI', 'One line description of project.',
      'Miscellaneous'),
 ]
 
-# Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
 
-# h4xX0r time: Move All module docs under this directory so can use glob in
-# toctree
-projects = [
-    'nh_blood_glucose',
-    'nh_eobs',
-    'nh_eobs_adt_gui',
-    'nh_eobs_analysis',
-    'nh_eobs_api'
-]
-for project in projects:
-    source = os.path.abspath('../../{}/docs/source/'.format(project))
-    destination = os.path.abspath('./{}'.format(project))
-    if os.path.exists(destination):
-        rmtree(destination)
-    sys.path.insert(0, os.path.abspath('../../{}'.format(project)))
-    copytree(source, destination, ignore=ignore_patterns('*.py'))
+
