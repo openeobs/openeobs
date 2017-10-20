@@ -1,2 +1,6 @@
 git+git://github.com/bjss/odoo.git@odoo-sans-ldap
 odoo-sphinx-autodoc==0.3.2
+mock==1.3.0
+fake-factory==0.5.1
+beautifulsoup4==4.4.1
+Pillow==2.5.1
