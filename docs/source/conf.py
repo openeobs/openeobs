@@ -237,7 +237,8 @@ projects = [
     'nh_eobs',
     'nh_eobs_adt_gui',
     'nh_eobs_analysis',
-    'nh_eobs_api'
+    'nh_eobs_api',
+    'nh_eobs_backup'
 ]
 for project in projects:
     source = os.path.abspath('../../{}/docs/source/'.format(project))

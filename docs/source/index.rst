@@ -18,6 +18,7 @@ for Acute and Mental Health hospitals.
    nh_eobs_adt_gui/index
    nh_eobs_analysis/index
    nh_eobs_api/index
+   nh_eobs_backup/index
 
 Indices and tables
 ==================
