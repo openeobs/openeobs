@@ -19,7 +19,9 @@
 import os
 import sys
 from shutil import copytree, ignore_patterns, rmtree
-sys.path.insert(0, os.path.abspath('../../'))
+
+repo_path = os.path.abspath('../../')
+sys.path.insert(0, repo_path)
 
 
 # -- General configuration ------------------------------------------------
@@ -52,8 +54,7 @@ if os.environ.get('READTHEDOCS'):
             project=os.environ.get('READTHEDOCS_PROJECT'),
             version=os.environ.get('READTHEDOCS_VERSION')
         ),
-        'home/docs/checkouts/readthedocs.org/user_builds/'
-        '{project}/'.format(project=os.environ.get('READTHEDOCS_PROJECT'))
+        repo_path
     ]
 else:
     sphinxodoo_addons_path += [
