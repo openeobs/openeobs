@@ -18,6 +18,9 @@
 #
 import os
 import sys
+import requests
+import zipfile
+import StringIO
 from shutil import copytree, ignore_patterns, rmtree
 
 repo_path = os.path.abspath('../../')
@@ -47,6 +50,11 @@ extensions = [
 templates_path = ['_templates']
 sphinxodoo_addons_path = []
 if os.environ.get('READTHEDOCS'):
+    r = requests.get(
+        'https://github.com/NeovaHealth/nhclinical/archive/master.zip',
+        stream=True)
+    z = zipfile.ZipFile(StringIO.StringIO(r.content))
+    z.extractall(repo_path)
     sphinxodoo_addons_path += [
         '/home/docs/checkouts/readthedocs.org/user_builds/'
         '{project}/envs/{version}/lib/python2.7/site-packages/'
@@ -54,7 +62,8 @@ if os.environ.get('READTHEDOCS'):
             project=os.environ.get('READTHEDOCS_PROJECT'),
             version=os.environ.get('READTHEDOCS_VERSION')
         ),
-        repo_path
+        repo_path,
+        '{}/nhclinical-master'.format(repo_path)
     ]
 else:
     sphinxodoo_addons_path += [
