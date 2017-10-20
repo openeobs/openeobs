@@ -21,6 +21,7 @@ import sys
 import requests
 import zipfile
 import StringIO
+import re
 from shutil import copytree, ignore_patterns, rmtree
 
 repo_path = os.path.abspath('../../')
@@ -50,21 +51,34 @@ extensions = [
 templates_path = ['_templates']
 sphinxodoo_addons_path = []
 if os.environ.get('READTHEDOCS'):
-    r = requests.get(
+    sphinxodoo_addons_path.append(repo_path)
+    addon_archives = [
         'https://github.com/NeovaHealth/nhclinical/archive/master.zip',
-        stream=True)
-    z = zipfile.ZipFile(StringIO.StringIO(r.content))
-    z.extractall(repo_path)
-    sphinxodoo_addons_path += [
-        '/home/docs/checkouts/readthedocs.org/user_builds/'
-        '{project}/envs/{version}/lib/python2.7/site-packages/'
-        'openerp/addons'.format(
-            project=os.environ.get('READTHEDOCS_PROJECT'),
-            version=os.environ.get('READTHEDOCS_VERSION')
-        ),
-        repo_path,
-        '{}/nhclinical-master'.format(repo_path)
+        'https://github.com/bjss/odoo/archive/odoo-sans-ldap.zip'
     ]
+    for archive in addon_archives:
+        r = requests.get(archive,stream=True)
+        z = zipfile.ZipFile(StringIO.StringIO(r.content))
+        z.extractall(repo_path)
+        reg = re.compile(r'.*\/(.*)\/archive\/(.*).zip')
+        archive_match = reg.match(archive)
+        repo = archive_match.groups()[0]
+        branch = archive_match.groups()[1]
+        if repo == 'odoo':
+            sphinxodoo_addons_path.append(
+                '{base}/{repo}-{branch}/addons',
+                base=repo_path,
+                repo=repo,
+                branch=branch
+            )
+        else:
+            sphinxodoo_addons_path.append(
+                '{base}/{repo}-{branch}',
+                base=repo_path,
+                repo=repo,
+                branch=branch
+            )
+
 else:
     sphinxodoo_addons_path += [
         '/opt/nh/odoo/addons',
