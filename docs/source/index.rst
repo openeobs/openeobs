@@ -25,6 +25,7 @@ for Acute and Mental Health hospitals.
    nh_food_and_fluid/index
    nh_gcs/index
    nh_neurological/index
+   nh_neurovascular/index
 
 Indices and tables
 ==================
