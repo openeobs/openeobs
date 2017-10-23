@@ -21,6 +21,7 @@ for Acute and Mental Health hospitals.
    nh_eobs_backup/index
    nh_eobs_mobile/index
    nh_eobs_mental_health/index
+   nh_ews/index
 
 Indices and tables
 ==================

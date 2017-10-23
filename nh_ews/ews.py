@@ -152,9 +152,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         Score parameter within the data. (any parameter that scores 3)
 
         :param ews_data: The NEWS parameters: ``respiration_rate``,
-                         ``indirect_oxymetry_spo2``, ``body_temperature``,
-                         ``blood_pressure_systolic``, ``pulse_rate``,
-                         ``oxygen_administration_flag`` and ``avpu_text``
+            ``indirect_oxymetry_spo2``, ``body_temperature``,
+            ``blood_pressure_systolic``, ``pulse_rate``,
+            ``oxygen_administration_flag`` and ``avpu_text``
         :type ews_data: dict
         :returns: ``score``, ``clinical_risk`` and ``three_in_one``
         :rtype: dict
@@ -794,10 +794,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         based on previous observations and the refusal status.
 
         :param partial_obs_activity: Observation activity expected to be a
-        partial and the most recently completed observation for the spell.
+            partial and the most recently completed observation for the spell.
         :type partial_obs_activity: 'nh.activity' record
         :param next_obs_activity: Observation activity expected to be the most
-        recently created one triggered by the passed partial.
+            recently created one triggered by the passed partial.
         :type next_obs_activity: 'nh.activity' record
         :return:
         """
@@ -865,7 +865,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         frequency.
 
         :param previous_activity_completed_datetime: Value for the date
-        terminated field of the previous completed observation.
+            terminated field of the previous completed observation.
         :type previous_activity_completed_datetime: str
         :param frequency: Frequency in minutes.
         :type frequency: int
@@ -886,8 +886,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         necessitates this lookup.
 
         :param case: Either an int representing the clinical risk or a str
-        representing a special state such as 'Transfer'.
-        See `field`:nh_ews._POLICY: and :module:`frequencies.py`.
+            representing a special state such as 'Transfer'.
+            See `field`:nh_ews._POLICY: and `frequencies.py`.
         :type case: int or str
         :param frequency: Frequency in minutes.
         :type frequency: int
@@ -956,7 +956,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         Convenience that allows you to pass a 'case' instead of a 'frequency'
         and the method will do the lookup for you.
 
-        See :method:`nh_observations.nh_clinical_extension
+        See `nh_observations.nh_clinical_extension
         .nh_clinical_api_extension.change_activity_frequency`.
 
         :param cr:
