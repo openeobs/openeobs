@@ -10,12 +10,6 @@ shake butt, prepare to pounce leave fur on owners clothes refuse to drink water
 except out of someone's glass meow all night having their mate disturbing
 sleeping humans so refuse to drink water except out of someone's glass.
 
-User's Guide
-------------
-
-.. toctree::
-   :maxdepth: 2
-
 Module Reference
 ----------------
 
@@ -26,11 +20,4 @@ Contents:
 
    nfc_models
    controllers
-
-Additional Notes
-----------------
-
-.. toctree::
-   :maxdepth: 2
-
 

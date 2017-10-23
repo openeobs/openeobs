@@ -56,10 +56,17 @@ single_task = EobsRoute(
     methods=['GET'],
     url_prefix='/mobile'
 )
-route_manager.add_route(single_patient)
-route_manager.add_route(patient_list)
-route_manager.add_route(single_task)
-route_manager.add_route(task_list)
+if not route_manager.get_route('single_patient'):
+    route_manager.add_route(single_patient)
+
+if not route_manager.get_route('patient_list'):
+    route_manager.add_route(patient_list)
+
+if not route_manager.get_route('single_task'):
+    route_manager.add_route(single_task)
+
+if not route_manager.get_route('task_list'):
+    route_manager.add_route(task_list)
 
 
 def abort_and_redirect(url):
