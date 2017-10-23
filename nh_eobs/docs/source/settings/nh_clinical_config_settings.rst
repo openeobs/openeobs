@@ -1,5 +1,5 @@
 Settings Configuration Wizard
 -----------------------------
-.. autoclass:: settings.NHEobsConfigSettings
+.. autoclass:: nh_eobs.settings.NHEobsConfigSettings
     :members:
     :undoc-members:

@@ -1,5 +1,5 @@
 Settings
 --------
-.. autoclass:: settings.NHEobsSettings
+.. autoclass:: nh_eobs.settings.NHEobsSettings
     :members:
     :undoc-members:

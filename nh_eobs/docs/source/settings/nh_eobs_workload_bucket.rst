@@ -1,5 +1,5 @@
 Workload Bucket
 ---------------
-.. autoclass:: settings.NHEobsWorkloadBucket
+.. autoclass:: nh_eobs.settings.NHEobsWorkloadBucket
     :members:
     :undoc-members:

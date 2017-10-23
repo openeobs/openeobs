@@ -1,7 +1,7 @@
 API Controllers
 ===============
 
-.. automodule:: controllers.route_api
+.. automodule:: nh_eobs_api.controllers.route_api
 
 .. toctree::
    :maxdepth: 2

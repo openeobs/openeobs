@@ -1,6 +1,6 @@
 Open-eObs API Controller
 ------------------------
 
-.. autoclass:: controllers.route_api.NH_API
+.. autoclass:: nh_eobs_api.controllers.route_api.NH_API
     :members:
     :undoc-members:

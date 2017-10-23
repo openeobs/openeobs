@@ -66,9 +66,9 @@ class Route(object):
 
         :param url: String containing a "Werkzeug style" URL
         :return: List of dictionaries, each containing one URL component,
-        alongside metadata describing it
+            alongside metadata describing it
         :raise ValueError: If, when parsing a piece of the URL passed as
-        argument, that piece results not to be a string
+            argument, that piece results not to be a string
         """
         decomposed_url = []
         url_pieces_list = self._split_url(url)
@@ -111,7 +111,7 @@ class RouteManager(object):
 
         :param route: A Route object
         :raise KeyError: If 'name' of the Route object to be added is the
-        same of another Route object already in the dictionary
+            same of another Route object already in the dictionary
         """
         if route.name in self.ROUTES:
             raise KeyError(str(route.name))
@@ -122,7 +122,7 @@ class RouteManager(object):
         """Remove an existing route from the dictionary ROUTES.
 
         :param route_name: A string matching the 'name' key of the route
-        to be removed
+            to be removed
         """
         pass
 
@@ -130,9 +130,9 @@ class RouteManager(object):
         """Return an existing route from the dictionary ROUTES.
 
         :param route_name: A string matching the 'name' key of the route
-        to be returned
+            to be returned
         :return: A Route object or None (if a Route object with that name
-        is not found)
+            is not found)
         """
         # TODO: Need to sort out args
         return self.ROUTES.get(route_name, None)
@@ -143,13 +143,13 @@ class RouteManager(object):
         formatted as a dictionary.
 
         :param route_name: A string matching the 'name' key of the
-        route to be returned
+            route to be returned
         :param url_prefix: A string add as a prefix when returning the
-        'url' property of the Route object
+            'url' property of the Route object
         :return: A dictionary with all the properties inside the Route
-        object looked for
+            object looked for
         :raise: KeyError (if no Route object matching the 'route_name'
-        parameter is found)
+            parameter is found)
         """
         route = self.ROUTES[route_name]
         route_prefix = url_prefix or route.url_prefix or self.URL_PREFIX
@@ -173,15 +173,15 @@ class RouteManager(object):
         formatted as a dictionary.
 
         :param route_name: A string matching the 'name' key of
-        the route to be returned
+            the route to be returned
         :param url_prefix: A string add as a prefix when returning the
-        'url' property of the Route object
+            'url' property of the Route object
         :param additional_parameters: A dictionary with additional
-        key-value arguments to be exposed
+            key-value arguments to be exposed
         :return: A dictionary with all the properties inside the Route
-        object looked for
+            object looked for
         :raise: KeyError (if no Route object matching the 'route_name'
-        parameter is found)
+            parameter is found)
         """
         route = self.ROUTES[route_name]
         route_prefix = url_prefix or route.url_prefix or self.URL_PREFIX
@@ -207,13 +207,14 @@ class RouteManager(object):
 
         :param template_name: The name of the template file
         :param template_path: The absolute path of the template file
-        (omitting the name of the template file)
+            (omitting the name of the template file)
         :param route_list: A list of Route objects, used to render the
-        template (OPTIONAL)
+            template (OPTIONAL)
         :param additional_context: A dictionary that will extend the
-        context used to render the template (OPTIONAL)
+            context used to render the template (OPTIONAL)
         :return: The template file rendered as a string (with a default
-        template variable called "routes" that stores a list of Route objects)
+            template variable called "routes" that stores a list of
+            Route objects)
         """
         # TODO: use only ONE argument for the template's filepath (?)
         loader = jinja2.FileSystemLoader(template_path)
@@ -247,14 +248,14 @@ class ResponseJSON(object):
         encode it as JSON.
 
         :param status: A string with the status of the response
-        (please, use the STATUS_* constants defined in this class!)
+            (please, use the STATUS_* constants defined in this class!)
         :param title: A string with summary information about the response
-        (in case of error: the name of the Exception)
+            (in case of error: the name of the Exception)
         :param description: A string with complete information about the
-        response (in case of error: the complete error message)
+            response (in case of error: the complete error message)
         :param data: A dictionary with the actual payload of the JSON response
         :return: A JSON-encoded dictionary containing all the data from
-        the arguments passed to this function
+            the arguments passed to this function
         """
         json_response = {
             'status': status,
