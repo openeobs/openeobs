@@ -169,6 +169,3 @@ texinfo_documents = [
      author, 'Open-eObsRESTAPI', 'One line description of project.',
      'Miscellaneous'),
 ]
-
-
-
