@@ -1,8 +1,6 @@
-``Glasgow Coma Scale``
-======================
-.. automodule:: gcs
+Glasgow Coma Scale Observations
+===============================
 
-``GCS Observation``
--------------------
-.. autoclass:: nh_clinical_patient_observation_gcs
+.. automodule:: gcs
     :members:
+    :undoc-members:

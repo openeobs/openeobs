@@ -23,6 +23,7 @@ for Acute and Mental Health hospitals.
    nh_eobs_mental_health/index
    nh_ews/index
    nh_food_and_fluid/index
+   nh_gcs/index
 
 Indices and tables
 ==================
