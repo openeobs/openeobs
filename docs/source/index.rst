@@ -28,6 +28,7 @@ for Acute and Mental Health hospitals.
    nh_neurovascular/index
    nh_observations/index
    nh_pbp/index
+   nh_stools/index
 
 Indices and tables
 ==================
