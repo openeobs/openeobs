@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Open-eObs documentation build configuration file, created by
-# sphinx-quickstart on Wed Oct 18 18:35:36 2017.
+# Open-eObs Weight Observation documentation build configuration file, created by
+# sphinx-quickstart on Mon Oct 23 17:47:45 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -16,17 +16,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
-import sys
-import requests
-import zipfile
-import StringIO
-import re
-from shutil import copytree, ignore_patterns, rmtree
-
-
-repo_path = os.path.abspath('../../')
-sys.path.insert(0, repo_path)
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- General configuration ------------------------------------------------
@@ -40,68 +32,12 @@ sys.path.insert(0, repo_path)
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinxodoo.ext.autodoc'
+    'sphinx.ext.viewcode'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
-sphinxodoo_addons_path = []
-if os.environ.get('READTHEDOCS'):
-    sphinxodoo_addons_path.append(repo_path)
-    addon_archives = [
-        'https://github.com/NeovaHealth/nhclinical/archive/master.zip',
-        'https://github.com/bjss/odoo/archive/odoo-sans-ldap.zip'
-    ]
-    for archive in addon_archives:
-        r = requests.get(archive,stream=True)
-        z = zipfile.ZipFile(StringIO.StringIO(r.content))
-        z.extractall(repo_path)
-        reg = re.compile(r'.*\/(.*)\/archive\/(.*).zip')
-        archive_match = reg.match(archive)
-        repo = archive_match.groups()[0]
-        branch = archive_match.groups()[1]
-        if repo == 'odoo':
-            sphinxodoo_addons_path.append(
-                '{base}/{repo}-{branch}/addons'.format(
-                    base=repo_path,
-                    repo=repo,
-                    branch=branch
-                )
-            )
-        else:
-            sphinxodoo_addons_path.append(
-                '{base}/{repo}-{branch}'.format(
-                    base=repo_path,
-                    repo=repo,
-                    branch=branch
-                )
-            )
-
-else:
-    sphinxodoo_addons_path += [
-        '/opt/nh/odoo/addons',
-        '/vagrant/data/openeobs',
-        '/vagrant/data/nhclinical'
-    ]
-sphinxodoo_addons = [
-    'web',
-    'nh_eobs',
-    'nh_eobs_api',
-    'nh_eobs_mobile',
-    'nh_eobs_mental_health',
-    'nh_food_and_fluid',
-]
-
-autodoc_mock_imports = [
-    'openerp',
-    'faker',
-    'ldap'
-]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -113,9 +49,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Open-eObs'
-copyright = u'2017, NeovaHealth,BJSS'
-author = u'NeovaHealth,BJSS'
+project = u'Open-eObs Weight Observation'
+copyright = u'2017, NeovaHealth, BJSS'
+author = u'NeovaHealth, BJSS'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -150,7 +86,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = 'alabaster'
+html_theme = 'alabaster'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -182,7 +118,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Open-eObsdoc'
+htmlhelp_basename = 'Open-eObsWeightObservationdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -209,8 +145,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Open-eObs.tex', u'Open-eObs Documentation',
-     u'NeovaHealth,BJSS', 'manual'),
+    (
+        master_doc,
+        'Open-eObsWeightObservation.tex',
+        u'Open-eObs Weight Observation Documentation',
+        u'NeovaHealth, BJSS',
+        'manual'
+    ),
 ]
 
 
@@ -219,8 +160,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'open-eobs', u'Open-eObs Documentation',
-     [author], 1)
+    (
+        master_doc,
+        'open-eobsweightobservation',
+        u'Open-eObs Weight Observation Documentation',
+        [author],
+        1
+    )
 ]
 
 
@@ -230,41 +176,16 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Open-eObs', u'Open-eObs Documentation',
-     author, 'Open-eObs', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'Open-eObsWeightObservation',
+        u'Open-eObs Weight Observation Documentation',
+        author,
+        'Open-eObsWeightObservation',
+        'One line description of project.',
+        'Miscellaneous'
+    ),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
-
-# h4xX0r time: Move All module docs under this directory so can use glob in
-# toctree
-projects = [
-    'nh_blood_glucose',
-    'nh_eobs',
-    'nh_eobs_adt_gui',
-    'nh_eobs_analysis',
-    'nh_eobs_api',
-    'nh_eobs_backup',
-    'nh_eobs_mental_health',
-    'nh_eobs_mobile',
-    'nh_ews',
-    'nh_food_and_fluid',
-    'nh_gcs',
-    'nh_neurological',
-    'nh_neurovascular',
-    'nh_observations',
-    'nh_pbp',
-    'nh_stools',
-    'nh_urinary_analysis',
-    'nh_vips',
-    'nh_weight'
-]
-for project in projects:
-    source = os.path.abspath('../../{}/docs/source/'.format(project))
-    destination = os.path.abspath('./{}'.format(project))
-    if os.path.exists(destination):
-        rmtree(destination)
-    sys.path.insert(0, os.path.abspath('../../{}'.format(project)))
-    copytree(source, destination, ignore=ignore_patterns('*.py'))
