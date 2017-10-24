@@ -87,7 +87,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     def get_submission_message(self):
         """
         Provides a message to be displayed when the observation is submitted.
-
         :return:
         :rtype str
         """
