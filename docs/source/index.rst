@@ -30,6 +30,7 @@ for Acute and Mental Health hospitals.
    nh_pbp/index
    nh_stools/index
    nh_urinary_analysis/index
+   nh_vips/index
 
 Indices and tables
 ==================
