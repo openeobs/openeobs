@@ -68,7 +68,7 @@ if os.environ.get('READTHEDOCS'):
     for archive in addon_archives:
         # This downloads the zip archive of the addons and adds the extracted
         # folder to the addons path
-        r = requests.get(archive,stream=True)
+        r = requests.get(archive, stream=True)
         z = zipfile.ZipFile(StringIO.StringIO(r.content))
         z.extractall(repo_path)
         reg = re.compile(r'.*\/(.*)\/archive\/(.*).zip')
