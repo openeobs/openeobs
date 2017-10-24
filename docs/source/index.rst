@@ -11,9 +11,8 @@ for Acute and Mental Health hospitals.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Modules:
 
-   nh_blood_glucose/index
    nh_eobs/index
    nh_eobs_adt_gui/index
    nh_eobs_analysis/index
@@ -21,6 +20,12 @@ for Acute and Mental Health hospitals.
    nh_eobs_backup/index
    nh_eobs_mobile/index
    nh_eobs_mental_health/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Observations:
+
+   nh_blood_glucose/index
    nh_ews/index
    nh_food_and_fluid/index
    nh_gcs/index
@@ -32,6 +37,7 @@ for Acute and Mental Health hospitals.
    nh_urinary_analysis/index
    nh_vips/index
    nh_weight/index
+
 
 Indices and tables
 ==================
