@@ -1,8 +1,10 @@
-``Workload``
-============
+Workload
+========
 .. automodule:: workload
 
-``Workload``
-------------
-.. autoclass:: nh_clinical_workload
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
+
+   workload/*

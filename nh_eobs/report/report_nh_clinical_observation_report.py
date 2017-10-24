@@ -69,6 +69,7 @@ class ObservationReport(models.AbstractModel):
         """
         Calls get_report_data as well as some additional methods that massage
         the data.
+
         :param data:
         :return:
         :rtype: dict
@@ -245,7 +246,7 @@ class ObservationReport(models.AbstractModel):
 
         :param spell_activity_id:
         :param model: The name of the model matching the type of activity data
-        to retrieve activities for.
+            to retrieve activities for.
         :type model: str
         :param start_time:
         :param end_time:
@@ -326,7 +327,7 @@ class ObservationReport(models.AbstractModel):
         :param end:
         :type end: str
         :return: Activities for the passed spell id and model within the date
-        range.
+            range.
         :rtype: dict
         """
         activity_data = \
@@ -380,7 +381,7 @@ class ObservationReport(models.AbstractModel):
         the id from it.
 
         :param activity_dictionary: A dictionary representing an activity as
-        returned from :method:<read>.
+            returned from :method:<read>.
         :return:
         :rtype: int
         """
@@ -873,6 +874,7 @@ class ObservationReport(models.AbstractModel):
     def is_date_range_within_active_pme(activity, start_date, end_date):
         """
         Checks to see if supplied start and end dates are within a PME event
+
         :param activity: PME activity
         :param start_date: report start date
         :param end_date: report end date
@@ -1046,12 +1048,13 @@ class ObservationReport(models.AbstractModel):
         Allows observations to register their need to display graphs on the
         report. Updates a dictionary which is used later to add the necessary
         data for the graphs to the overall report data dictionary.
+
         :param key_to_copy_from: A key for the report data dictionary which
-        points to a nested dictionary of all the observation data that will be
-        used for the graphs.
+            points to a nested dictionary of all the observation data that
+            will be used for the graphs.
         :type key_to_copy_from: str
         :param key_to_copy_to: A key for the report data dictionary which is
-        which will be created for the graph data to be stored.
+            which will be created for the graph data to be stored.
         :type key_to_copy_to: str
         :return:
         """
@@ -1064,6 +1067,7 @@ class ObservationReport(models.AbstractModel):
         the overall report data dictionary. Graph data is a JSON encoded
         string used by JS in the report templates to render the graphs before
         they are converted to PDFs.
+
         :param report_data:
         :type report_data: dict
         :return:
@@ -1076,6 +1080,7 @@ class ObservationReport(models.AbstractModel):
         """
         Copies observation data from other keys in the report data dictionary
         and stores them in new keys to be used specifically by the graphs.
+
         :param report_data:
         :type report_data: dict
         :return:
@@ -1094,6 +1099,7 @@ class ObservationReport(models.AbstractModel):
         Localises the date terminated datetimes of the graph data stored in
         their respective keys in the report data dictionary. Must be called
         before the graph data is converted to JSON.
+
         :param report_data:
         :type report_data: dict
         :return:
@@ -1110,6 +1116,7 @@ class ObservationReport(models.AbstractModel):
         """
         Converts the graph data stored in their respective keys in the report
         data dictionary to JSON encoded strings.
+
         :param report_data:
         :type report_data: dict
         :return:

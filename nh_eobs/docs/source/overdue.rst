@@ -1,14 +1,10 @@
-``Overdue``
-===========
+Overdue Tasks
+=============
 .. automodule:: overdue
 
-``Overdue``
------------
-.. autoclass:: nh_clinical_overdue
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
 
-``Doctor Activities``
----------------------
-.. autoclass:: nh_clinical_doctor_activities
-    :members:
-
+   overdue/*

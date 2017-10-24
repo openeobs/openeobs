@@ -119,7 +119,7 @@ class NhClinicalPatientObservationWeight(models.Model):
         :param weight: Patient weight in kilograms.
         :param height: Patient height in centimetres.
         :return: Patient BMI in kilograms per metre squared to one decimal
-        place.
+            place.
         :rtype: float
         """
         weight = float(weight)

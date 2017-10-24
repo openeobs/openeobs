@@ -1,8 +1,10 @@
-``API``
-=======
+Open-eObs API Wrapper
+=====================
 .. automodule:: api
 
-``API``
--------
-.. autoclass:: nh_eobs_api
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
+
+   api/*

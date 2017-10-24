@@ -52,12 +52,12 @@ class NhClinicalPatientObservationScored(models.AbstractModel):
         observation.
 
         :param obs_data: Observation field values. If an Odoo record is passed
-        then the 'score fields' are looked up for the calculation. If a
-        dictionary of field data is passed, only the fields in the dictionary
-        are used.
+            then the 'score fields' are looked up for the calculation. If a
+            dictionary of field data is passed, only the fields in the
+            dictionary are used.
         :type obs_data: record or dict
         :param return_dictionary: Would you like the score returned in a
-        dictionary?
+            dictionary?
         :type return_dictionary: bool
         :returns: ``score``
         :rtype: dict or int

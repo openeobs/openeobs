@@ -1,13 +1,10 @@
-``Ward Dashboard``
-==================
+Ward Dashboard
+==============
 .. automodule:: ward_dashboard
 
-``Ward Dashboard``
-------------------
-.. autoclass:: nh_eobs_ward_dashboard
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
 
-``Bed Dashboard``
------------------
-.. autoclass:: nh_eobs_bed_dashboard
-    :members:
+   ward_dashboard/*
