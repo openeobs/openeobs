@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Open-eObs Weight Observation documentation build configuration file, created by
-# sphinx-quickstart on Mon Oct 23 17:47:45 2017.
+# Open-eObs Weight Observation documentation build configuration file, created
+# by sphinx-quickstart on Mon Oct 23 17:47:45 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.

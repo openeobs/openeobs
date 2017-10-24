@@ -30,9 +30,11 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
+extensions = [
+    'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
-    'sphinx.ext.viewcode']
+    'sphinx.ext.viewcode'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -143,8 +145,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Open-eObsObservation.tex', u'Open-eObs Observation Documentation',
-     u'NeovaHealth, BJSS', 'manual'),
+    (
+        master_doc,
+        'Open-eObsObservation.tex',
+        u'Open-eObs Observation Documentation',
+        u'NeovaHealth, BJSS',
+        'manual'
+    ),
 ]
 
 
@@ -153,8 +160,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'open-eobsobservation', u'Open-eObs Observation Documentation',
-     [author], 1)
+    (
+        master_doc,
+        'open-eobsobservation',
+        u'Open-eObs Observation Documentation',
+        [author],
+        1
+    )
 ]
 
 
@@ -164,13 +176,16 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Open-eObsObservation', u'Open-eObs Observation Documentation',
-     author, 'Open-eObsObservation', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        'Open-eObsObservation',
+        u'Open-eObs Observation Documentation',
+        author,
+        'Open-eObsObservation',
+        'One line description of project.',
+        'Miscellaneous'
+    ),
 ]
-
-
-
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
