@@ -26,6 +26,7 @@ for Acute and Mental Health hospitals.
    nh_gcs/index
    nh_neurological/index
    nh_neurovascular/index
+   nh_observations/index
 
 Indices and tables
 ==================
