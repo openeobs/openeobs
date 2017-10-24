@@ -50,6 +50,14 @@ extensions = [
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+# For the documentation to compile correctly on ReadTheDocs to compile we
+# need to download the Odoo and NHClinical modules and add them to the path
+# that the Odoo autodoc plugin uses to resolve paths.
+#
+# This is so the web controllers can be documented correctly as they inherit
+# from openerp.addons.web.controllers.main.Home but also anything that uses the
+# validate methods in nh_odoo_fixes.
 sphinxodoo_addons_path = []
 if os.environ.get('READTHEDOCS'):
     sphinxodoo_addons_path.append(repo_path)
@@ -58,6 +66,8 @@ if os.environ.get('READTHEDOCS'):
         'https://github.com/bjss/odoo/archive/odoo-sans-ldap.zip'
     ]
     for archive in addon_archives:
+        # This downloads the zip archive of the addons and adds the extracted
+        # folder to the addons path
         r = requests.get(archive,stream=True)
         z = zipfile.ZipFile(StringIO.StringIO(r.content))
         z.extractall(repo_path)
@@ -83,6 +93,8 @@ if os.environ.get('READTHEDOCS'):
             )
 
 else:
+    # If we're developing locally on the NeovaHealth Vagrant box we'll have
+    # the addons in the following paths
     sphinxodoo_addons_path += [
         '/opt/nh/odoo/addons',
         '/vagrant/data/openeobs',
