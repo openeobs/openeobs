@@ -1,8 +1,5 @@
-``Postural Blood Pressure``
-===========================
+Postural Blood Pressure Observation
+===================================
 .. automodule:: pbp
-
-``Postural Blood Pressure Observation``
----------------------------------------
-.. autoclass:: nh_clinical_patient_observation_pbp
     :members:
+    :undoc-members:

@@ -254,7 +254,8 @@ projects = [
     'nh_gcs',
     'nh_neurological',
     'nh_neurovascular',
-    'nh_observations'
+    'nh_observations',
+    'nh_pbp'
 ]
 for project in projects:
     source = os.path.abspath('../../{}/docs/source/'.format(project))
