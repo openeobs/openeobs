@@ -1,13 +1,10 @@
-``Notifications``
-=================
-.. automodule:: notifications
+Escalation Tasks (Notifications)
+================================
+.. automodule:: nh_ews.notifications
 
-``Patient Assessment``
-----------------------
-.. autoclass:: nh_clinical_notification_assessment
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
 
-``Inform Medical Team``
------------------------
-.. autoclass:: nh_clinical_notification_medical_team
-    :members:
+   notifications/*

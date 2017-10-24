@@ -1,28 +1,10 @@
-``Policy``
-==========
+Hospital Policy
+===============
 .. automodule:: policy
 
-``Placement Policy``
---------------------
-.. autoclass:: nh_clinical_patient_placement
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
 
-``Admission Policy``
---------------------
-.. autoclass:: nh_clinical_patient_admission
-    :members:
-
-``Transfer Policy``
--------------------
-.. autoclass:: nh_clinical_patient_transfer
-    :members:
-
-``ADT Spell Update Policy``
----------------------------
-.. autoclass:: nh_clinical_adt_spell_update
-    :members:
-
-``Discharge Policy``
---------------------
-.. autoclass:: nh_clinical_patient_discharge
-    :members:
+   policy/*

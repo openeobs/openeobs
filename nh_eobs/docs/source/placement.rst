@@ -1,8 +1,10 @@
-``Placement``
-=============
+Patient Placement
+=================
 .. automodule:: placement
 
-``Placement``
--------------
-.. autoclass:: nh_clinical_placement
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
+
+   placement/*

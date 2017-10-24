@@ -161,9 +161,9 @@ class MentalHealthObservationReport(models.AbstractModel):
         :param refusal_episode: Raw data from the database.
         :type refusal_episode: dict
         :param clinical_review_frequency: Indicates whether to create a
-        clinical_review_frequency task or something else. This only works
-        because there is currently only 2 different types of task created by
-        this method.
+            clinical_review_frequency task or something else. This only works
+            because there is currently only 2 different types of task created
+            by this method.
         :type clinical_review_frequency: bool
         :return:
         """

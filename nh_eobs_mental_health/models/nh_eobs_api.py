@@ -58,12 +58,12 @@ class NHeObsAPI(orm.AbstractModel):
         :class:`location<base.nh_clinical_location>`.
 
         - Set transferred patients to not have obs_stop flag set
+
         :param cr: Odoo cursor
         :param uid: User doing the operation
         :param hospital_number: `hospital number` of the patient
         :type hospital_number: str
-        :param data: dictionary parameter that may contain the key
-            ``location``
+        :param data: dictionary parameter that may contain the key ``location``
         :param context: Odoo Context
         :returns: ``True``
         :rtype: bool

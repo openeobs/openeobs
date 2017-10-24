@@ -202,6 +202,7 @@ class nh_eobs_api(orm.AbstractModel):
     def collect_activities(self, cr, uid, domain, context=None):
         """
         Get activities from the database for a given domain
+
         :param cr: odoo cursor
         :param uid: user to perform search as
         :param domain: domain to look for
@@ -953,6 +954,7 @@ class nh_eobs_api(orm.AbstractModel):
         """
         Return the spell activity ID for the patient with the given hospital
         number. Raises an exception if more than one spell is found.
+
         :param hospital_number:
         :type hospital_number: str
         :return:

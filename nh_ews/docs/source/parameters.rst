@@ -1,13 +1,10 @@
-``Parameters``
+EWS Parameters
 ==============
-.. automodule:: parameters
+.. automodule:: nh_ews.parameters
 
-``Patient Oxygen Target``
--------------------------
-.. autoclass:: nh_clinical_patient_o2target
-    :members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
 
-``Oxygen Range``
-----------------
-.. autoclass:: nh_clinical_o2level
-    :members:
+   parameters/*
