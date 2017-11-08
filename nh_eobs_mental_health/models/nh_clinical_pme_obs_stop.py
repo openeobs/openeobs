@@ -135,6 +135,7 @@ class NhClinicalObsStop(models.Model):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
+        datetime_utils_model = self.env['datetime_utils']
 
         activity_obs_stop = self.get_activity()
         activity_spell = self.spell.get_activity()
@@ -144,7 +145,8 @@ class NhClinicalObsStop(models.Model):
              'creator_id': activity_obs_stop.id},
             {'patient_id': activity_spell.patient_id.id}
         )
-        one_hour_time = datetime.now() + timedelta(hours=1)
+        one_hour_time = \
+            datetime_utils_model.get_current_time() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 
         self.force_v7_api(activity_model)

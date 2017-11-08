@@ -52,6 +52,7 @@ class print_observation_report_wizard(osv.TransientModel):
 
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
+        date_utils_pool = self.pool['datetime_utils']
         # get PDF version of the report
         report_pool = self.pool['report']
         report_pdf = report_pool.get_pdf(
@@ -68,8 +69,12 @@ class print_observation_report_wizard(osv.TransientModel):
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
             'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(
-                nhs=patient_nhs, date=datetime.strftime(
-                    datetime.now(), '%Y%m%d')),
+                nhs=patient_nhs,
+                date=datetime.strftime(
+                    date_utils_pool.get_localised_time(),
+                    '%Y%m%d'
+                )
+            ),
             'res_model': 'nh.clinical.observation_report_wizard',
             'res_id': ids[0],
         }

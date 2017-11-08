@@ -61,6 +61,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         res = super(NHClinicalPatientObservationEWS, self).complete(
             cr, uid, activity_id, context=context)
         activity_model = self.pool['nh.activity']
+        datetime_utils_model = self.pool['datetime_utils']
         activity = activity_model.browse(cr, uid, activity_id, context=context)
         ews = activity.data_ref
         patient_spell = activity.spell_activity_id.data_ref
@@ -77,7 +78,9 @@ class NHClinicalPatientObservationEWS(orm.Model):
             higher_risks = ['None', 'Low']
             if patient[0].get('clinical_risk') in higher_risks:
                 days_to_schedule = 7
-            schedule_date = datetime.now() + timedelta(days=days_to_schedule)
+            schedule_date = \
+                datetime_utils_model.get_current_time() + \
+                timedelta(days=days_to_schedule)
             patient_spell.write({'refusing_obs': True})
             cron_model.create(cr, SUPERUSER_ID, {
                 'name': 'Clinical Review Task '
@@ -122,7 +125,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
         """
         clinical_review_model = \
             self.pool['nh.clinical.notification.clinical_review']
-        due_date = datetime.now().strftime(DTF)
+        datetime_utils_model = self.pool['datetime_utils']
+        due_date = datetime_utils_model.get_current_time().strftime(DTF)
         clinical_review_model.create_activity(
             self._cr, SUPERUSER_ID,
             {
