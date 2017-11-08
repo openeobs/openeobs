@@ -1,3 +1,4 @@
+from datetime import datetime
 from openerp.tests.common import TransactionCase
 
 
@@ -19,7 +20,10 @@ class TestGetViewDescription(TransactionCase):
             100, 0, '1988-01-12 12:00:00')
 
         def patch_get_current_time(*args, **kwargs):
-            return '1988-01-12 15:00:00'
+            if kwargs.get('as_string'):
+                return '1988-01-12 15:00:00'
+            else:
+                return datetime(1988, 1, 12, 15, 0, 0)
 
         def patch_get_review_task_summary(*args, **kwargs):
             return 'F&F Test'
