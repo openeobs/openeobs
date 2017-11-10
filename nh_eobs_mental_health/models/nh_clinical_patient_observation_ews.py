@@ -126,7 +126,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         clinical_review_model = \
             self.pool['nh.clinical.notification.clinical_review']
         datetime_utils_model = self.pool['datetime_utils']
-        due_date = datetime_utils_model.get_current_time().strftime(DTF)
+        due_date = datetime_utils_model.get_current_time(as_string=True)
         clinical_review_model.create_activity(
             self._cr, SUPERUSER_ID,
             {
