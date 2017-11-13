@@ -1,7 +1,6 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import base64
 import logging
-from datetime import datetime
 
 from openerp import api
 from openerp.addons.nh_odoo_fixes import validate
