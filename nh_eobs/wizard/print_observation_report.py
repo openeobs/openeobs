@@ -46,13 +46,31 @@ class print_observation_report_wizard(osv.TransientModel):
                 self.start_time, self.end_time
             )
 
+    def get_filename(self, patient_identifier):
+        """
+        Get the date the report was printed and combine that with the supplied
+        patient identifier to create the filename for the report
+
+        :param patient_identifier: string representing the Patient's identifier
+             - Most likely to be the NHS Number
+        :return: filename for the report
+        :rtype: str
+        """
+        datetime_utils_pool = self.env['datetime_utils']
+        return '{patient_identifier}_{date}_observation_report.pdf'.format(
+            patient_identifier=patient_identifier,
+            date=datetime_utils_pool.get_localised_time(
+                return_string=True,
+                return_string_format='%Y%m%d'
+            )
+        )
+
     def print_report(self, cr, uid, ids, context=None):
         data = self.browse(cr, uid, ids[0], context)
         data.spell_id = context['active_id']
-
         spell_pool = self.pool['nh.clinical.spell']
         patient_pool = self.pool['nh.clinical.patient']
-        datetime_utils_pool = self.pool['datetime_utils']
+
         # get PDF version of the report
         report_pool = self.pool['report']
         report_pdf = report_pool.get_pdf(
@@ -68,13 +86,7 @@ class print_observation_report_wizard(osv.TransientModel):
         attachment = {
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
-            'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(
-                nhs=patient_nhs,
-                date=datetime.strftime(
-                    datetime_utils_pool.get_localised_time(),
-                    '%Y%m%d'
-                )
-            ),
+            'datas_fname': self.get_filename(patient_nhs),
             'res_model': 'nh.clinical.observation_report_wizard',
             'res_id': ids[0],
         }
