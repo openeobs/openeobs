@@ -9,7 +9,7 @@
     'description': """    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
-    'depends': ['nh_eobs', 'board', 'web_graph'],
+    'depends': ['nh_eobs_mental_health', 'board', 'web_graph'],
     'data': [
         'views/news.xml',
         'views/dashboard.xml',

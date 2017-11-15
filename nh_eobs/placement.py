@@ -62,6 +62,7 @@ class nh_clinical_placement(orm.Model):
         Extends :meth:`complete()<activity.nh_activity.complete>` to
         place a :class:`patient<base.nh_clinical_patient>` in a bed
         :class:`location<base.nh_clinical_location>`.
+
         :param ids: ids of placement
         :type ids: list
         :returns: an action to present a form view of

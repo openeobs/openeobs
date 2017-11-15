@@ -26,7 +26,7 @@ class nh_clinical_api_extension(orm.AbstractModel):
         task to update the frequency of the specified activity type.
 
         The update of the frequency also triggers an update of the
-        `date_scheduled`. See :method:`nh_observations.observations
+        `date_scheduled`. See `nh_observations.observations
         .nh_clinical_patient_observation.write`.
 
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id.

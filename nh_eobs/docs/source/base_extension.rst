@@ -1,9 +1,10 @@
-``Base Extension``
-==================
+Base Extension
+==============
 .. automodule:: base_extension
 
-``UI Location``
----------------
-.. autoclass:: nh_ui_location
-    :members:
-    :private-members:
+.. toctree::
+   :maxdepth: 2
+   :caption: Classes
+   :glob:
+
+   base_extension/*
