@@ -72,3 +72,9 @@ class TestPlacement(TransactionCase):
         self.assertEqual(len(open_obs_activities), 1)
         open_obs_activity = open_obs_activities[0]
         self.assertEqual(open_obs_activity.data_ref.frequency, 15)
+
+    def test_new_obs_due_in_n_minutes_defined_in_config(self):
+        pass
+
+    def test_new_obs_due_in_n_minutes_defined_in_config_after_transfer(self):
+        pass
