@@ -5,7 +5,8 @@ from datetime import datetime, timedelta
 from openerp import models, fields, SUPERUSER_ID, api
 from openerp.addons.nh_observations import fields as obs_fields
 from openerp.addons.nh_odoo_fixes import validate
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as datetime
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
+import pytz
 
 
 class NhClinicalPatientObservationWeight(models.Model):
@@ -131,8 +132,65 @@ class NhClinicalPatientObservationWeight(models.Model):
         bmi = weight / height / height
         return bmi
 
-    def schedule(self, cr, uid, activity_id, date_scheduled=None,
-                 context=None):
+    @staticmethod
+    def convert_times_to_utc(times):
+        """
+        Convert a list of datetimes into UTC via fields.Datetime.utc_timestamp
+
+        :param times: list of datetimes
+        :return: list of datetimes in UTC
+        """
+        utc_times = []
+        for schedule_time in times:
+            utc_times.append(pytz.utc.localize(schedule_time, is_dst=False))
+        return utctimes
+
+    def get_next_scheduled_time(self, scheduled_times):
+        """
+        Get the next time to schedule an observation for based on the supplied
+        scheduled times
+
+        :param scheduled_times: list of times to schedule observations for
+        :return: schedule date for observation
+        :rtype: str
+        """
+        datetime_utils_model = self.env['datetime_utils']
+        hour = timedelta(hours=1)
+        date_schedule = \
+            datetime_utils_model \
+            .get_current_time() \
+            .replace(
+                minute=0,
+                second=0,
+                microsecond=0
+            ) + timedelta(hours=2)
+        utctimes = self.convert_times_to_utc(scheduled_times)
+        while all([date_schedule.hour != ut.hour for ut in utctimes]):
+            date_schedule += hour
+        return date_schedule.strftime(DTF)
+
+    def get_schedule_times_from_policy(self):
+        """
+        Test get the list of schedule times from the policy
+        :return: list of schedule times
+        """
+        datetime_utils_model = self.env['datetime_utils']
+        schedule_times = []
+        for schedule_time in self._POLICY['schedule']:
+            schedule_times.append(
+                datetime_utils_model
+                    .get_current_time()
+                    .replace(
+                    hour=schedule_time[0],
+                    minute=schedule_time[1],
+                    second=0,
+                    microsecond=0
+                )
+            )
+        return schedule_times
+
+    @api.model
+    def schedule(self, activity_id, date_scheduled=None):
         """
         If a specific ``date_scheduled`` parameter is not specified.
         The `_POLICY['schedule']` dictionary value will be used to find
@@ -144,24 +202,11 @@ class NhClinicalPatientObservationWeight(models.Model):
         :returns: ``True``
         :rtype: bool
         """
-        datetime_utils_model = self.pool['datetime_utils']
         if not date_scheduled:
-            hour = timedelta(hours=1)
-            schedule_times = []
-            for s in self._POLICY['schedule']:
-                schedule_times.append(
-                    datetime_utils_model.get_current_time().replace(
-                        hour=s[0], minute=s[1], second=0, microsecond=0))
-            date_schedule = datetime_utils_model.get_current_time().replace(
-                minute=0, second=0, microsecond=0) + timedelta(hours=2)
-            utctimes = [fields.Datetime.utc_timestamp(
-                cr, uid, t, context=context) for t in schedule_times]
-            while all([date_schedule.hour != date_schedule.strptime(
-                    ut, datetime).hour for ut in utctimes]):
-                date_schedule += hour
-            date_scheduled = date_schedule.strftime(datetime)
+            schedule_times = self.get_schedule_times_from_policy()
+            date_scheduled = self.get_next_scheduled_time(schedule_times)
         return super(NhClinicalPatientObservationWeight, self).schedule(
-            cr, uid, activity_id, date_scheduled, context=context)
+            activity_id, date_scheduled)
 
     def complete(self, cr, uid, activity_id, context=None):
         """
