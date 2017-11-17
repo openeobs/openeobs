@@ -4,7 +4,7 @@ from openerp.tests.common import TransactionCase
 
 class TestNhClnicalFrquenciesFields(TransactionCase):
     def setUp(self):
-        pass
+        super(TestNhClnicalFrquenciesFields, self).setUp()
 
     def test_has_low_risk_field(self):
         pass

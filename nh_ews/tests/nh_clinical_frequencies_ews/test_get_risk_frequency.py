@@ -4,7 +4,7 @@ from openerp.tests.common import TransactionCase
 
 class TestGetRiskFrequency(TransactionCase):
     def setUp(self):
-        pass
+        super(TestGetRiskFrequency, self).setUp()
 
     def test_gets_field_based_on_naming_convention(self):
         pass
