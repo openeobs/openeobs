@@ -34,7 +34,8 @@ class NhClinicalFrequenciesEws(TransientModel):
 
     @api.constrains('no_risk', 'low_risk', 'medium_risk', 'high_risk')
     def _in_min_max_range(self):
-        validate.in_min_max_range(5, 10, self.no_risk)
+        validate.fields_in_min_max_range(
+            self, ['no_risk', 'low_risk', 'medium_risk', 'high_risk'])
 
     @api.multi
     def set_params(self):
