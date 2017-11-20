@@ -1,0 +1,1 @@
+from . import nh_clinical_frequency_ews_settings
