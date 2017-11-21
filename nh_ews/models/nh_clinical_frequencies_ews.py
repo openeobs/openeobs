@@ -27,6 +27,10 @@ class NhClinicalFrequenciesEws(AbstractModel):
             parameter_name = string.format(*args)
         else:
             parameter_name = string
-        frequency = config_model.get_param(parameter_name)
+        frequency = config_model.get_param(parameter_name, default=None)
+        if frequency is None:
+            raise ValueError("No parameter with name '{}' exists. "
+                             "Ensure it has been set via the UI "
+                             "or data XML.".format(parameter_name))
         frequency = int(frequency)
         return frequency
