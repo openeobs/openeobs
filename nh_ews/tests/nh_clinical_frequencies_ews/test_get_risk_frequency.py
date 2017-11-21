@@ -2,9 +2,9 @@
 from openerp.tests.common import TransactionCase
 
 
-class TestGetFrequency(TransactionCase):
+class TestGetRiskFrequency(TransactionCase):
     def setUp(self):
-        super(TestGetFrequency, self).setUp()
+        super(TestGetRiskFrequency, self).setUp()
         self.frequencies_model = self.env['nh.clinical.frequencies.ews']
         self.config_model = self.env['ir.config_parameter']
 
