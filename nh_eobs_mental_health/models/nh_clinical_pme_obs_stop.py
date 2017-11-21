@@ -139,7 +139,7 @@ class NhClinicalObsStop(models.Model):
         activity_obs_stop = self.get_activity()
         activity_spell = self.spell.get_activity()
 
-        new_ews_id = ews_model.create_activity(
+        new_ews_activity_id = ews_model.create_activity(
             {'parent_id': activity_spell.id,
              'creator_id': activity_obs_stop.id},
             {'patient_id': activity_spell.patient_id.id}
@@ -149,12 +149,17 @@ class NhClinicalObsStop(models.Model):
 
         self.force_v7_api(activity_model)
 
-        activity_model.schedule(self.env.cr, self.env.uid, new_ews_id,
+        activity_model.schedule(self.env.cr, self.env.uid, new_ews_activity_id,
                                 date_scheduled=one_hour_time_str)
         patient_id = activity_spell.patient_id.id
+
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        obs_restart_frequency = frequencies_model.get_obs_restart_frequency()
+
         api_model.change_activity_frequency(
-            patient_id, 'nh.clinical.patient.observation.ews', 60)
-        return new_ews_id
+            patient_id, 'nh.clinical.patient.observation.ews',
+            obs_restart_frequency)
+        return new_ews_activity_id
 
     # TODO Refactor the activity method decorator and remove this method.
     @classmethod
