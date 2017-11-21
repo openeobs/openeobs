@@ -40,16 +40,6 @@ class TestSetParams(TransactionCase):
         settings.set_params()
         return settings
 
-    def test_execute_creates_parameters_for_each_field(self):
-        number_of_parameters = self.config_parameters_model.search_count([])
-        number_of_fields = 14
-
-        self.call_test()
-
-        expected = number_of_parameters + number_of_fields
-        actual = self.config_parameters_model.search_count([])
-        self.assertEqual(expected, actual)
-
     def test_execute_updates_existing_parameters(self):
         settings = self.call_test(values=8)
         expected_param_values = [str(field_value) for field_value

@@ -56,7 +56,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case 3: high clinical risk
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123',
-               'frequencies': [720, 240, 60, 30],
+               'frequencies': [],  # To be populated by `init`.
                'notifications': [
                    [],
                    [{'model': 'assessment', 'groups': ['nurse', 'hca']},
@@ -83,6 +83,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
                      'summary': 'Informed about patient status (NEWS)',
                      'groups': ['hca']}]],
                'risk': ['None', 'Low', 'Medium', 'High']}
+
+    def init(self, cr):
+        self.set_risk_frequencies(cr, 1)
+
+    @api.model
+    def set_risk_frequencies(self):
+        frequencies = []
+        frequency_model = self.env['nh.clinical.frequencies.ews']
+        risks = ['no', 'low', 'medium', 'high']
+        for risk in risks:
+            frequency = frequency_model.get_risk_frequency(risk)
+            frequencies.append(frequency)
+        self._POLICY['frequencies'] = frequencies
 
     def convert_case_to_risk(self, case):
         return self._POLICY['risk'][case]
@@ -579,8 +592,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         }
     ]
 
+    @api.model
+    def _get_default_frequency(self):
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        frequency = frequencies_model.get_placement_frequency()
+        return frequency
+
     _defaults = {
-        'frequency': 15
+        'frequency': _get_default_frequency
     }
 
     _order = "order_by desc, id desc"

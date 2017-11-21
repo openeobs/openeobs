@@ -24,6 +24,7 @@ class TestPlacement(TransactionCase):
         ]
         self.activity_model = self.env['nh.activity']
         self.api_model = self.env['nh.eobs.api']
+        self.config_model = self.env['ir.config_parameter']
 
     def test_new_obs_created(self):
         # Only cancel when transfer successful.
@@ -35,15 +36,23 @@ class TestPlacement(TransactionCase):
         open_obs_activities = self.activity_model.search(self.domain)
         self.assertEqual(len(open_obs_activities), 1)
 
-    def test_new_obs_due_in_15_minutes(self):
+    def test_new_obs_due_in_n_minutes_defined_in_config(self):
+        expected_frequency = 30
+        self.config_model.set_param('placement', expected_frequency)
+
         self.test_utils_model.place_patient()
 
         open_obs_activities = self.activity_model.search(self.domain)
         self.assertEqual(len(open_obs_activities), 1)
         open_obs_activity = open_obs_activities[0]
-        self.assertEqual(open_obs_activity.data_ref.frequency, 15)
 
-    def test_new_obs_due_in_15_minutes_after_transfer(self):
+        self.assertEqual(open_obs_activity.data_ref.frequency,
+                         expected_frequency)
+
+    def test_new_obs_due_in_n_minutes_defined_in_config_after_transfer(self):
+        expected_frequency = 60
+        self.config_model.set_param('placement', expected_frequency)
+
         self.test_utils_model.place_patient()
         # open_obs_activities = self.activity_model.search(self.domain)
         # first_obs_after_placement = open_obs_activities[0]
@@ -71,10 +80,6 @@ class TestPlacement(TransactionCase):
         open_obs_activities = self.activity_model.search(self.domain)
         self.assertEqual(len(open_obs_activities), 1)
         open_obs_activity = open_obs_activities[0]
-        self.assertEqual(open_obs_activity.data_ref.frequency, 15)
 
-    def test_new_obs_due_in_n_minutes_defined_in_config(self):
-        pass
-
-    def test_new_obs_due_in_n_minutes_defined_in_config_after_transfer(self):
-        pass
+        self.assertEqual(open_obs_activity.data_ref.frequency,
+                         expected_frequency)
