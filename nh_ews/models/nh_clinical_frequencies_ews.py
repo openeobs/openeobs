@@ -3,7 +3,9 @@ from openerp.models import AbstractModel
 
 
 class NhClinicalFrequenciesEws(AbstractModel):
-
+    """
+    If you need to know what a new frequency is, this model is the place.
+    """
     _name = 'nh.clinical.frequencies.ews'
 
     def get_minimum_frequency(self, clinical_risk):
