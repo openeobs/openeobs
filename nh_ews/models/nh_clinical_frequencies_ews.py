@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from openerp import api
 from openerp.models import AbstractModel
 
 
@@ -14,7 +15,14 @@ class NhClinicalFrequenciesEws(AbstractModel):
     def get_maximum_frequency(self, clinical_risk):
         return self._get_param('{}_risk_maximum', clinical_risk)
 
+    @api.model
     def get_risk_frequency(self, clinical_risk):
+        if isinstance(clinical_risk, int):
+            ews_model = self.env['nh.clinical.patient.observation.ews']
+            case = clinical_risk
+            clinical_risk = ews_model.convert_case_to_risk(case).lower()
+            if clinical_risk == 'none':
+                clinical_risk = 'no'
         return self._get_param('{}_risk', clinical_risk)
 
     def get_placement_frequency(self):

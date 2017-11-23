@@ -13,9 +13,10 @@ their static nature would allow them to be fields instead. The last
 completed one would represent the current status regarding that specific
 parameter.
 """
-from openerp.osv import orm, fields
 import logging
 from datetime import datetime as dt, timedelta as td
+
+from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
 _logger = logging.getLogger(__name__)
@@ -137,8 +138,11 @@ class nh_clinical_patient_post_surgery(orm.Model):
         if activity.data_ref.status:
             current_case = ews_pool.get_last_case(
                 cr, uid, activity.data_ref.patient_id.id, context=context)
-            current_freq = ews_pool._POLICY['frequencies'][current_case] \
-                if isinstance(current_case, int) else 0
+            frequencies_pool = self.pool['nh.clinical.frequencies.ews']
+            frequency = \
+                frequencies_pool.get_risk_frequency(cr, uid, current_case)
+            current_freq = frequency if isinstance(current_case, int) else 0
+
             if current_freq > self._ews_frequency:
                 api_pool.change_activity_frequency(
                     cr, uid, activity.data_ref.patient_id.id,
@@ -227,8 +231,11 @@ class nh_clinical_patient_critical_care(orm.Model):
         if activity.data_ref.status:
             current_case = ews_pool.get_last_case(
                 cr, uid, activity.data_ref.patient_id.id, context=context)
-            current_freq = ews_pool._POLICY['frequencies'][current_case] \
-                if isinstance(current_case, int) else 0
+            frequencies_pool = self.pool['nh.clinical.frequencies.ews']
+            frequency = \
+                frequencies_pool.get_risk_frequency(cr, uid, current_case)
+            current_freq = frequency if isinstance(current_case, int) else 0
+
             if current_freq > self._ews_frequency:
                 api_pool.change_activity_frequency(
                     cr, uid, activity.data_ref.patient_id.id,
