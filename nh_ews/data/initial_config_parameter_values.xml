@@ -5,16 +5,16 @@
             <field name="low_risk_minimum">1</field>
             <field name="medium_risk_minimum">1</field>
             <field name="high_risk_minimum">1</field>
-            <field name="no_risk_maximum">1000</field>
-            <field name="low_risk_maximum">333</field>
-            <field name="medium_risk_maximum">100</field>
-            <field name="high_risk_maximum">50</field>
-            <field name="no_risk">720</field>
-            <field name="low_risk">240</field>
+            <field name="no_risk_maximum">1440</field>
+            <field name="low_risk_maximum">360</field>
+            <field name="medium_risk_maximum">60</field>
+            <field name="high_risk_maximum">5</field>
+            <field name="no_risk">1440</field>
+            <field name="low_risk">360</field>
             <field name="medium_risk">60</field>
-            <field name="high_risk">30</field>
-            <field name="placement">15</field>
-            <field name="obs_restart">60</field>
+            <field name="high_risk">5</field>
+            <field name="placement">360</field>
+            <field name="obs_restart">1440</field>
         </record>
         <function model="nh.clinical.frequencies.ews_settings" name="execute">
             <value eval="[ref('initial_config_parameter_values')]"/>
