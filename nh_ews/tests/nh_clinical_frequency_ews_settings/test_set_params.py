@@ -1,10 +1,20 @@
 # -*- coding: utf-8 -*-
-from openerp.exceptions import ValidationError
+"""
+Module containing the TestSetParams class.
+"""
+from openerp.exceptions import ValidationError, AccessError
 from openerp.tests.common import TransactionCase
 
 
 class TestSetParams(TransactionCase):
+    """
+    Test the `set_params` method of the `nh.clinical.frequencies.ews_settings`
+    model.
+    """
     def setUp(self):
+        """
+        Setup the test environment.
+        """
         super(TestSetParams, self).setUp()
         self.settings_model = self.env['nh.clinical.frequencies.ews_settings']
         self.config_parameters_model = self.env['ir.config_parameter']
@@ -27,6 +37,25 @@ class TestSetParams(TransactionCase):
         ]
 
     def call_test(self, values=8, minimum=5, maximum=10):
+        """
+        Call the method under test.
+        :param values:
+        :param minimum:
+        :param maximum:
+        """
+        self._set_field_dict(values, minimum, maximum)
+        settings = self.settings_model.create(self.fields_dict)
+        settings.set_params()
+        return settings
+
+    def _set_field_dict(self, values, minimum, maximum):
+        """
+        Set a dictionary of values to be used to set the values of the fields
+        of the
+        :param values:
+        :param minimum:
+        :param maximum:
+        """
         self.fields_dict = {
             field_name: values for field_name in self.field_names
         }
@@ -35,10 +64,6 @@ class TestSetParams(TransactionCase):
                 self.fields_dict[field_name] = minimum
             elif 'maximum' in field_name:
                 self.fields_dict[field_name] = maximum
-
-        settings = self.settings_model.create(self.fields_dict)
-        settings.set_params()
-        return settings
 
     def test_execute_updates_existing_parameters(self):
         settings = self.call_test(values=8)
@@ -68,3 +93,22 @@ class TestSetParams(TransactionCase):
 
     def test_does_not_raise_if_field_value_is_maximum(self):
         self.call_test(values=10)
+
+    def test_does_not_raise_if_called_by_admin(self):
+        """
+        No exception is raised if method is called by admin.
+        """
+        self.call_test()
+
+    def test_raises_if_called_by_system_admin(self):
+        """
+        Check that a system admin cannot set the params.
+        """
+        self._set_field_dict(8, 5, 10)
+        test_utils = self.env['nh.clinical.test_utils']
+        test_utils.create_locations()
+        test_utils.create_system_admin()
+        settings = self.settings_model.sudo(test_utils.system_admin).create(
+            self.fields_dict)
+        with self.assertRaises(AccessError):
+            settings.sudo(test_utils.system_admin).set_params()

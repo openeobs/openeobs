@@ -1,10 +1,10 @@
 <openerp>
     <data noupdate="1">
         <record id="initial_config_parameter_values" model="nh.clinical.frequencies.ews_settings">
-            <field name="no_risk_minimum">1</field>
-            <field name="low_risk_minimum">1</field>
-            <field name="medium_risk_minimum">1</field>
-            <field name="high_risk_minimum">1</field>
+            <field name="no_risk_minimum">720</field>
+            <field name="low_risk_minimum">360</field>
+            <field name="medium_risk_minimum">60</field>
+            <field name="high_risk_minimum">30</field>
             <field name="no_risk_maximum">720</field>
             <field name="low_risk_maximum">360</field>
             <field name="medium_risk_maximum">60</field>
