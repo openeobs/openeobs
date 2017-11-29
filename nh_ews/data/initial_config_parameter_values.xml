@@ -4,15 +4,15 @@
             <field name="no_risk_minimum">720</field>
             <field name="low_risk_minimum">360</field>
             <field name="medium_risk_minimum">60</field>
-            <field name="high_risk_minimum">30</field>
+            <field name="high_risk_minimum">10</field>
             <field name="no_risk_maximum">720</field>
             <field name="low_risk_maximum">360</field>
             <field name="medium_risk_maximum">60</field>
-            <field name="high_risk_maximum">30</field>
+            <field name="high_risk_maximum">10</field>
             <field name="no_risk">720</field>
             <field name="low_risk">360</field>
             <field name="medium_risk">60</field>
-            <field name="high_risk">30</field>
+            <field name="high_risk">10</field>
             <field name="placement">15</field>
             <field name="obs_restart">60</field>
         </record>
