@@ -1,9 +1,9 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp.exceptions import AccessError
 from openerp.exceptions import except_orm
 from openerp.osv import orm
 from openerp.osv import fields
 from openerp.osv import osv
+from openerp import api
 import logging
 import base64
 import os
@@ -12,96 +12,32 @@ import errno
 _logger = logging.getLogger(__name__)
 
 
-class NHClinicalBackupSpellFlag(orm.Model):
-    _name = 'nh.clinical.spell'
-    _inherit = 'nh.clinical.spell'
-
-    _columns = {
-        'report_printed': fields.boolean('Has the report been printed?')
-    }
-
-    _defaults = {
-        'report_printed': False
-    }
-
-
-class NHClinicalObservationCompleteOverride(orm.AbstractModel):
-    _inherit = 'nh.clinical.patient.observation.ews'
-
-    def complete(self, cr, uid, activity_id, context=None):
-        res = super(NHClinicalObservationCompleteOverride, self)\
-            .complete(cr, uid, activity_id, context=context)
-        activity_pool = self.pool['nh.activity']
-        activity = activity_pool.browse(cr, uid, activity_id, context)
-        patient_id = activity.data_ref.patient_id.id
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_id = spell_pool.get_by_patient_id(
-            cr, uid, patient_id, context=context)
-        spell_pool.write(cr, uid, spell_id, {'report_printed': False})
-        return res
-
-
-class NHClinicalObservationBackupSettings(osv.TransientModel):
-    _inherit = 'base.config.settings'
-    _name = 'base.config.settings'
-    _columns = {
-        'locations_to_print': fields.many2many(
-            'nh.clinical.location',
-            domain=[['usage', '=', 'ward']],
-            string='Locations to print backup observation reports for'
-        )
-    }
-
-    def set_locations(self, cr, uid, ids, context=None):
-        loc_pool = self.pool.get('nh.clinical.location')
-        record = self.browse(cr, uid, ids[0], context=context)
-        loc_ids = [l.id for l in record.locations_to_print]
-        locs = loc_pool.search(
-            cr,
-            uid,
-            [
-                ['usage', '=', 'ward'],
-                ['backup_observations', '=', True],
-                ['id', 'not in', loc_ids]
-            ]
-        )
-        loc_pool.write(cr, uid, locs, {'backup_observations': False})
-        return loc_pool.write(cr, uid, loc_ids, {'backup_observations': True})
-
-    def get_default_all(self, cr, uid, ids, context=None):
-        loc_pool = self.pool.get('nh.clinical.location')
-        locs = loc_pool.search(
-            cr, uid,
-            [
-                ['usage', '=', 'ward'],
-                ['backup_observations', '=', True]
-            ]
-        )
-        return dict(locations_to_print=locs)
-
-
-class NHClinicalObservationBackupLocation(orm.Model):
-    _inherit = 'nh.clinical.location'
-    _name = 'nh.clinical.location'
-    _columns = {
-        'backup_observations': fields.boolean(
-            'Backup observations for this location'
-        )
-    }
-
-    _defaults = {
-        'backup_observations': False
-    }
-
-
 class NHClinicalObservationReportPrinting(orm.Model):
+    """
+    Add functionality for printing report and saving it to database and/or
+    file system
+    """
     _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
     def add_report_to_database(
             self, cr, uid, report_name,
-            report_datas, report_filename, report_model, report_id
+            report_datas, report_filename, report_model, report_id,
+            context=None
     ):
+        """
+        Add the report to the database as an ir.attachment. The report PDF
+        will be transformed into base64 before saving it.
+
+        :param cr: Odoo cursor
+        :param uid: User ID
+        :param report_name: Name for the attachment
+        :param report_datas: Base64 version of the Report
+        :param report_filename: Filename for the report
+        :param report_model: Odoo model the report is for
+        :param report_id: ID of the report
+        :return: ID from saving to database
+        """
         attachment_id = None
         attachment = {
             'name': report_name,
@@ -112,21 +48,30 @@ class NHClinicalObservationReportPrinting(orm.Model):
         }
         try:
             attachment_id = self.pool['ir.attachment'].create(
-                cr, uid, attachment)
+                cr, uid, attachment, context=context)
+            _logger.info(
+                'The PDF document %s is now saved in the database',
+                attachment['name']
+            )
         except AccessError:
             _logger.warning(
                 'Cannot save PDF report %r as attachment',
                 attachment['name']
             )
-        else:
-            _logger.info(
-                'The PDF document %s is now saved in the database',
-                attachment['name']
-            )
+
         return attachment_id
 
     def add_report_to_backup_location(
             self, backup_location_path, report_data, report_filename):
+        """
+        Save the report to the file system.
+
+        :param backup_location_path: Location to save the report in the
+            file system
+        :param report_data: PDF data to save to file
+        :param report_filename: Name of the file to save
+        :return: True
+        """
         if not os.path.exists(backup_location_path):
             try:
                 os.makedirs(backup_location_path)
@@ -150,7 +95,20 @@ class NHClinicalObservationReportPrinting(orm.Model):
             _logger.info('Report file written to {0}'.format(path))
         return True
 
-    def print_report(self, cr, uid, spell_id=None, context=None):
+    @api.model
+    def print_report(self, spell_id=None):
+        """
+        'Print' the report by getting the PDF data for the rendered Report
+        HTML. This is then saved to the database and the filesystem
+
+        This method is called via a ir.cron entry which prints the reports that
+        need printing every 10 minutes.
+
+        :param spell_id: ID of the spell to print. If no spell ID is passed
+            a list of spells that need printing will be collected and each one
+            printed
+        :return: True
+        """
         # Get spell ids for reports to be printed
         spell_pool = self.pool['nh.clinical.spell']
         loc_pool = self.pool['nh.clinical.location']
@@ -160,14 +118,14 @@ class NHClinicalObservationReportPrinting(orm.Model):
             spell_ids.append(spell_id)
         else:
             loc_ids = loc_pool.search(
-                cr, uid,
+                self._cr, self._uid,
                 [
                     ['usage', '=', 'ward'],
                     ['backup_observations', '=', True]
                 ]
             )
             spell_ids = spell_pool.search(
-                cr, uid,
+                self._cr, self._uid,
                 [
                     ['report_printed', '=', False],
                     ['state', 'not in', ['completed', 'cancelled']],
@@ -183,35 +141,36 @@ class NHClinicalObservationReportPrinting(orm.Model):
             obs_report_wizard_pool = \
                 self.pool['nh.clinical.observation_report_wizard']
             obs_report_wizard_id = obs_report_wizard_pool.create(
-                cr, uid, {
+                self._cr, self._uid, {
                     'start_time': None,
                     'end_time': None
                 }
             )
-            data = obs_report_wizard_pool.read(cr, uid, obs_report_wizard_id)
+            data = obs_report_wizard_pool.read(
+                self._cr, self._uid, obs_report_wizard_id)
             data['spell_id'] = spell
             data['ews_only'] = True
 
             # Render the HTML for the report
-            report_html = obs_report_pool.render_html(cr, uid,
+            report_html = obs_report_pool.render_html(self._cr, self._uid,
                                                       obs_report_wizard_id,
                                                       data=data,
-                                                      context=context)
+                                                      context=self._context)
 
             # Create PDF from HTML
             try:
                 report_pdf = report_pool.get_pdf(
-                    cr, uid, [obs_report_wizard_id],
+                    self._cr, self._uid, [obs_report_wizard_id],
                     'nh.clinical.observation_report',
                     html=report_html,
-                    data=data, context=context
+                    data=data, context=self._context
                 )
 
                 # file name in ward_surname_nhsnumber format
-                spell_obj = spell_pool.read(cr, uid, spell)
+                spell_obj = spell_pool.read(self._cr, self._uid, spell)
                 patient_id = spell_obj['patient_id'][0]
                 patient = self.pool['nh.clinical.patient'].read(
-                    cr, uid,
+                    self._cr, self._uid,
                     patient_id,
                     [
                         'patient_identifier',
@@ -231,16 +190,16 @@ class NHClinicalObservationReportPrinting(orm.Model):
                 if ward_id:
                     loc_pool = self.pool['nh.clinical.location']
                     ward_usage = loc_pool.read(
-                        cr, uid,
+                        self._cr, self._uid,
                         ward_id,
                         ['usage', 'display_name']
                     )
                     if ward_usage['usage'] != 'ward':
                         ward_ward = loc_pool.get_closest_parent_id(
-                            cr, uid, ward_id, 'ward')
+                            self._cr, self._uid, ward_id, 'ward')
                         if ward_ward:
                             ward = loc_pool.read(
-                                cr, uid, ward_ward,
+                                self._cr, self._uid, ward_ward,
                                 ['display_name']
                             )['display_name'].replace(' ', '')
                     else:
@@ -255,7 +214,6 @@ class NHClinicalObservationReportPrinting(orm.Model):
                 )
                 # Save to database
                 db = self.add_report_to_database(
-                    cr, uid,
                     'nh.clinical.observation_report',
                     report_pdf,
                     file_name,
@@ -267,7 +225,7 @@ class NHClinicalObservationReportPrinting(orm.Model):
                                                         file_name)
                 if db and fs:
                     self.pool['nh.clinical.spell'].write(
-                        cr, uid, spell, {'report_printed': True})
+                        self._cr, self._uid, spell, {'report_printed': True})
             except except_orm:
                 pass
         return True
