@@ -1,5 +1,4 @@
 from openerp.osv import orm
-from openerp import api
 
 
 class NHClinicalObservationCompleteOverride(orm.AbstractModel):

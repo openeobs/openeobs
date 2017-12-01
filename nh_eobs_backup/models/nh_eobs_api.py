@@ -1,13 +1,10 @@
 from openerp.exceptions import AccessError
 from openerp.exceptions import except_orm
 from openerp.osv import orm
-from openerp.osv import fields
-from openerp.osv import osv
 from openerp import api
 import logging
 import base64
 import os
-import errno
 import re
 
 _logger = logging.getLogger(__name__)
