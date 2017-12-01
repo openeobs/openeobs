@@ -8,6 +8,7 @@ import logging
 import base64
 import os
 import errno
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -70,7 +71,9 @@ class NHClinicalObservationReportPrinting(orm.Model):
             file system
         :param report_data: PDF data to save to file
         :param report_filename: Name of the file to save
-        :return: True
+        :return: True if successful, False if error due to issues creating
+            backup directory
+        :rtype: bool
         """
         if not os.path.exists(backup_location_path):
             try:
@@ -80,12 +83,8 @@ class NHClinicalObservationReportPrinting(orm.Model):
                         backup_location_path
                     )
                 )
-            except OSError as exc:
-                if exc.errno == errno.EEXIST and os.path.isdir(
-                        backup_location_path):
-                    pass
-                else:
-                    return False
+            except OSError:
+                return False
         path = '{backup_location_path}/{report_filename}.pdf'.format(
             backup_location_path=backup_location_path,
             report_filename=report_filename
@@ -94,6 +93,144 @@ class NHClinicalObservationReportPrinting(orm.Model):
             file.write(report_data)
             _logger.info('Report file written to {0}'.format(path))
         return True
+
+    def get_spells(self, spell_id=None):
+        """
+        Get the spells that need printing
+
+        :param spell_id: A spell ID or none
+        :return: list of spell_ids to print
+        """
+        if spell_id:
+            if isinstance(spell_id, list):
+                return spell_id
+            return [spell_id]
+        else:
+            spell_pool = self.pool['nh.clinical.spell']
+            loc_pool = self.pool['nh.clinical.location']
+            loc_ids = loc_pool.search(
+                self._cr, self._uid,
+                [
+                    ['usage', '=', 'ward'],
+                    ['backup_observations', '=', True]
+                ]
+            )
+            return spell_pool.search(
+                self._cr, self._uid,
+                [
+                    ['report_printed', '=', False],
+                    ['state', 'not in', ['completed', 'cancelled']],
+                    ['location_id', 'child_of', loc_ids]
+                ]
+            )
+
+    def get_report(self, spell_id=None):
+        """
+        Get the PDF data of the report for the supplied spell_id
+
+        :param spell_id: ID of the spell to print
+        :return: tuple of wizard ID and string representation of PDF file
+        """
+        if not spell_id:
+            return False
+        report_pool = self.pool['report']
+        obs_report_pool = self.pool['report.nh.clinical.observation_report']
+        obs_report_wizard_pool = \
+            self.pool['nh.clinical.observation_report_wizard']
+        obs_report_wizard_id = obs_report_wizard_pool.create(
+            self._cr,
+            self._uid,
+            {
+                'start_time': None,
+                'end_time': None
+            }
+        )
+        data = obs_report_wizard_pool.read(
+            self._cr,
+            self._uid,
+            obs_report_wizard_id
+        )
+        data['spell_id'] = spell_id
+        data['ews_only'] = True
+        report_html = obs_report_pool.render_html(
+            self._cr,
+            self._uid,
+            obs_report_wizard_id,
+            data=data,
+            context=self._context
+        )
+        try:
+            return (
+                obs_report_wizard_id,
+                report_pool.get_pdf(
+                    self._cr,
+                    self._uid,
+                    [obs_report_wizard_id],
+                    'nh.clinical.observation_report',
+                    html=report_html,
+                    data=data,
+                    context=self._context
+                )
+            )
+        except except_orm:
+            return False
+
+    def get_filename(self, spell_id=None):
+        """
+        Get the filename to save the report under this follows the
+
+        ward_patientSurname_hospitalNumber_spellId format
+
+        :param spell_id: ID of the spell to get filename for
+        :return: filename or False
+        """
+        if not spell_id:
+            return False
+        spell_pool = self.pool['nh.clinical.spell']
+        spell_obj = spell_pool.read(self._cr, self._uid, spell_id)
+        patient_id = spell_obj['patient_id'][0]
+        patient = self.pool['nh.clinical.patient'].read(
+            self._cr, self._uid,
+            patient_id,
+            [
+                'patient_identifier',
+                'current_location_id',
+                'family_name'
+            ]
+        )
+        nhs_number = None
+        if 'patient_identifier' in patient \
+                and patient['patient_identifier']:
+            nhs_number = patient['patient_identifier']
+        ward = None
+        ward_id = None
+        if 'current_location_id' in patient \
+                and patient['current_location_id']:
+            ward_id = patient['current_location_id'][0]
+        if ward_id:
+            loc_pool = self.pool['nh.clinical.location']
+            ward_usage = loc_pool.read(
+                self._cr, self._uid,
+                ward_id,
+                ['usage', 'display_name']
+            )
+            if ward_usage['usage'] != 'ward':
+                ward_ward = loc_pool.get_closest_parent_id(
+                    self._cr, self._uid, ward_id, 'ward')
+                if ward_ward:
+                    ward = loc_pool.read(
+                        self._cr, self._uid, ward_ward,
+                        ['display_name']
+                    )['display_name'].replace(' ', '')
+            else:
+                ward = ward_usage['display_name'].replace(' ', '')
+        surname = re.sub(r'\W', '', patient['family_name'])
+        return '{ward}_{surname}_{identifier}_{spell}'.format(
+            ward=ward,
+            surname=surname,
+            identifier=nhs_number,
+            spell=spell_id
+        )
 
     @api.model
     def print_report(self, spell_id=None):
@@ -109,123 +246,36 @@ class NHClinicalObservationReportPrinting(orm.Model):
             printed
         :return: True
         """
-        # Get spell ids for reports to be printed
-        spell_pool = self.pool['nh.clinical.spell']
-        loc_pool = self.pool['nh.clinical.location']
-        spell_ids = []
-
-        if spell_id:
-            spell_ids.append(spell_id)
-        else:
-            loc_ids = loc_pool.search(
-                self._cr, self._uid,
-                [
-                    ['usage', '=', 'ward'],
-                    ['backup_observations', '=', True]
-                ]
+        spell_ids = self.get_spells(spell_id)
+        for spell_id in spell_ids:
+            report_pdf = self.get_report(spell_id)
+            if not report_pdf:
+                return False
+            file_name = self.get_filename(spell_id)
+            if not file_name:
+                return False
+            saved_to_db = self.add_report_to_database(
+                'nh.clinical.observation_report',
+                report_pdf,
+                file_name,
+                'nh.clinical.observation_report_wizard',
+                report_pdf[0]
             )
-            spell_ids = spell_pool.search(
-                self._cr, self._uid,
-                [
-                    ['report_printed', '=', False],
-                    ['state', 'not in', ['completed', 'cancelled']],
-                    ['location_id', 'child_of', loc_ids]
-                ]
+            if not saved_to_db:
+                return False
+            saved_to_fs = self.add_report_to_backup_location(
+                '/bcp/out',
+                report_pdf[1],
+                file_name
             )
-
-        # For each report; print it, save it to DB, save it to FS,
-        # set flag to True
-        report_pool = self.pool['report']
-        obs_report_pool = self.pool['report.nh.clinical.observation_report']
-        for spell in spell_ids:
-            obs_report_wizard_pool = \
-                self.pool['nh.clinical.observation_report_wizard']
-            obs_report_wizard_id = obs_report_wizard_pool.create(
-                self._cr, self._uid, {
-                    'start_time': None,
-                    'end_time': None
+            if not saved_to_fs:
+                return False
+            self.pool['nh.clinical.spell'].write(
+                self._cr,
+                self._uid,
+                spell_id,
+                {
+                    'report_printed': True
                 }
             )
-            data = obs_report_wizard_pool.read(
-                self._cr, self._uid, obs_report_wizard_id)
-            data['spell_id'] = spell
-            data['ews_only'] = True
-
-            # Render the HTML for the report
-            report_html = obs_report_pool.render_html(self._cr, self._uid,
-                                                      obs_report_wizard_id,
-                                                      data=data,
-                                                      context=self._context)
-
-            # Create PDF from HTML
-            try:
-                report_pdf = report_pool.get_pdf(
-                    self._cr, self._uid, [obs_report_wizard_id],
-                    'nh.clinical.observation_report',
-                    html=report_html,
-                    data=data, context=self._context
-                )
-
-                # file name in ward_surname_nhsnumber format
-                spell_obj = spell_pool.read(self._cr, self._uid, spell)
-                patient_id = spell_obj['patient_id'][0]
-                patient = self.pool['nh.clinical.patient'].read(
-                    self._cr, self._uid,
-                    patient_id,
-                    [
-                        'patient_identifier',
-                        'current_location_id',
-                        'family_name'
-                    ]
-                )
-                nhs_number = None
-                if 'patient_identifier' in patient \
-                        and patient['patient_identifier']:
-                    nhs_number = patient['patient_identifier']
-                ward = None
-                ward_id = None
-                if 'current_location_id' in patient \
-                        and patient['current_location_id']:
-                    ward_id = patient['current_location_id'][0]
-                if ward_id:
-                    loc_pool = self.pool['nh.clinical.location']
-                    ward_usage = loc_pool.read(
-                        self._cr, self._uid,
-                        ward_id,
-                        ['usage', 'display_name']
-                    )
-                    if ward_usage['usage'] != 'ward':
-                        ward_ward = loc_pool.get_closest_parent_id(
-                            self._cr, self._uid, ward_id, 'ward')
-                        if ward_ward:
-                            ward = loc_pool.read(
-                                self._cr, self._uid, ward_ward,
-                                ['display_name']
-                            )['display_name'].replace(' ', '')
-                    else:
-                        ward = ward_usage['display_name'].replace(' ', '')
-                surname = None
-                if 'family_name' in patient and patient['family_name']:
-                    surname = patient['family_name']
-                file_name = '{w}_{s}_{n}'.format(
-                    w=ward,
-                    s=surname,
-                    n=nhs_number
-                )
-                # Save to database
-                db = self.add_report_to_database(
-                    'nh.clinical.observation_report',
-                    report_pdf,
-                    file_name,
-                    'nh.clinical.observation_report_wizard',
-                    obs_report_wizard_id)
-
-                # Save to file system
-                fs = self.add_report_to_backup_location('/bcp/out', report_pdf,
-                                                        file_name)
-                if db and fs:
-                    self.pool['nh.clinical.spell'].write(
-                        self._cr, self._uid, spell, {'report_printed': True})
-            except except_orm:
-                pass
         return True
