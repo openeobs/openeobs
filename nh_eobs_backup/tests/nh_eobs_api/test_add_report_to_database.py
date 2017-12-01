@@ -23,9 +23,8 @@ class TestAddReportToDatabase(TransactionCase):
         self.report_id = 1
 
         def patch_create(*args, **kwargs):
-            if kwargs.get('context'):
-                if kwargs.get('context').get('fail'):
-                    raise AccessError('Oops')
+            if args[0]._context.get('fail'):
+                raise AccessError('Oops')
             return patch_create.origin(*args, **kwargs)
 
         self.attachment_model._patch_method('create', patch_create)
@@ -43,14 +42,13 @@ class TestAddReportToDatabase(TransactionCase):
 
         :return: Attachment record
         """
-        attachment_id = self.api_model.add_report_to_database(
+        return self.api_model.add_report_to_database(
             self.name,
             self.report_content,
             self.report_filename,
             self.report_model,
             self.report_id
         )
-        return self.attachment_model.browse(attachment_id)
 
     def test_saves_attachment_name(self):
         """

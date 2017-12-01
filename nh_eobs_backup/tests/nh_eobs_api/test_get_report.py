@@ -62,7 +62,7 @@ class TestGetReport(TransactionCase):
         """
         result = self.api_model.get_report(self.test_utils.spell.id)
         wizard_count = self.obs_wizard.search([]).id
-        self.assertEqual(result[0], wizard_count)
+        self.assertEqual(result[0].id, wizard_count)
 
     def test_no_pdf(self):
         """

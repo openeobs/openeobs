@@ -18,11 +18,10 @@ class NHClinicalObservationReportPrinting(orm.Model):
     _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
+    @api.model
     def add_report_to_database(
-            self, cr, uid, report_name,
-            report_datas, report_filename, report_model, report_id,
-            context=None
-    ):
+            self, report_name, report_datas, report_filename, report_model,
+            report_id):
         """
         Add the report to the database as an ir.attachment. The report PDF
         will be transformed into base64 before saving it.
@@ -45,18 +44,16 @@ class NHClinicalObservationReportPrinting(orm.Model):
             'res_id': report_id,
         }
         try:
-            attachment_id = self.pool['ir.attachment'].create(
-                cr, uid, attachment, context=context)
+            attachment_id = self.env['ir.attachment'].create(attachment)
             _logger.info(
                 'The PDF document %s is now saved in the database',
-                attachment['name']
+                report_name
             )
         except AccessError:
             _logger.warning(
                 'Cannot save PDF report %r as attachment',
-                attachment['name']
+                report_name
             )
-
         return attachment_id
 
     def add_report_to_backup_location(
@@ -103,23 +100,21 @@ class NHClinicalObservationReportPrinting(orm.Model):
                 return spell_id
             return [spell_id]
         else:
-            spell_pool = self.pool['nh.clinical.spell']
-            loc_pool = self.pool['nh.clinical.location']
-            loc_ids = loc_pool.search(
-                self._cr, self._uid,
+            spell_model = self.env['nh.clinical.spell']
+            loc_model = self.env['nh.clinical.location']
+            loc_ids = loc_model.search(
                 [
                     ['usage', '=', 'ward'],
                     ['backup_observations', '=', True]
                 ]
             )
-            return spell_pool.search(
-                self._cr, self._uid,
+            return spell_model.search(
                 [
                     ['report_printed', '=', False],
                     ['state', 'not in', ['completed', 'cancelled']],
-                    ['location_id', 'child_of', loc_ids]
+                    ['location_id', 'child_of', loc_ids.id]
                 ]
-            )
+            ).ids
 
     def get_report(self, spell_id=None):
         """
@@ -130,43 +125,30 @@ class NHClinicalObservationReportPrinting(orm.Model):
         """
         if not spell_id:
             return False
-        report_pool = self.pool['report']
-        obs_report_pool = self.pool['report.nh.clinical.observation_report']
-        obs_report_wizard_pool = \
-            self.pool['nh.clinical.observation_report_wizard']
-        obs_report_wizard_id = obs_report_wizard_pool.create(
-            self._cr,
-            self._uid,
+        report_model = self.env['report']
+        obs_report_model = self.env['report.nh.clinical.observation_report']
+        obs_report_wizard_model = \
+            self.env['nh.clinical.observation_report_wizard']
+        obs_report_wizard_id = obs_report_wizard_model.create(
             {
                 'start_time': None,
                 'end_time': None
             }
         )
-        data = obs_report_wizard_pool.read(
-            self._cr,
-            self._uid,
-            obs_report_wizard_id
+        data = obs_report_wizard_model.browse(
+            obs_report_wizard_id.id
         )
-        data['spell_id'] = spell_id
-        data['ews_only'] = True
-        report_html = obs_report_pool.render_html(
-            self._cr,
-            self._uid,
-            obs_report_wizard_id,
-            data=data,
-            context=self._context
-        )
+        data.spell_id = spell_id
+        data.ews_only = True
+        report_html = obs_report_model.render_html(data)
         try:
             return (
                 obs_report_wizard_id,
-                report_pool.get_pdf(
-                    self._cr,
-                    self._uid,
-                    [obs_report_wizard_id],
+                report_model.get_pdf(
+                    obs_report_wizard_id,
                     'nh.clinical.observation_report',
                     html=report_html,
-                    data=data,
-                    context=self._context
+                    data=data
                 )
             )
         except except_orm:
@@ -183,44 +165,25 @@ class NHClinicalObservationReportPrinting(orm.Model):
         """
         if not spell_id:
             return False
-        spell_pool = self.pool['nh.clinical.spell']
-        spell_obj = spell_pool.read(self._cr, self._uid, spell_id)
-        patient_id = spell_obj['patient_id'][0]
-        patient = self.pool['nh.clinical.patient'].read(
-            self._cr, self._uid,
-            patient_id,
-            [
-                'patient_identifier',
-                'current_location_id',
-                'family_name'
-            ]
-        )
+        spell_model = self.env['nh.clinical.spell']
+        spell_obj = spell_model.browse(spell_id)
+        patient = spell_obj.patient_id
         nhs_number = None
-        if 'patient_identifier' in patient \
-                and patient['patient_identifier']:
-            nhs_number = patient['patient_identifier']
+        if patient.patient_identifier:
+            nhs_number = patient.patient_identifier
         ward = None
         ward_id = None
-        if 'current_location_id' in patient \
-                and patient['current_location_id']:
-            ward_id = patient['current_location_id'][0]
+        if patient.current_location_id:
+            ward_id = patient.current_location_id
         if ward_id:
-            loc_pool = self.pool['nh.clinical.location']
-            ward_usage = loc_pool.read(
-                self._cr, self._uid,
-                ward_id,
-                ['usage', 'display_name']
-            )
-            if ward_usage['usage'] != 'ward':
-                ward_ward = loc_pool.get_closest_parent_id(
-                    self._cr, self._uid, ward_id, 'ward')
-                if ward_ward:
-                    ward = loc_pool.read(
-                        self._cr, self._uid, ward_ward,
-                        ['display_name']
-                    )['display_name'].replace(' ', '')
+            if ward_id.usage != 'ward':
+                location_model = self.env['nh.clinical.location']
+                ward_ward = location_model.browse(
+                    location_model.get_closest_parent_id(ward_id.id, 'ward')
+                )
+                ward = ward_ward.display_name.replace(' ', '')
             else:
-                ward = ward_usage['display_name'].replace(' ', '')
+                ward = ward_id.display_name.replace(' ', '')
         surname = re.sub(r'\W', '', patient['family_name'])
         return '{ward}_{surname}_{identifier}_{spell}'.format(
             ward=ward,
@@ -267,12 +230,6 @@ class NHClinicalObservationReportPrinting(orm.Model):
             )
             if not saved_to_fs:
                 return False
-            self.pool['nh.clinical.spell'].write(
-                self._cr,
-                self._uid,
-                spell_id,
-                {
-                    'report_printed': True
-                }
-            )
+            spell = self.env['nh.clinical.spell'].browse(spell_id)
+            spell.write({'report_printed': True})
         return True
