@@ -37,21 +37,21 @@ class TestGetFilename(TransactionCase):
             self.api_model.get_filename(self.test_utils.spell.id)
         )
 
-    # def test_patient_on_ward(self):
-    #     """
-    #     Test that when patient is on a ward that it gets the ward name from the
-    #     current location
-    #     """
-    #     self.test_utils.transfer_patient(self.test_utils.other_ward.code)
-    #     self.assertEqual(
-    #         '{ward}_{surname}_{identifier}_{spell}'.format(
-    #             ward=self.test_utils.other_ward.display_name,
-    #             surname=self.test_utils.patient.family_name,
-    #             identifier=self.test_utils.patient.patient_identifier,
-    #             spell=self.test_utils.spell.id
-    #         ),
-    #         self.api_model.get_filename(self.test_utils.spell.id)
-    #     )
+    def test_patient_on_ward(self):
+        """
+        Test that when patient is on a ward that it gets the ward name from the
+        current location
+        """
+        self.test_utils.transfer_patient(self.test_utils.other_ward.code)
+        self.assertEqual(
+            '{ward}_{surname}_{identifier}_{spell}'.format(
+                ward=self.test_utils.other_ward.display_name,
+                surname=self.test_utils.patient.family_name,
+                identifier=self.test_utils.patient.patient_identifier,
+                spell=self.test_utils.spell.id
+            ),
+            self.api_model.get_filename(self.test_utils.spell.id)
+        )
 
     def test_patient_name_format(self):
         """
