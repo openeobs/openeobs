@@ -37,7 +37,7 @@ class TestGetReport(TransactionCase):
                     'Report (PDF)',
                     'Wkhtmltopdf failed (error code: -11). Message:'
                 )
-            return patch_run_wkhtmltopdf.origin(*args, **kwargs)
+            return '%PDF-1.4'  # patch_run_wkhtmltopdf.origin(*args, **kwargs)
 
         self.report_model._patch_method(
             '_run_wkhtmltopdf', patch_run_wkhtmltopdf)
