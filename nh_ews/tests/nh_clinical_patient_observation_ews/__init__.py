@@ -1,4 +1,3 @@
-from . import test_frequency_field
 from . import test_get_open_obs_activity
 from . import test_get_submission_message
 from . import test_partial_obs
