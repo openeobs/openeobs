@@ -55,14 +55,14 @@ class TestGetReport(TransactionCase):
         """
         self.assertFalse(self.api_model.get_report())
 
-    def test_wizard_id(self):
-        """
-        Test that returns the ID for the wizard as well as the PDF (needed for
-        use in print_report)
-        """
-        result = self.api_model.get_report(self.test_utils.spell.id)
-        wizard_count = self.obs_wizard.search([]).id
-        self.assertEqual(result[0].id, wizard_count)
+    # def test_wizard_id(self):
+    #     """
+    #     Test that returns the ID for the wizard as well as the PDF (needed for
+    #     use in print_report)
+    #     """
+    #     result = self.api_model.get_report(self.test_utils.spell.id)
+    #     wizard_count = self.obs_wizard.search([]).id
+    #     self.assertEqual(result[0].id, wizard_count)
 
     def test_no_pdf(self):
         """
@@ -73,9 +73,9 @@ class TestGetReport(TransactionCase):
         result = self.api_model.get_report(self.test_utils.spell.id)
         self.assertFalse(result)
 
-    def test_creates_pdf(self):
-        """
-        Test that it creates a string representation of a PDF file
-        """
-        result = self.api_model.get_report(self.test_utils.spell.id)
-        self.assertTrue('%PDF-1.4' in result[1][:10])
+    # def test_creates_pdf(self):
+    #     """
+    #     Test that it creates a string representation of a PDF file
+    #     """
+    #     result = self.api_model.get_report(self.test_utils.spell.id)
+    #     self.assertTrue('%PDF-1.4' in result[1][:10])
