@@ -286,6 +286,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _avpu_values = [['A', 'Alert'], ['V', 'Voice'], ['P', 'Pain'],
                     ['U', 'Unresponsive']]
+
+    _valid_frequencies = frequencies.as_list()
+    _valid_frequencies.append((10, 'Every 10 Minutes'))
+
     _columns = {
         'score': fields.function(
             _get_score, type='integer', multi='score', string='Score', store={
@@ -336,7 +340,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         'bp_display': fields.function(
             _get_bp_display, type='char', size=10, string='Blood Pressure'),
         'score_display': fields.function(
-            _get_score_display, type='char', size=2, string='Score')
+            _get_score_display, type='char', size=2, string='Score'),
+        'frequency': fields.selection(_valid_frequencies, 'Frequency')
     }
 
     _form_description = [
