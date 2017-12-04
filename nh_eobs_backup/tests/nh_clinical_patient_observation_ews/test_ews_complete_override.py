@@ -13,6 +13,7 @@ class TestEwsCompleteOverride(TransactionCase):
         """
         super(TestEwsCompleteOverride, self).setUp()
         self.test_utils = self.env['nh.clinical.test_utils']
+        self.api_model = self.env['nh.eobs.api']
         self.test_utils.admit_and_place_patient()
         self.ews_data = {
             'respiration_rate': 40,
@@ -24,6 +25,36 @@ class TestEwsCompleteOverride(TransactionCase):
             'pulse_rate': 55,
             'avpu_text': 'A'
         }
+        def patch_add_report_to_database(*args, **kwargs):
+            return True
+
+        def patch_add_report_to_backup_location(*args, **kwargs):
+            return True
+
+        def patch_get_report(*args, **kwargs):
+            return 0, True
+
+        self.api_model._patch_method(
+            'add_report_to_database',
+            patch_add_report_to_database
+        )
+        self.api_model._patch_method(
+            'add_report_to_backup_location',
+            patch_add_report_to_backup_location
+        )
+        self.api_model._patch_method(
+            'get_report',
+            patch_get_report
+        )
+
+    def tearDown(self):
+        """
+        Clean up after test
+        """
+        self.api_model._revert_method('add_report_to_database')
+        self.api_model._revert_method('add_report_to_backup_location')
+        self.api_model._revert_method('get_report')
+        super(TestEwsCompleteOverride, self).tearDown()
 
     def test_observation_complete(self):
         """

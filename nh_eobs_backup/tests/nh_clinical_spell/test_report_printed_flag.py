@@ -32,6 +32,9 @@ class TestReportPrintedFlag(TransactionCase):
         def patch_add_report_to_backup_location(*args, **kwargs):
             return True
 
+        def patch_get_report(*args, **kwargs):
+            return 0, True
+
         self.api_model._patch_method(
             'add_report_to_database',
             patch_add_report_to_database
@@ -40,6 +43,10 @@ class TestReportPrintedFlag(TransactionCase):
             'add_report_to_backup_location',
             patch_add_report_to_backup_location
         )
+        self.api_model._patch_method(
+            'get_report',
+            patch_get_report
+        )
 
     def tearDown(self):
         """
@@ -47,6 +54,7 @@ class TestReportPrintedFlag(TransactionCase):
         """
         self.api_model._revert_method('add_report_to_database')
         self.api_model._revert_method('add_report_to_backup_location')
+        self.api_model._revert_method('get_report')
         super(TestReportPrintedFlag, self).tearDown()
 
     def test_report_printed_property(self):
