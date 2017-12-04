@@ -43,8 +43,8 @@ env:
   - MOBJS="1"
 
   - ODOO_REPO="bjss/odoo" TESTS="1"
-    EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output,nh_eobs_backup"
-    INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,nh_eobs_mental_health,nh_neurological,nh_food_and_fluid,nh_weight,nh_blood_glucose,nh_bed_management_mental_health"
+    EXCLUDE="base,web,nh_odoo_fixes,nh_activity,nh_clinical,xml_test_output"
+    INCLUDE="nh_ews,nh_gcs,nh_graphs,nh_neurovascular,nh_observations,nh_pbp,nh_stools,nh_urinary_analysis,nh_vips,nh_eobs,nh_eobs_api,nh_eobs_backup,nh_eobs_default,nh_eobs_kiosk,nh_eobs_theme,nh_eobs_mobile,nh_eobs_mental_health,nh_neurological,nh_food_and_fluid,nh_weight,nh_blood_glucose,nh_bed_management_mental_health"
     VERSION="liveobs_1.11.1"
 
 virtualenv:
