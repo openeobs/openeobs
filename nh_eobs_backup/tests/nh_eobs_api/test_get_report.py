@@ -105,4 +105,3 @@ class TestGetReport(TransactionCase):
             self.report_args[4],
             'nh.clinical.observation_report'
         )
-

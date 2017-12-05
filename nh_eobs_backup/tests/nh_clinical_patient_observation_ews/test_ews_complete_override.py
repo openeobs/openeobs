@@ -25,6 +25,7 @@ class TestEwsCompleteOverride(TransactionCase):
             'pulse_rate': 55,
             'avpu_text': 'A'
         }
+
         def patch_add_report_to_database(*args, **kwargs):
             return True
 
