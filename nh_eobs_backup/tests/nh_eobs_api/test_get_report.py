@@ -8,6 +8,7 @@ class TestGetReport(TransactionCase):
     """
 
     printing_error = False
+    report_args = []
 
     def setUp(self):
         """
@@ -15,11 +16,23 @@ class TestGetReport(TransactionCase):
         """
         super(TestGetReport, self).setUp()
         self.printing_error = False
+        self.report_args = []
         self.api_model = self.env['nh.eobs.api']
         self.report_model = self.env['report']
         self.test_utils = self.env['nh.clinical.test_utils']
         self.obs_wizard = self.env['nh.clinical.observation_report_wizard']
         self.test_utils.admit_and_place_patient()
+
+        def mock_get_pdf(*args, **kwargs):
+            """
+            Mock get_pdf so can ensure correct args are passed
+
+            :param args: Arguments passed to function
+            :param kwargs: Keyword arguments passed to function
+            :return: Original function call
+            """
+            self.report_args = args
+            return mock_get_pdf.origin(*args, **kwargs)
 
         def patch_run_wkhtmltopdf(*args, **kwargs):
             """
@@ -37,16 +50,21 @@ class TestGetReport(TransactionCase):
                     'Report (PDF)',
                     'Wkhtmltopdf failed (error code: -11). Message:'
                 )
-            return '%PDF-1.4'  # patch_run_wkhtmltopdf.origin(*args, **kwargs)
+            return '%PDF-1.4'
 
         self.report_model._patch_method(
             '_run_wkhtmltopdf', patch_run_wkhtmltopdf)
+
+        self.report_model._patch_method(
+            'get_pdf', mock_get_pdf
+        )
 
     def tearDown(self):
         """
         Clear up after testing
         """
         self.report_model._revert_method('_run_wkhtmltopdf')
+        self.report_model._revert_method('get_pdf')
         super(TestGetReport, self).tearDown()
 
     def test_no_spell_id(self):
@@ -73,9 +91,18 @@ class TestGetReport(TransactionCase):
         result = self.api_model.get_report(self.test_utils.spell.id)
         self.assertFalse(result)
 
-    # def test_creates_pdf(self):
-    #     """
-    #     Test that it creates a string representation of a PDF file
-    #     """
-    #     result = self.api_model.get_report(self.test_utils.spell.id)
-    #     self.assertTrue('%PDF-1.4' in result[1][:10])
+    def test_calls_get_pdf(self):
+        """
+        Test that a call to report.get_pdf is made by get_report with the
+        correct arguments
+        """
+        result = self.api_model.get_report(self.test_utils.spell.id)
+        self.assertEqual(
+            self.report_args[3],
+            [result[0].id]
+        )
+        self.assertEqual(
+            self.report_args[4],
+            'nh.clinical.observation_report'
+        )
+
