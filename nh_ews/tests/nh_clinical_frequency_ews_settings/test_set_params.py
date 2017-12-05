@@ -50,8 +50,8 @@ class TestSetParams(TransactionCase):
 
     def _set_field_dict(self, values, minimum, maximum):
         """
-        Set a dictionary of values to be used to set the values of the fields
-        of the
+        Set a dictionary of values to create the settings record that will
+        set the params.
         :param values:
         :param minimum:
         :param maximum:
