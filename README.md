@@ -65,3 +65,5 @@ You can read our contribution guidelines for more information on how to contribu
 and what you can expect when contributing to Open-eObs
 
 User guides can be found in [the Wiki](https://github.com/NeovaHealth/openeobs/wiki).
+
+Test.
