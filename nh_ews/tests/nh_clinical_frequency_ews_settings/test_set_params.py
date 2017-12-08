@@ -4,6 +4,7 @@ Module containing the TestSetParams class.
 """
 from openerp.exceptions import ValidationError, AccessError
 from openerp.tests.common import TransactionCase
+from psycopg2 import IntegrityError
 
 
 class TestSetParams(TransactionCase):
@@ -36,7 +37,7 @@ class TestSetParams(TransactionCase):
             'obs_restart'
         ]
 
-    def call_test(self, values=8, minimum=5, maximum=10):
+    def call_test(self, values=6, minimum=5, maximum=10):
         """
         Call the method under test.
         :param values:
@@ -82,23 +83,55 @@ class TestSetParams(TransactionCase):
 
     def test_raises_validation_error_if_a_field_is_below_minimum(self):
         with self.assertRaises(ValidationError):
-            self.call_test(values=4)
+            self.call_test(values=4, minimum=5, maximum=10)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=8, minimum=9, maximum=10)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=9, minimum=10, maximum=10)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=-2, minimum=-1, maximum=10)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=-11, minimum=-10, maximum=-9)
 
     def test_raises_validation_error_if_a_field_is_above_maximum(self):
         with self.assertRaises(ValidationError):
-            self.call_test(values=11)
+            self.call_test(values=11, minimum=5, maximum=10)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=10, minimum=5, maximum=9)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=6, minimum=5, maximum=5)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=-1, minimum=-5, maximum=-5)
+        with self.assertRaises(ValidationError):
+            self.call_test(values=-4, minimum=-5, maximum=-5)
 
     def test_does_not_raise_if_field_value_is_minimum(self):
-        self.call_test(values=5)
+        self.call_test(values=5, minimum=5, maximum=10)
+        self.call_test(values=9, minimum=9, maximum=10)
+        self.call_test(values=-5, minimum=-5, maximum=1)
 
     def test_does_not_raise_if_field_value_is_maximum(self):
-        self.call_test(values=10)
+        self.call_test(values=10, minimum=5, maximum=10)
+        self.call_test(values=6, minimum=5, maximum=6)
+        self.call_test(values=-5, minimum=-10, maximum=-5)
+
+    def test_does_not_raise_if_all_parameters_equal(self):
+        self.call_test(values=10, minimum=10, maximum=10)
+        self.call_test(values=1, minimum=1, maximum=1)
+        self.call_test(values=-1, minimum=-1, maximum=-1)
 
     def test_does_not_raise_if_called_by_admin(self):
         """
         No exception is raised if method is called by admin.
         """
-        self.call_test()
+        self.call_test(values=6, minimum=5, maximum=10)
+        self.call_test(values=2, minimum=1, maximum=3)
+        self.call_test(values=-1, minimum=-10, maximum=10)
+        self.call_test(values=-9, minimum=-10, maximum=-8)
+
+    def test_raises_if_field_is_zero(self):
+        with self.assertRaises(IntegrityError):
+            self.call_test(values=1, minimum=0, maximum=2)
 
     def test_raises_if_called_by_system_admin(self):
         """
