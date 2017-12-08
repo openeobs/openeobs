@@ -6,9 +6,13 @@
             <field name="medium_risk_minimum">1</field>
             <field name="high_risk_minimum">1</field>
             <field name="no_risk_maximum">1440</field>
+            <field name="placement_minimum">1440</field>
+            <field name="obs_restart_minimum">1440</field>
             <field name="low_risk_maximum">360</field>
             <field name="medium_risk_maximum">60</field>
             <field name="high_risk_maximum">10</field>
+            <field name="placement_maximum">10</field>
+            <field name="obs_restart_maximum">1440</field>
             <field name="no_risk">1440</field>
             <field name="low_risk">360</field>
             <field name="medium_risk">60</field>

@@ -13,11 +13,15 @@ class NhClinicalFrequenciesEws(TransientModel):
     low_risk_minimum = fields.Integer()
     medium_risk_minimum = fields.Integer()
     high_risk_minimum = fields.Integer()
+    placement_minimum = fields.Integer()
+    obs_restart_minimum = fields.Integer()
 
     no_risk_maximum = fields.Integer()
     low_risk_maximum = fields.Integer()
     medium_risk_maximum = fields.Integer()
     high_risk_maximum = fields.Integer()
+    placement_maximum = fields.Integer()
+    obs_restart_maximum = fields.Integer()
 
     no_risk = fields.Integer(
         min='no_risk_minimum', max='no_risk_maximum')
@@ -28,9 +32,12 @@ class NhClinicalFrequenciesEws(TransientModel):
     high_risk = fields.Integer(
         min='high_risk_minimum', max='high_risk_maximum')
 
-    placement = fields.Integer()
+    placement = fields.Integer(
+        min='placement_minimum', max='placement_maximum')
 
-    obs_restart = fields.Integer()
+    obs_restart = fields.Integer(
+        min='b'
+    )
 
     @api.constrains('no_risk', 'low_risk', 'medium_risk', 'high_risk')
     def _in_min_max_range(self):
