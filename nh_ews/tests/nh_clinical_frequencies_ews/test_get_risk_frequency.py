@@ -89,4 +89,4 @@ class TestGetRiskFrequency(TransactionCase):
 
     def test_returns_int(self):
         self.call_test()
-        self.assertTrue(type(self.frequency) is int)
+        self.assertTrue(isinstance(self.frequency, int))
