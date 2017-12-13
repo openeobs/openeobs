@@ -66,7 +66,13 @@ class TestSetParams(TransactionCase):
             elif 'maximum' in field_name:
                 self.fields_dict[field_name] = maximum
 
-    def test_execute_updates_existing_parameters(self):
+
+class TestUpdatesExistingParameters(TestSetParams):
+    """
+    Even if the config parameters have already been created, calling
+    `set_params` will overwrite those values with the new ones.
+    """
+    def test_updates_existing_parameters(self):
         settings = self.call_test(values=8)
         expected_param_values = [str(field_value) for field_value
                                  in self.fields_dict.itervalues()]
@@ -81,58 +87,128 @@ class TestSetParams(TransactionCase):
             settings.get_default_params(self.field_names).values()
         self.assertEqual(expected_param_values, actual_param_values)
 
-    def test_raises_validation_error_if_a_field_is_below_minimum(self):
+
+class TestRaisesValidationErrorIfAFieldIsBelowMinimum(TestSetParams):
+    """
+    A ValidationError is raised if the config value is below the minimum
+    specified by its corresponding 'minimum' field.
+    """
+    def test_positive_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=4, minimum=5, maximum=10)
+
+    def test_other_positive_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=8, minimum=9, maximum=10)
+
+    def test_equal_minimum_and_maximum(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=9, minimum=10, maximum=10)
+
+    def test_some_negative_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=-2, minimum=-1, maximum=10)
+
+    def test_all_negative_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=-11, minimum=-10, maximum=-9)
 
-    def test_raises_validation_error_if_a_field_is_above_maximum(self):
+
+class TestRaisesValidationErrorIfAFieldIsAboveMaximum(TestSetParams):
+    """
+    A ValidationError is raised if the config value is below the maximum
+    specified by its corresponding 'maximum' field.
+    """
+    def test_positive_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=11, minimum=5, maximum=10)
+
+    def test_other_positive_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=10, minimum=5, maximum=9)
+
+    def test_equal_minimum_and_maximum(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=6, minimum=5, maximum=5)
+
+    def test_some_negative_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=-1, minimum=-5, maximum=-5)
+
+    def test_all_negative_values(self):
         with self.assertRaises(ValidationError):
             self.call_test(values=-4, minimum=-5, maximum=-5)
 
-    def test_does_not_raise_if_field_value_is_minimum(self):
+
+class TestDoesNotRaiseIfFieldValueIsMinimum(TestSetParams):
+    """
+    No exception is raised if the config value is equal to the minimum
+    specified by its corresponding 'minimum' field.
+    """
+    def test_positive_values(self):
         self.call_test(values=5, minimum=5, maximum=10)
+
+    def test_other_positive_values(self):
         self.call_test(values=9, minimum=9, maximum=10)
+
+    def test_some_negative_values(self):
         self.call_test(values=-5, minimum=-5, maximum=1)
 
-    def test_does_not_raise_if_field_value_is_maximum(self):
+    def test_all_negative_values(self):
+        self.call_test(values=-5, minimum=-5, maximum=-1)
+
+
+class TestDoesNotRaiseIfFieldValueIsMaximum(TestSetParams):
+    """
+    No exception is raised if the config value is equal to the maximum
+    specified by its corresponding 'maximum' field.
+    """
+    def test_positive_values(self):
         self.call_test(values=10, minimum=5, maximum=10)
+
+    def test_other_positive_values(self):
         self.call_test(values=6, minimum=5, maximum=6)
+
+    def test_some_negative_values(self):
+        self.call_test(values=1, minimum=-10, maximum=1)
+
+    def test_all_negative_values(self):
         self.call_test(values=-5, minimum=-10, maximum=-5)
 
+
+class TestDoesNotRaiseIfAllParametersEqual(TestSetParams):
+    """
+    No exception is raised if all arguments are equal.
+    """
     def test_does_not_raise_if_all_parameters_equal(self):
         self.call_test(values=10, minimum=10, maximum=10)
         self.call_test(values=1, minimum=1, maximum=1)
         self.call_test(values=-1, minimum=-1, maximum=-1)
 
+
+class TestDoesNotRaiseIfCalledByAdmin(TestSetParams):
+    """
+    No exception is raised if method is called by admin.
+    """
     def test_does_not_raise_if_called_by_admin(self):
-        """
-        No exception is raised if method is called by admin.
-        """
         self.call_test(values=6, minimum=5, maximum=10)
         self.call_test(values=2, minimum=1, maximum=3)
         self.call_test(values=-1, minimum=-10, maximum=10)
         self.call_test(values=-9, minimum=-10, maximum=-8)
 
+
+class TestRaisesIfFieldIsZero(TestSetParams):
+    """
+    Raises if value is zero because that is not a valid value for an integer
+    in Odoo. It results in a null being inserted / updated in the database
+    which violates a not-null constraint.
+    """
     def test_raises_if_field_is_zero(self):
         with self.assertRaises(IntegrityError):
             self.call_test(values=1, minimum=0, maximum=2)
 
+
+class TestRaisesIfCalledBySystemAdmin(TestSetParams):
     def test_raises_if_called_by_system_admin(self):
         """
         Check that a system admin cannot set the params.

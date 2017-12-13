@@ -5,7 +5,15 @@ from openerp.models import TransientModel, MAGIC_COLUMNS
 
 
 class NhClinicalFrequenciesEws(TransientModel):
+    """
+    Allows various frequencies used throughout the system to be configured.
+    Overrides `res.config.settings` which is an Odoo model that provides some
+    useful out of the box functionality for configuration. See link below for
+    more information:
 
+    http://odoo-development.readthedocs.io/en/latest/dev/py/res.config.settings
+    .html
+    """
     _name = 'nh.clinical.frequencies.ews_settings'
     _inherit = 'res.config.settings'
 
@@ -34,6 +42,11 @@ class NhClinicalFrequenciesEws(TransientModel):
 
     @api.constrains('no_risk', 'low_risk', 'medium_risk', 'high_risk')
     def _in_min_max_range(self):
+        """
+        Validate that the values of the constrained fields are within the
+        range specified by the values of their correspondingly named
+        'minimum' and 'maximum' fields.
+        """
         validate.fields_in_min_max_range(
             self, ['no_risk', 'low_risk', 'medium_risk', 'high_risk'])
 

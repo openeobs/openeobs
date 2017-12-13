@@ -54,6 +54,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case 1: low clinical risk
         case 2: medium clinical risk
         case 3: high clinical risk
+
+        {
+            'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
+            determine the acuity case based on the score.
+            of the NEWS observation, based on the case.
+            'notifications': [...],
+               Information sent to the trigger_notifications method,
+               based on case.
+            'risk': ['None', 'Low', 'Medium', 'High']
+        } --> Clinical risk of the patient, based on case.
+
+        All the case based lists work in a simple way:
+            list[case] --> value used
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123',
                'notifications': [
@@ -673,20 +686,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         It determines which acuity case the current observation is in
         with the stored data and responds to the different policy
-        triggers accordingly defined on the ``_POLICY`` dictionary::
-
-            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
-            determine the acuity case based on the score.
-            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
-            of the NEWS observation, based on the case.
-            'notifications': [...],
-               Information sent to the trigger_notifications method,
-               based on case.
-            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
-            of the patient, based on case.
-
-        All the case based lists work in a simple way:
-        list[case] --> value used
+        triggers accordingly defined on the ``_POLICY`` dictionary.
 
         After the policy triggers take place the activity is `completed`
         and a new NEWS activity is created. Then the case based
