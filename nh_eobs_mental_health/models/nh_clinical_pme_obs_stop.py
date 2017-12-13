@@ -142,7 +142,7 @@ class NhClinicalObsStop(models.Model):
             {'patient_id': spell_activity.patient_id.id}
         )
 
-        self._schedule_new_ews(new_ews_activity_id, spell_activity)
+        return self._schedule_new_ews(new_ews_activity_id, spell_activity)
 
     def _schedule_new_ews(self, new_ews_activity_id, spell_activity):
         activity_model = self.env['nh.activity']
