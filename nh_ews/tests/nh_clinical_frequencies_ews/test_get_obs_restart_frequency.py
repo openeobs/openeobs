@@ -10,7 +10,7 @@ class TestGetObsRestartFrequency(TransactionCase):
 
         self.expected_frequency = 54
         self.config_model.set_param(
-            'obs_restart_frequency', self.expected_frequency)
+            'obs_restart', self.expected_frequency)
         self.actual_frequency = \
             self.frequencies_model.get_obs_restart_frequency()
 
