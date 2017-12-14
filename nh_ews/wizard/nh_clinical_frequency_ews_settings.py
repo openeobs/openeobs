@@ -52,6 +52,10 @@ class NhClinicalFrequenciesEws(TransientModel):
 
     @api.multi
     def set_params(self):
+        """
+        Sets the values of config parameters so they are stored in the
+        database.
+        """
         field_names = self._get_field_names()
 
         config_parameters_model = self.env['ir.config_parameter']
@@ -61,6 +65,21 @@ class NhClinicalFrequenciesEws(TransientModel):
 
     @api.model
     def get_default_params(self, field_names):
+        """
+        The `get_default_params` method retrieves the values of existing
+        configuration parameters that have already been set previously so the
+        record is pre-populated.
+
+        When the user is looking at a view this has the effect of the
+        configuration screen showing what the existing values are so they are
+        informed when and if they set new ones.
+
+        :param field_names: The names of all the fields on the record, each
+        of which represents one of the configuration parameters.
+        :type field_names: list
+        :return: Current parameter names and values.
+        :rtype: dict
+        """
         current_param_values = {}
         config_parameters_model = self.env['ir.config_parameter']
         for field_name in field_names:
@@ -69,6 +88,12 @@ class NhClinicalFrequenciesEws(TransientModel):
         return current_param_values
 
     def _get_field_names(self):
+        """
+        Gets all the field names for the record excluding 'magic' fields like
+        `create_date` that Odoo puts on every record.
+        :return: List of 'normal' field names.
+        :rtype: list
+        """
         field_names = [field_name for field_name in self._columns.keys()
                        if field_name not in MAGIC_COLUMNS]
         return field_names

@@ -40,6 +40,7 @@ class TestSetParams(TransactionCase):
     def call_test(self, values=6, minimum=5, maximum=10):
         """
         Call the method under test.
+
         :param values:
         :param minimum:
         :param maximum:
@@ -53,6 +54,7 @@ class TestSetParams(TransactionCase):
         """
         Set a dictionary of values to create the settings record that will
         set the params.
+
         :param values:
         :param minimum:
         :param maximum:
@@ -180,9 +182,13 @@ class TestDoesNotRaiseIfAllParametersEqual(TestSetParams):
     """
     No exception is raised if all arguments are equal.
     """
-    def test_does_not_raise_if_all_parameters_equal(self):
+    def test_positive_values(self):
         self.call_test(values=10, minimum=10, maximum=10)
+
+    def test_other_positive_values(self):
         self.call_test(values=1, minimum=1, maximum=1)
+
+    def test_negative_values(self):
         self.call_test(values=-1, minimum=-1, maximum=-1)
 
 
@@ -190,10 +196,16 @@ class TestDoesNotRaiseIfCalledByAdmin(TestSetParams):
     """
     No exception is raised if method is called by admin.
     """
-    def test_does_not_raise_if_called_by_admin(self):
+    def test_positive_values(self):
         self.call_test(values=6, minimum=5, maximum=10)
+
+    def test_other_positive_values(self):
         self.call_test(values=2, minimum=1, maximum=3)
+
+    def test_some_negative_values(self):
         self.call_test(values=-1, minimum=-10, maximum=10)
+
+    def test_all_negative_values(self):
         self.call_test(values=-9, minimum=-10, maximum=-8)
 
 

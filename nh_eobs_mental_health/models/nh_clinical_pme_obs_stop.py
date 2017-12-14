@@ -145,6 +145,17 @@ class NhClinicalObsStop(models.Model):
         return self._schedule_new_ews(new_ews_activity_id, spell_activity)
 
     def _schedule_new_ews(self, new_ews_activity_id, spell_activity):
+        """
+        Sets the date scheduled of the EWS activity specified by the passed ID
+        so that it is due at the correct time specified in the policy.
+
+        :param new_ews_activity_id:
+        :type new_ews_activity_id: int
+        :param spell_activity:
+        :type spell_activity: nh.activity
+        :return: ID of the newly created EWS activity.
+        :rtype: int
+        """
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
 

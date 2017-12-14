@@ -93,3 +93,4 @@ class TestGetRiskFrequency(TransactionCase):
     def tearDown(self):
         self.ews_model._revert_method('convert_case_to_risk')
         self.frequencies_model._revert_method('_get_param')
+        super(TestGetRiskFrequency, self).tearDown()

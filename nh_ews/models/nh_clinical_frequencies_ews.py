@@ -24,8 +24,9 @@ class NhClinicalFrequenciesEws(AbstractModel):
     def get_minimum_frequency(self, clinical_risk):
         """
         Get the parameter which specifies the minimum frequency that can
-        safely by set for a particular risk. The parameter must follow a
+        safely be set for a particular risk. The parameter must follow a
         particular naming convention that the method assumes.
+
         :param clinical_risk:
         :type clinical_risk: str
         :return: Minimum frequency config parameter value.

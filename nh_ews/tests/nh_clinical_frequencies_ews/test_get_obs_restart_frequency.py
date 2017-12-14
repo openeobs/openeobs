@@ -3,6 +3,12 @@ from openerp.tests.common import TransactionCase
 
 
 class TestGetObsRestartFrequency(TransactionCase):
+    """
+    The `get_obs_restart_frequency` method reads a previously set value from
+    the configuration table in the database for the frequency that should be
+    used for the first EWS observation that is created after a patient's obs
+    stop status ends.
+    """
     def setUp(self):
         super(TestGetObsRestartFrequency, self).setUp()
         self.frequencies_model = self.env['nh.clinical.frequencies.ews']
