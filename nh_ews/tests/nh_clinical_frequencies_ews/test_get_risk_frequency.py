@@ -8,42 +8,29 @@ class TestGetRiskFrequency(TransactionCase):
     model that is used to get retrieve the frequency for a new EWS based on
     the clinical risk indicated by the previous one.
     """
-    convert_case_to_risk_called = False
-    convert_case_to_risk_case_arg = False
-    get_param_called = False
-    get_param_string_arg = None
-
     def setUp(self):
         super(TestGetRiskFrequency, self).setUp()
         self.frequencies_model = self.env['nh.clinical.frequencies.ews']
         self.config_model = self.env['ir.config_parameter']
         self.ews_model = self.env['nh.clinical.patient.observation.ews']
 
-        global convert_case_to_risk_called
-        global convert_case_to_risk_case_arg
-        global get_param_called
-        global get_param_string_arg
-        convert_case_to_risk_called = False
-        convert_case_to_risk_case_arg = False
-        get_param_called = False
-        get_param_string_arg = None
+        self.convert_case_to_risk_called = False
+        self.convert_case_to_risk_case_arg = False
+        self.get_param_called = False
+        self.get_param_string_arg = None
 
-        def mock_convert_case_to_risk(self, case):
-            global convert_case_to_risk_called
-            global convert_case_to_risk_case_arg
-            convert_case_to_risk_called = True
-            convert_case_to_risk_case_arg = case
+        def mock_convert_case_to_risk(ews_model, case):
+            self.convert_case_to_risk_called = True
+            self.convert_case_to_risk_case_arg = case
             return 'Low'
         self.ews_model._patch_method('convert_case_to_risk',
                                      mock_convert_case_to_risk)
 
         self.expected_frequency = 20
 
-        def mock_get_param(self, string, *args):
-            global get_param_called
-            global get_param_string_arg
-            get_param_called = True
-            get_param_string_arg = args[0]
+        def mock_get_param(frequencies_model, string, *args):
+            self.get_param_called = True
+            self.get_param_string_arg = args[0]
             return 20
         self.frequencies_model._patch_method('_get_param', mock_get_param)
 
@@ -71,10 +58,10 @@ class TestGetRiskFrequency(TransactionCase):
         expected_case_arg = 1
         expected_get_param_arg = 'low'
         self.call_test(risk=expected_case_arg)
-        self.assertTrue(convert_case_to_risk_called)
-        self.assertTrue(get_param_called)
-        self.assertEqual(convert_case_to_risk_case_arg, expected_case_arg)
-        self.assertEqual(get_param_string_arg, expected_get_param_arg)
+        self.assertTrue(self.convert_case_to_risk_called)
+        self.assertTrue(self.get_param_called)
+        self.assertEqual(self.convert_case_to_risk_case_arg, expected_case_arg)
+        self.assertEqual(self.get_param_string_arg, expected_get_param_arg)
 
     def test_does_not_call_convert_case_to_risk_if_non_int_passed(self):
         """
@@ -83,8 +70,7 @@ class TestGetRiskFrequency(TransactionCase):
         argument can be passed straight to `get_param`.
         """
         self.call_test(risk='low')
-        global convert_case_to_risk_called
-        self.assertFalse(convert_case_to_risk_called)
+        self.assertFalse(self.convert_case_to_risk_called)
 
     def test_returns_int(self):
         self.call_test(risk=1)
