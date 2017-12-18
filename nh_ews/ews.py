@@ -54,9 +54,21 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case 1: low clinical risk
         case 2: medium clinical risk
         case 3: high clinical risk
+
+        {
+            'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
+            determine the acuity case based on the score.
+            of the NEWS observation, based on the case.
+            'notifications': [...],
+               Information sent to the trigger_notifications method,
+               based on case.
+            'risk': ['None', 'Low', 'Medium', 'High']
+        } --> Clinical risk of the patient, based on case.
+
+        All the case based lists work in a simple way:
+            list[case] --> value used
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123',
-               'frequencies': [720, 240, 60, 30],
                'notifications': [
                    [],
                    [{'model': 'assessment', 'groups': ['nurse', 'hca']},
@@ -579,8 +591,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         }
     ]
 
+    @api.model
+    def _get_default_frequency(self):
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        frequency = frequencies_model.get_placement_frequency()
+        return frequency
+
     _defaults = {
-        'frequency': 15
+        'frequency': _get_default_frequency
     }
 
     _order = "order_by desc, id desc"
@@ -668,20 +686,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         It determines which acuity case the current observation is in
         with the stored data and responds to the different policy
-        triggers accordingly defined on the ``_POLICY`` dictionary::
-
-            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
-            determine the acuity case based on the score.
-            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
-            of the NEWS observation, based on the case.
-            'notifications': [...],
-               Information sent to the trigger_notifications method,
-               based on case.
-            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
-            of the patient, based on case.
-
-        All the case based lists work in a simple way:
-        list[case] --> value used
+        triggers accordingly defined on the ``_POLICY`` dictionary.
 
         After the policy triggers take place the activity is `completed`
         and a new NEWS activity is created. Then the case based
@@ -967,8 +972,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :param context:
         :return:
         """
+        frequencies_pool = self.pool['nh.clinical.frequencies.ews']
+        frequency = frequencies_pool.get_risk_frequency(cr, uid, case)
         api_pool = self.pool['nh.clinical.api']
-        frequency = self._POLICY['frequencies'][case]
         return api_pool.change_activity_frequency(
             cr, uid, patient_id, name, frequency, context=context
         )

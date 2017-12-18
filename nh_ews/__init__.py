@@ -2,4 +2,6 @@
 from . import ews
 from . import notifications
 from . import parameters
+from .models import *
 from .tests.common import nh_clinical_test_utils
+from .wizard import *
