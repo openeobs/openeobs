@@ -64,34 +64,31 @@ class print_observation_report_wizard(osv.TransientModel):
             )
         )
 
-    def print_report(self, cr, uid, ids, context=None):
-        data = self.browse(cr, uid, ids[0], context)
-        data.spell_id = context['active_id']
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
+    @api.multi
+    def print_report(self):
+        data = self
+        data.spell_id = self.env.context['active_id']
+        spell_model = self.env['nh.clinical.spell']
 
         # get PDF version of the report
-        report_pool = self.pool['report']
-        report_pdf = report_pool.get_pdf(
-            cr, uid, ids, 'nh.clinical.observation_report',
-            data=data, context=context)
+        report_model = self.env['report']
+        report_pdf = report_model.get_pdf(
+            self, 'nh.clinical.observation_report', data=data)
         attachment_id = None
         # save it as an attachment in the Database
         # Use the spell ID to find the patient's NHS number
-        spell = spell_pool.read(cr, uid, [data.spell_id])[0]
-        patient_id = spell['patient_id'][0]
-        patient = patient_pool.read(cr, uid, patient_id)
-        patient_nhs = patient['patient_identifier']
+        spell = spell_model.browse(data.spell_id)
+        patient = spell.patient_id
+        patient_nhs = patient.patient_identifier
         attachment = {
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
             'datas_fname': self.get_filename(patient_nhs),
             'res_model': 'nh.clinical.observation_report_wizard',
-            'res_id': ids[0],
+            'res_id': self.id,
         }
         try:
-            attachment_id = self.pool['ir.attachment'].create(
-                cr, uid, attachment)
+            attachment_id = self.env['ir.attachment'].create(attachment)
         except AccessError:
             _logger.warning(
                 'Cannot save PDF report %r as attachment', attachment['name'])
