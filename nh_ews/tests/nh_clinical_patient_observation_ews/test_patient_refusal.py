@@ -18,6 +18,8 @@ class TestPatientRefusal(TransactionCase):
         self.ews_model = self.env['nh.clinical.patient.observation.ews']
         # nh.eobs.api not available to this module
         self.api_model = self.env['nh.clinical.api']
+        self.frequencies_model = \
+            self.env['nh.clinical.frequencies.ews']
         self.datetime_test_utils = self.env['datetime_test_utils']
 
         self.patient = self.patient_model.create({
@@ -80,7 +82,7 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        default_frequency = self.ews_model._POLICY['frequencies'][0]
+        default_frequency = self.frequencies_model.get_risk_frequency('no')
         after_refused_frequency = frequencies\
             .PATIENT_REFUSAL_ADJUSTMENTS['None'][default_frequency][0]
 
@@ -107,7 +109,7 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        default_frequency = self.ews_model._POLICY['frequencies'][1]
+        default_frequency = self.frequencies_model.get_risk_frequency('low')
         after_refused_frequency = frequencies \
             .PATIENT_REFUSAL_ADJUSTMENTS['Low'][default_frequency][0]
 
@@ -134,7 +136,7 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        default_frequency = self.ews_model._POLICY['frequencies'][2]
+        default_frequency = self.frequencies_model.get_risk_frequency('medium')
         after_refused_frequency = frequencies \
             .PATIENT_REFUSAL_ADJUSTMENTS['Medium'][default_frequency][0]
 
@@ -161,7 +163,7 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        default_frequency = self.ews_model._POLICY['frequencies'][3]
+        default_frequency = self.frequencies_model.get_risk_frequency('high')
         after_refused_frequency = frequencies \
             .PATIENT_REFUSAL_ADJUSTMENTS['High'][default_frequency][0]
 

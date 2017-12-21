@@ -1,18 +1,24 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
 Shows all :class:`patients<base.nh_clinical_patient>` pending a
 :class:`placement<operations.nh_clinical_patient_placement>` in a
 :class:`bed location<base.nh_clinical_location>`.
 """
-from openerp.osv import orm, fields
 import logging
+
+from openerp.osv import orm, fields
 
 _logger = logging.getLogger(__name__)
 
 
-class nh_clinical_placement(orm.Model):
+class NhClinicalPlacement(orm.Model):
     """
+    This model exists to power the view that shows patients awaiting placement.
+    It is not used as the actual 'placement' entity that is the source of truth
+    for patient placement in the database, that is
+    :class:`<operations.nh_clinical_patient_placements>`.
+
     Extends :class:`activity<activity.nh_activity>` to create
     placement activities, showing all
     :class:`placements<operations.nh_clinical_patient_placement>`

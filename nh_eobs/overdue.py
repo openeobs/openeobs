@@ -4,8 +4,9 @@
 Defines :class:`overdue<nh_clinical_overdue>` and
 :class:`doctors activities<nh_clinical_doctor_activities>`.
 """
-from openerp.osv import orm, fields
 import logging
+
+from openerp.osv import orm, fields
 
 _logger = logging.getLogger(__name__)
 
@@ -18,7 +19,6 @@ class nh_clinical_overdue(orm.Model):
     overdue and ``user_name`` to record user the activity is assigned
     to.
     """
-
     _name = "nh.clinical.overdue"
     _inherits = {'nh.activity': 'activity_id'}
     _description = "Overdue Activities View"
