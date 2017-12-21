@@ -1,5 +1,5 @@
 <openerp>
-    <data noupdate="1">
+    <data>
         <record id="initial_config_parameter_values" model="nh.clinical.frequencies.ews_settings">
             <field name="no_risk_minimum">720</field>
             <field name="low_risk_minimum">360</field>
