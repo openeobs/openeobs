@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from openerp import models, fields, osv, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
