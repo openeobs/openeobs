@@ -88,7 +88,7 @@ class print_observation_report_wizard(osv.TransientModel):
             'res_id': self.id,
         }
         try:
-            attachment_id = self.env['ir.attachment'].create(attachment)
+            attachment_id = self.env['ir.attachment'].create(attachment).id
         except AccessError:
             _logger.warning(
                 'Cannot save PDF report %r as attachment', attachment['name'])
