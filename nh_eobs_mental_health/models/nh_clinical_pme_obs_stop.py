@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from openerp import models, fields, osv, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -158,8 +158,10 @@ class NhClinicalObsStop(models.Model):
         """
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
+        datetime_utils_model = self.env['datetime_utils']
 
-        one_hour_time = datetime.now() + timedelta(hours=1)
+        one_hour_time = \
+            datetime_utils_model.get_current_time() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 
         new_ews_activity = activity_model.browse(new_ews_activity_id)

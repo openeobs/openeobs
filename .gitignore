@@ -6,3 +6,6 @@ venv/
 .idea/
 *.egg-info/
 *.egg
+
+# Readthedocs
+html/

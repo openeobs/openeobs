@@ -1,7 +1,6 @@
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 import base64
 import logging
-from datetime import datetime
 
 from openerp import api
 from openerp.addons.nh_odoo_fixes import validate
@@ -46,36 +45,50 @@ class print_observation_report_wizard(osv.TransientModel):
                 self.start_time, self.end_time
             )
 
-    def print_report(self, cr, uid, ids, context=None):
-        data = self.browse(cr, uid, ids[0], context)
-        data.spell_id = context['active_id']
+    def get_filename(self, patient_identifier):
+        """
+        Get the date the report was printed and combine that with the supplied
+        patient identifier to create the filename for the report
 
-        spell_pool = self.pool['nh.clinical.spell']
-        patient_pool = self.pool['nh.clinical.patient']
+        :param patient_identifier: string representing the Patient's identifier
+             - Most likely to be the NHS Number
+        :return: filename for the report
+        :rtype: str
+        """
+        datetime_utils_pool = self.env['datetime_utils']
+        return '{patient_identifier}_{date}_observation_report.pdf'.format(
+            patient_identifier=patient_identifier,
+            date=datetime_utils_pool.get_localised_time(
+                return_string=True,
+                return_string_format='%Y%m%d'
+            )
+        )
+
+    @api.multi
+    def print_report(self):
+        data = self
+        data.spell_id = self.env.context['active_id']
+        spell_model = self.env['nh.clinical.spell']
+
         # get PDF version of the report
-        report_pool = self.pool['report']
-        report_pdf = report_pool.get_pdf(
-            cr, uid, ids, 'nh.clinical.observation_report',
-            data=data, context=context)
+        report_model = self.env['report']
+        report_pdf = report_model.get_pdf(
+            self, 'nh.clinical.observation_report', data=data)
         attachment_id = None
         # save it as an attachment in the Database
         # Use the spell ID to find the patient's NHS number
-        spell = spell_pool.read(cr, uid, [data.spell_id])[0]
-        patient_id = spell['patient_id'][0]
-        patient = patient_pool.read(cr, uid, patient_id)
-        patient_nhs = patient['patient_identifier']
+        spell = spell_model.browse(data.spell_id)
+        patient = spell.patient_id
+        patient_nhs = patient.patient_identifier
         attachment = {
             'name': 'nh.clinical.observation_report',
             'datas': base64.encodestring(report_pdf),
-            'datas_fname': '{nhs}_{date}_observation_report.pdf'.format(
-                nhs=patient_nhs, date=datetime.strftime(
-                    datetime.now(), '%Y%m%d')),
+            'datas_fname': self.get_filename(patient_nhs),
             'res_model': 'nh.clinical.observation_report_wizard',
-            'res_id': ids[0],
+            'res_id': self.id,
         }
         try:
-            attachment_id = self.pool['ir.attachment'].create(
-                cr, uid, attachment)
+            attachment_id = self.env['ir.attachment'].create(attachment).id
         except AccessError:
             _logger.warning(
                 'Cannot save PDF report %r as attachment', attachment['name'])

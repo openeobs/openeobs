@@ -144,14 +144,15 @@ class NhClinicalPatientObservationWeight(models.Model):
         :returns: ``True``
         :rtype: bool
         """
+        datetime_utils_model = self.pool['datetime_utils']
         if not date_scheduled:
             hour = timedelta(hours=1)
             schedule_times = []
             for s in self._POLICY['schedule']:
                 schedule_times.append(
-                    datetime.now().replace(
+                    datetime_utils_model.get_current_time().replace(
                         hour=s[0], minute=s[1], second=0, microsecond=0))
-            date_schedule = datetime.now().replace(
+            date_schedule = datetime_utils_model.get_current_time().replace(
                 minute=0, second=0, microsecond=0) + timedelta(hours=2)
             utctimes = [fields.Datetime.utc_timestamp(
                 cr, uid, t, context=context) for t in schedule_times]
