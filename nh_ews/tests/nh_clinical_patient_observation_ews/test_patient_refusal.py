@@ -8,8 +8,17 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestPatientRefusal(TransactionCase):
+    """
+    Verify correct behaviour after a patient refusal is created. Currently the
+    only affect refusals have is that they cap the maximum frequency of the
+    next observation that is scheduled which this class tests.
 
+    They also add some UI elements but that is not tested here.
+    """
     def setUp(self):
+        """
+        Set up the test environment.
+        """
         super(TestPatientRefusal, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
         self.spell_model = self.env['nh.clinical.spell']
@@ -46,6 +55,10 @@ class TestPatientRefusal(TransactionCase):
         self.test_utils_model = self.env['nh.clinical.test_utils']
 
     def test_refusal_with_unknown_clinical_risk(self):
+        """
+        A patient with unknown clinical risk who refuses has their next
+        observation scheduled as expected.
+        """
         self.ews_model.get_open_obs_activity(
             self.spell_activity_id
         )
@@ -69,6 +82,10 @@ class TestPatientRefusal(TransactionCase):
             .assert_datetimes_equal_disregarding_seconds(expected, actual)
 
     def test_refusal_with_no_clinical_risk(self):
+        """
+        A patient with no clinical risk who refuses has their next
+        observation scheduled as expected.
+        """
         self.initial_no_risk_obs_activity = \
             self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
@@ -97,6 +114,10 @@ class TestPatientRefusal(TransactionCase):
             .assert_datetimes_equal_disregarding_seconds(expected, actual)
 
     def test_refusal_with_low_clinical_risk(self):
+        """
+        A patient with low clinical risk who refuses has their next
+        observation scheduled as expected.
+        """
         self.initial_low_risk_obs_activity = \
             self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
@@ -124,6 +145,10 @@ class TestPatientRefusal(TransactionCase):
             .assert_datetimes_equal_disregarding_seconds(expected, actual)
 
     def test_refusal_with_medium_clinical_risk(self):
+        """
+        A patient with medium clinical risk who refuses has their next
+        observation scheduled as expected.
+        """
         self.initial_medium_risk_obs_activity = \
             self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,
@@ -151,6 +176,10 @@ class TestPatientRefusal(TransactionCase):
             .assert_datetimes_equal_disregarding_seconds(expected, actual)
 
     def test_refusal_with_high_clinical_risk(self):
+        """
+        A patient with high clinical risk who refuses has their next
+        observation scheduled as expected.
+        """
         self.initial_high_risk_obs_activity = \
             self.test_utils_model.create_and_complete_ews_obs_activity(
                 self.patient.id, self.spell_activity_id,

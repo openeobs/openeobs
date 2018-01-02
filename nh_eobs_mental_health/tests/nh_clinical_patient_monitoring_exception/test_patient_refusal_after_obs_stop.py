@@ -7,7 +7,9 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestPatientRefusalAfterObsStop(TransactionCase):
-
+    """
+    Verify how refusals interact with obs stop.
+    """
     def setUp(self):
         super(TestPatientRefusalAfterObsStop, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
@@ -38,6 +40,10 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         self.datetime_test_utils = self.env['datetime_test_utils']
 
     def test_obs_after_refusal_due_in_one_hour(self):
+        """
+        After an obs stop the patients next obs is scheduled for one hour. In
+        other words the 'obs stop frequency' overrides the 'refusal frequency'.
+        """
         reason_one = self.reason_model.create({'display_text': 'reason one'})
         self.wardboard.start_obs_stop(
             reason_one,
