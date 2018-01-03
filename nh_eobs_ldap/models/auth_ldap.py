@@ -1,7 +1,7 @@
 from openerp.osv import osv
 import logging
 import ldap
-from openerp import SUPERUSER_ID
+from openerp import SUPERUSER_ID, api
 
 _logger = logging.getLogger(__name__)
 
@@ -23,18 +23,12 @@ class EOBSUsersLDAP(osv.osv):
         :param dict conf: LDAP configuration
         :return: an LDAP object
         """
-
-        uri = 'ldap://%s:%d' % (conf['ldap_server'],
-                                conf['ldap_server_port'])
-
-        connection = ldap.initialize(uri)
+        connection = super(EOBSUsersLDAP, self).connect(conf)
         connection.set_option(ldap.OPT_REFERRALS, 0)
-        if conf['ldap_tls']:
-            connection.start_tls_s()
         return connection
 
-    def get_or_create_user(self, cr, uid, conf, login, ldap_entry,
-                           context=None):
+    @api.multi
+    def get_or_create_user(self, conf, login, ldap_entry):
         """
         Retrieve an active resource of model res_users with the specified
         login. Create the user if it is not initially found.
@@ -46,21 +40,15 @@ class EOBSUsersLDAP(osv.osv):
         :rtype: int
         """
         user_id = super(EOBSUsersLDAP, self).get_or_create_user(
-            cr,
-            uid,
             conf,
             login,
-            ldap_entry,
-            context=context
+            ldap_entry
         )
-        user_obj = self.pool['res.users']
-        user_obj.write(
-            cr,
-            SUPERUSER_ID,
-            user_id,
+        user_model = self.env['res.users']
+        user_obj = user_model.browse(user_id)
+        user_obj.sudo().write(
             {
                 'ldap_authenticated': True
-            },
-            context=context
+            }
         )
         return user_id

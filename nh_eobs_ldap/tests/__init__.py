@@ -1,3 +1,4 @@
-from . import test_auth_ldap_get_create_user
-from . import test_auth_ldap_referral_option
-from . import test_res_users_change_password
+from .auth_ldap import *
+from .res_users import *
+from .change_password_wizard import *
+from .web_main import *

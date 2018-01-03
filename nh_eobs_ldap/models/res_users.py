@@ -1,6 +1,7 @@
 from openerp.osv import osv, fields
 from openerp import SUPERUSER_ID
 from openerp.tools.translate import _
+from openerp import api
 
 
 class EOBSResUsers(osv.osv):
@@ -23,7 +24,8 @@ class EOBSResUsers(osv.osv):
         'ldap_authenticated': False
     }
 
-    def change_password(self, cr, uid, old_passwd, new_passwd, context=None):
+    @api.model
+    def change_password(self, old_passwd, new_passwd):
         """Change current user password. Old password must be provided
         explicitly to prevent hijacking an existing user session, or for cases
         where the cleartext password is not used to authenticate requests.
@@ -34,12 +36,10 @@ class EOBSResUsers(osv.osv):
         setup via Active Directory
         :raise: except_osv when new password is not set or empty
         """
-        user = self.read(cr, SUPERUSER_ID, uid, ['ldap_authenticated'],
-                         context=context)
-        if user and user.get('ldap_authenticated'):
+        if self.ldap_authenticated:
             raise osv.except_osv(_('Warning!'), _(
                 "Cannot change password for Trust managed account. "
                 "Please contact IT to change your password."
             ))
-        return super(EOBSResUsers, self).change_password(
-            cr, uid, old_passwd, new_passwd, context=context)
+        return super(EOBSResUsers, self)\
+            .change_password(old_passwd, new_passwd)
