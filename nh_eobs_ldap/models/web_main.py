@@ -15,7 +15,10 @@ class MainSession(Session):
     @staticmethod
     def _change_password(request, fields):
         """
-        Actual implementation behind the change_password call
+        Actual implementation behind the change_password call. This is a
+        reimplementation of the method as the original method silences
+        exceptions so we can't see if the exception is from a password
+        issue or the res.user check for the ldap_authenticated flag.
 
         :param fields: submitted fields
         :return: the new password or an error

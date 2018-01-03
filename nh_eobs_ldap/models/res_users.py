@@ -4,12 +4,10 @@ from openerp import api
 
 
 class EOBSResUsers(osv.osv):
-    """ User class. A res.users record models an OpenERP user and is different
-        from an employee.
-
-        res.users class now inherits from res.partner. The partner model is
-        used to store the data related to the partner: lang, name, address,
-        avatar, ... The user model is now dedicated to technical data.
+    """
+    Override of the Odoo's res.users class to add ldap_authenticated flag
+    and override change_password to prevent ldap authenticated users from
+    changing the password (as this will come from LDAP)
     """
     _name = "res.users"
     _inherit = "res.users"

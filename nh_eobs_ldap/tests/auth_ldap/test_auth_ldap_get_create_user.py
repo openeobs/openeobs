@@ -10,6 +10,8 @@ class TestAuthLdapGetOrCreateUserFlag(TransactionCase):
         super(TestAuthLdapGetOrCreateUserFlag, self).setUp()
         self.ldap_model = self.env['res.company.ldap']
         self.user_model = self.env['res.users']
+        self.test_utils = self.env['nh.clinical.test_utils']
+        self.nurse = self.test_utils.create_nurse(location_id=1)
 
         self.ldap_conf = {
             'ldap_server': '127.0.0.1',
@@ -38,4 +40,11 @@ class TestAuthLdapGetOrCreateUserFlag(TransactionCase):
             self.ldap_entry
         )
         user = self.user_model.search([['login', '=', 'test_user']])[0]
-        self.assertEqual(user.ldap_authenticated, True)
+        self.assertTrue(user.ldap_authenticated)
+
+    def test_res_user_create_lacks_flag(self):
+        """
+        Test that creating a local user (i.e. not via get_or_create_user) will
+        not set the ldap_authenticated flag to be True
+        """
+        self.assertFalse(self.nurse.ldap_authenticated)

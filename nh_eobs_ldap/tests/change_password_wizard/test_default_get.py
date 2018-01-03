@@ -17,7 +17,7 @@ class TestDefaultGet(TransactionCase):
         self.user_model = self.env['res.users']
         self.nurse = self.test_utils.create_nurse(location_id=1)
         self.hca = self.test_utils.create_hca(location_id=1)
-        self.nurse.write({'ldap_authenticated': True})
+        self.nurse.ldap_authenticated = True
 
     def test_ad_authed_users(self):
         """

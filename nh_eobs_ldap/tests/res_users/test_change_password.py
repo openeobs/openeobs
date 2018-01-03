@@ -14,7 +14,7 @@ class TestResUsersChangePassword(TransactionCase):
         self.user = user_model.browse(self.uid)
 
     def test_raises_on_changing_ad_password(self):
-        self.user.write({'ldap_authenticated': True})
+        self.user.ldap_authenticated = True
         with self.assertRaises(except_osv):
             self.user.change_password('admin', 'new_password')
 
