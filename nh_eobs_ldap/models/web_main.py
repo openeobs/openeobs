@@ -23,8 +23,9 @@ class MainSession(Session):
         old_password, new_password, confirm_password = \
             operator.itemgetter('old_pwd', 'new_password', 'confirm_pwd')(
                 dict(map(operator.itemgetter('name', 'value'), fields)))
-        password_set = old_password.strip() and new_password.strip() and \
-                       confirm_password.strip()
+        password_set = old_password.strip() \
+            and new_password.strip() \
+            and confirm_password.strip()
         if not password_set:
             return {'error': _('You cannot leave any password empty.'),
                     'title': _('Change Password')}

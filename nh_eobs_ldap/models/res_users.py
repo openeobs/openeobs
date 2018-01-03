@@ -1,5 +1,4 @@
 from openerp.osv import osv, fields
-from openerp import SUPERUSER_ID
 from openerp.tools.translate import _
 from openerp import api
 

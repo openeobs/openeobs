@@ -22,7 +22,7 @@ class TestChangePassword(TransactionCase):
                 {
                     'name': 'old_pwd',
                     'value': 'admin'
-                 },
+                },
                 {
                     'name': 'new_password',
                     'value': 'admin'
