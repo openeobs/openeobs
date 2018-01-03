@@ -1,7 +1,7 @@
 from openerp.osv import osv
 import logging
 import ldap
-from openerp import  api
+from openerp import api
 
 _logger = logging.getLogger(__name__)
 

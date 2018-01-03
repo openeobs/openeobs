@@ -72,7 +72,7 @@ class TestChangePassword(TransactionCase):
         dictionary is returned
         """
         request = mock.MagicMock()
-        request.session.model('res.users').change_password.side_effect = \
+        request.session.model().browse().change_password.side_effect = \
             AccessDenied()
         result = MainSession._change_password(
             request,
@@ -105,7 +105,7 @@ class TestChangePassword(TransactionCase):
         error_msg = "Cannot change password for Trust managed account. " \
                     "Please contact IT to change your password."
         request = mock.MagicMock()
-        request.session.model('res.users').change_password.side_effect = \
+        request.session.model().browse().change_password.side_effect = \
             except_osv('Warning!', error_msg)
         result = MainSession._change_password(
             request,
@@ -134,7 +134,7 @@ class TestChangePassword(TransactionCase):
         Test that can change password successfully
         """
         request = mock.MagicMock()
-        request.session.model('res.users').change_password.return_value = True
+        request.session.model().browse().change_password.return_value = True
         result = MainSession._change_password(
             request,
             (

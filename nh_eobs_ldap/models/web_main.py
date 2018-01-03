@@ -36,8 +36,9 @@ class MainSession(Session):
                 'title': _('Change Password')
             }
         try:
-            if request.session.model('res.users').change_password(
-                    old_password, new_password):
+            users_model = request.session.model('res.users')
+            user = users_model.browse(request.uid)
+            if user.change_password(old_password, new_password):
                 return {'new_password': new_password}
         except Exception as e:
             if isinstance(e, except_osv) \
