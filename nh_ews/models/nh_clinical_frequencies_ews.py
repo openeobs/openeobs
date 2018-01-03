@@ -68,25 +68,28 @@ class NhClinicalFrequenciesEws(AbstractModel):
         """
         Get the config parameter to be used for the EWS observation created
         when a patient is placed.
+
         :return: Placement frequency config parameter.
         :rtype: int
         """
         return self._get_param('placement')
 
-    def get_obs_restart_frequency(self):
+    def get_transfer_frequency(self):
         """
         Get the config parameter to be used for the EWS observation created
-        when a patient's obs stop status ends.
-        :return: Obs restart frequency config parameter.
+        when a patient is transferred.
+
+        :return: Transfer frequency config parameter.
         :rtype: int
         """
-        return self._get_param('obs_restart')
+        return self._get_param('transfer')
 
     def _get_param(self, string, *args):
         """
         Format the passed arguments into the passed string to get the
         parameter name to be retrieved. The underlying method does not raise
         if the parameter does not exist but this method does.
+
         :param string:
         :param args:
         :return: Requested frequency for a particular situation.

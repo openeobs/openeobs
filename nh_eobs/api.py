@@ -409,7 +409,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         activity_pool = self.pool['nh.activity']
         self._check_activity_id(cr, uid, activity_id, context=context)
         if not self.check_activity_access(

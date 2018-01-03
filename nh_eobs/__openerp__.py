@@ -6,7 +6,11 @@
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',
-    'description': """     """,
+    'description': """
+        Adds a slew of features to create a usable observation application:
+          - Observations can be scheduled and assigned to users.
+          - Patients can refuse observations.
+    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_clinical',

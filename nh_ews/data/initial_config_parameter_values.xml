@@ -14,6 +14,7 @@
             <field name="medium_risk">60</field>
             <field name="high_risk">30</field>
             <field name="placement">15</field>
+            <field name="transfer">15</field>
             <field name="obs_restart">60</field>
         </record>
         <function model="nh.clinical.frequencies.ews_settings" name="execute">
