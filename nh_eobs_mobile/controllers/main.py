@@ -667,6 +667,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         :return: tuple of form and form inputs
         """
         activity_model = request.registry('nh.activity')
+        datetime_utils_model = request.registry('datetime_utils')
         activity_record = activity_model.browse(cr, uid, task.get('id'))
         form_desc, form = self.process_form_fields(
             activity_record.data_ref.get_form_description(patient.get('id'))
@@ -680,7 +681,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['patient-id'] = \
             int(patient['id']) if patient and patient.get('id') else False
         form['source'] = "task"
-        form['start'] = datetime.now().strftime('%s')
+        form['start'] = datetime_utils_model.get_current_time().strftime('%s')
         return form, form_desc
 
     @http.route(URLS['single_task']+'<task_id>', type='http', auth='user')
@@ -897,6 +898,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         """
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
+        datetime_utils_model = request.registry('datetime_utils')
         follow_activities = api_pool.get_assigned_activities(
             cr, uid,
             activity_type='nh.clinical.patient.follow',
@@ -930,7 +932,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         form['task-id'] = False
         form['patient-id'] = int(patient_id)
         form['source'] = "patient"
-        form['start'] = datetime.now().strftime('%s')
+        form['start'] = datetime_utils_model.get_current_time().strftime('%s')
         observation_name_list = []
         for ob in api_pool.get_active_observations(cr, uid, patient_id):
             if ob['type'] == observation:

@@ -2,69 +2,14 @@
 """Encapsulates commonly used test methods."""
 from datetime import datetime
 
-from openerp.models import AbstractModel
-
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
+from openerp.models import AbstractModel
 
 
 class NhClinicalTestUtils(AbstractModel):
 
     _name = 'nh.clinical.test_utils'
     _inherit = 'nh.clinical.test_utils'
-
-    # TODO Rename to get_open_obs_activity
-    def get_open_obs(self, patient_id=None, data_model=None, user_id=None):
-        """
-        Search for the currently open observation for the data model and
-        assign the user to the activity so they can complete it
-
-        :param patient_id: ID of the patient
-        :param data_model: Observation model associated with the activity
-        :param user_id: ID of user who will do observation
-        """
-        api_model = self.pool['nh.eobs.api']
-        activity_model = self.env['nh.activity']
-
-        if not patient_id:
-            patient_id = self.patient.id
-        if not data_model:
-            data_model = 'nh.clinical.patient.observation.ews'
-        if not user_id:
-            user_id = self.nurse.id
-
-        ews_activity_search = activity_model.search(
-            [
-                ['data_model', '=', data_model],
-                ['patient_id', '=', patient_id],
-                ['state', '=', 'scheduled']
-            ]
-        )
-        if ews_activity_search:
-            self.ews_activity = ews_activity_search[0]
-        else:
-            raise ValueError('Could not find EWS Activity ID')
-
-        api_model.assign(
-            self.env.cr,
-            user_id,
-            self.ews_activity.id,
-            {'user_id': user_id}
-        )
-
-    # TODO: Rename to complete_ews to distinguish from other observations.
-    def complete_obs(self, obs_data, obs_id=None, user_id=None):
-        api_pool = self.pool['nh.eobs.api']
-        if not obs_id:
-            obs_id = self.ews_activity.id
-        if not user_id:
-            user_id = self.nurse.id
-
-        api_pool.complete(
-            self.env.cr,
-            user_id,
-            obs_id,
-            obs_data
-        )
 
     # Utility methods
     def create_and_complete_ews_obs_activity(
@@ -103,6 +48,17 @@ class NhClinicalTestUtils(AbstractModel):
                              obs_activity_id, obs_data)
         activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
         return activity_model.browse(obs_activity_id)
+
+    def complete_obs(self, obs_data, obs_activity_id=None, user_id=None):
+        activity_model = self.env['nh.activity']
+        if user_id is None:
+            user_id = self.env.uid
+        if obs_activity_id is None:
+            obs_activity_id = self.get_open_obs()
+
+        obs_activity = activity_model.browse(obs_activity_id)
+        obs_activity.submit(obs_data)
+        return obs_activity.complete()
 
     def complete_open_obs_as_partial(self, patient_id, spell_activity_id,
                                      reason):
@@ -159,8 +115,7 @@ class NhClinicalTestUtils(AbstractModel):
         :type patient_id: int
         :param spell_activity_id:
         :type spell_activity_id: int
-        :return:
+        :return: Refused observation activity.
         """
         return self.complete_open_obs_as_partial(
-            patient_id, spell_activity_id, 'refused'
-        )
+            patient_id, spell_activity_id, 'refused')

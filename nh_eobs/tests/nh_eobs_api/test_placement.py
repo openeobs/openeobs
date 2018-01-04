@@ -37,6 +37,11 @@ class TestPlacement(TransactionCase):
         self.assertEqual(len(open_obs_activities), 1)
 
     def test_new_obs_due_in_n_minutes_defined_in_config(self):
+        """
+        When the new EWS obs is created it uses the config to decide when
+        it is due. Whatever is in the config for the `placement` is the number
+        that will be used to calculate the due time.
+        """
         expected_frequency = 30
         self.config_model.set_param('placement', expected_frequency)
 
@@ -50,6 +55,11 @@ class TestPlacement(TransactionCase):
                          expected_frequency)
 
     def test_new_obs_due_in_n_minutes_defined_in_config_after_transfer(self):
+        """
+        When the new EWS obs is created it uses the config to decide when
+        it is due. Whatever is in the config for the `transfer` parameter is
+        the number that will be used to calculate the due time.
+        """
         expected_frequency = 60
         self.config_model.set_param('placement', expected_frequency)
 

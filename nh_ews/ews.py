@@ -8,10 +8,8 @@ import bisect
 import copy
 import logging
 from datetime import datetime as dt
-from datetime import timedelta
 
 from openerp import SUPERUSER_ID, api
-from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as dtf
 
@@ -54,6 +52,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case 1: low clinical risk
         case 2: medium clinical risk
         case 3: high clinical risk
+
+        {
+            'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
+            determine the acuity case based on the score.
+            of the NEWS observation, based on the case.
+            'notifications': [...],
+               Information sent to the trigger_notifications method,
+               based on case.
+            'risk': ['None', 'Low', 'Medium', 'High']
+        } --> Clinical risk of the patient, based on case.
+
+        All the case based lists work in a simple way:
+            list[case] --> value used
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123',
                'notifications': [
@@ -673,20 +684,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         It determines which acuity case the current observation is in
         with the stored data and responds to the different policy
-        triggers accordingly defined on the ``_POLICY`` dictionary::
-
-            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
-            determine the acuity case based on the score.
-            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
-            of the NEWS observation, based on the case.
-            'notifications': [...],
-               Information sent to the trigger_notifications method,
-               based on case.
-            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
-            of the patient, based on case.
-
-        All the case based lists work in a simple way:
-        list[case] --> value used
+        triggers accordingly defined on the ``_POLICY`` dictionary.
 
         After the policy triggers take place the activity is `completed`
         and a new NEWS activity is created. Then the case based
@@ -806,103 +804,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :type next_obs_activity: 'nh.activity' record
         :return:
         """
-        activity_pool = self.pool['nh.activity']
-        patient_id = partial_obs_activity.data_ref.patient_id.id
+        frequency = partial_obs_activity.data_ref.frequency
+        date_scheduled = partial_obs_activity.date_scheduled
+        self._schedule(next_obs_activity, frequency, date_scheduled)
 
-        last_obs_refused = self.is_last_obs_refused(patient_id)
-        if last_obs_refused:
-            frequency = self.get_frequency_for_refusal(partial_obs_activity)
-            date_scheduled = self.get_date_scheduled_for_refusal(
-                partial_obs_activity.date_terminated, frequency
-            )
-        else:
-            frequency = partial_obs_activity.data_ref.frequency
-            date_scheduled = partial_obs_activity.date_scheduled
-
+    def _schedule(self, next_obs_activity, frequency, date_scheduled):
         next_obs_activity.data_ref.frequency = frequency
+        # TODO is this necessary? Write override updates date_scheduled.
+        activity_pool = self.pool['nh.activity']
         activity_pool.schedule(
             self.env.cr, self.env.uid, next_obs_activity.id,
-            date_scheduled=date_scheduled, context=self.env.context
-        )
-
-    @api.model
-    def get_frequency_for_refusal(self, previous_obs_activity):
-        """
-        Get the expected frequency for a new observation triggered by
-        completion of the passed one if it is also refused.
-
-        :param previous_obs_activity:
-        :type previous_obs_activity: 'nh.activity' record
-        :return:
-        """
-        placement_model = self.env['nh.clinical.patient.placement']
-
-        frequency = previous_obs_activity.data_ref.frequency
-        spell_activity_id = previous_obs_activity.spell_activity_id.id
-
-        if self.obs_stop_before_refusals(
-                spell_activity_id):
-            case = 'Obs Restart'
-        elif frequency == 15 \
-                and len(placement_model.get_placement_activities_for_spell(
-                    spell_activity_id)) > 1 \
-                and self.placement_before_refusals(spell_activity_id):
-            case = 'Transfer'
-        else:
-            last_full_obs_activity = self.get_last_full_obs_activity(
-                spell_activity_id
-            )
-            if last_full_obs_activity:
-                case = self.get_case(last_full_obs_activity.data_ref)
-            else:
-                case = 'Unknown'
-
-        refusal_adjusted_frequency = \
-            self.lookup_adjusted_frequency_for_patient_refusal(case, frequency)
-        return refusal_adjusted_frequency
-
-    @api.model
-    def get_date_scheduled_for_refusal(
-            self, previous_activity_completed_datetime, frequency):
-        """
-        Get the expected schedule date for a new observation triggered based on
-        the passed completion date of the previous observation and it's
-        frequency.
-
-        :param previous_activity_completed_datetime: Value for the date
-            terminated field of the previous completed observation.
-        :type previous_activity_completed_datetime: str
-        :param frequency: Frequency in minutes.
-        :type frequency: int
-        :return:
-        """
-        previous_activity_completed_datetime = \
-            dt.strptime(previous_activity_completed_datetime, dtf)
-        date_scheduled = \
-            previous_activity_completed_datetime + timedelta(minutes=frequency)
-        return date_scheduled
-
-    def lookup_adjusted_frequency_for_patient_refusal(self, case,
-                                                      frequency=None):
-        """
-        Lookup the frequency adjusted to take into account the fact that the
-        patient is refusing observations. There are some cases where this needs
-        to be different to the usual frequency dictated by the policy which
-        necessitates this lookup.
-
-        :param case: Either an int representing the clinical risk or a str
-            representing a special state such as 'Transfer'.
-            See `field`:nh_ews._POLICY: and `frequencies.py`.
-        :type case: int or str
-        :param frequency: Frequency in minutes.
-        :type frequency: int
-        :return:
-        """
-        if type(case) is str:
-            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[case][0]
-        else:
-            risk = self.convert_case_to_risk(case)
-            return frequencies.PATIENT_REFUSAL_ADJUSTMENTS[risk][frequency][0]
+            date_scheduled=date_scheduled, context=self.env.context)
 
     def can_decrease_obs_frequency(self, cr, uid, patient_id,
                                    threshold_value,
