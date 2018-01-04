@@ -1,4 +1,5 @@
 from .nh_clinical_doctor_activities import *
+from .nh_clinical_frequencies_ews import *
 from .nh_clinical_notification_clinical_review import *
 from .nh_clinical_notification_clinical_review_frequency import *
 from .nh_clinical_observation_report import *
