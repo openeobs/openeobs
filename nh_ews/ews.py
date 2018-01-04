@@ -8,7 +8,6 @@ import bisect
 import copy
 import logging
 from datetime import datetime as dt
-from datetime import timedelta
 
 from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, fields
@@ -805,46 +804,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :type next_obs_activity: 'nh.activity' record
         :return:
         """
-        activity_pool = self.pool['nh.activity']
-        patient_id = partial_obs_activity.data_ref.patient_id.id
+        frequency = partial_obs_activity.data_ref.frequency
+        date_scheduled = partial_obs_activity.date_scheduled
+        self._schedule(next_obs_activity, frequency, date_scheduled)
 
-        last_obs_refused = self.is_last_obs_refused(patient_id)
-        if last_obs_refused:
-            frequencies_model = self.env['nh.clinical.frequencies.ews']
-            frequency = \
-                frequencies_model.get_refusal_frequency(partial_obs_activity)
-            date_scheduled = self.get_date_scheduled_for_refusal(
-                partial_obs_activity.date_terminated, frequency)
-        else:
-            frequency = partial_obs_activity.data_ref.frequency
-            date_scheduled = partial_obs_activity.date_scheduled
-
+    def _schedule(self, next_obs_activity, frequency, date_scheduled):
         next_obs_activity.data_ref.frequency = frequency
         # TODO is this necessary? Write override updates date_scheduled.
+        activity_pool = self.pool['nh.activity']
         activity_pool.schedule(
             self.env.cr, self.env.uid, next_obs_activity.id,
             date_scheduled=date_scheduled, context=self.env.context)
-
-    @staticmethod
-    def get_date_scheduled_for_refusal(
-            previous_activity_completed_datetime, frequency):
-        """
-        Get the expected schedule date for a new observation triggered based on
-        the passed completion date of the previous observation and it's
-        frequency.
-
-        :param previous_activity_completed_datetime: Value for the date
-            terminated field of the previous completed observation.
-        :type previous_activity_completed_datetime: str
-        :param frequency: Frequency in minutes.
-        :type frequency: int
-        :return:
-        """
-        previous_activity_completed_datetime = \
-            dt.strptime(previous_activity_completed_datetime, dtf)
-        date_scheduled = \
-            previous_activity_completed_datetime + timedelta(minutes=frequency)
-        return date_scheduled
 
     def can_decrease_obs_frequency(self, cr, uid, patient_id,
                                    threshold_value,

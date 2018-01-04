@@ -63,11 +63,12 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = 240
+        expected_after_refused_frequency = \
+            self.frequencies_model.get_unknown_risk_refusal_frequency()
 
         expected = datetime.strptime(
             obs_activity_after_refused.create_date, DTF
-        ) + timedelta(minutes=after_refused_frequency)
+        ) + timedelta(minutes=expected_after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
         )
@@ -90,11 +91,12 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = 720
+        expected_after_refused_frequency = \
+            self.frequencies_model.get_risk_frequency('no')
 
         expected = datetime.strptime(
             obs_activity_after_refused.create_date, DTF
-        ) + timedelta(minutes=after_refused_frequency)
+        ) + timedelta(minutes=expected_after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
         )
@@ -117,11 +119,12 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = 360
+        expected_after_refused_frequency = \
+            self.frequencies_model.get_risk_frequency('low')
 
         expected = datetime.strptime(
             obs_activity_after_refused.create_date, DTF
-        ) + timedelta(minutes=after_refused_frequency)
+        ) + timedelta(minutes=expected_after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
         )
@@ -144,11 +147,12 @@ class TestPatientRefusal(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = 60
+        expected_after_refused_frequency = \
+            self.frequencies_model.get_risk_frequency('medium')
 
         expected = datetime.strptime(
             obs_activity_after_refused.create_date, DTF
-        ) + timedelta(minutes=after_refused_frequency)
+        ) + timedelta(minutes=expected_after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
         )
@@ -170,11 +174,12 @@ class TestPatientRefusal(TransactionCase):
             self.patient.id, self.spell_activity_id
         )
 
-        after_refused_frequency = 30
+        expected_after_refused_frequency = \
+            self.frequencies_model.get_risk_frequency('high')
 
         expected = datetime.strptime(
             obs_activity_after_refused.create_date, DTF
-        ) + timedelta(minutes=after_refused_frequency)
+        ) + timedelta(minutes=expected_after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
         )

@@ -24,17 +24,6 @@ class TestGetRefusalFrequency(TransactionCase):
                 self.patient.id, self.spell_activity.id)
         self.actual_frequency = refused_obs_activity.data_ref.frequency
 
-    def test_placement_frequency_used(self):
-        """
-        If a patient has never had a full observation then the 'placement
-        frequency' is used (because they have not had a full observation since
-        being placed in a bed).
-        """
-        expected_frequency = 15
-        self.config_model.set_param('placement', expected_frequency)
-        self.call_test()
-        self.assertEqual(expected_frequency, self.actual_frequency)
-
     def test_transfer_frequency_used(self):
         """
         If a patient has not had a full observation since being transferred

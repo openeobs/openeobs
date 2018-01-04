@@ -26,10 +26,9 @@ class NhClinicalFrequenciesEws(AbstractModel):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         spell_activity_id = refused_obs_activity.spell_activity_id.id
 
-        if ews_model.obs_stop_before_refusals(spell_activity_id):
-            next_obs_frequency = self.get_obs_restart_frequency()
-        elif ews_model.transferred_and_placed_before_refusals(refused_obs_activity):
-            next_obs_frequency = self.get_transfer_frequency()
+        if ews_model.transferred_and_placed_before_refusals(
+                refused_obs_activity):
+            next_obs_frequency = self.get_transfer_refusal_frequency()
         else:
             last_full_obs_activity = ews_model.get_last_full_obs_activity(
                 spell_activity_id)
@@ -37,11 +36,24 @@ class NhClinicalFrequenciesEws(AbstractModel):
                 case = ews_model.get_case(last_full_obs_activity.data_ref)
                 next_obs_frequency = self.get_risk_frequency(case)
             else:
-                next_obs_frequency = self.get_placement_frequency()
+                next_obs_frequency = self.get_unknown_risk_refusal_frequency()
 
         next_obs_frequency = \
             self._cap_frequency_at_24_hours(next_obs_frequency)
         return next_obs_frequency
+
+    def get_unknown_risk_refusal_frequency(self):
+        return self._get_param('unknown_risk_refusal')
+
+    def get_transfer_refusal_frequency(self):
+        """
+        Get the config parameter to be used for the EWS observation created
+        when a patient is transferred.
+
+        :return: Transfer frequency config parameter.
+        :rtype: int
+        """
+        return self._get_param('transfer_refusal')
 
     @staticmethod
     def _cap_frequency_at_24_hours(frequency):
