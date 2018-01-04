@@ -23,18 +23,12 @@ class NhClinicalFrequenciesEws(AbstractModel):
         :return: Refusal frequency config parameter.
         :rtype: int
         """
-        placement_model = self.env['nh.clinical.patient.placement']
         ews_model = self.env['nh.clinical.patient.observation.ews']
-
-        refused_obs_frequency = refused_obs_activity.data_ref.frequency
         spell_activity_id = refused_obs_activity.spell_activity_id.id
 
         if ews_model.obs_stop_before_refusals(spell_activity_id):
             next_obs_frequency = self.get_obs_restart_frequency()
-        elif refused_obs_frequency == 15 \
-                and len(placement_model.get_placement_activities_for_spell(
-                    spell_activity_id)) > 1 \
-                and ews_model.placement_before_refusals(spell_activity_id):
+        elif ews_model.transferred_and_placed_before_refusals(refused_obs_activity):
             next_obs_frequency = self.get_transfer_frequency()
         else:
             last_full_obs_activity = ews_model.get_last_full_obs_activity(

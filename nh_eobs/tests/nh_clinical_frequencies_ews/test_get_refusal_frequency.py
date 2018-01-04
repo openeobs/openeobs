@@ -13,21 +13,27 @@ class TestGetRefusalFrequency(TransactionCase):
         self.test_utils.admit_and_place_patient(create_placement=False)
         self.test_utils.copy_instance_variables(self)
 
+        self.config_model.set_param('placement', 30)
+        self.config_model.set_param('transfer', 60)
+        self.config_model.set_param('obs_restart', 120)
+        self.config_model.set_param('no_risk', 240)
+
+    def call_test(self):
+        refused_obs_activity = \
+            self.test_utils.refuse_open_obs(
+                self.patient.id, self.spell_activity.id)
+        self.actual_frequency = refused_obs_activity.data_ref.frequency
+
     def test_placement_frequency_used(self):
         """
         If a patient has never had a full observation then the 'placement
         frequency' is used (because they have not had a full observation since
         being placed in a bed).
         """
-        expected_frequency = 30
+        expected_frequency = 15
         self.config_model.set_param('placement', expected_frequency)
-        refused_obs_activity = \
-            self.test_utils.refuse_open_obs(
-                self.patient.id, self.spell_activity.id)
-
-        actual_frequency = \
-            self.frequencies_model.get_refusal_frequency(refused_obs_activity)
-        self.assertEqual(expected_frequency, actual_frequency)
+        self.call_test()
+        self.assertEqual(expected_frequency, self.actual_frequency)
 
     def test_transfer_frequency_used(self):
         """
@@ -36,14 +42,10 @@ class TestGetRefusalFrequency(TransactionCase):
         """
         expected_frequency = 15
         self.config_model.set_param('transfer', expected_frequency)
-        self.test_utils.transfer_patient(self.test_utils.ward.code)
-        refused_obs_activity = \
-            self.test_utils.refuse_open_obs(
-                self.patient.id, self.spell_activity.id)
-
-        actual_frequency = \
-            self.frequencies_model.get_refusal_frequency(refused_obs_activity)
-        self.assertEqual(expected_frequency, actual_frequency)
+        self.test_utils.transfer_patient(self.test_utils.other_ward.code)
+        self.test_utils.place_patient(self.test_utils.other_bed.id)
+        self.call_test()
+        self.assertEqual(expected_frequency, self.actual_frequency)
 
     def test_risk_frequency_used(self):
         """
@@ -51,18 +53,13 @@ class TestGetRefusalFrequency(TransactionCase):
         transfers or obs stops then the ordinary frequency for that risk is
         used.
         """
-        expected_frequency = 30
+        expected_frequency = 15
         self.config_model.set_param('no_risk', expected_frequency)
         self.test_utils.get_open_obs()
         self.test_utils.complete_obs(clinical_risk_sample_data.NO_RISK_DATA,
                                      self.test_utils.ews_activity.id)
-        refused_obs_activity = \
-            self.test_utils.refuse_open_obs(
-                self.patient.id, self.spell_activity.id)
-
-        actual_frequency = \
-            self.frequencies_model.get_refusal_frequency(refused_obs_activity)
-        self.assertEqual(expected_frequency, actual_frequency)
+        self.call_test()
+        self.assertEqual(expected_frequency, self.actual_frequency)
 
     def test_risk_frequency_is_same_as_transfer_frequency(self):
         """
@@ -76,13 +73,8 @@ class TestGetRefusalFrequency(TransactionCase):
         self.test_utils.get_open_obs()
         self.test_utils.complete_obs(clinical_risk_sample_data.NO_RISK_DATA,
                                      self.test_utils.ews_activity.id)
-        refused_obs_activity = \
-            self.test_utils.refuse_open_obs(
-                self.patient.id, self.spell_activity.id)
-
-        actual_frequency = \
-            self.frequencies_model.get_refusal_frequency(refused_obs_activity)
-        self.assertEqual(expected_frequency, actual_frequency)
+        self.call_test()
+        self.assertEqual(expected_frequency, self.actual_frequency)
 
     def test_frequency_capped(self):
         """
@@ -94,11 +86,6 @@ class TestGetRefusalFrequency(TransactionCase):
         self.test_utils.get_open_obs()
         self.test_utils.complete_obs(clinical_risk_sample_data.NO_RISK_DATA,
                                      self.test_utils.ews_activity.id)
-        refused_obs_activity = \
-            self.test_utils.refuse_open_obs(
-                self.patient.id, self.spell_activity.id)
-
+        self.call_test()
         expected_frequency = 1440
-        actual_frequency = \
-            self.frequencies_model.get_refusal_frequency(refused_obs_activity)
-        self.assertEqual(expected_frequency, actual_frequency)
+        self.assertEqual(expected_frequency, self.actual_frequency)
