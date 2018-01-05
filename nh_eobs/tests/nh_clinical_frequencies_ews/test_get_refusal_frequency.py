@@ -19,10 +19,16 @@ class TestGetRefusalFrequency(TransactionCase):
         self.config_model.set_param('no_risk', 240)
 
     def call_test(self):
-        refused_obs_activity = \
+        """
+        Refuses the currently open observation and assigns the frequency of
+        the subsequently scheduled observation activity to an instance variable
+        to be used in assertions in the tests.
+        """
+        obs_activity_created_after_refused = \
             self.test_utils.refuse_open_obs(
                 self.patient.id, self.spell_activity.id)
-        self.actual_frequency = refused_obs_activity.data_ref.frequency
+        self.actual_frequency = \
+            obs_activity_created_after_refused.data_ref.frequency
 
     def test_transfer_frequency_used(self):
         """
