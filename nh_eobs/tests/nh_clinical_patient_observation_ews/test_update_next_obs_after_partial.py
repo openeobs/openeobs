@@ -36,8 +36,6 @@ class TestUpdateNextObsAfterPartial(TransactionCase):
         frequency as the full obs before the refusal as that is the patients
         most recent known clinical risk. The frequency is not altered by the
         refusal in this case.
-
-        :return:
         """
         expected = self.high_risk_frequency
         actual = self.test_utils.ews_activity.data_ref.frequency

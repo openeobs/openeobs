@@ -64,7 +64,7 @@ class NhClinicalTestUtils(AbstractModel):
                                      reason):
         """
         Get the currently open observation and partially complete it giving the
-        passed partial reason.
+        passed partial reason. Return the newly created observation.
 
         :param patient_id:
         :type patient_id: int
@@ -72,7 +72,7 @@ class NhClinicalTestUtils(AbstractModel):
         :type spell_activity_id: int
         :param reason:
         :type reason: str
-        :return:
+        :return: Next observation created after the completed partial one.
         """
         activity_model = self.env['nh.activity']
         activity_pool = self.pool['nh.activity']
@@ -109,13 +109,13 @@ class NhClinicalTestUtils(AbstractModel):
     def refuse_open_obs(self, patient_id, spell_activity_id):
         """
         Get the currently open observation and partially complete it giving a
-        'refused' partial reason.
+        'refused' partial reason. Return the next created observation.
 
         :param patient_id:
         :type patient_id: int
         :param spell_activity_id:
         :type spell_activity_id: int
-        :return: Refused observation activity.
+        :return: Next observation created after the completed partial one.
         """
         return self.complete_open_obs_as_partial(
             patient_id, spell_activity_id, 'refused')

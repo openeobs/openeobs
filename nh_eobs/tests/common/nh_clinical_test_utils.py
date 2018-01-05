@@ -58,15 +58,13 @@ class NhClinicalTestUtils(AbstractModel):
         :param user_id:
         :return:
         """
-        api_pool = self.pool['nh.eobs.api']
+        api_model = self.env['nh.eobs.api']
         if not obs_activity_id:
             obs_activity_id = self.ews_activity.id
         if not user_id:
             user_id = self.nurse.id
-
-        api_pool.complete(
-            self.env.cr,
-            user_id,
+        api_model = api_model.sudo(user_id)
+        api_model.complete(
             obs_activity_id,
             obs_data
         )
