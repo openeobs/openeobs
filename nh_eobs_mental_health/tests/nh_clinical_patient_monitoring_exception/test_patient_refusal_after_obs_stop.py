@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.nh_observations import frequencies
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
@@ -57,8 +56,8 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = \
-            frequencies.PATIENT_REFUSAL_ADJUSTMENTS['Obs Restart'][0]
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        after_refused_frequency = frequencies_model.get_obs_restart_frequency()
 
         expected = \
             datetime.strptime(obs_activity_after_refused.create_date, DTF) \
