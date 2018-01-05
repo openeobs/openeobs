@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from openerp import SUPERUSER_ID
 from openerp import api
@@ -29,42 +29,20 @@ class NHClinicalPatientObservationEWS(orm.Model):
 
     def complete(self, cr, uid, activity_id, context=None):
         """
-        It determines which acuity case the current observation is in
-        with the stored data and responds to the different policy
-        triggers accordingly defined on the ``_POLICY`` dictionary::
-
-            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
-            determine the acuity case based on the score.
-            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
-            of the NEWS observation, based on the case.
-            'notifications': [...],
-               Information sent to the trigger_notifications method,
-               based on case.
-            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
-            of the patient, based on case.
-
-        All the case based lists work in a simple way:
-        list[case] --> value used
-
-        After the policy triggers take place the activity is `completed`
-        and a new NEWS activity is created. Then the case based
-        `frequency` is applied, effectively scheduling it.
-
-        In the case of having a `partial` observation we won't have a new
-        frequency so the new activity is scheduled to the same time the
-        one just `completed` was, as the need for a complete observation
-        is still there.
-
+        Mental health override that ensures Clinical Review tasks are set up
+        for refusing patients at the appropriate time using CRON jobs.
         :returns: ``True``
         :rtype: bool
         """
         res = super(NHClinicalPatientObservationEWS, self).complete(
             cr, uid, activity_id, context=context)
         activity_model = self.pool['nh.activity']
+        datetime_utils_model = self.pool['datetime_utils']
         activity = activity_model.browse(cr, uid, activity_id, context=context)
         ews = activity.data_ref
         patient_spell = activity.spell_activity_id.data_ref
         patient_refusing = patient_spell.refusing_obs
+
         if not ews.is_partial:
             patient_spell.write({'refusing_obs': False})
         if ews.is_partial and not patient_refusing \
@@ -77,7 +55,9 @@ class NHClinicalPatientObservationEWS(orm.Model):
             higher_risks = ['None', 'Low']
             if patient[0].get('clinical_risk') in higher_risks:
                 days_to_schedule = 7
-            schedule_date = datetime.now() + timedelta(days=days_to_schedule)
+            schedule_date = \
+                datetime_utils_model.get_current_time() + \
+                timedelta(days=days_to_schedule)
             patient_spell.write({'refusing_obs': True})
             cron_model.create(cr, SUPERUSER_ID, {
                 'name': 'Clinical Review Task '
@@ -122,7 +102,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
         """
         clinical_review_model = \
             self.pool['nh.clinical.notification.clinical_review']
-        due_date = datetime.now().strftime(DTF)
+        datetime_utils_model = self.pool['datetime_utils']
+        due_date = datetime_utils_model.get_current_time(as_string=True)
         clinical_review_model.create_activity(
             self._cr, SUPERUSER_ID,
             {

@@ -26,7 +26,7 @@ class PatientMonitoringExceptionSelectReason(models.TransientModel):
         As this model is only for the purposes of display in the UI this method
         is limited in that it simply receives the call from the view and passes
         on the necessary data in the model to
-        :method:`~models.nh_clinical_wardboard.NHClinicalWardboard
+        `~models.nh_clinical_wardboard.NHClinicalWardboard
         .start_obs_stop` where most of the logic is
         implemented.
         """

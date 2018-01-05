@@ -87,7 +87,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     def get_submission_message(self):
         """
         Provides a message to be displayed when the observation is submitted.
-
         :return:
         :rtype str
         """
@@ -495,6 +494,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         Returns a description in dictionary format of the input fields
         that would be required in the user gui to submit the
         observation.
+
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id
         :type patient_id: int
         :returns: a list of dictionaries
@@ -506,17 +506,19 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     def get_view_description(self, form_desc):
         """
         Transform the form description into view description that can
-        be used by the mobile. This will return a list of dicts similar to :
-        [
-            {
-                'type': 'template',
-                'template': 'nh_observation.custom_template'
-            },
-            {
-                'type': 'form',
-                'inputs': []
-            }
-        ]
+        be used by the mobile. This will return a list of dicts similar to::
+
+            [
+                {
+                    'type': 'template',
+                    'template': 'nh_observation.custom_template'
+                },
+                {
+                    'type': 'form',
+                    'inputs': []
+                }
+            ]
+
         :param form_desc: List of dicts representing the inputs for the form
         :type form_desc: list
         :return: list of dicts representing view description
@@ -691,7 +693,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :type patient_id: int
         :param context:
         :return: ``False``
-        or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
+            or :class:`activity<nhclinical.nh_activity.activity.nh_activity>`
         """
         # No ongoing spell to get an obs for so just return straight away.
         if not self.patient_has_spell(cr, uid, patient_id):
@@ -719,7 +721,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         :type patient_id: int
         :param context:
         :return: ``False`` or :class:`observation<openeobs.nh_observations.
-        observations.NhClinicalPatientObservation>`
+            observations.NhClinicalPatientObservation>`
         """
         last_obs_activity = self.get_last_obs_activity(cr, uid, patient_id)
         if last_obs_activity:

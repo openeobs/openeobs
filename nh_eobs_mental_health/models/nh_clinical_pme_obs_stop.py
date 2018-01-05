@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from openerp import models, fields, osv, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -133,39 +133,46 @@ class NhClinicalObsStop(models.Model):
         :return: ID of created EWS
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
+        activity_obs_stop = self.get_activity()
+        spell_activity = self.spell.get_activity()
+
+        new_ews_activity_id = ews_model.create_activity(
+            {'parent_id': spell_activity.id,
+             'creator_id': activity_obs_stop.id},
+            {'patient_id': spell_activity.patient_id.id}
+        )
+
+        return self._schedule_new_ews(new_ews_activity_id, spell_activity)
+
+    def _schedule_new_ews(self, new_ews_activity_id, spell_activity):
+        """
+        Sets the date scheduled of the EWS activity specified by the passed ID
+        so that it is due at the correct time specified in the policy.
+
+        :param new_ews_activity_id:
+        :type new_ews_activity_id: int
+        :param spell_activity:
+        :type spell_activity: nh.activity
+        :return: ID of the newly created EWS activity.
+        :rtype: int
+        """
         activity_model = self.env['nh.activity']
         api_model = self.env['nh.clinical.api']
+        datetime_utils_model = self.env['datetime_utils']
 
-        activity_obs_stop = self.get_activity()
-        activity_spell = self.spell.get_activity()
-
-        new_ews_id = ews_model.create_activity(
-            {'parent_id': activity_spell.id,
-             'creator_id': activity_obs_stop.id},
-            {'patient_id': activity_spell.patient_id.id}
-        )
-        one_hour_time = datetime.now() + timedelta(hours=1)
+        one_hour_time = \
+            datetime_utils_model.get_current_time() + timedelta(hours=1)
         one_hour_time_str = one_hour_time.strftime(DTF)
 
-        self.force_v7_api(activity_model)
+        new_ews_activity = activity_model.browse(new_ews_activity_id)
+        new_ews_activity.schedule(date_scheduled=one_hour_time_str)
 
-        activity_model.schedule(self.env.cr, self.env.uid, new_ews_id,
-                                date_scheduled=one_hour_time_str)
-        patient_id = activity_spell.patient_id.id
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        obs_restart_frequency = frequencies_model.get_obs_restart_frequency()
+
+        patient_id = spell_activity.patient_id.id
         api_model.change_activity_frequency(
-            patient_id, 'nh.clinical.patient.observation.ews', 60)
-        return new_ews_id
+            patient_id, 'nh.clinical.patient.observation.ews',
+            obs_restart_frequency)
 
-    # TODO Refactor the activity method decorator and remove this method.
-    @classmethod
-    def force_v7_api(cls, obj):
-        """
-        Trick Odoo into thinking this is a 7.0 ORM API style method before
-        the `complete` method is called on the activity. I believe there may
-        be a problem in the decorator that is used on all activity data methods
-        which specifically looks for all args.
-        :param obj:
-        :return:
-        """
-        if '_ids' in obj.__dict__:
-            obj.__dict__.pop('_ids')
+        return new_ews_activity_id

@@ -57,12 +57,8 @@ class nh_clinical_api_extension(orm.AbstractModel):
     def change_activity_frequency(self, cr, uid, patient_id, activity_type,
                                   frequency, context=None):
         """
-        Creates and completes a new
-        :mod:`rev frequency<notifications.nh_clinical_notification_frequency>`
-        task to update the frequency of the specified activity type.
-
         The update of the frequency also triggers an update of the
-        `date_scheduled`. See :method:`nh_observations.observations
+        `date_scheduled`. See `nh_observations.observations
         .nh_clinical_patient_observation.write`.
 
         :param patient_id: :class:`patient<base.nh_clinical_patient>` id.

@@ -54,9 +54,21 @@ class nh_clinical_patient_observation_ews(orm.Model):
         case 1: low clinical risk
         case 2: medium clinical risk
         case 3: high clinical risk
+
+        {
+            'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
+            determine the acuity case based on the score.
+            of the NEWS observation, based on the case.
+            'notifications': [...],
+               Information sent to the trigger_notifications method,
+               based on case.
+            'risk': ['None', 'Low', 'Medium', 'High']
+        } --> Clinical risk of the patient, based on case.
+
+        All the case based lists work in a simple way:
+            list[case] --> value used
     """
     _POLICY = {'ranges': [0, 4, 6], 'case': '0123',
-               'frequencies': [720, 240, 60, 30],
                'notifications': [
                    [],
                    [{'model': 'assessment', 'groups': ['nurse', 'hca']},
@@ -152,9 +164,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         Score parameter within the data. (any parameter that scores 3)
 
         :param ews_data: The NEWS parameters: ``respiration_rate``,
-                         ``indirect_oxymetry_spo2``, ``body_temperature``,
-                         ``blood_pressure_systolic``, ``pulse_rate``,
-                         ``oxygen_administration_flag`` and ``avpu_text``
+            ``indirect_oxymetry_spo2``, ``body_temperature``,
+            ``blood_pressure_systolic``, ``pulse_rate``,
+            ``oxygen_administration_flag`` and ``avpu_text``
         :type ews_data: dict
         :returns: ``score``, ``clinical_risk`` and ``three_in_one``
         :rtype: dict
@@ -579,8 +591,14 @@ class nh_clinical_patient_observation_ews(orm.Model):
         }
     ]
 
+    @api.model
+    def _get_default_frequency(self):
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        frequency = frequencies_model.get_placement_frequency()
+        return frequency
+
     _defaults = {
-        'frequency': 15
+        'frequency': _get_default_frequency
     }
 
     _order = "order_by desc, id desc"
@@ -668,20 +686,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         """
         It determines which acuity case the current observation is in
         with the stored data and responds to the different policy
-        triggers accordingly defined on the ``_POLICY`` dictionary::
-
-            {'ranges': [0, 4, 6], 'case': '0123', --> Used with bisect to
-            determine the acuity case based on the score.
-            'frequencies': [720, 240, 60, 30], --> frequency of recurrency
-            of the NEWS observation, based on the case.
-            'notifications': [...],
-               Information sent to the trigger_notifications method,
-               based on case.
-            'risk': ['None', 'Low', 'Medium', 'High']} --> Clinical risk
-            of the patient, based on case.
-
-        All the case based lists work in a simple way:
-        list[case] --> value used
+        triggers accordingly defined on the ``_POLICY`` dictionary.
 
         After the policy triggers take place the activity is `completed`
         and a new NEWS activity is created. Then the case based
@@ -794,10 +799,10 @@ class nh_clinical_patient_observation_ews(orm.Model):
         based on previous observations and the refusal status.
 
         :param partial_obs_activity: Observation activity expected to be a
-        partial and the most recently completed observation for the spell.
+            partial and the most recently completed observation for the spell.
         :type partial_obs_activity: 'nh.activity' record
         :param next_obs_activity: Observation activity expected to be the most
-        recently created one triggered by the passed partial.
+            recently created one triggered by the passed partial.
         :type next_obs_activity: 'nh.activity' record
         :return:
         """
@@ -865,7 +870,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         frequency.
 
         :param previous_activity_completed_datetime: Value for the date
-        terminated field of the previous completed observation.
+            terminated field of the previous completed observation.
         :type previous_activity_completed_datetime: str
         :param frequency: Frequency in minutes.
         :type frequency: int
@@ -886,8 +891,8 @@ class nh_clinical_patient_observation_ews(orm.Model):
         necessitates this lookup.
 
         :param case: Either an int representing the clinical risk or a str
-        representing a special state such as 'Transfer'.
-        See `field`:nh_ews._POLICY: and :module:`frequencies.py`.
+            representing a special state such as 'Transfer'.
+            See `field`:nh_ews._POLICY: and `frequencies.py`.
         :type case: int or str
         :param frequency: Frequency in minutes.
         :type frequency: int
@@ -956,7 +961,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
         Convenience that allows you to pass a 'case' instead of a 'frequency'
         and the method will do the lookup for you.
 
-        See :method:`nh_observations.nh_clinical_extension
+        See `nh_observations.nh_clinical_extension
         .nh_clinical_api_extension.change_activity_frequency`.
 
         :param cr:
@@ -967,8 +972,9 @@ class nh_clinical_patient_observation_ews(orm.Model):
         :param context:
         :return:
         """
+        frequencies_pool = self.pool['nh.clinical.frequencies.ews']
+        frequency = frequencies_pool.get_risk_frequency(cr, uid, case)
         api_pool = self.pool['nh.clinical.api']
-        frequency = self._POLICY['frequencies'][case]
         return api_pool.change_activity_frequency(
             cr, uid, patient_id, name, frequency, context=context
         )

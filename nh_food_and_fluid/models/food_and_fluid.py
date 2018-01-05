@@ -601,6 +601,7 @@ class NHClinicalFoodAndFluid(models.Model):
         """
         food_and_fluid_model = \
             self.env['nh.clinical.patient.observation.food_fluid']
+        datetime_utils_model = self.env['datetime_utils']
         period = {}
 
         # Set period start and end datetimes.
@@ -638,7 +639,7 @@ class NHClinicalFoodAndFluid(models.Model):
         period_end_datetime = datetime.strptime(
             period['period_end_datetime'], DTF
         )
-        if datetime.now() < period_end_datetime:
+        if datetime_utils_model.get_current_time() < period_end_datetime:
             period['current_period'] = True
         return period
 

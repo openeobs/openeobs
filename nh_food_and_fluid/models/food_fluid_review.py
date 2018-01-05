@@ -179,17 +179,19 @@ class FoodAndFluidReview(models.Model):
     def get_view_description(self, form_desc):
         """
         Transform the form description into view description that can
-        be used by the mobile. This will return a list of dicts similar to :
-        [
-            {
-                'type': 'template',
-                'template': 'nh_observation.custom_template'
-            },
-            {
-                'type': 'task',
-                'inputs': []
-            }
-        ]
+        be used by the mobile. This will return a list of dicts similar to::
+
+            [
+                {
+                    'type': 'template',
+                    'template': 'nh_observation.custom_template'
+                },
+                {
+                    'type': 'task',
+                    'inputs': []
+                }
+            ]
+
         :param form_desc: List of dicts representing the inputs for the form
         :type form_desc: list
         :return: list of dicts representing a view description

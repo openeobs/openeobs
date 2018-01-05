@@ -6,13 +6,14 @@ from openerp.addons.nh_eobs_api.routing import Route
 from openerp.addons.nh_eobs_mobile.controllers.main import MobileFrontend
 from openerp.http import request
 
-route_toggle_rapid_tranq = Route(
-    'rapid_tranq',
-    '/patient/<patient_id>/rapid_tranq',
-    methods=['GET', 'POST'],
-    url_prefix='/mobile'
-)
-route_manager.add_route(route_toggle_rapid_tranq)
+if not route_manager.get_route('rapid_tranq'):
+    route_toggle_rapid_tranq = Route(
+        'rapid_tranq',
+        '/patient/<patient_id>/rapid_tranq',
+        methods=['GET', 'POST'],
+        url_prefix='/mobile'
+    )
+    route_manager.add_route(route_toggle_rapid_tranq)
 
 
 class MobileFrontendMentalHealth(MobileFrontend):

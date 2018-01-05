@@ -15,7 +15,8 @@
         'security/notif/ir.model.access.csv',
         'security/params/ir.model.access.csv',
         'security/ir.model.access.csv',
-        'data/data.xml'
+        'data/data.xml',
+        'data/initial_config_parameter_values.xml'
     ],
     'demo': [],
     'css': [],
