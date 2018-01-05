@@ -4,11 +4,13 @@
 `notifications.py` define notification types necessary for the Early
 Warning Score policy triggers.
 """
-from openerp.osv import orm
-from openerp.models import AbstractModel
-from openerp.addons.nh_observations import frequencies
-import logging
 import copy
+import logging
+
+from openerp.addons.nh_observations import frequencies
+from openerp.models import AbstractModel
+from openerp.osv import orm
+
 _logger = logging.getLogger(__name__)
 
 
@@ -186,6 +188,8 @@ class NHClinicalNotificationFrequency(orm.Model):
                                                     context=context)
             if get_current_freq and get_current_freq.data_ref:
                 current_freq = get_current_freq.data_ref.frequency
+                # TODO This may not be ideal now that current_freq can be
+                # any int within the configured range.
                 for freq_tuple in frequencies.as_list():
                     if freq_tuple[0] > current_freq:
                         freq_list.remove(freq_tuple)
