@@ -83,7 +83,7 @@ class TestSqlStatements(TransactionCase):
               TIME ZONE 'UTC' - spell_activity.date_started)) || ' day(s) '
             ELSE ''
           END ||
-          to_char(justify_hours(now() AT TIME ZONE 'UTC' - 
+          to_char(justify_hours(now() AT TIME ZONE 'UTC' -
           spell_activity.date_started), 'HH24:MI') time_since_admission,
           spell.move_date,
           patient.family_name,
