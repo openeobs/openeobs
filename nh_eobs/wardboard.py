@@ -1263,10 +1263,10 @@ ews0 as(
                 ews.score,
                 ews.frequency,
                 ews.clinical_risk,
-                case 
+                case
                     when activity.date_scheduled < now() at time zone 'UTC'
-                    then 'overdue: ' 
-                    else '' 
+                    then 'overdue: '
+                    else ''
                 end as next_diff_polarity,
                 case activity.date_scheduled is null
                     when false then justify_hours(greatest(now() at time zone

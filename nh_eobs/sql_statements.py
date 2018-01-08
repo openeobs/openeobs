@@ -74,10 +74,10 @@ class NHEobsSQL(orm.AbstractModel):
             ELSE patient.patient_identifier
         END AS nhs_number,
         extract(year FROM age(now(), patient.dob)) AS age,
-        CASE 
+        CASE
             WHEN ews0.date_scheduled < now() AT TIME ZONE 'UTC'
-            THEN 'overdue: ' 
-            ELSE '' 
+            THEN 'overdue: '
+            ELSE ''
         END  ||
         CASE
             WHEN ews0.date_scheduled IS NOT NULL THEN
