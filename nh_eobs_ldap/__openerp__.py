@@ -6,9 +6,7 @@
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': '',
-    'description': """
-    AD configuration module LiveObs
-    """,
+    'description': """ AD configuration module LiveObs """,
     'author': 'BJSS',
     'website': 'https://bjss.com',
     'depends': ['nh_clinical_ldap'],
