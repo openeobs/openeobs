@@ -73,40 +73,40 @@ class TestSqlStatements(TransactionCase):
           spell_activity.id AS spell_activity_id,
           spell_activity.date_started AS spell_date_started,
           spell_activity.date_terminated AS
-          spell_date_terminated, spell.pos_id, 
+          spell_date_terminated, spell.pos_id,
           spell.code AS spell_code,
           spell_activity.state AS spell_state,
           CASE
-            WHEN extract(days FROM justify_hours(now() AT 
-            TIME ZONE 'UTC' - spell_activity.date_started)) > 0 
-            THEN extract(days FROM justify_hours(now() AT 
-              TIME ZONE 'UTC' - spell_activity.date_started)) || ' day(s) ' 
-            ELSE '' 
-          END || 
+            WHEN extract(days FROM justify_hours(now() AT
+            TIME ZONE 'UTC' - spell_activity.date_started)) > 0
+            THEN extract(days FROM justify_hours(now() AT
+              TIME ZONE 'UTC' - spell_activity.date_started)) || ' day(s) '
+            ELSE ''
+          END ||
           to_char(justify_hours(now() AT TIME ZONE 'UTC' - 
           spell_activity.date_started), 'HH24:MI') time_since_admission,
           spell.move_date,
-          patient.family_name, 
+          patient.family_name,
           patient.given_name,
-          patient.middle_names, 
-          CASE 
+          patient.middle_names,
+          CASE
             WHEN patient.given_name IS NULL
-            THEN '' 
-            ELSE upper(substring(patient.given_name FROM 1 FOR 1)) 
-            END AS initial, 
-            coalesce(patient.family_name, '') || ', ' || 
-            coalesce(patient.given_name, '') || ' ' || 
+            THEN ''
+            ELSE upper(substring(patient.given_name FROM 1 FOR 1))
+            END AS initial,
+            coalesce(patient.family_name, '') || ', ' ||
+            coalesce(patient.given_name, '') || ' ' ||
             coalesce(patient.middle_names,'') AS full_name,
             location.name AS location,
             location.id AS location_id,
             wlocation.ward_id AS ward_id,
-            patient.sex, 
+            patient.sex,
             patient.dob,
             patient.other_identifier AS hospital_number,
             CASE char_length(patient.patient_identifier) = 10
             WHEN TRUE
             THEN substring(patient.patient_identifier FROM 1 FOR 3) || ' '
-              || substring(patient.patient_identifier FROM 4 FOR 3) || ' ' 
+              || substring(patient.patient_identifier FROM 4 FOR 3) || ' '
               || substring(patient.patient_identifier FROM 7 FOR 4)
             ELSE patient.patient_identifier
             END AS nhs_number,
@@ -115,19 +115,19 @@ class TestSqlStatements(TransactionCase):
                 WHEN ews0.date_scheduled < now() AT TIME ZONE 'UTC'
                 THEN 'overdue: '
                 ELSE ''
-              END  || 
-              CASE 
-                WHEN ews0.date_scheduled IS NOT NULL 
-                THEN 
-                  CASE 
+              END  ||
+              CASE
+                WHEN ews0.date_scheduled IS NOT NULL
+                THEN
+                  CASE
                     WHEN extract(days FROM (greatest(now() AT TIME ZONE 'UTC',
                     ews0.date_scheduled) - least(now() AT TIME ZONE 'UTC',
                     ews0.date_scheduled))) > 0
                     THEN extract(days FROM (greatest(now() AT TIME ZONE 'UTC',
                     ews0.date_scheduled) - least(now() AT TIME ZONE 'UTC',
                     ews0.date_scheduled))) || ' day(s) '
-                    ELSE '' 
-                    END || 
+                    ELSE ''
+                    END ||
                     to_char(justify_hours(greatest(now() AT TIME ZONE 'UTC',
                         ews0.date_scheduled) - least(now() AT TIME ZONE 'UTC',
                         ews0.date_scheduled)), 'HH24:MI') || ' hours'
@@ -135,13 +135,13 @@ class TestSqlStatements(TransactionCase):
                     END AS next_diff,
                     CASE ews0.frequency < 60
                     WHEN true
-                    THEN 
+                    THEN
                       ews0.frequency || ' min(s)'
-                    ELSE ews0.frequency/60 || ' hour(s) ' 
+                    ELSE ews0.frequency/60 || ' hour(s) '
                       || ews0.frequency - ews0.frequency/60*60
                       || ' min(s)'
                     END AS frequency,
-                    ews0.date_scheduled, 
+                    ews0.date_scheduled,
                     CASE
                       WHEN ews1.id IS NULL
                       THEN 'none'
@@ -149,21 +149,21 @@ class TestSqlStatements(TransactionCase):
                     END AS ews_score_string,
                     ews1.score AS ews_score,
                     CASE
-                      WHEN ews1.id IS NOT NULL 
-                        AND ews2.id IS NOT NULL 
+                      WHEN ews1.id IS NOT NULL
+                        AND ews2.id IS NOT NULL
                         AND (ews1.score - ews2.score) = 0
                       THEN 'same'
-                      WHEN ews1.id IS NOT NULL 
-                        AND ews2.id IS NOT NULL 
-                        AND (ews1.score - ews2.score) > 0 
+                      WHEN ews1.id IS NOT NULL
+                        AND ews2.id IS NOT NULL
+                        AND (ews1.score - ews2.score) > 0
                       THEN 'up'
                       WHEN ews1.id IS NOT NULL
                         AND ews2.id IS NOT NULL
-                        AND (ews1.score - ews2.score) < 0 
+                        AND (ews1.score - ews2.score) < 0
                       THEN 'down'
                       WHEN ews1.id IS NULL
                         AND ews2.id IS NULL
-                      THEN 'none' 
+                      THEN 'none'
                       WHEN ews1.id IS NOT NULL
                         AND ews2.id IS NULL
                       THEN 'first'
@@ -184,7 +184,7 @@ class TestSqlStatements(TransactionCase):
                       THEN 'yes'
                       ELSE 'no'
                     END AS mrsa,
-                    CASE 
+                    CASE
                       WHEN param.diabetes
                       THEN 'yes'
                       ELSE 'no'
@@ -200,14 +200,14 @@ class TestSqlStatements(TransactionCase):
                       ELSE 'no'
                     END AS palliative_care,
                     CASE
-                      WHEN param.post_surgery 
-                        AND param.post_surgery_date > now() - 
+                      WHEN param.post_surgery
+                        AND param.post_surgery_date > now() -
                         INTERVAL '4h'
                       THEN 'yes'
                       ELSE 'no'
                     END AS post_surgery,
-                    CASE 
-                      WHEN param.critical_care 
+                    CASE
+                      WHEN param.critical_care
                         AND param.critical_care_date > now() -
                         INTERVAL '24h'
                       THEN 'yes'
@@ -224,26 +224,26 @@ class TestSqlStatements(TransactionCase):
                       ELSE false
                     END AS recently_discharged
           FROM nh_clinical_spell spell
-          INNER JOIN nh_activity spell_activity 
-            ON spell_activity.id = spell.activity_id 
+          INNER JOIN nh_activity spell_activity
+            ON spell_activity.id = spell.activity_id
           INNER JOIN nh_clinical_patient patient
            ON spell.patient_id = patient.id
-          LEFT JOIN nh_clinical_location location 
-            ON location.id = spell.location_id 
-          LEFT JOIN ews1 
+          LEFT JOIN nh_clinical_location location
+            ON location.id = spell.location_id
+          LEFT JOIN ews1
             ON spell.id = ews1.spell_id
           LEFT JOIN ews2
-            ON spell.id = ews2.spell_id 
+            ON spell.id = ews2.spell_id
           LEFT JOIN ews0
             ON spell.id = ews0.spell_id
-          LEFT JOIN ward_locations wlocation 
+          LEFT JOIN ward_locations wlocation
             ON wlocation.id = location.id
           LEFT JOIN consulting_doctors
             ON consulting_doctors.spell_id = spell.id
           LEFT JOIN pbp pbp
             ON pbp.spell_id = spell.id
           LEFT JOIN param
-            ON param.spell_id = spell.id 
+            ON param.spell_id = spell.id
           ORDER BY location.name
         """
         self.assertEqual(
