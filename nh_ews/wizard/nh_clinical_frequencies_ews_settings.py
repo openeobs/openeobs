@@ -63,7 +63,13 @@ class NhClinicalFrequenciesEws(TransientModel):
         'minimum' and 'maximum' fields.
         """
         validate.fields_in_min_max_range(
-            self, ['no_risk', 'low_risk', 'medium_risk', 'high_risk'])
+            self,
+            [
+                'no_risk', 'low_risk', 'medium_risk', 'high_risk',
+                'placement', 'obs_restart', 'transfer_refusal',
+                'unknown_risk_refusal'
+            ]
+        )
 
     @api.multi
     def set_params(self):
