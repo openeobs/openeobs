@@ -16,7 +16,8 @@ class TestInMinMaxRange(TransactionCase):
         self.config_model = self.env['ir.config_parameter']
         self.field_utils = self.env['nh.clinical.field_utils']
 
-        self.field_names = self.field_utils.get_field_names(self.settings_model)
+        self.field_names = \
+            self.field_utils.get_field_names(self.settings_model)
         self.fields_to_be_validated_names = \
             self.field_utils.get_field_names_to_validate(self.settings_model)
         self.create_values = {}
