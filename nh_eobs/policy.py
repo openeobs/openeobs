@@ -7,7 +7,6 @@ See :meth:`trigger_policy()<activity.nh_activity_data.trigger_policy>`
 for how policies are executed.
 """
 from openerp.osv import orm
-from openerp.addons.nh_eobs.helpers import refresh_materialized_views
 
 
 class nh_clinical_patient_admission(orm.Model):

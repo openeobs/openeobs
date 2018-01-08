@@ -29,7 +29,7 @@ def refresh_materialized_views(*views):
     def _refresh_materialized_views(f):
         @wraps(f)
         def _complete(*args, **kwargs):
-            self, cr = args[:2]
+            cr = args[1]
             result = f(*args, **kwargs)
             refresh_views(cr, views)
             return result
