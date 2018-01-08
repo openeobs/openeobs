@@ -19,23 +19,10 @@ class TestSetParams(TransactionCase):
         super(TestSetParams, self).setUp()
         self.settings_model = self.env['nh.clinical.frequencies.ews_settings']
         self.config_parameters_model = self.env['ir.config_parameter']
+        self.field_utils = self.env['nh.clinical.field_utils']
 
-        self.field_names = [
-            'no_risk_minimum',
-            'low_risk_minimum',
-            'medium_risk_minimum',
-            'high_risk_minimum',
-            'no_risk_maximum',
-            'low_risk_maximum',
-            'medium_risk_maximum',
-            'high_risk_maximum',
-            'no_risk',
-            'low_risk',
-            'medium_risk',
-            'high_risk',
-            'placement',
-            'obs_restart'
-        ]
+        self.field_names = \
+            self.field_utils.get_field_names(self.settings_model)
 
     def call_test(self, values=6, minimum=5, maximum=10):
         """
