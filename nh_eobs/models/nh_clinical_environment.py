@@ -15,10 +15,9 @@ Calling a model seemed the better option as backend code could then also make
 use of it without having to unnecessarily call an endpoint.
 """
 import logging
-from os import environ
 
 from openerp.models import AbstractModel
-
+from os import environ
 
 _logger = logging.getLogger(__name__)
 
@@ -28,9 +27,9 @@ class NhClinicalEnvironment(AbstractModel):
 
     @staticmethod
     def get_eobs_version(*args):
-        eobs_version = environ.get('EOBS_VERSION')
+        eobs_version = environ.get('VERSION')
         if eobs_version is None:
-            message = "There is no EOBS_VERSION environment variable set. " \
+            message = "There is no VERSION environment variable set. " \
                       "Users will not be able to see which version they are " \
                       "using in the UI."
             _logger.warn(message)
