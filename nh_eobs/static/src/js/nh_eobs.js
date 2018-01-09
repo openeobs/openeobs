@@ -152,7 +152,7 @@ openerp.nh_eobs = function (instance) {
 
             var environmentModel = new instance.web.Model("nh.clinical.environment");
 
-            environmentModel.call("get_eobs_version").then(function(eobsVersion) {
+            environmentModel.call("get_version").then(function(eobsVersion) {
                     if (eobsVersion) {
                         var liveobsAboutLink = self.$el.find('#liveobs_about_link');
                         var aboutLiveobsText = liveobsAboutLink.text();

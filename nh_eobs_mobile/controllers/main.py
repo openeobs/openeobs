@@ -957,4 +957,4 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         qcontext['username'] = request_obj.session['login']
         qcontext['urls'] = URLS
         environment_model = request_obj.registry['nh.clinical.environment']
-        qcontext['eobs_version'] = environment_model.get_eobs_version()
+        qcontext['eobs_version'] = environment_model.get_version()
