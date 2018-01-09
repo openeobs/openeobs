@@ -25,29 +25,18 @@ class NhClinicalEnvironment(AbstractModel):
     """
     _name = 'nh.clinical.environment'
 
-    def init(self, cr):
-        version = environ.get('VERSION')
-        if version is None:
-            message = "There is no VERSION environment variable set. " \
-                      "Users will not be able to see which version they are " \
-                      "using in the UI."
-            _logger.warn(message)
-        else:
-            message = "VERSION environment variable is set to {}.".format(
-                version)
-            _logger.info(message)
+    version = environ.get('VERSION')
+    if version is None:
+        message = "There is no VERSION environment variable set. " \
+                  "Users will not be able to see which version they are " \
+                  "using in the UI."
+        _logger.warn(message)
+    else:
+        message = "VERSION environment variable is set to {}.".format(
+            version)
+        _logger.info(message)
 
     @staticmethod
     def get_version(*args):
-        version = environ.get('VERSION')
-        if version is None:
-            message = "There is no VERSION environment variable set. " \
-                      "Users will not be able to see which version they are " \
-                      "using in the UI."
-            _logger.warn(message)
-        else:
-            message = "VERSION environment variable is set to {}.".format(
-                version)
-            _logger.info(message)
         version = environ.get('VERSION')
         return version
