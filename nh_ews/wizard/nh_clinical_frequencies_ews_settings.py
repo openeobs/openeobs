@@ -18,29 +18,44 @@ class NhClinicalFrequenciesEws(TransientModel):
     _inherit = 'res.config.settings'
 
     no_risk_minimum = fields.Integer()
-    low_risk_minimum = fields.Integer()
-    medium_risk_minimum = fields.Integer()
-    high_risk_minimum = fields.Integer()
-
     no_risk_maximum = fields.Integer()
-    low_risk_maximum = fields.Integer()
-    medium_risk_maximum = fields.Integer()
-    high_risk_maximum = fields.Integer()
-
     no_risk = fields.Integer(
         min='no_risk_minimum', max='no_risk_maximum')
+
+    low_risk_minimum = fields.Integer()
+    low_risk_maximum = fields.Integer()
     low_risk = fields.Integer(
         min='low_risk_minimum', max='low_risk_maximum')
+
+    medium_risk_minimum = fields.Integer()
+    medium_risk_maximum = fields.Integer()
     medium_risk = fields.Integer(
         min='medium_risk_minimum', max='medium_risk_maximum')
+
+    high_risk_maximum = fields.Integer()
+    high_risk_minimum = fields.Integer()
     high_risk = fields.Integer(
         min='high_risk_minimum', max='high_risk_maximum')
 
+    placement_minimum = fields.Integer()
+    placement_maximum = fields.Integer()
     placement = fields.Integer()
 
+    obs_restart_minimum = fields.Integer()
+    obs_restart_maximum = fields.Integer()
     obs_restart = fields.Integer()
 
-    @api.constrains('no_risk', 'low_risk', 'medium_risk', 'high_risk')
+    transfer_refusal_minimum = fields.Integer()
+    transfer_refusal_maximum = fields.Integer()
+    transfer_refusal = fields.Integer()
+
+    unknown_risk_refusal_minimum = fields.Integer()
+    unknown_risk_refusal_maximum = fields.Integer()
+    unknown_risk_refusal = fields.Integer()
+
+    @api.constrains(
+        'no_risk', 'low_risk', 'medium_risk', 'high_risk', 'placement',
+        'obs_restart', 'transfer_refusal', 'unknown_risk_refusal')
     def _in_min_max_range(self):
         """
         Validate that the values of the constrained fields are within the

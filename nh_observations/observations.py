@@ -607,6 +607,33 @@ class NhClinicalPatientObservation(orm.AbstractModel):
             return False
 
     @api.model
+    def transferred_and_placed_before_refusals(self, refused_obs_activity):
+        """
+        Determine whether a transfer happened before the last set of refusals.
+
+        :param refused_obs_activity:
+        :return:
+        """
+        # TODO This checks for a second placement, not necessarily transfer.
+        # The logic checks for placement frequency and at least 2 placements.
+        # No placement is automatically created when the patient is
+        # transferred so this is only valid for when they are actually placed.
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        placement_model = self.env['nh.clinical.patient.placement']
+
+        spell_activity_id = refused_obs_activity.spell_activity_id.id
+        refused_obs_frequency = refused_obs_activity.data_ref.frequency
+        placement_frequency = frequencies_model.get_placement_frequency()
+
+        if refused_obs_frequency == placement_frequency \
+                and len(placement_model.get_placement_activities_for_spell(
+                spell_activity_id)) > 1 \
+                and ews_model.placement_before_refusals(spell_activity_id):
+            return True
+        return False
+
+    @api.model
     def get_previous_obs_activity(self, obs_activity):
         activity_pool = self.pool['nh.activity']
         previous_obs_activity_id = obs_activity.creator_id.id

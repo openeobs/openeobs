@@ -1,4 +1,5 @@
 from . import nh_clinical_doctor_activities
+from . import nh_clinical_frequencies_ews
 from . import nh_clinical_notification_clinical_review
 from . import nh_clinical_notification_clinical_review_frequency
 from . import nh_clinical_overdue

@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """A single place for different frequency values to be read from."""
-import copy
-
 # TODO EOBS-840: Make frequencies.py a model and split it across modules as
 # appropriate.
 # Frequencies in minutes.
@@ -79,18 +77,6 @@ FREQUENCIES_BY_RISK = {
     'Transfer': EVERY_15_MINUTES,
     'Obs Restart': EVERY_HOUR
 }
-
-# To summarise the mappings below, frequencies after refusals are capped at
-# 24 hours.
-#
-# Could have just made a simple function but decided to write them out long
-# hand as they may change in the future. Return the tuple with the label rather
-# than just the time so it can be useful in more scenarios.
-PATIENT_REFUSAL_ADJUSTMENTS = copy.deepcopy(FREQUENCIES_BY_RISK)
-PATIENT_REFUSAL_ADJUSTMENTS['None'][EVERY_3_DAYS[0]] = EVERY_DAY
-PATIENT_REFUSAL_ADJUSTMENTS['None'][EVERY_WEEK[0]] = EVERY_DAY
-PATIENT_REFUSAL_ADJUSTMENTS['Low'][EVERY_3_DAYS[0]] = EVERY_DAY
-PATIENT_REFUSAL_ADJUSTMENTS['Low'][EVERY_WEEK[0]] = EVERY_DAY
 
 
 def as_list(max=None):

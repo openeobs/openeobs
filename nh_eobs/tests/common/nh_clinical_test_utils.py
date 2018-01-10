@@ -9,6 +9,66 @@ class NhClinicalTestUtils(AbstractModel):
     _name = 'nh.clinical.test_utils'
     _inherit = 'nh.clinical.test_utils'
 
+    # TODO Rename to get_open_ews_activity and move to nh_eobs because of API
+    def get_open_obs(self, patient_id=None, data_model=None, user_id=None):
+        """
+        Search for the currently open observation for the data model and
+        assign the user to the activity so they can complete it
+
+        :param patient_id: ID of the patient
+        :param data_model: Observation model associated with the activity
+        :param user_id: ID of user who will do observation
+        """
+        api_model = self.pool['nh.eobs.api']
+        activity_model = self.env['nh.activity']
+
+        if not patient_id:
+            patient_id = self.patient.id
+        if not data_model:
+            data_model = 'nh.clinical.patient.observation.ews'
+        if not user_id:
+            user_id = self.nurse.id
+
+        ews_activity_search = activity_model.search(
+            [
+                ['data_model', '=', data_model],
+                ['patient_id', '=', patient_id],
+                ['state', '=', 'scheduled']
+            ]
+        )
+        if ews_activity_search:
+            self.ews_activity = ews_activity_search[0]
+        else:
+            raise ValueError('Could not find EWS Activity ID')
+
+        api_model.assign(
+            self.env.cr,
+            user_id,
+            self.ews_activity.id,
+            {'user_id': user_id}
+        )
+
+    # TODO: Rename to complete_ews to distinguish from other observations.
+    def complete_obs(self, obs_data, obs_activity_id=None, user_id=None):
+        """
+        Override to use API implementation as it is simpler.
+
+        :param obs_data:
+        :param obs_activity_id:
+        :param user_id:
+        :return:
+        """
+        api_model = self.env['nh.eobs.api']
+        if not obs_activity_id:
+            obs_activity_id = self.ews_activity.id
+        if not user_id:
+            user_id = self.nurse.id
+        api_model = api_model.sudo(user_id)
+        api_model.complete(
+            obs_activity_id,
+            obs_data
+        )
+
     def nursing_shift_change(self):
         ward = self.ward
         other_hca = self.create_hca(ward.id)
