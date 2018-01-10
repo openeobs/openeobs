@@ -1,7 +1,6 @@
 # -*- coding: utf -*-
 from openerp import fields, api
-from openerp.addons.nh_odoo_fixes import validate
-from openerp.models import TransientModel, MAGIC_COLUMNS
+from openerp.models import TransientModel
 
 
 class NhClinicalFrequenciesEws(TransientModel):
@@ -19,23 +18,19 @@ class NhClinicalFrequenciesEws(TransientModel):
 
     no_risk_minimum = fields.Integer()
     no_risk_maximum = fields.Integer()
-    no_risk = fields.Integer(
-        min='no_risk_minimum', max='no_risk_maximum')
+    no_risk = fields.Integer()
 
     low_risk_minimum = fields.Integer()
     low_risk_maximum = fields.Integer()
-    low_risk = fields.Integer(
-        min='low_risk_minimum', max='low_risk_maximum')
+    low_risk = fields.Integer()
 
     medium_risk_minimum = fields.Integer()
     medium_risk_maximum = fields.Integer()
-    medium_risk = fields.Integer(
-        min='medium_risk_minimum', max='medium_risk_maximum')
+    medium_risk = fields.Integer()
 
     high_risk_maximum = fields.Integer()
     high_risk_minimum = fields.Integer()
-    high_risk = fields.Integer(
-        min='high_risk_minimum', max='high_risk_maximum')
+    high_risk = fields.Integer()
 
     placement_minimum = fields.Integer()
     placement_maximum = fields.Integer()
@@ -53,17 +48,35 @@ class NhClinicalFrequenciesEws(TransientModel):
     unknown_risk_refusal_maximum = fields.Integer()
     unknown_risk_refusal = fields.Integer()
 
+    # Even though the 'minimum' and 'maximum' fields do not themselves need
+    # to be validated they must still be added to the constrains so that the
+    # record passed to the validation method is populated with their new
+    # values.
+    # For example if a user sets all the values at once along with minimums
+    # and maximums that make the new values valid, the method would still
+    # raise because it would be use the existing values in the database for
+    # minimum and maximum. Adding the minimum and maximum fields to the
+    # constrains fixed this.
     @api.constrains(
-        'no_risk', 'low_risk', 'medium_risk', 'high_risk', 'placement',
-        'obs_restart', 'transfer_refusal', 'unknown_risk_refusal')
+        'no_risk_minimum', 'no_risk_maximum', 'no_risk',
+        'low_risk_minimum', 'low_risk_maximum', 'low_risk',
+        'medium_risk_minimum', 'medium_risk_maximum', 'medium_risk',
+        'high_risk_minimum', 'high_risk_maximum', 'high_risk',
+        'placement_minimum', 'placement_maximum', 'placement',
+        'obs_restart_minimum', 'obs_restart_maximum', 'obs_restart',
+        'transfer_refusal_minimum', 'transfer_refusal_maximum',
+        'transfer_refusal',
+        'unknown_risk_refusal_minimum', 'unknown_risk_refusal_maximum',
+        'unknown_risk_refusal'
+    )
     def _in_min_max_range(self):
         """
         Validate that the values of the constrained fields are within the
         range specified by the values of their correspondingly named
         'minimum' and 'maximum' fields.
         """
-        validate.fields_in_min_max_range(
-            self, ['no_risk', 'low_risk', 'medium_risk', 'high_risk'])
+        validation_utils = self.env['nh.clinical.validation_utils']
+        validation_utils.fields_in_min_max_range(self)
 
     @api.multi
     def set_params(self):
@@ -71,7 +84,8 @@ class NhClinicalFrequenciesEws(TransientModel):
         Sets the values of config parameters so they are stored in the
         database.
         """
-        field_names = self._get_field_names()
+        field_utils = self.env['nh.clinical.field_utils']
+        field_names = field_utils.get_field_names(self)
 
         config_parameters_model = self.env['ir.config_parameter']
         for field_name in field_names:
@@ -101,14 +115,3 @@ class NhClinicalFrequenciesEws(TransientModel):
             current_param_values[field_name] = \
                 config_parameters_model.get_param(field_name, '')
         return current_param_values
-
-    def _get_field_names(self):
-        """
-        Gets all the field names for the record excluding 'magic' fields like
-        `create_date` that Odoo puts on every record.
-        :return: List of 'normal' field names.
-        :rtype: list
-        """
-        field_names = [field_name for field_name in self._columns.keys()
-                       if field_name not in MAGIC_COLUMNS]
-        return field_names

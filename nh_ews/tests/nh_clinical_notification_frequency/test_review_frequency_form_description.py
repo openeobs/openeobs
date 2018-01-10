@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp.tests.common import SingleTransactionCase
-
 from openerp.addons.nh_observations import frequencies
+from openerp.tests.common import SingleTransactionCase
 
 
 class TestReviewFrequencyFormDesc(SingleTransactionCase):
@@ -117,12 +116,6 @@ class TestReviewFrequencyFormDesc(SingleTransactionCase):
                 (1440, 'Every Day')
             ]
         )
-
-    def test_25_hours(self):
-        with self.assertRaises(ValueError):
-            self.setUpMock(1500)
-            self.review_frequency_pool.get_form_description(self.cr, self.uid,
-                                                            1, context=None)
 
     def test_0_minutes(self):
         self.setUpMock(0)

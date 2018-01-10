@@ -14,7 +14,6 @@ from datetime import datetime as dt, timedelta as td
 
 from openerp import SUPERUSER_ID, api
 from openerp.addons.nh_observations import fields as obs_fields
-from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields, osv
 from openerp.osv.fields import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -180,7 +179,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
                                       string='Is Partial?'),
         'none_values': fields.text('Non-updated required fields'),
         'null_values': fields.text('Non-updated numeric fields'),
-        'frequency': fields.selection(frequencies.as_list(), 'Frequency'),
+        'frequency': fields.integer('Frequency'),
         'partial_reason': fields.selection(_partial_reasons,
                                            'Reason if partial observation')
     }

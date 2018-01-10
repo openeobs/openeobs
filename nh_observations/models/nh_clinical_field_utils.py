@@ -9,7 +9,7 @@ class FieldUtils(models.AbstractModel):
     Provides helpful methods, mainly for distinguishing between Odoo's fields
     and our own extensions of them.
     """
-    _name = 'nh.clinical.field_utils'
+    _inherit = 'nh.clinical.field_utils'
 
     @classmethod
     def is_obs_field(cls, field):
