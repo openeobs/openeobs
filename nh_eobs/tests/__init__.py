@@ -4,8 +4,10 @@ from . import test_eobs_settings
 from . import test_helpers
 from . import test_sql_statements
 from . import test_workload
+from .nh_clinical_frequencies_ews import *
 from .nh_clinical_observation_report_wizard import *
 from .nh_clinical_patient_monitoring_exception import *
+from .nh_clinical_patient_observation_ews import *
 from .nh_clinical_patient_transfer import *
 from .nh_clinical_wardboard import *
 from .nh_eobs_api import *

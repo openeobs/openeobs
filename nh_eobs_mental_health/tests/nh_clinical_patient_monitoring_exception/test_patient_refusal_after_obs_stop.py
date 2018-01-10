@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
 
-from openerp.addons.nh_observations import frequencies
 from openerp.tests.common import TransactionCase
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class TestPatientRefusalAfterObsStop(TransactionCase):
-
+    """
+    Verify how refusals interact with obs stop.
+    """
     def setUp(self):
         super(TestPatientRefusalAfterObsStop, self).setUp()
         self.patient_model = self.env['nh.clinical.patient']
@@ -38,6 +39,10 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         self.datetime_test_utils = self.env['datetime_test_utils']
 
     def test_obs_after_refusal_due_in_one_hour(self):
+        """
+        After an obs stop the patients next obs is scheduled for one hour. In
+        other words the 'obs stop frequency' overrides the 'refusal frequency'.
+        """
         reason_one = self.reason_model.create({'display_text': 'reason one'})
         self.wardboard.start_obs_stop(
             reason_one,
@@ -46,18 +51,16 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         )
         self.wardboard.end_obs_stop()
 
-        refused_obs = \
-            self.ews_model.get_open_obs_activity(self.spell_activity_id)
         obs_activity_after_refused = \
             self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
             )
 
-        after_refused_frequency = \
-            frequencies.PATIENT_REFUSAL_ADJUSTMENTS['Obs Restart'][0]
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        after_refused_frequency = frequencies_model.get_obs_restart_frequency()
 
         expected = \
-            datetime.strptime(refused_obs.date_terminated, DTF) \
+            datetime.strptime(obs_activity_after_refused.create_date, DTF) \
             + timedelta(minutes=after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF

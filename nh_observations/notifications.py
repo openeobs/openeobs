@@ -135,7 +135,7 @@ class nh_clinical_notification_frequency(orm.Model):
     _description = 'Review Frequency'
     _columns = {
         'observation': fields.text('Observation Model', required=True),
-        'frequency': fields.selection(frequencies.as_list(), 'Frequency')
+        'frequency': fields.integer('Frequency')
     }
     _notifications = []
 

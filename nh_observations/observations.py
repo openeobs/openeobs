@@ -14,7 +14,6 @@ from datetime import datetime as dt, timedelta as td
 
 from openerp import SUPERUSER_ID, api
 from openerp.addons.nh_observations import fields as obs_fields
-from openerp.addons.nh_observations import frequencies
 from openerp.osv import orm, fields, osv
 from openerp.osv.fields import datetime
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -180,7 +179,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
                                       string='Is Partial?'),
         'none_values': fields.text('Non-updated required fields'),
         'null_values': fields.text('Non-updated numeric fields'),
-        'frequency': fields.selection(frequencies.as_list(), 'Frequency'),
+        'frequency': fields.integer('Frequency'),
         'partial_reason': fields.selection(_partial_reasons,
                                            'Reason if partial observation')
     }
@@ -605,6 +604,33 @@ class NhClinicalPatientObservation(orm.AbstractModel):
                     'nh.clinical.patient.placement':
                 return True
             return False
+
+    @api.model
+    def transferred_and_placed_before_refusals(self, refused_obs_activity):
+        """
+        Determine whether a transfer happened before the last set of refusals.
+
+        :param refused_obs_activity:
+        :return:
+        """
+        # TODO This checks for a second placement, not necessarily transfer.
+        # The logic checks for placement frequency and at least 2 placements.
+        # No placement is automatically created when the patient is
+        # transferred so this is only valid for when they are actually placed.
+        ews_model = self.env['nh.clinical.patient.observation.ews']
+        frequencies_model = self.env['nh.clinical.frequencies.ews']
+        placement_model = self.env['nh.clinical.patient.placement']
+
+        spell_activity_id = refused_obs_activity.spell_activity_id.id
+        refused_obs_frequency = refused_obs_activity.data_ref.frequency
+        placement_frequency = frequencies_model.get_placement_frequency()
+
+        if refused_obs_frequency == placement_frequency \
+                and len(placement_model.get_placement_activities_for_spell(
+                spell_activity_id)) > 1 \
+                and ews_model.placement_before_refusals(spell_activity_id):
+            return True
+        return False
 
     @api.model
     def get_previous_obs_activity(self, obs_activity):
