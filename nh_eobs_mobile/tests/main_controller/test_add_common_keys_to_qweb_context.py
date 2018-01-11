@@ -2,6 +2,7 @@
 from openerp.addons.nh_eobs_mobile.controllers import urls
 from openerp.addons.nh_eobs_mobile.controllers.main import MobileFrontend
 from openerp.tests.common import TransactionCase
+from os import environ
 
 URLS = urls.URLS
 
@@ -58,11 +59,11 @@ class TestAddCommonKeysToQWebContext(TransactionCase):
         """
         The version environment variable value is set on the QWeb context.
         """
+        expected = '1.5.31'
+        environ['VERSION'] = expected
+
         self.call_test()
 
         self.assertTrue('version' in self.qcontext)
-        # `None` is expected because there is no `version` environment
-        # variable setup for this test.
-        expected = None
         actual = self.qcontext['version']
         self.assertEqual(expected, actual)
