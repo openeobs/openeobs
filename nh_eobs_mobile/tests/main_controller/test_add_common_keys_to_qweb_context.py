@@ -54,15 +54,15 @@ class TestAddCommonKeysToQWebContext(TransactionCase):
         actual = self.qcontext['urls']
         self.assertEqual(expected, actual)
 
-    def test_adds_eobs_version(self):
+    def test_adds_version_environment_variable_value(self):
         """
         The version environment variable value is set on the QWeb context.
         """
         self.call_test()
 
-        self.assertTrue('eobs_version' in self.qcontext)
-        # `None` is expected because there is no `eobs_version` environment
+        self.assertTrue('version' in self.qcontext)
+        # `None` is expected because there is no `version` environment
         # variable setup for this test.
         expected = None
-        actual = self.qcontext['eobs_version']
+        actual = self.qcontext['version']
         self.assertEqual(expected, actual)
