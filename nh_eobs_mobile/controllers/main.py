@@ -954,6 +954,14 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
     @staticmethod
     def add_common_keys_to_qweb_context(qcontext, request_obj):
+        """
+        Simple encapsulation of keys that are added to the QWeb context in
+        every method.
+
+        :param qcontext:
+        :param request_obj:
+        :return:
+        """
         qcontext['username'] = request_obj.session['login']
         qcontext['urls'] = URLS
         environment_model = request_obj.registry['nh.clinical.environment']

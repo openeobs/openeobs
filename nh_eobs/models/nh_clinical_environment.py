@@ -38,5 +38,13 @@ class NhClinicalEnvironment(AbstractModel):
 
     @staticmethod
     def get_version(*args):
+        """
+        Returns the current `VERSION` environment variable value, usually
+        baked into a Docker image at build time.
+
+        :param args:
+        :return: The value of the `VERSION` environment variable.
+        :rtype: str
+        """
         version = environ.get('VERSION')
         return version
