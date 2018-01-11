@@ -57,6 +57,9 @@ class nh_clinical_api_extension(orm.AbstractModel):
     def change_activity_frequency(self, cr, uid, patient_id, activity_type,
                                   frequency, context=None):
         """
+        Gets the latest record of the passed `activity_type` and updates its
+        frequency field.
+
         The update of the frequency also triggers an update of the
         `date_scheduled`. See `nh_observations.observations
         .nh_clinical_patient_observation.write`.

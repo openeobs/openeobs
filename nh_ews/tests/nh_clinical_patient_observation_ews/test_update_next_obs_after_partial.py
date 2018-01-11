@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from openerp.addons.nh_ews.tests.common import clinical_risk_sample_data
 from openerp.tests.common import TransactionCase
@@ -45,26 +45,6 @@ class TestUpdateNextObsAfterPartial(TransactionCase):
             )
         expected_date_scheduled = \
             datetime.strptime(self.activity_obs_2_partial.date_scheduled, DTF)
-        actual_date_scheduled = \
-            datetime.strptime(self.activity_obs_3_new.date_scheduled, DTF)
-
-        self.assertEqual(expected_date_scheduled, actual_date_scheduled)
-
-    def test_next_obs_has_same_frequency_as_refused_partial(self):
-        self.activity_obs_3_new = self.test_utils_model.refuse_open_obs(
-            self.patient.id, self.spell_activity.id
-        )
-        self.assertEqual(self.activity_obs_2_partial.data_ref.frequency,
-                         self.activity_obs_3_new.data_ref.frequency)
-
-    def test_next_obs_date_scheduled_after_refused_partial(self):
-        self.activity_obs_3_new = self.test_utils_model.refuse_open_obs(
-            self.patient.id, self.spell_activity.id
-        )
-        frequency = self.activity_obs_2_partial.data_ref.frequency
-        expected_date_scheduled = \
-            datetime.strptime(self.activity_obs_2_partial.date_terminated,
-                              DTF) + timedelta(minutes=frequency)
         actual_date_scheduled = \
             datetime.strptime(self.activity_obs_3_new.date_scheduled, DTF)
 
