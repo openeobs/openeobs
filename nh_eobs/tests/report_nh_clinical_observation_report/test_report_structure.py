@@ -71,7 +71,7 @@
 #             footer_has_nhs_number, 'Incorrect NHS num in footer')
 #         self.assertEqual(
 #             footer_image['src'],
-#             '/nh_eobs/static/src/img/open_eobs_logo.png',
+#             '/nh_eobs/static/src/img/liveobs_logo.png',
 #             'Incorrect logo image linked to in footer'
 #         )
 #         self.assertEqual(
