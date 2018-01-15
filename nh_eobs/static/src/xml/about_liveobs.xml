@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="UserMenu">
+        <t t-jquery="ul.dropdown-menu > li > a[data-menu='about']" t-operation="replace">
+            <a id="liveobs_about_link" href="http://www.liveobs.com/">About LiveObs</a>
+        </t>
+    </t>
+
+</templates>

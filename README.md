@@ -1,3 +1,4 @@
+
 # Open-eObs
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/5168b7d619c54feab1bdebc527ec1745)](https://www.codacy.com/app/BJSS/openeobs?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NeovaHealth/openeobs&amp;utm_campaign=Badge_Grade)
 
@@ -64,7 +65,7 @@ and pull requests (for submitting code).
 You can read our contribution guidelines for more information on how to contribute
 and what you can expect when contributing to Open-eObs
 
-User guides can be found in [the Wiki](https://github.com/NeovaHealth/openeobs/wiki).
+User guides can be found in [the Wiki](https://github.com/NeovaHealth/openeobs/wiki) as well as the nhclinical project.
 
 ## Building Sphinx docs
 1. `pip install sphinx`

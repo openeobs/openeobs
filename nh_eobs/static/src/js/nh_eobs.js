@@ -146,6 +146,23 @@ openerp.nh_eobs = function (instance) {
 
     instance.web.UserMenu.include({
 
+        start: function() {
+            var self = this;
+            this._super();
+
+            var environmentModel = new instance.web.Model("nh.clinical.environment");
+
+            environmentModel.call("get_version").then(function(eobsVersion) {
+                    if (eobsVersion) {
+                        var liveobsAboutLink = self.$el.find('#liveobs_about_link');
+                        var aboutLiveobsText = liveobsAboutLink.text();
+                        var updatedText = aboutLiveobsText + ' ' + eobsVersion;
+                        liveobsAboutLink.text(updatedText);
+                    }
+                }
+            );
+        },
+
         // Modified version of on_menu_ default to show tutorials menu relevant
         // to user (WI-2237)
         on_menu_tutorials: function () {

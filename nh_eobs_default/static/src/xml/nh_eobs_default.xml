@@ -3,7 +3,7 @@
     <t t-extend="Login">
         <t t-jquery=".oe_login_logo" t-operation="replace">
             <div class="oe_login_logo">
-                <img src="/nh_eobs_default/static/src/img/Open_eObs_logo.png"/>
+                <img src="/nh_eobs_default/static/src/img/liveobs_logo.png"/>
             </div>
         </t>
         <t t-jquery="div.oe_login_footer" t-operation="replace">
