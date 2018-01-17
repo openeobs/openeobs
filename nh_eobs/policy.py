@@ -43,14 +43,30 @@ class nh_clinical_patient_admission(orm.Model):
     _name = 'nh.clinical.patient.admission'
     _inherit = 'nh.clinical.patient.admission'
 
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
-                               'type': 'schedule',
-                               'cancel_others': True,
-                               'context': 'eobs',
-                               'create_data': {
-                                   'suggested_location_id':
-                                       'activity.data_ref.location_id.id'
-                               }}]}
+    _POLICY = {
+        'activities': [
+            {
+                'model': 'nh.clinical.patient.placement',
+                'type': 'schedule',
+                'cancel_others': True,
+                'context': 'eobs',
+                'create_data': True
+            }
+        ]
+    }
+
+    def _get_policy_create_data(self, case=None):
+        """
+        Override _get_policy_create_data to return a dict with the
+        suggested_location_id for the placement that's created as per the
+        policy
+
+        :return: Dictionary with suggested_location_id
+        :rtype: dict
+        """
+        return {
+            'suggest_location_id': self.data_ref.location_id.id
+        }
 
 
 class nh_clinical_patient_transfer(orm.Model):
@@ -67,34 +83,48 @@ class nh_clinical_patient_transfer(orm.Model):
     _name = 'nh.clinical.patient.transfer'
     _inherit = 'nh.clinical.patient.transfer'
 
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
-                               'type': 'schedule',
-                               'context': 'eobs',
-                               'cancel_others': True,
-                               'create_data': {
-                                   'suggested_location_id':
-                                       'activity.data_ref.location_id.id'
-                               },
-                               'case': 1
-                               },
-                              {'model': 'nh.clinical.patient.placement',
-                               'type': 'schedule',
-                               'context': 'eobs',
-                               'cancel_others': True,
-                               'create_data': {
-                                   'suggested_location_id':
-                                       "location_pool.get_closest_parent_id("
-                                       "cr, uid, "
-                                       "activity.data_ref.origin_loc_id.id, "
-                                       "'ward', "
-                                       "context=context) if "
-                                       "activity.data_ref.origin_loc_id."
-                                       "usage != 'ward' else "
-                                       "activity.data_ref.origin_loc_id.id"
-                               }, 'case': 2}
-                              ]
-               }
+    _POLICY = {
+        'activities': [
+            {
+                'model': 'nh.clinical.patient.placement',
+                'type': 'schedule',
+                'context': 'eobs',
+                'cancel_others': True,
+                'create_data': True,
+                'case': 1
+            },
+            {
+                'model': 'nh.clinical.patient.placement',
+                'type': 'schedule',
+                'context': 'eobs',
+                'cancel_others': True,
+                'create_data': True,
+                'case': 2
+             }
+        ]
+    }
 
+    def _get_policy_create_data(self, case=None):
+        """
+        Override _get_policy_create_data to return a dict with the
+        suggested_location_id for the placement that's created as per the
+        policy
+
+        :return: Dictionary with suggested_location_id
+        :rtype: dict
+        """
+        location = None
+        if case == 1:
+            location = self.data_ref.location_id
+        elif case == 2:
+            location = self.data_ref.origin_loc_id
+            if location.usage != 'ward':
+                location_model = self.env['nh.clinical.location']
+                location = \
+                    location_model.get_closest_parent_id(location.id, 'ward')
+        return {
+            'suggested_location_id': location.id
+        }
 
 class nh_clinical_adt_spell_update(orm.Model):
     """
@@ -110,15 +140,30 @@ class nh_clinical_adt_spell_update(orm.Model):
     _name = 'nh.clinical.adt.spell.update'
     _inherit = 'nh.clinical.adt.spell.update'
 
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
-                               'type': 'schedule',
-                               'context': 'eobs',
-                               'cancel_others': True,
-                               'create_data': {
-                                   'suggested_location_id':
-                                       'activity.data_ref.location_id.id'
-                               }
-                               }]}
+    _POLICY = {
+        'activities': [
+            {
+                'model': 'nh.clinical.patient.placement',
+                'type': 'schedule',
+                'context': 'eobs',
+                'cancel_others': True,
+                'create_data': True
+            }
+        ]
+    }
+
+    def _get_policy_create_data(self, case=None):
+        """
+        Override _get_policy_create_data to return a dict with the
+        suggested_location_id for the placement that's created as per the
+        policy
+
+        :return: Dictionary with suggested_location_id
+        :rtype: dict
+        """
+        return {
+            'suggested_location_id': self.data_ref.location_id.id
+        }
 
 
 class nh_clinical_patient_discharge(orm.Model):
@@ -135,18 +180,32 @@ class nh_clinical_patient_discharge(orm.Model):
     _name = 'nh.clinical.patient.discharge'
     _inherit = 'nh.clinical.patient.discharge'
 
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.placement',
-                               'type': 'schedule',
-                               'context': 'eobs',
-                               'cancel_others': True,
-                               'create_data': {
-                                   'suggested_location_id':
-                                       "location_pool.get_closest_parent_id("
-                                       "cr, uid, "
-                                       "activity.data_ref.location_id.id, "
-                                       "'ward', context=context) if "
-                                       "activity.data_ref.location_id.usage "
-                                       "!= 'ward' else "
-                                       "activity.data_ref.location_id.id"
-                               }
-                               }]}
+    _POLICY = {
+        'activities': [
+            {
+                'model': 'nh.clinical.patient.placement',
+                'type': 'schedule',
+                'context': 'eobs',
+                'cancel_others': True,
+                'create_data': True
+            }
+        ]
+    }
+
+    def _get_policy_create_data(self, case=None):
+        """
+        Override _get_policy_create_data to return a dict with the
+        suggested_location_id for the placement that's created as per the
+        policy
+
+        :return: Dictionary with suggested_location_id
+        :rtype: dict
+        """
+        location = self.data_ref.location_id
+        if location.usage != 'ward':
+            location_model = self.env['nh.clinical.location']
+            location = \
+               location_model.get_closest_parent_id(location.id, 'ward')
+        return {
+            'suggested_location_id': location.id
+        }
