@@ -65,7 +65,7 @@ class nh_clinical_patient_admission(orm.Model):
         :rtype: dict
         """
         return {
-            'suggest_location_id': self.data_ref.location_id.id
+            'suggested_location_id': self.location_id.id
         }
 
 
@@ -115,16 +115,18 @@ class nh_clinical_patient_transfer(orm.Model):
         """
         location = None
         if case == 1:
-            location = self.data_ref.location_id
+            location = self.location_id
         elif case == 2:
-            location = self.data_ref.origin_loc_id
+            location = self.origin_loc_id
             if location.usage != 'ward':
                 location_model = self.env['nh.clinical.location']
-                location = \
+                location_id = \
                     location_model.get_closest_parent_id(location.id, 'ward')
+                location = location_model.browse(location_id)
         return {
             'suggested_location_id': location.id
         }
+
 
 class nh_clinical_adt_spell_update(orm.Model):
     """
@@ -162,7 +164,7 @@ class nh_clinical_adt_spell_update(orm.Model):
         :rtype: dict
         """
         return {
-            'suggested_location_id': self.data_ref.location_id.id
+            'suggested_location_id': self.location_id.id
         }
 
 
@@ -201,7 +203,7 @@ class nh_clinical_patient_discharge(orm.Model):
         :return: Dictionary with suggested_location_id
         :rtype: dict
         """
-        location = self.data_ref.location_id
+        location = self.location_id
         if location.usage != 'ward':
             location_model = self.env['nh.clinical.location']
             location = \
