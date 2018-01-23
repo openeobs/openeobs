@@ -75,7 +75,7 @@ class TestGetEwsObservations(TransactionCase):
         self.activity_pool.cancel_with_reason(
             self.env.cr, self.env.uid,
             self.ews_cancelled_due_to_placement_activity_id,
-            self.cancel_reason_placement.id
+            self.cancel_reason_placement
         )
 
         self.call_get_ews_observations()
