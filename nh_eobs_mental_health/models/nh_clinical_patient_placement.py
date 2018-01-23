@@ -33,8 +33,9 @@ class NhClinicalPatientPlacement(orm.Model):
             ['creator_id.cancel_reason_id.name', '=', 'Transfer']
         ]
         obs_stop = activity_model.search(domain)
-        from_transfer = self.activity_id.creator_id.data_model \
-                        == 'nh.clinical.patient.transfer'
+        from_transfer = \
+            self.activity_id.creator_id.data_model == \
+            'nh.clinical.patient.transfer'
         if from_transfer and obs_stop:
             return {
                 'frequency': obs_stop[0].data_ref.frequency

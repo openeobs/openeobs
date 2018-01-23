@@ -106,7 +106,7 @@ class nh_clinical_patient_transfer(orm.Model):
                 'cancel_others': True,
                 'create_data': True,
                 'case': 2
-             }
+            }
         ]
     }
 
@@ -212,8 +212,8 @@ class nh_clinical_patient_discharge(orm.Model):
         location = self.location_id
         if location.usage != 'ward':
             location_model = self.env['nh.clinical.location']
-            location = \
-               location_model.get_closest_parent_id(location.id, 'ward')
+            location = location_model.get_closest_parent_id(
+                location.id, 'ward')
         return {
             'suggested_location_id': location.id
         }
