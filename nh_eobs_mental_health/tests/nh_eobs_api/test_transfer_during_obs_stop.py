@@ -62,12 +62,13 @@ class TestTransferDuringObsStop(TransactionCase):
         obs_activities = self.activity_model.search(domain)
         self.assertEqual(len(obs_activities), 0)
 
-    def test_transfer_after_obs_stop(self):
+    def verify_frequency_after_transfer(self, frequency):
         """
-        Test that when the patient's next obs is due in an hour when:
-        - Is put on obs stop
-        - Transferred to another ward (thus restarting obs)
-        - Placed into a bed
+        Transfer the patient, place them and verify the frequency of the
+        new EWS observation
+
+        :param frequency: Frequency observation should have
+        :returns: True if the frequency is correct
         """
         self.api_model.transfer(
             self.hospital_number,
@@ -93,7 +94,16 @@ class TestTransferDuringObsStop(TransactionCase):
         obs_activities = self.activity_model.search(domain)
         self.assertEqual(len(obs_activities), 1)
         obs_activity = obs_activities[0]
-        self.assertEqual(obs_activity.data_ref.frequency, 60)
+        return obs_activity.data_ref.frequency == frequency
+
+    def test_transfer_after_obs_stop(self):
+        """
+        Test that when the patient's next obs is due in an hour when:
+        - Is put on obs stop
+        - Transferred to another ward (thus restarting obs)
+        - Placed into a bed
+        """
+        self.assertTrue(self.verify_frequency_after_transfer(60))
 
     def test_patient_refusal_after_transfer_create_obs_due_in_15_minutes(self):
         self.wardboard_model = self.env['nh.clinical.wardboard']
@@ -103,28 +113,4 @@ class TestTransferDuringObsStop(TransactionCase):
         })
         self.wardboard.end_obs_stop()
 
-        self.api_model.transfer(
-            self.hospital_number,
-            {
-                'from_location': 'WA',
-                'location': 'WB'
-            }
-        )
-        new_placement = self.activity_model.search([
-            ['data_model', '=', 'nh.clinical.patient.placement'],
-            ['state', 'not in', ['completed', 'cancelled']],
-            ['parent_id', '=', self.spell_activity_id]
-        ])
-        self.test_utils_model.place_patient(
-            placement_activity_id=new_placement.id
-        )
-
-        domain = [
-            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
-            ('spell_activity_id', '=', self.spell_activity_id),
-            ('state', 'not in', ['completed', 'cancelled'])
-        ]
-        obs_activities = self.activity_model.search(domain)
-        self.assertEqual(len(obs_activities), 1)
-        obs_activity = obs_activities[0]
-        self.assertEqual(obs_activity.data_ref.frequency, 15)
+        self.assertTrue(self.verify_frequency_after_transfer(15))
