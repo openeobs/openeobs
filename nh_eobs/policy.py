@@ -209,11 +209,11 @@ class nh_clinical_patient_discharge(orm.Model):
         :return: Dictionary with suggested_location_id
         :rtype: dict
         """
-        location = self.location_id
-        if location.usage != 'ward':
+        location = self.location_id.id
+        if self.location_id.usage != 'ward':
             location_model = self.env['nh.clinical.location']
             location = location_model.get_closest_parent_id(
-                location.id, 'ward')
+                location, 'ward')
         return {
-            'suggested_location_id': location.id
+            'suggested_location_id': location
         }
