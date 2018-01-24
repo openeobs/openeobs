@@ -9,26 +9,6 @@ for how policies are executed.
 from openerp.osv import orm
 
 
-class nh_clinical_patient_placement(orm.Model):
-    """
-    Extends :class:`placement<operations.nh_clinical_patient_placement>`
-    to update ``_POLICY``.
-
-    When a :class:`patient<base.nh_clinical_patient>` is placed in a bed
-    :class:`location<base.nh_clinical_location>` then a recurring
-    :class:`EWS<ews.nh_clinical_patient_observation_ews>` will be
-    `scheduled`. All existing EWS will be cancelled.
-    """
-
-    _name = 'nh.clinical.patient.placement'
-    _inherit = 'nh.clinical.patient.placement'
-
-    _POLICY = {'activities': [{'model': 'nh.clinical.patient.observation.ews',
-                               'type': 'recurring',
-                               'cancel_others': True,
-                               'context': 'eobs'}]}
-
-
 class nh_clinical_patient_admission(orm.Model):
     """
     Extends :class:`admission<operations.nh_clinical_patient_admission>`
