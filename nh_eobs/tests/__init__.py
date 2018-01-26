@@ -14,6 +14,7 @@ from .nh_eobs_api import *
 from .nh_eobs_ward_dashboard import *
 from .report_nh_clinical_observation_report import *
 from .nh_clinical_patient_placement import *
+from .ir_ui_menu import *
 
 # Disabled tests
 # from . import test_api_demo
