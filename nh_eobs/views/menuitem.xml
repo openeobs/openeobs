@@ -65,7 +65,7 @@
                   parent="menu_eobs_category_patient_management"
                   action="action_wardboard_transferred"
                   sequence="4"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_doctor,base.user_root"/>
+                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,nh_clinical.group_nhc_doctor,base.user_root"/>
 
         <menuitem name="Patients without bed"
                   id="menu_eobs_placements"
@@ -86,7 +86,7 @@
                   parent="menu_eobs_category_patient_management"
                   action="action_show_overdue"
                   sequence="7"
-                  groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Ward Management"
                   sequence="3"

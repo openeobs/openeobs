@@ -1,9 +1,9 @@
 from .menu_item_common import MenuItemCase
 
 
-class TestRecentlyTransferredMenuItem(MenuItemCase):
+class TestOverdueTasksMenuItem(MenuItemCase):
     """
-    Test that the Recently Transferred menu item is shown or hidden for various
+    Test that the Overdue Tasks menu item is shown or hidden for various
     user groups
     """
 
@@ -11,9 +11,9 @@ class TestRecentlyTransferredMenuItem(MenuItemCase):
         """
         Set up the tests
         """
-        super(TestRecentlyTransferredMenuItem, self).setUp()
+        super(TestOverdueTasksMenuItem, self).setUp()
         self.allowed_groups = \
-            self.get_groups_for_menu_item('Recently Transferred')
+            self.get_groups_for_menu_item('Overdue Tasks')
 
     def test_hca_group(self):
         """
@@ -51,5 +51,5 @@ class TestRecentlyTransferredMenuItem(MenuItemCase):
         """
         test that the System Admin group cannot see the menu item
         """
-        self.assertFalse(
+        self.assertTrue(
             'NH Clinical Admin Group' in self.allowed_groups)
