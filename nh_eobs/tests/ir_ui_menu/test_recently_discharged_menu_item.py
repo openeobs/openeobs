@@ -44,7 +44,7 @@ class TestRecentlyDischargedMenuItem(MenuItemCase):
         """
         Test that the Senior Manager group cannot see the menu item
         """
-        self.assertFalse(
+        self.assertTrue(
             'NH Clinical Senior Manager Group' in self.allowed_groups)
 
     def test_system_admin_group(self):

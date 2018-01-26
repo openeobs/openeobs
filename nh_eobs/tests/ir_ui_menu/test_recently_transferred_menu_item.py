@@ -51,5 +51,5 @@ class TestRecentlyTransferredMenuItem(MenuItemCase):
         """
         test that the System Admin group cannot see the menu item
         """
-        self.assertFalse(
+        self.assertTrue(
             'NH Clinical Admin Group' in self.allowed_groups)
