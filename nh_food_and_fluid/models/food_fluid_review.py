@@ -118,7 +118,7 @@ class FoodAndFluidReview(models.Model):
                           "such tasks for the spell anyway to reduce manual "
                           "cleanup but this needs to be fixed.")
         for activity in open_activities:
-            activity.cancel_with_reason(activity.id, cancel_reason.id)
+            activity.cancel_with_reason(cancel_reason)
 
         tasks = 'tasks' if len(open_activities) > 1 else 'task'
         message = "{} food and fluid review {} cancelled.".format(

@@ -36,7 +36,7 @@ class NhClinicalObsStop(models.Model):
                 'nh_eobs', 'cancel_reason_patient_monitoring_exception'
             )
         cancel_open_ews = self.cancel_open_ews(activity.parent_id.id,
-                                               cancel_reason_pme.id)
+                                               cancel_reason_pme)
         # self._cancel_open_food_and_fluid_review_tasks()
         if not cancel_open_ews:
             raise osv.except_osv(
@@ -109,19 +109,19 @@ class NhClinicalObsStop(models.Model):
         self.spell.refusing_obs = value
 
     @api.model
-    def cancel_open_ews(self, spell_activity_id, cancel_reason_id=None):
+    def cancel_open_ews(self, spell_activity_id, cancel_reason=None):
         """
         Cancel all open EWS observations.
 
         :param spell_activity_id: ID of the spell activity
-        :param cancel_reason_id:
+        :param cancel_reason: Cancel reason record
         :return: True is successful, False if not
         """
         activity_model = self.env['nh.activity']
         return activity_model.cancel_open_activities(
             spell_activity_id,
             model='nh.clinical.patient.observation.ews',
-            cancel_reason_id=cancel_reason_id
+            cancel_reason=cancel_reason
         )
 
     @api.multi

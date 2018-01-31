@@ -186,6 +186,18 @@ class NhClinicalTestUtils(AbstractModel):
             'location': 'DISL'
         })
 
+    def cancel_patient_discharge(self, hospital_number=None):
+        """
+        Helper method to cancel the last discharge for the supplied patient
+        or if not supplied then the patient managed by test utils.
+
+        :param hospital_number: Hospital number for patient
+        """
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.eobs.api']
+        api_model.cancel_discharge(hospital_number)
+
     def transfer_patient(self, location_code, hospital_number=None):
         """
         Overriding transfer patient to use nh.eobs.api so can take advantage of
@@ -200,3 +212,13 @@ class NhClinicalTestUtils(AbstractModel):
         api_model.transfer(hospital_number, {
             'location': location_code
         })
+
+    def cancel_patient_transfer(self, hospital_number=None):
+        """
+        Helper method to cancel the last transfer for the supplied patient or
+        if none supplied the current patient on test_utils
+        """
+        if not hospital_number:
+            hospital_number = self.hospital_number
+        api_model = self.env['nh.eobs.api']
+        api_model.cancel_transfer(hospital_number)
