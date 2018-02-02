@@ -3,3 +3,4 @@
 from . import test_olap_dataset_and_manipulation
 from . import test_olap_view_dimensions
 from . import test_olap_view_security
+from .ir_ui_menu import *
