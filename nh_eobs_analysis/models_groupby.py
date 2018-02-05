@@ -8,8 +8,7 @@ from openerp.models import BaseModel
 
 def read_group_process_groupby_override(self, gb, query, context):
     """
-        Helper method to collect important information about groupbys: raw
-        field name, type, time information, qualified name, ...
+    Override of `openerp.BaseModel_read_group_process_groupby_override`.
     """
     split = gb.split(':')
     field_type = self._fields[split[0]].type
@@ -17,7 +16,8 @@ def read_group_process_groupby_override(self, gb, query, context):
     temporal = field_type in ('date', 'datetime')
     tz_convert = field_type == 'datetime' and \
         context.get('tz') in pytz.all_timezones
-    qualified_field = self._inherits_join_calc(split[0], query)
+    alias = self._table
+    qualified_field = self._inherits_join_calc(alias, split[0], query)
     if temporal:
         display_formats = {
             # Careful with week/year formats:
