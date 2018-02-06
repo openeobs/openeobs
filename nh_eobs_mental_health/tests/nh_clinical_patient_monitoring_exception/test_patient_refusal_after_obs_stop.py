@@ -62,7 +62,8 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         after_refused_frequency = frequencies_model.get_obs_restart_frequency()
 
         expected = \
-            datetime.strptime(obs_activity_before_refused.date_terminated, DTF) \
+            datetime.strptime(
+                obs_activity_before_refused.date_terminated, DTF) \
             + timedelta(minutes=after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
