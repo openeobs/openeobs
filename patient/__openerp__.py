@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': 'Patient at a glance',
+    'name': 'Patient',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
@@ -18,7 +18,6 @@
         'views/patients_at_a_glance.xml',
         'views/patient_in_detail.xml'
     ],
-    'qweb': [],
     'application': True,
     'installable': True,
     'active': False

@@ -1,0 +1,47 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_patient_at_a_glance_kanban">
+            <field name="name">Patients at a glance kanban</field>
+            <field name="model">patient</field>
+            <field name="arch" type="xml">
+                <kanban edit="false" quick_create="false" create="false">
+                    <field name="given_name"/>
+                    <field name="middle_name"/>
+                    <field name="family_name"/>
+                    <field name="sex"/>
+                    <field name="nhs_number"/>
+                    <field name="hospital_number"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="patient oe_kanban_global_click">
+                                <t t-esc="record.given_name.value"/>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_show_patients_at_a_glance">
+            <field name="name">Show patients at a glance action</field>
+            <field name="res_model">patient</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,form</field>
+        </record>
+
+        <menuitem name="Patients at a glance"
+                  id="menu_patients_at_a_glance"
+                  parent="nh_eobs.menu_eobs_category_patient_management"
+                  sequence="8"
+                  action="action_show_patients_at_a_glance"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <template id="assets_backend" name="patient at a glance assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,700i" rel="stylesheet"/>
+                <script src="/patient/static/src/js/kanban_widget_override.js" type="text/javascript"/>
+                <script src="/patient/static/src/js/patient.js" type="text/javascript"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

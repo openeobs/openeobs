@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink,perm_responsibility
+wm_access_patient,manager:access_patient,model_patient,nh_clinical.group_nhc_ward_manager,1,1,1,1
+wm_access_patient_at_a_glance,manager:access_patient_at_a_glance,model_patient_at_a_glance,nh_clinical.group_nhc_ward_manager,1,1,1,1
+wm_access_patient_in_detail,manager:access_patient_in_detail,model_patient_in_detail,nh_clinical.group_nhc_ward_manager,1,1,1,1

@@ -4,23 +4,10 @@ from openerp import models, fields
 
 class NhClinicalPatientAtAtGlance(models.Model):
 
-    _name = 'nh.clinical.patient.at_a_glance'
+    _name = 'patient.at_a_glance'
 
-    given_name = fields.Char()
-    middle_name = fields.Char()
-    family_name = fields.Char()
-    sex = fields.Selection(selection=[
-        ('male', 'Male'),
-        ('female', 'Female')
-    ])
-    gender = fields.Selection(selection=[
-        ('cisgender', 'Cisgender'),
-        ('non-binary', 'Non-binary'),
-        ('gender fluid', 'Gender Fluid')
-    ])
-
-    hospital_number = fields.Char()
-    nhs_number = fields.Char()
+    patient = fields.Many2one(comodel_name='patient',
+                              required=True)
 
     location = fields.Char()
 
@@ -39,6 +26,3 @@ class NhClinicalPatientAtAtGlance(models.Model):
     ])
 
     time_to_next_observation = fields.Char()
-
-    patient_in_detail = fields.Many2one(
-        comodel_name='nh.clinical.patient.in_detail')
