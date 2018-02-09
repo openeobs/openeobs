@@ -1,0 +1,111 @@
+.identity {
+  /* Aligns the NHS number to the right edge of the name and sex. */
+  display: inline-block;
+}
+
+.left-column {
+  flex-grow: 1;
+  padding: 1rem;
+}
+
+.location {
+  flex-grow: 1;
+}
+
+.medium-clinical-risk {
+  background-color: #EAD443;
+}
+
+.news-score {
+  font-size: 5rem;
+  font-weight: 600;
+  text-align: center;
+  margin: -1rem 0;
+}
+
+.name {
+  font-size: 2.59rem;
+  font-weight: 700;
+}
+
+.news-score {
+  flex-grow: 1;
+  font-size: 8.05rem;
+}
+
+.numbers {
+  flex-grow: 1;
+  text-align: right;
+}
+
+.numbers-and-location {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+  font-weight: 400;
+}
+
+.patient {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: black;
+  font-family: 'Source Sans Pro', sans-serif;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 48rem;
+  margin: 1rem;
+  border: 0.1rem black solid;
+}
+
+.patient svg {
+  display: unset;
+}
+
+.risk {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 1rem;
+}
+
+.risk-additional-information {
+  flex-grow: 2;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.risk-additional-information span {
+  /* Centres SVGs. */
+  text-align: center;
+}
+
+.risk-additional-information svg {
+  width: 3rem;
+}
+
+.sex img {
+  width: 1.61rem;
+  margin-left: 0.3rem;
+}
+
+.statuses svg {
+  width: 2.59rem;
+  margin: 0.3rem;
+}
+
+.statuses {
+  flex-grow: 1;
+  margin-top: 1rem;
+}
+
+.status {
+  margin: 0 0.3rem;
+}
+
+.status:first-child {
+  margin-left: 0;
+}
+
+.status:last-child {
+  margin-right: 0;
+}

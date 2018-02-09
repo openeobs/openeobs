@@ -1,0 +1,22 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_patient_in_detail_kanban">
+            <field name="name">Patients at a glance kanban</field>
+            <field name="model">nh.clinical.patient.at_a_glance</field>
+            <field name="arch" type="xml">
+
+        <record model="ir.actions.act_window" id="action_show_patient_in_detail">
+            <field name="name">Show patients in detail action</field>
+            <field name="res_model">nh.clinical.patient.in_detail</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+        </record>
+
+        <menuitem name="Patient in detail"
+                  id="menu_patient_in_detail"
+                  parent="nh_eobs.menu_eobs_category_patient_management"
+                  sequence="9"
+                  action="action_show_patient_in_detail"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+    </data>
+</openerp>
