@@ -1,7 +1,7 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
-from openerp.osv import osv, fields
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 from openerp import tools
+from openerp.osv import osv, fields
 
 
 class nh_eobs_news_report(osv.Model):
@@ -15,6 +15,9 @@ class nh_eobs_news_report(osv.Model):
         'ward_id': fields.many2one('nh.clinical.location', 'Ward',
                                    readonly=True),
         'location_str': fields.char('Location', readonly=True),
+        'location_id': fields.many2one('nh.clinical.location',
+                                       string='Location ID',
+                                       readonly=True),
         'score': fields.char('Obtained Score', readonly=True),
         'clinical_risk': fields.char('Obtained Clinical Risk', readonly=True),
         'on_time': fields.integer('# On Time', readonly=True),

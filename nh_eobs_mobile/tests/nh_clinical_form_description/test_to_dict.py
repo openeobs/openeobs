@@ -7,9 +7,16 @@ from openerp.tests.common import TransactionCase
 class TestToDict(TransactionCase):
 
     class Model(object):
-
-        an_obs_field = nh_observations.fields.Selection()
-        an_odoo_field = openerp.fields.Selection()
+        an_obs_field = nh_observations.fields.Selection(
+            selection=['foo', 'bar'],
+            string="I'm a teensy little obs field.",
+            required=True
+        )
+        an_odoo_field = openerp.fields.Selection(
+            selection=['foo', 'bar'],
+            string="I'm a teensy little odoo field.",
+            required=True
+        )
 
         _fields = {
             'an_obs_field': an_obs_field,

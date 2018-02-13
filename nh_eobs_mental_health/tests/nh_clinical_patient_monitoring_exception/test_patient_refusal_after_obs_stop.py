@@ -51,6 +51,8 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         )
         self.wardboard.end_obs_stop()
 
+        obs_activity_before_refused = self.ews_model.get_open_obs_activity(
+            self.spell_activity_id)
         obs_activity_after_refused = \
             self.test_utils_model.refuse_open_obs(
                 self.patient.id, self.spell_activity_id
@@ -60,7 +62,8 @@ class TestPatientRefusalAfterObsStop(TransactionCase):
         after_refused_frequency = frequencies_model.get_obs_restart_frequency()
 
         expected = \
-            datetime.strptime(obs_activity_after_refused.create_date, DTF) \
+            datetime.strptime(
+                obs_activity_before_refused.date_terminated, DTF) \
             + timedelta(minutes=after_refused_frequency)
         actual = datetime.strptime(
             obs_activity_after_refused.date_scheduled, DTF
