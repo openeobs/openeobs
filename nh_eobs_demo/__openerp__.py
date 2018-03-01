@@ -45,7 +45,8 @@
              'data/ward_b/demo_news.xml',
              'data/ward_c/demo_news.xml',
              'data/ward_d/demo_news.xml',
-             'data/ward_e/demo_news.xml'
+             'data/ward_e/demo_news.xml',
+             'data/ward_a/demo_shifts.xml'
              ],
     'application': True,
     'installable': True,
