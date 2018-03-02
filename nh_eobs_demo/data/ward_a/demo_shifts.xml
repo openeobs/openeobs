@@ -1,7 +1,7 @@
 <openerp>
       <data noupdate="1">
         <record id="demo_ward_a_shift" model="nh.clinical.shift">
-          <field name="ward" ref="ref('nhc_def_conf_location_wa')"/>
+          <field name="ward" ref="nhc_def_conf_location_wa"/>
           <field name="nurses" eval="[[6, 0, [ref('nhc_def_conf_nurse_nasir_user'), ref('nhc_def_conf_nurse_nat_user'), ref('nhc_def_conf_nurse_nathan_user'), ref('nhc_def_conf_nurse_nathanael_user'), ref('nhc_def_conf_nurse_nathanial_user'), ref('nhc_def_conf_nurse_nathaniel_user'), ref('nhc_def_conf_nurse_nathen_user'), ref('nhc_def_conf_nurse_neal_user'), ref('nhc_def_conf_nurse_ned_user'), ref('nhc_def_conf_nurse_needham_user')]]]"/>
           <field name="hcas" eval="[[6, 0, [ref('nhc_def_conf_hca_hal_user'), ref('nhc_def_conf_hca_halbert_user'), ref('nhc_def_conf_hca_hale_user'), ref('nhc_def_conf_hca_hall_user'), ref('nhc_def_conf_hca_halley_user'), ref('nhc_def_conf_hca_hallie_user'), ref('nhc_def_conf_hca_halsey_user'), ref('nhc_def_conf_hca_ham_user'), ref('nhc_def_conf_hca_hamilton_user'), ref('nhc_def_conf_hca_hamp_user')]]]"/>
         </record>
