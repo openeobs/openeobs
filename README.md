@@ -69,6 +69,6 @@ User guides can be found in [the Wiki](https://github.com/NeovaHealth/openeobs/w
 
 ## Building Sphinx docs
 1. `pip install sphinx`
-1. `sphinx-build -h`
 1. `cd docs/`
 1. `sphinx-build source html`
+1. `sphinx-build --help` if you'd like more information.
