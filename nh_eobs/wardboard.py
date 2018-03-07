@@ -500,7 +500,7 @@ class nh_clinical_wardboard(orm.Model):
         'given_name': fields.text("Given Name"),
         'middle_names': fields.text("Middle Names"),
         'family_name': fields.text("Family Name"),
-        'location': fields.text("Location"),
+        'location': fields.text("Location"),  # Location name field.
         'initial': fields.text("Patient Name Initial"),
         'clinical_risk': fields.selection(_clinical_risk_selection,
                                           "Clinical Risk"),
