@@ -62,6 +62,8 @@ class NHClinicalWardboard(orm.Model):
             _get_rapid_tranq_from_spell, type='boolean', store=True)
     }
 
+    _order = 'rapid_tranq desc, location asc'
+
     @api.multi
     def toggle_obs_stop(self):
         """

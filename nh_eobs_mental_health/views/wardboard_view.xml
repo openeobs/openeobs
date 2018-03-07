@@ -29,9 +29,6 @@
             <field name="model">nh.clinical.wardboard</field>
             <field name="inherit_id" ref="nh_eobs.view_wardboard_kanban"/>
             <field name="arch" type="xml">
-                <xpath expr="//kanban" position="attributes">
-                    <attribute name="default_order">rapid_tranq desc</attribute>
-                </xpath>
                 <xpath expr="//kanban/field" position="after">
                     <field name="patient_id" readonly="1" invisible="1"/>
                     <field name="rapid_tranq" readonly="1" invisible="1"/>
