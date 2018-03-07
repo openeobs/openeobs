@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink,perm_responsibility
+base_group_access_shift_coordinator,admin:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_base,1,0,0,0,0
+admin_access_shift_coordinator,admin:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_admin,1,1,1,1,0
+dev_access_shift_coordinator,dev:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_dev,1,1,1,1,1
+wm_access_shift_coordinator,manager:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_ward_manager,1,1,1,1,0
+senior_manager_access_shift_coordinator,senior_manager:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_senior_manager,1,1,1,0,0
+adt_access_shift_coordinator,manager:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_adt,1,0,0,0,0
+kiosk_access_shift_coordinator,kiosk:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_kiosk,1,0,0,0,0
+hca_access_shift_coordinator,hca:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_hca,1,0,0,0,0
+nurse_access_shift_coordinator,nurse:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_nurse,1,0,0,0,0
+doctor_access_shift_coordinator,doctor:access_shift_coordinator,model_nh_clinical_shift,nh_clinical.group_nhc_doctor,1,0,0,0,0
+,,,,,,,

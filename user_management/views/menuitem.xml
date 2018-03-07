@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <menuitem name="User Management"
+                  id="menu_eobs_category_user_management"
+                  parent="liveobs_core.menu_liveobs_root_admin"
+                  groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Open eObs Users"
+                  id="menu_eobs_dev_user_management"
+                  parent="menu_eobs_category_user_management"
+                  action="action_nhc_user_management_admin"
+                  groups="nh_clinical.group_nhc_dev"/>
+    </data>
+</openerp>

@@ -125,7 +125,7 @@
             //    element: "a.ui-tabs-anchor:contains('Patients Waiting')"
             //},
             {
-                title: "They can't manage the nursing and doctor shifts",
+                title: "They can't manage the nursing and doctor shift_management",
                 waitNot: "div.oe_secondary_menu_section:contains('Shift Management')"
             },
             {
@@ -203,7 +203,7 @@
                 waitNot: "span.oe_menu_text:contains('Ward Dashboard')"
             },
             {
-                title: _t("They can't manage the nursing and doctor shifts"),
+                title: _t("They can't manage the nursing and doctor shift_management"),
                 waitNot: "div.oe_secondary_menu_section:contains('Shift Management')"
             },
             {
@@ -302,7 +302,7 @@
                 waitNot: "span.oe_menu_text:contains('Ward Dashboard')"
             },
             {
-                title: _t("They can't manage the nursing and doctor shifts"),
+                title: _t("They can't manage the nursing and doctor shift_management"),
                 waitNot: "div.oe_secondary_menu_section:contains('Shift Management')"
             },
             {
@@ -417,7 +417,7 @@
                 waitNot: "span.oe_menu_text:contains('Ward Dashboard')"
             },
             {
-                title: _t("They can't manage the nursing and doctor shifts"),
+                title: _t("They can't manage the nursing and doctor shift_management"),
                 waitNot: "div.oe_secondary_menu_section:contains('Shift Management')"
             },
             {
@@ -495,7 +495,7 @@
                 waitFor: "h3:contains('Ward A')"
             },
             {
-                title: _t("They can manage the nursing and doctor shifts"),
+                title: _t("They can manage the nursing and doctor shift_management"),
                 waitFor: "div.oe_secondary_menu_section:contains('Shift Management')"
             },
             {

@@ -1,0 +1,13 @@
+<openerp>
+    <data>
+        <menuitem name="LiveObs"
+                  sequence="10"
+                  id="menu_liveobs_root"
+                  groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_hca,nh_clinical.group_nhc_nurse,nh_clinical.group_nhc_doctor,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Administration"
+                  sequence="11"
+                  id="menu_liveobs_root_admin"
+                  groups="nh_clinical.group_nhc_dev"/>
+    </data>
+</openerp>
