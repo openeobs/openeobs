@@ -6,7 +6,9 @@
     'license': 'AGPL-3',
     'summary': 'Creates a demo installation of LiveObs.',
     'description': """
-    Creates demo hospitals, wards, staff, patients, and more to produce a usable installation of LiveObs that can be used for demoing its functionality.
+    Creates demo hospitals, wards, staff, patients, and more to produce a \
+    usable installation of LiveObs that can be used for demoing its \
+    functionality.
     """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',

@@ -6,7 +6,8 @@
     'license': 'AGPL-3',
     'summary': '',
     'description': """
-    Extends the data created by the 'LiveObs Demo Loader' module to create a demo that includes mental health specific functionality.
+    Extends the data created by the 'LiveObs Demo Loader' module to create a \
+    demo that includes mental health specific functionality.
     """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
