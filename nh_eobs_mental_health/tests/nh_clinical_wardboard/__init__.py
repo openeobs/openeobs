@@ -8,3 +8,4 @@ from . import test_read_refused
 from . import test_restarts_ews_tasks
 from . import test_set_rapid_tranq
 from . import test_start_obs_stop_wardboard
+from . import test_order
