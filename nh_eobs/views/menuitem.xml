@@ -101,23 +101,6 @@
                   action="act_activity_workload_kanban"
                   groups="nh_clinical.group_nhc_senior_manager,nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
-        <!-- TODO This seems like is should be in the `user_management` module
-             but can't be because its parent is the ward management menu group
-             that is declared in this file in nh_eobs. -->
-        <menuitem name="Account Administration"
-                  id="menu_eobs_user_management"
-                  sequence="4"
-                  parent="menu_eobs_category_ward_management"
-                  action="user_management.action_nhc_user_management_wm"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
-
-        <menuitem name="Open eObs Users"
-                  id="menu_eobs_admin_user_management"
-                  sequence="8"
-                  parent="menu_eobs_category_ward_management"
-                  action="user_management.action_nhc_user_management_admin"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
-
         <menuitem name="Ward Dashboard"
                   id="menu_eobs_ward_dashboard_"
                   sequence="4"

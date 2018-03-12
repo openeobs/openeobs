@@ -1,5 +1,5 @@
-# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 # -*- coding: utf-8 -*-
+# Part of Open eObs. See LICENSE file for full copyright and licensing details.
 {
     'name': 'NH eObs',
     'version': '0.1',
@@ -7,22 +7,20 @@
     'license': 'AGPL-3',
     'summary': '',
     'description': """
-        Adds a slew of features to create a usable observation application:
-          - Observations can be scheduled and assigned to users to complete.
-          - Patients can refuse observations.
-          - Multiple views added.
+    Adds a slew of features to create a usable observation application:
+      - Observations can be scheduled and assigned to users to complete.
+      - Patients can refuse observations.
+      - Multiple views added.
     """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': [
-        'nh_clinical',
         'liveobs_core',
-        'user_management',
         'nh_ews',
         'nh_gcs',
         'nh_pbp',
         'nh_stools',
-        'nh_graphs',
+        'nh_graphs'
     ],
     'data': [
         'data/master_data.xml',

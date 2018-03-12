@@ -4,7 +4,7 @@
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
-    'summary': '',
+    'summary': 'Create a mental health demo installation of LiveObs.',
     'description': """
     Extends the data created by the 'LiveObs Demo Loader' module to create a \
     demo that includes mental health specific functionality.

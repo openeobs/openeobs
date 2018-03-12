@@ -3,13 +3,32 @@
     <data>
         <menuitem name="User Management"
                   id="menu_eobs_category_user_management"
+                  parent="liveobs_core.menu_liveobs_root"
+                  groups="nh_clinical.group_nhc_ward_manager,base.user_root"/>
+
+        <menuitem name="Account Administration"
+                  id="menu_eobs_user_management"
+                  sequence="4"
+                  parent="menu_eobs_category_user_management"
+                  action="action_nhc_user_management_wm"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="User Management"
+                  id="menu_eobs_category_user_management_admin"
                   parent="liveobs_core.menu_liveobs_root_admin"
                   groups="nh_clinical.group_nhc_dev"/>
 
         <menuitem name="Open eObs Users"
                   id="menu_eobs_dev_user_management"
-                  parent="menu_eobs_category_user_management"
+                  parent="menu_eobs_category_user_management_admin"
                   action="action_nhc_user_management_admin"
                   groups="nh_clinical.group_nhc_dev"/>
+
+        <menuitem name="Open eObs Users"
+                  id="menu_eobs_admin_user_management"
+                  sequence="8"
+                  parent="menu_eobs_category_user_management_admin"
+                  action="action_nhc_user_management_admin"
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
     </data>
 </openerp>
