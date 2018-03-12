@@ -2,7 +2,7 @@
       <data noupdate="1">
         <record id="demo_ward_c_shift" model="nh.clinical.shift">
           <field name="ward" ref="nhc_def_conf_location_wc"/>
-          <field name="nurses" eval="[[6, 0, [ref('nhc_def_conf_nurse_nasir_user'), ref('nhc_def_conf_nurse_nat_user'), ref('nhc_def_conf_nurse_nathan_user'), ref('nhc_def_conf_nurse_nathanael_user'), ref('nhc_def_conf_nurse_nathanial_user'), ref('nhc_def_conf_nurse_nathaniel_user'), ref('nhc_def_conf_nurse_nathen_user'), ref('nhc_def_conf_nurse_neal_user'), ref('nhc_def_conf_nurse_ned_user'), ref('nhc_def_conf_nurse_needham_user')]]]"/>
+          <field name="nurses" eval="[[6, 0, [ref('nhc_def_conf_nurse_newman_user'), ref('nhc_def_conf_nurse_newt_user'), ref('nhc_def_conf_nurse_newton_user'), ref('nhc_def_conf_nurse_nicholas_user'), ref('nhc_def_conf_nurse_nicholaus_user'), ref('nhc_def_conf_nurse_nick_user'), ref('nhc_def_conf_nurse_nicklaus_user'), ref('nhc_def_conf_nurse_nickolas_user'), ref('nhc_def_conf_nurse_nicky_user'), ref('nhc_def_conf_nurse_nico_user')]]]"/>
           <field name="hcas" eval="[[6, 0, [ref('nhc_def_conf_hca_hardin_user'), ref('nhc_def_conf_hca_harding_user'), ref('nhc_def_conf_hca_hardy_user'), ref('nhc_def_conf_hca_harl_user'), ref('nhc_def_conf_hca_harlan_user'), ref('nhc_def_conf_hca_harland_user'), ref('nhc_def_conf_hca_harlen_user'), ref('nhc_def_conf_hca_harley_user'), ref('nhc_def_conf_hca_harlie_user'), ref('nhc_def_conf_hca_harlon_user')]]]"/>
         </record>
       </data>
