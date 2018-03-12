@@ -1,5 +1,5 @@
-# Part of NHClinical. See LICENSE file for full copyright and licensing details
 # -*- coding: utf-8 -*-
+# Part of NHClinical. See LICENSE file for full copyright and licensing details
 from openerp.osv import osv, fields
 
 
@@ -586,49 +586,49 @@ class allocating_user(osv.TransientModel):
         res = super(allocating_user, self).fields_view_get(
             cr, uid, view_id, view_type, context, toolbar, submenu)
 
-        allocation_pool = self.pool['nh.clinical.staff.allocation']
-        reallocation_pool = self.pool['nh.clinical.staff.reallocation']
-        al_id = allocation_pool.search(cr, uid, [['create_uid', '=', uid]],
-                                       order='id desc')
-        real_id = reallocation_pool.search(cr, uid, [['create_uid', '=', uid]],
-                                           order='id desc')
-
-        if not (al_id or real_id) or view_type != 'form':
+        if view_type != 'form':
             return res
+
+        # At this point no staff will be available as options for populating
+        # the field. The rest of the method will populate the `ids` domain
+        # parameter.
+        nurse_ids = []
+        hca_ids = []
+        res['fields']['nurse_id']['domain'] = [
+            ['id', 'in', nurse_ids],
+            ['groups_id.name', 'in', ['NH Clinical Nurse Group']]
+        ]
+        res['fields']['hca_ids']['domain'] = [
+            ['id', 'in', hca_ids],
+            ['groups_id.name', 'in', ['NH Clinical HCA Group']]
+        ]
+
+        parent_view = context['parent_view']
+        if parent_view == 'allocation':
+            allocation_model = self.pool['nh.clinical.staff.allocation']
+            allocation_id = allocation_model.search(
+                cr, uid, [('create_uid', '=', uid)], order='id desc', limit=1)
+            allocation = allocation_model.browse(
+                cr, uid, allocation_id[0], context=context)
+            user_ids = [u.id for u in allocation.user_ids]
+        elif parent_view == 'reallocation':
+            reallocation_model = self.pool[
+                'nh.clinical.staff.reallocation']
+            ward_id = reallocation_model._get_default_ward(
+                cr, uid, context=context)
+            allocation_model = self.pool['nh.clinical.allocation']
+            shift = allocation_model._get_latest_shift_for_ward(
+                cr, uid, ward_id)
+            user_ids = shift.nurses._ids + shift.hcas._ids
         else:
-            parent_view = context['parent_view']
-            if parent_view == 'allocation':
-                allocation = allocation_pool.browse(cr, uid, al_id[0],
-                                                    context=context)
-                user_ids = [u.id for u in allocation.user_ids]
-                res['fields']['nurse_id']['domain'] = [
-                    ['id', 'in', user_ids],
-                    ['groups_id.name', 'in', ['NH Clinical Nurse Group']]
-                ]
-                res['fields']['hca_ids']['domain'] = [
-                    ['id', 'in', user_ids],
-                    ['groups_id.name', 'in', ['NH Clinical HCA Group']]
-                ]
-            elif parent_view == 'reallocation':
-                reallocation_model = self.pool[
-                    'nh.clinical.staff.reallocation']
-                ward_id = reallocation_model._get_default_ward(
-                    cr, uid, context=context)
-                allocation_model = self.pool['nh.clinical.allocation']
-                shift = allocation_model._get_latest_shift_for_ward(
-                    cr, uid, ward_id)
-                res['fields']['nurse_id']['domain'] = [
-                    ['id', 'in', shift.nurses._ids],
-                    ['groups_id.name', 'in', ['NH Clinical Nurse Group']]
-                ]
-                res['fields']['hca_ids']['domain'] = [
-                    ['id', 'in', shift.hcas._ids],
-                    ['groups_id.name', 'in', ['NH Clinical HCA Group']]
-                ]
-            else:
-                raise ValueError(
-                    "Unknown view. This method does not support this view yet."
-                )
+            raise ValueError(
+                "Unknown view. This method does not support this view yet."
+            )
+
+        # Can add all users to both field domains because they are also
+        # filtered by user group.
+        nurse_ids.extend(user_ids)
+        hca_ids.extend(user_ids)
         return res
 
 
