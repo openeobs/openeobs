@@ -6,7 +6,8 @@
     'license': 'AGPL-3',
     'summary': '',
     'description': """
-    Serves as a bundle of modules that create a vanilla acute installation of LiveObs.
+    Serves as a bundle of modules that create a vanilla acute installation of
+    LiveObs.
     """,
     'author': 'BJSS',
     'website': 'http://www.liveobs.com/',

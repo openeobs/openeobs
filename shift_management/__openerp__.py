@@ -5,7 +5,7 @@
     'category': 'Clinical',
     'license': 'AGPL-3',
     'summary': 'Create shifts with times and the employees who are on them.',
-    'description': """Creating shifts allows the system to know which users 
+    'description': """Creating shifts allows the system to know which users
     are working and when. This information enables other useful features.""",
     'author': 'BJSS',
     'website': 'http://www.liveobs.com/',
