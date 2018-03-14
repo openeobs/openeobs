@@ -580,10 +580,10 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_share_patients(self, *args, **kw):
         """
         Renders the shared patient list.
+
         :returns: shared patient list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
-
         cr, uid, context = request.cr, request.session.uid, request.context
         api = request.registry['nh.eobs.api']
         api.unassign_my_activities(cr, uid)
