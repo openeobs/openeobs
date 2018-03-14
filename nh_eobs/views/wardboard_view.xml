@@ -102,8 +102,8 @@
             <field name="arch" type="xml">
                 <form string="Wardboard Patient Placement">
                     <group string="From" colspan="4" col="2">
-                        <field name="ward_location_id" readonly="1" options="{'no_open': True}"/>
-                        <field name="bed_src_location_id" readonly="1" options="{'no_open': True}"/>
+                        <field name="ward_location_id" readonly="1"/>
+                        <field name="bed_src_location_id" readonly="1" />
                     </group>
                     <group string="To" colspan="4" col="2">
                         <field name="bed_dst_location_id" width="100" domain="[('id','child_of',ward_location_id),
