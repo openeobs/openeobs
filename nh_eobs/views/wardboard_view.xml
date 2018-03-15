@@ -110,8 +110,7 @@
                                                                              ('usage','=','bed'),
                                                                              ('is_available','=',True),
                                                                              ('id','!=',bed_src_location_id)]"
-                               no_open="1" no_create_edit="1" widget="many2one"
-                               required="1" options="{'no_create': True}"/>
+                               widget="many2one" required="1" options="{'no_open': True, 'no_create_edit': True}"/>
                     </group>
                     <button name="do_move" type="object" string="Move"/>
                 </form>
