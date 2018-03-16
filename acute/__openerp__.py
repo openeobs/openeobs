@@ -14,7 +14,9 @@
     'depends': [
         'nh_eobs',
         'nh_eobs_mobile',
-        'shift_allocation'
+        'shift_management',
+        'shift_allocation',
+        'user_management'
     ],
     'data': [],
     'qweb': [],
