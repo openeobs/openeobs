@@ -4,9 +4,9 @@
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
-    'summary': 'Extends shift creation to include allocation of users to beds '
-               'which represents their areas of responsibility.',
-    'description': """The description.""",
+    'summary': 'Allocate users to beds during shift management.',
+    'description': """Extends shift creation to include allocation of users to
+    beds which represents their areas of responsibility.""",
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['shift_management'],

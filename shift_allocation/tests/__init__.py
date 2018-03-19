@@ -1,6 +1,7 @@
 from .nh_clinical_staff_allocation import *
 from .nh_clinical_staff_reallocation import *
 from .nh_clinical_doctor_allocation import *
+from . import test_operations
 
 # Disabled Tests
 # from . import test_user_allocation
