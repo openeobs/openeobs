@@ -111,19 +111,6 @@ class AllocationWizards(osv.AbstractModel):
             }
         )
 
-    def _get_latest_shift_for_ward(self, cr, uid, ward_id):
-        shift_model = self.pool['nh.clinical.shift']
-        latest_shift_for_ward_search_results = shift_model.search(
-            cr, uid,
-            [('ward', '=', ward_id)],
-            order='id desc', limit=1
-        )
-        if latest_shift_for_ward_search_results:
-            latest_shift_for_ward_id = latest_shift_for_ward_search_results[0]
-        else:
-            return
-        return shift_model.browse(cr, uid, latest_shift_for_ward_id)
-
 
 class StaffAllocationWizard(osv.TransientModel):
     _name = 'nh.clinical.staff.allocation'
@@ -271,8 +258,9 @@ class StaffReallocationWizard(osv.TransientModel):
 
     def _get_default_users(self, cr, uid, context=None):
         ward_id = self._get_default_ward(cr, uid, context=context)
-        latest_shift_for_ward = \
-            self._get_latest_shift_for_ward(cr, uid, ward_id)
+        shift_model = self.env['nh.clinical.shift']
+        latest_shift_for_ward = shift_model.get_latest_shift_for_ward(
+            cr, uid, ward_id)
         if not latest_shift_for_ward:
             return
         users_on_shift = \
@@ -616,8 +604,8 @@ class allocating_user(osv.TransientModel):
                 'nh.clinical.staff.reallocation']
             ward_id = reallocation_model._get_default_ward(
                 cr, uid, context=context)
-            allocation_model = self.pool['nh.clinical.allocation']
-            shift = allocation_model._get_latest_shift_for_ward(
+            shift_model = self.pool['nh.clinical.shift']
+            shift = shift_model.get_latest_shift_for_ward(
                 cr, uid, ward_id)
             user_ids = shift.nurses._ids + shift.hcas._ids
         else:

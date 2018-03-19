@@ -632,6 +632,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_tasks(self, *args, **kw):
         """
         Renders the patient task list for tasks.
+
         :returns: task list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -832,6 +833,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient(self, patient_id, *args, **kw):
         """
         Renders the :class:`patient<base.nh_clinical_patient>` view.
+
         :returns: patient response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -891,6 +893,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         Renders the
         :class:`observation<observations.nh_clinical_patient_observation>`
         entry view.
+
         :returns: observations entry response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """

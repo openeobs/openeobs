@@ -372,7 +372,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         if not data:
             data = {}
         activity_pool = self.pool['nh.activity']
@@ -616,7 +615,29 @@ class nh_eobs_api(orm.AbstractModel):
         patient[0]['activities'] = activities
         return patient
 
-    def get_patients(self, cr, uid, ids, context=None):
+    @api.model
+    def get_patients(self, ids):
+        """
+        Return containing every field from
+        :class:`patient<base.nh_clinical_patient>` for each patients.
+
+        :param ids: ids of the patients. If empty, then all patients are
+            returned
+        :type ids: list
+        :returns: list of patient dictionaries
+        :rtype: list
+        """
+        if not ids:
+            ward = self._get_user_ward(self.env.user)
+            patient_model = self.env['nh.clinical.patient']
+            all_patients_on_ward = \
+                patient_model.get_all_patients_on_ward(ward.id)
+            ids = map(lambda patient: patient.id, all_patients_on_ward)
+        patient_dict_list = self._create_patient_dict_list(ids)
+        return patient_dict_list
+
+    @api.model
+    def _old_get_patients(self, ids):
         """
         Return containing every field from
         :class:`patient<base.nh_clinical_patient>` for each patients.
@@ -633,16 +654,26 @@ class nh_eobs_api(orm.AbstractModel):
                 ('state', '=', 'started'),
                 ('data_model', '=', 'nh.clinical.spell'),
                 '|',
-                ('user_ids', 'in', [uid]),  # filter user responsibility
-                ('patient_id.follower_ids', 'in', [uid])
+                ('user_ids', 'in', [self.env.uid]),
+                ('patient_id.follower_ids', 'in', [self.env.uid])
             ]
         else:
             domain = [
                 ('state', '=', 'started'),
                 ('data_model', '=', 'nh.clinical.spell'),
-                ('user_ids', 'in', [uid]),  # filter user responsibility
+                ('user_ids', 'in', [self.env.uid]),
             ]
-        return self.collect_patients(cr, uid, domain, context=context)
+        return self.collect_patients(domain)
+
+    @staticmethod
+    def _get_user_ward(user):
+        if not user.location_ids:
+            raise ValueError("Cannot determine user's ward.")
+        return user.location_ids[0].parent_id
+
+    @api.model
+    def _create_patient_dict_list(self, ids):
+        return self._old_get_patients(ids)
 
     def collect_patients(self, cr, uid, domain, context=None):
         """

@@ -20,3 +20,15 @@ class Shift(models.Model):
         comodel_name='res.users',
         relation='shift_hcas'
     )
+
+    def get_latest_shift_for_ward(self, ward_id):
+        shift_model = self.env['nh.clinical.shift']
+        latest_shift_for_ward_search_results = shift_model.search(
+            [('ward', '=', ward_id)],
+            order='id desc', limit=1
+        )
+        if latest_shift_for_ward_search_results:
+            latest_shift_for_ward_id = latest_shift_for_ward_search_results[0]
+        else:
+            return
+        return shift_model.browse(latest_shift_for_ward_id)
