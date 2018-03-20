@@ -12,21 +12,13 @@ class TestOperations(common.SingleTransactionCase):
 
         cls.users_pool = cls.registry('res.users')
         cls.groups_pool = cls.registry('res.groups')
-        cls.partner_pool = cls.registry('res.partner')
         cls.activity_pool = cls.registry('nh.activity')
         cls.patient_pool = cls.registry('nh.clinical.patient')
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
-        cls.spell_pool = cls.registry('nh.clinical.spell')
         # OPERATIONS DATA MODELS
-        cls.placement_pool = cls.registry('nh.clinical.patient.placement')
-        cls.move_pool = cls.registry('nh.clinical.patient.move')
-        cls.swap_pool = cls.registry('nh.clinical.patient.swap_beds')
         cls.follow_pool = cls.registry('nh.clinical.patient.follow')
         cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
-        cls.admission_pool = cls.registry('nh.clinical.patient.admission')
-        cls.discharge_pool = cls.registry('nh.clinical.patient.discharge')
-        cls.transfer_pool = cls.registry('nh.clinical.patient.transfer')
 
         cls.wm_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Shift Coordinator Group']])
