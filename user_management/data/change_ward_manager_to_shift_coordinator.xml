@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
+        <!-- Overrides of records in views/user_management_view.xml -->
         <record model="ir.ui.view" id="view_nhc_user_management_search">
             <field name="name">nhc.user.management.search</field>
             <field name="model">nh.clinical.user.management</field>
