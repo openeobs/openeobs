@@ -7,7 +7,7 @@
             </div>
         </t>
         <t t-jquery="div.oe_login_footer" t-operation="replace">
-            <a href="http://www.openerp.com" target="_blank">Powered by <span>Open eObs / Odoo</span></a>
+            <a href="http://www.openerp.com" target="_blank">Powered by <span>LiveObs / Odoo</span></a>
         </t>
     </t>
 

@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="nh_clinical.view_nhc_admin_userboard_form"/>
             <field name="arch" type="xml">
                 <xpath expr="/form/sheet/notebook/page[@string='Location Responsibility']" position="before">
-                    <page string="Open eObs Roles">
+                    <page string="LiveObs Roles">
                         <group colspan="4" col="2">
                             <field name="hca"/>
                             <field name="nurse"/>
