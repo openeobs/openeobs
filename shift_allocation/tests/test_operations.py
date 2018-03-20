@@ -24,20 +24,12 @@ class TestOperations(common.SingleTransactionCase):
             cr, uid, [['name', '=', 'NH Clinical Shift Coordinator Group']])
         cls.nurse_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Nurse Group']])
-        cls.admin_group_id = cls.groups_pool.search(
-            cr, uid, [['name', '=', 'NH Clinical Admin Group']])
 
         cls.hospital_id = cls.location_pool.create(
             cr, uid, {'name': 'Test Hospital', 'code': 'TESTHOSP',
                       'usage': 'hospital'})
         cls.pos_id = cls.pos_pool.create(
             cr, uid, {'name': 'Test POS', 'location_id': cls.hospital_id})
-
-        cls.adt_uid = cls.users_pool.create(
-            cr, uid, {'name': 'Admin 0', 'login': 'user_000',
-                      'password': 'user_000',
-                      'groups_id': [[4, cls.admin_group_id[0]]],
-                      'pos_id': cls.pos_id})
 
         cls.locations = {}
         cls.users = {}
