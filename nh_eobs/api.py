@@ -627,13 +627,14 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of patient dictionaries
         :rtype: list
         """
+        patient_model = self.env['nh.clinical.patient']
         if not ids:
             ward = self._get_user_ward(self.env.user)
-            patient_model = self.env['nh.clinical.patient']
-            all_patients_on_ward = \
+            patients = \
                 patient_model.get_all_patients_on_ward(ward.id)
-            ids = map(lambda patient: patient.id, all_patients_on_ward)
-        patient_dict_list = self._create_patient_dict_list(ids)
+        else:
+            patients = patient_model.browse(ids)
+        patient_dict_list = self._create_patient_dict_list(patients)
         return patient_dict_list
 
     @api.model
@@ -672,8 +673,8 @@ class nh_eobs_api(orm.AbstractModel):
         return user.location_ids[0].parent_id
 
     @api.model
-    def _create_patient_dict_list(self, ids):
-        return self._old_get_patients(ids)
+    def _create_patient_dict_list(self, patients):
+        return patients.serialise()
 
     def collect_patients(self, cr, uid, domain, context=None):
         """

@@ -984,6 +984,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 field['selection'] = device_selection
         return fd
 
+    @api.model
     def get_last_case(self, cr, uid, patient_id, context=None):
         """
         Checks for the last completed NEWS for the provided
