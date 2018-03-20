@@ -17,7 +17,8 @@ class NhClinicalUserManagement(orm.Model):
 
     def _get_ward_ids(self, cr, uid, ids, field, args, context=None):
         """
-        Function field to return list of ward location ids for each user
+        Function field to return list of ward location ids for each user.
+
         :param cr: Odoo Cursor
         :param uid: User carrying out action
         :param ids: IDs of records to look up
@@ -36,7 +37,8 @@ class NhClinicalUserManagement(orm.Model):
 
     def _get_categories(self, cr, uid, ids, field, args, context=None):
         """
-        Function field to return list of category IDs for each user
+        Function field to return list of category IDs for each user.
+
         :param cr: Odoo cursor
         :param uid: User carrying out action
         :param ids: IDs to look up
@@ -54,7 +56,8 @@ class NhClinicalUserManagement(orm.Model):
     def _categories_search(self, cr, uid, obj, name, args, domain=None,
                            context=None):
         """
-        Search function for category_ids field
+        Search function for category_ids field.
+
         :param cr: Odoo cursor
         :param uid: user carrying out action
         :param obj: expression from Odoo's ORM
@@ -204,7 +207,8 @@ class NhClinicalUserManagement(orm.Model):
 
     def allocate_responsibility(self, cr, uid, ids, context=None):
         """
-        Return Reponsibility Allocation wizard for user to frontend
+        Return Reponsibility Allocation wizard for user to frontend.
+
         :param cr: Odoo cursor
         :param uid: User carrying out action
         :param ids: Records IDs

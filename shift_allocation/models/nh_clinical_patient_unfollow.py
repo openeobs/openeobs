@@ -25,7 +25,7 @@ class NhClinicalPatientUnfollow(orm.Model):
 
         It will also :meth:`cancel<activity.nh_activity.cancel>`
         any number of open (not ``completed`` or ``cancelled``)
-        :mod:`follow invitations<operations.nh_clinical_patient_follow>`
+        :mod:`follow invitations<models.nh_clinical_patient_follow>`
         that contain the selected patients.
 
         :returns: ``True``
