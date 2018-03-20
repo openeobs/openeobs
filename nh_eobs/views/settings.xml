@@ -2,12 +2,12 @@
 <openerp>
     <data>
 
-        <!-- Form View for Open-eObs Settings -->
+        <!-- Form View for LiveObs Settings -->
         <record id="nh_eobs_settings" model="ir.ui.view">
-            <field name="name">Open-eObs Settings</field>
+            <field name="name">LiveObs Settings</field>
             <field name="model">nh.clinical.config.settings</field>
             <field name="arch" type="xml">
-                <form string="Open-eObs Configuration" class="oe_form_configuration">
+                <form string="LiveObs Configuration" class="oe_form_configuration">
                     <header>
                         <button string="Save" type="object"
                             name="execute" class="oe_highlight"/>
@@ -31,16 +31,19 @@
             </field>
         </record>
 
-        <!-- Action to load Open-eObs settings page -->
+        <!-- Action to load LiveObs settings page -->
         <record id="nh_eobs_settings_action" model="ir.actions.act_window">
-            <field name="name">Open-eObs Settings</field>
+            <field name="name">LiveObs Settings</field>
             <field name="res_model">nh.clinical.config.settings</field>
             <field name="view_id" ref="nh_eobs_settings"/>
             <field name="view_mode">form</field>
             <field name="target">inline</field>
         </record>
 
-        <!-- Add Open-eObs settings to menu -->
-        <menuitem id="nh_eobs_settings_menu" name="Open-eObs Settings" parent="base.menu_config" action="nh_eobs_settings_action"/>
+        <!-- Add LiveObs settings to menu -->
+        <menuitem id="nh_eobs_settings_menu"
+                  name="LiveObs Settings"
+                  parent="base.menu_config"
+                  action="nh_eobs_settings_action"/>
     </data>
 </openerp>

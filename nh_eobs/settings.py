@@ -124,7 +124,7 @@ class NHEobsConfigSettings(osv.TransientModel):
         self.set_activity_period(cr, uid, id, context=context)
         self.set_discharge_transfer_period(cr, uid, id, context=context)
         return {
-            'name': 'Open-eObs Settings',
+            'name': 'LiveObs Settings',
             'type': 'ir.actions.act_window',
             'res_model': self._name,
             'res_id': 0,

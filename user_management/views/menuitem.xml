@@ -18,13 +18,13 @@
                   parent="liveobs_core.menu_liveobs_root_admin"
                   groups="nh_clinical.group_nhc_dev"/>
 
-        <menuitem name="Open eObs Users"
+        <menuitem name="LiveObs Users"
                   id="menu_eobs_dev_user_management"
                   parent="menu_eobs_category_user_management_admin"
                   action="action_nhc_user_management_admin"
                   groups="nh_clinical.group_nhc_dev"/>
 
-        <menuitem name="Open eObs Users"
+        <menuitem name="LiveObs Users"
                   id="menu_eobs_admin_user_management"
                   sequence="8"
                   parent="menu_eobs_category_user_management_admin"
