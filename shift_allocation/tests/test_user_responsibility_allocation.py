@@ -7,6 +7,16 @@ from openerp.tests import common
 fake = Faker()
 
 
+# TODO fix this test and remove unnecessary setup.
+# This test was created when the shift_allocation module was extracted from the
+# nh_clinical module. The test method in here was part of
+# `nh_clinical.tests.test_auditing` which was a disabled test.
+#
+# To ensure that the test would have everything it needed to run it was moved
+# into here with the setup duplicated from test_auditing. If this test is ever
+# reinstated then there is probably some of the setup that can be removed as it
+# is only relevant to the other test that still remains in
+# `nh_clinical.tests.test_auditing`.
 class TestAuditing(common.SingleTransactionCase):
 
     @classmethod
