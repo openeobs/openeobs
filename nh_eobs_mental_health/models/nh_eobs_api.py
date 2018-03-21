@@ -21,34 +21,28 @@ class NHeObsAPI(orm.AbstractModel):
     _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
-    def get_active_observations(self, cr, uid, patient_id, context=None):
+    @api.model
+    def get_active_observations(self, patient_id):
         """
         Returns all active observation types supported by eObs, if the
         :class:`patient<base.nh_clinical_patient>` has an active
         :class:`spell<spell.nh_clinical_spell>`.
 
-        :param cr: Odoo Cursor
-        :param uid: User doing operation
         :param patient_id: id of patient
         :type patient_id: int
-        :param context: Odoo context
         :returns: list of all observation types
         :rtype: list
         """
-        spell_model = self.pool['nh.clinical.spell']
-        spell_id = spell_model.search(cr, uid, [
-            ['patient_id', '=', patient_id],
-            ['state', 'not in', ['completed', 'cancelled']]
-        ], context=context)
-        if spell_id:
-            spell_id = spell_id[0]
-            obs_stopped = spell_model.read(
-                cr, uid, spell_id, ['obs_stop'], context=context)\
-                .get('obs_stop')
-            if obs_stopped:
-                return []
-        return super(NHeObsAPI, self)\
-            .get_active_observations(cr, uid, patient_id, context=context)
+        if self._patient_on_obs_stop(patient_id):
+            return []
+        return super(NHeObsAPI, self).get_active_observations(patient_id)
+
+    @api.model
+    def _patient_on_obs_stop(self, patient_id):
+        spell_model = self.env['nh.clinical.spell']
+        spell_activity = spell_model.get_spell_activity_by_patient_id(
+            patient_id)
+        return spell_activity.data_ref.obs_stop
 
     def transfer(self, cr, uid, hospital_number, data, context=None):
         """
