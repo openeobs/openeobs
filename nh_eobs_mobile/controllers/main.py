@@ -558,7 +558,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         )
         patients = self.process_patient_list(
             cr, uid, patient_api.get_patients(
-                cr, uid, [], context=context), context=context)
+                cr, uid, None, context=context), context=context)
         patient_api.get_patient_followers(cr, uid, patients, context=context)
         following_patients = self.process_patient_list(
             cr, uid, patient_api.get_followed_patients(

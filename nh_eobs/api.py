@@ -394,10 +394,11 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_pool.assign(
             cr, uid, activity_id, user_id, context=context)
 
-    def complete(self, cr, uid, activity_id, data, context=None):
+    @api.model
+    def complete(self, activity_id, data):
         """
         Completes an :class:`activity<activity.nh_activity>`. Raises an
-        exception if the :class:`user<base.res_users>` is not permitted
+        user_authorised_to_complete if the :class:`user<base.res_users>` is not permitted
         to complete the activity.
 
         :param activity_id: id of activity
@@ -408,16 +409,27 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-        activity_pool = self.pool['nh.activity']
-        self._check_activity_id(cr, uid, activity_id, context=context)
-        if not self.check_activity_access(
-                cr, uid, activity_id, context=context):
+        self._check_activity_id(activity_id)
+        activity_model = self.env['nh.activity']
+        activity = activity_model.browse(activity_id)
+
+        if activity.data_model == 'nh.clinical.patient.observation.ews':
+            user_authorised_to_complete = self.check_activity_access(
+                activity_id)
+        else:
+            shift_model = self.env['nh.clinical.shift']
+            ward = activity.location_id.parent_id
+            assert ward.usage == 'ward'
+            user_authorised_to_complete = shift_model.user_on_shift(ward.id)
+        if not user_authorised_to_complete:
             raise osv.except_osv(
                 _('Error!'),
                 'User ID %s not allowed to complete this activity: %s'
-                % (uid, activity_id))
-        activity_pool.submit(cr, uid, activity_id, data, context=context)
-        return activity_pool.complete(cr, uid, activity_id, context=context)
+                % (self.env.uid, activity_id)
+            )
+
+        activity.submit(data)
+        return activity.complete()
 
     def get_cancel_reasons(self, cr, uid, context=None):
         """
@@ -500,16 +512,7 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of all observation types
         :rtype: list
         """
-        activity_pool = self.pool['nh.activity']
-        spell_id = activity_pool.search(
-            cr, uid, [['location_id.user_ids', 'in', [uid]],
-                      ['patient_id', '=', int(patient_id)],
-                      ['state', '=', 'started'],
-                      ['data_model', '=', 'nh.clinical.spell']],
-            context=context)
-        if spell_id:
-            return self._get_active_observations(cr, uid)
-        return []
+        return self._get_active_observations(cr, uid)
 
     # TODO EOBS-1004: Refactor nh_eobs
     # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
@@ -616,7 +619,7 @@ class nh_eobs_api(orm.AbstractModel):
         return patient
 
     @api.model
-    def get_patients(self, ids):
+    def get_patients(self, ids=None):
         """
         Return containing every field from
         :class:`patient<base.nh_clinical_patient>` for each patients.
@@ -628,12 +631,8 @@ class nh_eobs_api(orm.AbstractModel):
         :rtype: list
         """
         patient_model = self.env['nh.clinical.patient']
-        if not ids:
-            ward = self._get_user_ward(self.env.user)
-            patients = \
-                patient_model.get_all_patients_on_ward(ward.id)
-        else:
-            patients = patient_model.browse(ids)
+        ward = self._get_user_ward(self.env.user)
+        patients = patient_model.get_patients_on_ward(ward.id, ids)
         patient_dict_list = self._create_patient_dict_list(patients)
         return patient_dict_list
 
@@ -1207,6 +1206,7 @@ class nh_eobs_api(orm.AbstractModel):
             cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)
 
-    def check_activity_access(self, *args, **kwargs):
-        api_pool = self.pool['nh.clinical.api']
-        return api_pool.check_activity_access(*args, **kwargs)
+    @api.model
+    def check_activity_access(self, activity_id):
+        api_model = self.env['nh.clinical.api']
+        return api_model.check_activity_access(activity_id)

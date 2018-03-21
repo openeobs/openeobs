@@ -22,13 +22,14 @@ class Shift(models.Model):
     )
 
     def get_latest_shift_for_ward(self, ward_id):
-        shift_model = self.env['nh.clinical.shift']
-        latest_shift_for_ward_search_results = shift_model.search(
+        latest_shift_for_ward_search_results = self.search(
             [('ward', '=', ward_id)],
             order='id desc', limit=1
         )
-        if latest_shift_for_ward_search_results:
-            latest_shift_for_ward_id = latest_shift_for_ward_search_results[0]
-        else:
-            return
-        return shift_model.browse(latest_shift_for_ward_id)
+        return latest_shift_for_ward_search_results
+
+    def user_on_shift(self, ward_id):
+        latest_shift = self.get_latest_shift_for_ward(ward_id)
+        user_on_shift = self.env.user in latest_shift.hcas \
+            or self.env.user in latest_shift.nurses
+        return user_on_shift
