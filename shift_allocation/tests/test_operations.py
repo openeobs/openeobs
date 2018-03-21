@@ -12,40 +12,24 @@ class TestOperations(common.SingleTransactionCase):
 
         cls.users_pool = cls.registry('res.users')
         cls.groups_pool = cls.registry('res.groups')
-        cls.partner_pool = cls.registry('res.partner')
         cls.activity_pool = cls.registry('nh.activity')
         cls.patient_pool = cls.registry('nh.clinical.patient')
         cls.location_pool = cls.registry('nh.clinical.location')
         cls.pos_pool = cls.registry('nh.clinical.pos')
-        cls.spell_pool = cls.registry('nh.clinical.spell')
         # OPERATIONS DATA MODELS
-        cls.placement_pool = cls.registry('nh.clinical.patient.placement')
-        cls.move_pool = cls.registry('nh.clinical.patient.move')
-        cls.swap_pool = cls.registry('nh.clinical.patient.swap_beds')
         cls.follow_pool = cls.registry('nh.clinical.patient.follow')
         cls.unfollow_pool = cls.registry('nh.clinical.patient.unfollow')
-        cls.admission_pool = cls.registry('nh.clinical.patient.admission')
-        cls.discharge_pool = cls.registry('nh.clinical.patient.discharge')
-        cls.transfer_pool = cls.registry('nh.clinical.patient.transfer')
 
         cls.wm_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Shift Coordinator Group']])
         cls.nurse_group_id = cls.groups_pool.search(
             cr, uid, [['name', '=', 'NH Clinical Nurse Group']])
-        cls.admin_group_id = cls.groups_pool.search(
-            cr, uid, [['name', '=', 'NH Clinical Admin Group']])
 
         cls.hospital_id = cls.location_pool.create(
             cr, uid, {'name': 'Test Hospital', 'code': 'TESTHOSP',
                       'usage': 'hospital'})
         cls.pos_id = cls.pos_pool.create(
             cr, uid, {'name': 'Test POS', 'location_id': cls.hospital_id})
-
-        cls.adt_uid = cls.users_pool.create(
-            cr, uid, {'name': 'Admin 0', 'login': 'user_000',
-                      'password': 'user_000',
-                      'groups_id': [[4, cls.admin_group_id[0]]],
-                      'pos_id': cls.pos_id})
 
         cls.locations = {}
         cls.users = {}

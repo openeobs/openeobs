@@ -52,7 +52,7 @@
 
         <template id="layout" name="Web layout" inherit_id="web.layout">
             <xpath expr="html/head/title" position="replace">
-                <title>Open eObs</title>
+                <title>LiveObs</title>
             </xpath>
             <xpath expr="html/head/link[@rel='shortcut icon']" position="replace">
                 <link rel="shortcut icon" href="/nh_eobs/static/src/img/favicon.ico" type="image/x-icon"/>

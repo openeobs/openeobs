@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem name="Open eObs Kiosk"
+        <menuitem name="LiveObs Kiosk"
                   sequence="5"
-                  id="menu_eobs_kiosk_top_root"
+                  id="menu_liveobs_kiosk_root"
                   groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Kiosk Patient Management"
                   sequence="1"
                   id="menu_eobs_kiosk_category_patient_management"
-                  parent="menu_eobs_kiosk_top_root"
+                  parent="menu_liveobs_kiosk_root"
                   groups="nh_clinical.group_nhc_kiosk,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Kiosk Patients Board"

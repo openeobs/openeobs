@@ -15,38 +15,15 @@ class TestAuditing(common.SingleTransactionCase):
         cr, uid = cls.cr, cls.uid
 
         cls.users_pool = cls.registry('res.users')
-        cls.groups_pool = cls.registry('res.groups')
         cls.activity_pool = cls.registry('nh.activity')
-        cls.patient_pool = cls.registry('nh.clinical.patient')
         cls.location_pool = cls.registry('nh.clinical.location')
-        cls.pos_pool = cls.registry('nh.clinical.pos')
-        cls.spell_pool = cls.registry('nh.clinical.spell')
-        cls.activate_pool = cls.registry('nh.clinical.location.activate')
-        cls.deactivate_pool = cls.registry('nh.clinical.location.deactivate')
         cls.allocation_pool = cls.registry(
             'nh.clinical.user.responsibility.allocation')
-        cls.move_pool = cls.registry('nh.clinical.patient.move')
-
-        cls.apidemo = cls.registry('nh.clinical.api.demo')
-
-        cls.patient_ids = cls.apidemo.build_unit_test_env1(cr, uid,
-                                                           bed_count=4,
-                                                           patient_count=4)
 
         cls.wu_id = cls.location_pool.search(cr, uid, [('code', '=', 'U')])[0]
-        cls.wt_id = cls.location_pool.search(cr, uid, [('code', '=', 'T')])[0]
-        cls.pos_id = cls.location_pool.read(
-            cr, uid, cls.wu_id, ['pos_id'])['pos_id'][0]
-        cls.pos_location_id = cls.pos_pool.read(
-            cr, uid, cls.pos_id, ['location_id'])['location_id'][0]
 
         cls.wmu_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMU')])[0]
-        cls.wmt_id = cls.users_pool.search(cr, uid, [('login', '=', 'WMT')])[0]
         cls.nu_id = cls.users_pool.search(cr, uid, [('login', '=', 'NU')])[0]
-        cls.nt_id = cls.users_pool.search(cr, uid, [('login', '=', 'NT')])[0]
-        cls.adt_id = cls.users_pool.search(
-            cr, uid, [('groups_id.name', 'in', ['NH Clinical ADT Group']),
-                      ('pos_id', '=', cls.pos_id)])[0]
 
     def test_user_responsibility_allocation(self):
         """
