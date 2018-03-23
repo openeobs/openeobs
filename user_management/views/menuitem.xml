@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <!-- Admin needs to be able to see this menu.
-             Adding the dev group was the only was to make this happen.
+             Adding the dev group was the only way to make this happen.
              Not sure why. -->
         <menuitem name="User Management"
                   id="menu_eobs_category_user_management"
