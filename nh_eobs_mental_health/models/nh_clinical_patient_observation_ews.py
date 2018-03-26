@@ -117,8 +117,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
             }
         )
 
-    def is_refusal_in_effect(self, cr, uid, activity_id,
-                             mode='parent', context=None):
+    @api.model
+    def is_refusal_in_effect(self, activity_id, mode='parent'):
         """
         Use the last_refused_ews SQL view to see if activity_id is part of a
         patient refusal
@@ -131,7 +131,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         :return: If the patient is currently in refusal
         """
         activity_model = self.pool['nh.activity']
-        activity = activity_model.browse(cr, uid, activity_id)
+        activity = activity_model.browse(activity_id)
         if activity.spell_activity_id.state in ['completed', 'cancelled']:
             return False
 
@@ -141,7 +141,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
             column = 'first_activity_id'
             first_act_order = 'ASC'
 
-        cr.execute(
+        self.env.cr.execute(
             'SELECT refused.refused, '
             'acts.date_terminated '
             'FROM refused_ews_activities AS refused '
@@ -169,7 +169,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
                 first_act_order=first_act_order
             )
         )
-        result = cr.dictfetchall()
+        result = self.env.cr.dictfetchall()
         if result:
             return result[0].get('refused', False)
         return False

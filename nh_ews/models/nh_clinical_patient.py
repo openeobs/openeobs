@@ -22,9 +22,7 @@ class NhClinicalPatient(models.Model):
             last_ews.date_scheduled),
         patient_dict['ews_score'] = last_ews.score if last_ews else '',
         patient_dict['ews_trend'] = self.get_ews_trend(
-            last_two_ews[0].score, last_two_ews[1].score),
-        patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(),
-        patient_dict['rapid_tranq'] = self.get_rapid_tranq_status()
+            last_two_ews[0].score, last_two_ews[1].score)
 
     def get_next_ews_time(self, date_scheduled):
         if not date_scheduled:
@@ -78,9 +76,3 @@ class NhClinicalPatient(models.Model):
             return 'same'
         elif last_ews_score > second_to_last_ews_score:
             return 'up'
-
-    def get_refusal_in_effect(self):
-        return None
-
-    def get_rapid_tranq_status(self):
-        return False

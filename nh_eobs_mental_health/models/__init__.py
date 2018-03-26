@@ -13,3 +13,4 @@ from . import nh_eobs_api
 from . import nh_eobs_mobile_main
 from . import nh_eobs_ward_dashboard
 from . import nh_clinical_patient_placement
+from . import nh_clinical_patient
