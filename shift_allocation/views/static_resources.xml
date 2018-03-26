@@ -1,0 +1,9 @@
+<openerp>
+    <data>
+        <template id="assets_backend" name="nh_clinical assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/shift_allocation/static/src/js/shift_allocation.js"></script>
+            </xpath>
+        </template>
+    </data>
+</openerp>

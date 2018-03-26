@@ -1,0 +1,9 @@
+<openerp>
+    <data>
+        <menuitem name="Shift Management"
+                  sequence="4"
+                  id="menu_eobs_category_shift_management"
+                  parent="liveobs_core.menu_liveobs_root"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+    </data>
+</openerp>

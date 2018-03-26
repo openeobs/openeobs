@@ -1,0 +1,24 @@
+<openerp>
+    <data>
+        <menuitem name="Nursing Shift Change"
+                  id="menu_eobs_nursing_shift_management"
+                  sequence="0"
+                  parent="shift_management.menu_eobs_category_shift_management"
+                  action="action_nhc_staff_allocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Nursing Re-Allocation"
+                  id="menu_eobs_nursing_reallocate"
+                  sequence="1"
+                  parent="shift_management.menu_eobs_category_shift_management"
+                  action="action_nhc_staff_reallocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+
+        <menuitem name="Medical Shift Change"
+                  id="menu_eobs_medical_shift_management"
+                  sequence="2"
+                  parent="shift_management.menu_eobs_category_shift_management"
+                  action="action_nhc_doctor_allocation"
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+    </data>
+</openerp>

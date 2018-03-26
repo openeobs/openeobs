@@ -4,7 +4,7 @@
         <menuitem name="Visit Management"
                   sequence="5"
                   id="menu_eobs_category_visit_management"
-                  parent="nh_eobs.menu_eobs_top_root"
+                  parent="liveobs_core.menu_liveobs_root"
                   groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
 
         <menuitem name="Create Patient Visit"

@@ -7,7 +7,7 @@
         <template t-name="nh_eobs_mobile.base" name="Base layout">&lt;!DOCTYPE html&gt;
             <html>
                 <head>
-                    <title>Open-eObs</title>
+                    <title>LiveObs</title>
                     <link rel="manifest" t-att-href="urls['manifest']"/>
                     <link t-att-href="urls['stylesheet']" rel="stylesheet" type="text/css"/>
                     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>

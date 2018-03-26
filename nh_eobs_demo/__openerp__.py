@@ -1,11 +1,15 @@
 # -*- encoding: utf-8 -*-
 {
-    'name': 'Open e-Obs Demo Loader',
+    'name': 'LiveObs Demo Loader',
     'version': '0.1',
     'category': 'Clinical',
     'license': 'AGPL-3',
-    'summary': '',
-    'description': """    """,
+    'summary': 'Creates a demo installation of LiveObs.',
+    'description': """
+    Creates demo hospitals, wards, staff, patients, and more to produce a \
+    usable installation of LiveObs that can be used for demoing its \
+    functionality.
+    """,
     'author': 'Neova Health',
     'website': 'http://www.neovahealth.co.uk/',
     'depends': ['nh_eobs'],

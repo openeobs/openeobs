@@ -42,7 +42,7 @@
             <field name="sequence">6</field>
         </record>
 
-        <!-- Open-eObs Settings Object -->
+        <!-- LiveObs Settings Object -->
         <record model="nh.clinical.settings" id="openeobs_settings_defaults">
             <field name="activity_period">60</field>
             <field name="discharge_transfer_period">3</field>

@@ -1,0 +1,101 @@
+<openerp>
+    <data>
+        <!--User Management Views-->
+        <record model="ir.ui.view" id="view_nhc_user_management_search">
+            <field name="name">nhc.user.management.search</field>
+            <field name="model">nh.clinical.user.management</field>
+            <field name="arch" type="xml">
+                <search string="User Management">
+                    <field name="name"/>
+                    <field name="login"/>
+                    <group expand="1" string="Filters">
+                        <filter name="filter_inactive" string="Inactive Users" domain="[['active','=',False]]"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <filter name="filter_hca" string="HCAs" domain="[['category_id.name','in',['HCA']]]"/>
+                        <filter name="filter_nurse" string="Nurses" domain="[['category_id.name','in',['Nurse']]]"/>
+                        <filter name="filter_ward_manager" string="Ward Managers" domain="[['category_id.name','in',['Ward Manager']]]"/>
+                        <filter name="filter_senior_manager" string="Senior Managers" domain="[['category_id.name','in',['Senior Manager']]]"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <filter name="filter_doctor" string="Doctors" domain="[['category_id.name','in',['Doctor']]]"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <filter name="filter_kiosk" string="Kiosk" domain="[['category_id.name','in',['Kiosk']]]"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <filter name="filter_admin" string="Admins" domain="[['category_id.name','in',['System Administrator']]]"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_nhc_user_management_tree" model="ir.ui.view">
+            <field name="name">nhc.user.management.tree.view</field>
+            <field name="model">nh.clinical.user.management</field>
+            <field name="arch" type="xml">
+                <tree string="User List" version="7.0">
+                    <field name="user_id" string="Name"/>
+                    <field name="login"/>
+                    <field name="category_id" widget="many2many_tags" string="Roles"/>
+                    <field name="location_ids" string="Responsible for Locations"/>
+                </tree>
+            </field>
+        </record>
+
+        <act_window id="change_password_wizard_action_user_management"
+            name="Change Password"
+            src_model="nh.clinical.user.management"
+            res_model="change.password.wizard"
+            view_type="form" view_mode="form"
+            key2="client_action_multi" target="new"
+            groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+
+        <record id="view_nhc_user_management_form" model="ir.ui.view">
+            <field name="name">nhc.user.management.form.view</field>
+            <field name="model">nh.clinical.user.management</field>
+            <field name="arch" type="xml">
+                <form string="User Form" version="7.0">
+                    <header>
+                        <button name="deactivate" string="Deactivate" type="object" attrs="{'invisible':[['active','=',False]]}"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                        <button name="activate" string="Activate" type="object" attrs="{'invisible':[['active','=',True]]}"
+                                groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+                    </header>
+                	<sheet>
+	                	<group colspan="4" col="2">
+	                        <field name="name"/>
+	                        <field name="login"/>
+                            <field name="active" invisible="1"/>
+                            <field name="category_id" widget="many2many_tags" options="{'no_create': True}"
+                                   string="Roles" required="1"/>
+                            <field name="pos_ids" widget="many2many_tags" options="{'no_create': True}"
+                                   string="Points of Service" required="1" />
+                            <field name="ward_ids" widget="many2many_tags" options="{'no_create': True}"
+                                   readonly="0" groups="nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
+	                    </group>
+                        <notebook>
+                            <page string="Location responsibility">
+                                <field name="location_ids" readonly="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_nhc_user_management_wm" model="ir.actions.act_window">
+            <field name="name">Account Administration</field>
+            <field name="res_model">nh.clinical.user.management</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[['category_ids.name','in',['HCA','Nurse','Shift Coordinator']]]</field>
+            <field name="search_view_id" ref="view_nhc_user_management_search"/>
+            <field name="context">{'partner_category_display': 'short'}</field>
+        </record>
+        <record id="action_nhc_user_management_admin" model="ir.actions.act_window">
+            <field name="name">Account Administration</field>
+            <field name="res_model">nh.clinical.user.management</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[['login','not in',['adt','admin']]]</field>
+            <field name="search_view_id" ref="view_nhc_user_management_search"/>
+            <field name="context">{'partner_category_display': 'short'}</field>
+        </record>
+    </data>
+</openerp>

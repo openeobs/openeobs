@@ -269,7 +269,7 @@
     <t t-extend="ImportView">
         <t t-jquery="div.oe_import_with_file.oe_padding" t-operation="replace">
             <div class="oe_import_with_file oe_padding">
-                <h2>Map your data to Open eObs</h2>
+                <h2>Map your data to LiveObs</h2>
                 <div title="If the model uses openchatter, history tracking
                             will set up subscriptions and send notifications
                             during the import, but lead to a slower import.">

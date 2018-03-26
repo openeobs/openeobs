@@ -1,0 +1,217 @@
+<openerp>
+    <data>
+
+        <record id="view_nhc_user_allocation_wizard" model="ir.ui.view">
+            <field name="name">User Allocation Wizard Form</field>
+            <field name="model">nh.clinical.user.allocation</field>
+            <field name="arch" type="xml">
+                <form string="User Allocation Wizard" version="7.0" class="nh-user-allocation-form">
+                    <group>
+                        <field name="stage" invisible="1"/>
+                        <field name="ward_ids" options="{'no_create': True}" colspan="2" widget="many2many_tags"
+                               attrs="{'invisible': [['stage','=','allocation']]}"/>
+                        <field name="user_ids" options="{'no_create': True}" colspan="2" widget="many2many_tags"
+                               attrs="{'invisible': [['stage','=','allocation']]}" domain="[['groups_id.name','ilike','NH Clinical%']]">
+                            <tree>
+                                <field name="name"/>
+                                <field name="location_ids"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <footer>
+                        <button string="Submit" type="object" name="submit_users" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','users']]}"/>
+                        <button string="Complete" type="object" name="complete" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','allocation']]}"/>
+                        <button string="Close" special="cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_nhc_user_allocation" model="ir.actions.act_window">
+            <field name="name">Shift Management</field>
+            <field name="res_model">nh.clinical.user.allocation</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_nhc_staff_allocation" model="ir.actions.act_window">
+            <field name="name">Nursing Shift Change</field>
+            <field name="res_model">nh.clinical.staff.allocation</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_nhc_staff_reallocation" model="ir.actions.act_window">
+            <field name="name">Nursing Re-Allocation</field>
+            <field name="res_model">nh.clinical.staff.reallocation</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_nhc_doctor_allocation" model="ir.actions.act_window">
+            <field name="name">Medical Shift Change</field>
+            <field name="res_model">nh.clinical.doctor.allocation</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="view_nhc_allocating" model="ir.ui.view">
+            <field name="name">Allocating Form</field>
+            <field name="model">nh.clinical.allocating</field>
+            <field name="arch" type="xml">
+                <form string="Allocating" version="7.0">
+                    <group>
+                        <field name="patient_ids" widget="many2many_tags" readonly="1"/>
+                        <field name="nurse_id" widget="nh_many2one" options="{'no_create': True}"/>
+                        <field name="hca_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_allocate" model="ir.actions.act_window">
+            <field name="name">Allocation</field>
+            <field name="res_model">nh.clinical.allocating</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_nhc_allocating"/>
+            <field name="target">new</field>
+        </record>
+
+        <record id="view_nhc_staff_allocation_wizard" model="ir.ui.view">
+            <field name="name">Staff Allocation Wizard Form</field>
+            <field name="model">nh.clinical.staff.allocation</field>
+            <field name="arch" type="xml">
+                <form string="Staff Allocation Wizard" version="7.0">
+                    <header>
+                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <button string="Start" type="object" name="submit_ward" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','wards']]}"/>
+                        <button string="Deallocate Previous Shift" type="object" name="deallocate" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','review']]}"/>
+                        <button string="Select" type="object" name="submit_users" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','users']]}"/>
+                        <button string="Confirm Allocation" type="object" name="complete" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','allocation']]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="ward_id" options="{'no_create': True, 'no_open': True}" colspan="2" widget="nh_many2one"
+                                   attrs="{'readonly': [['stage','!=','wards']]}" required="1"
+                                   string="Ward:"/>
+                        </group>
+                        <group string="Previous Shift" attrs="{'invisible': [['stage','!=','review']]}">
+                            <field name="location_ids" no_open="1" readonly="1" nolabel="1" attrs="{'invisible': [['stage','!=','review']]}">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="assigned_wm_ids" widget="many2many_tags" string="Nurse in Charge"/>
+                                    <field name="assigned_nurse_ids" widget="many2many_tags"/>
+                                    <field name="assigned_hca_ids" widget="many2many_tags"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group>
+                            <field name="user_ids" options="{'no_create': True}" colspan="2" widget="many2many_tags"
+                                   attrs="{'invisible': [['stage','!=','users']]}"
+                                   string="Nursing Staff for new shift:"/>
+                            <field name="allocating_ids" nolabel="1" options="{'no_create': True}" no_open="1"
+                                   colspan="2" attrs="{'invisible': [['stage','!=','allocation']]}" readonly="1" context="{'parent_view': 'allocation'}">
+                                <tree>
+                                    <field name="location_id" readonly="1"/>
+                                    <field name="patient_ids" readonly="1"/>
+                                    <field name="nurse_name" widget="nh_many2one"/>
+                                    <field name="hca_ids" widget="many2many_tags"/>
+                                    <button string="Allocate" type="action" name="%(action_allocate)d" nh_icon="allocate_btn" class="oe_highlight"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Close" special="cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_nhc_staff_reallocation_wizard" model="ir.ui.view">
+            <field name="name">Staff Re-Allocation Wizard Form</field>
+            <field name="model">nh.clinical.staff.reallocation</field>
+            <field name="arch" type="xml">
+                <form string="Staff Re-Allocation Wizard" version="7.0">
+                    <header>
+                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <button string="Re-Allocate" type="object" name="reallocate" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','users']]}"/>
+                        <button string="Confirm Allocation" type="object" name="complete" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','allocation']]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="ward_id" options="{'no_open': True}" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="user_ids" no_open="1" colspan="2" widget="many2many_tags" options="{'no_create': True}"
+                                    attrs="{'invisible': [['stage','!=','users']]}" string="Nursing Staff on shift:">
+                                <!--<tree>-->
+                                    <!--<field name="partner_id" readonly="1" string="Nursing Staff"/>-->
+                                <!--</tree>-->
+                            </field>
+                            <field name="allocating_ids" nolabel="1" options="{'no_create': True}" no_open="1"
+                               colspan="2" attrs="{'invisible': [['stage','!=','allocation']]}" context="{'parent_view': 'reallocation'}">
+                                <tree delete="false" create="false">
+                                    <field name="location_id" readonly="1"/>
+                                    <field name="patient_ids" readonly="1"/>
+                                    <field name="nurse_name" widget="nh_many2one"/>
+                                    <field name="hca_ids" widget="many2many_tags"/>
+                                    <button string="Allocate" type="action" name="%(action_allocate)d" nh_icon="allocate_btn" class="oe_highlight"/>
+                                </tree>
+                            </field>
+                        </group>
+                        <group attrs="{'invisible': [['stage','!=','users']]}">
+                            <p><b>Removing staff will de-allocate them from any location on the ward!</b></p>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Close" special="cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_nhc_doctor_allocation_wizard" model="ir.ui.view">
+            <field name="name">Doctor Allocation Wizard Form</field>
+            <field name="model">nh.clinical.doctor.allocation</field>
+            <field name="arch" type="xml">
+                <form string="Doctor Allocation Wizard" version="7.0">
+                    <header>
+                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <button string="Deallocate Previous Shift" type="object" name="deallocate" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','review']]}"/>
+                        <button string="Confirm Allocation" type="object" name="submit_users" class="oe_highlight"
+                                attrs="{'invisible': [['stage','!=','users']]}"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <field name="ward_id" options="{'no_create': True, 'no_open': True}" colspan="2" widget="nh_many2one"
+                                   invisible="0" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="doctor_ids" no_open="1" readonly="1" nolabel="1" attrs="{'invisible': [['stage','!=','review']]}">
+                                <tree>
+                                    <field name="partner_id" string="Medical Staff"/>
+                                </tree>
+                            </field>
+                            <field name="user_ids" options="{'no_create': True}" colspan="2" widget="many2many_tags"
+                                   attrs="{'invisible': [['stage','!=','users']]}" string="Medical Staff for the new shift:"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Close" special="cancel" class="oe_link"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>
