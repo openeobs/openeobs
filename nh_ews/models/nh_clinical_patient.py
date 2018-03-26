@@ -12,17 +12,17 @@ class NhClinicalPatient(models.Model):
     def serialise(self):
         patient_dict = super(NhClinicalPatient, self).serialise()
 
-        latest_two_ews = self.get_latest_completed_ews(limit=2)
-        latest_ews = latest_two_ews[0] if latest_two_ews else None
+        last_two_ews = self.get_latest_completed_ews(limit=2)
+        last_ews = last_two_ews[0] if last_two_ews else None
 
         patient_dict['clinical_risk'] = \
-            latest_ews.clinical_risk if latest_ews else None,
-        patient_dict['frequency'] = latest_ews.frequency if latest_ews else 0,
+            last_ews.clinical_risk if last_ews else None,
+        patient_dict['frequency'] = last_ews.frequency if last_ews else 0,
         patient_dict['next_ews_time'] = self.get_next_ews_time(
-            latest_ews.date_scheduled),
-        patient_dict['ews_score'] = latest_ews.score if latest_ews else '',
+            last_ews.date_scheduled),
+        patient_dict['ews_score'] = last_ews.score if last_ews else '',
         patient_dict['ews_trend'] = self.get_ews_trend(
-            latest_two_ews[0].score, latest_two_ews[1].score),
+            last_two_ews[0].score, last_two_ews[1].score),
         patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(),
         patient_dict['rapid_tranq'] = self.get_rapid_tranq_status()
 
