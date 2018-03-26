@@ -11,15 +11,18 @@ class NhClinicalPatient(models.Model):
     @api.one
     def serialise(self):
         patient_dict = super(NhClinicalPatient, self).serialise()
-        latest_three_ews = self.get_latest_ews(limit=3)
-        latest_ews = latest_three_ews[0] if latest_three_ews else None
+
+        latest_two_ews = self.get_latest_completed_ews(limit=2)
+        latest_ews = latest_two_ews[0] if latest_two_ews else None
+
         patient_dict['clinical_risk'] = \
             latest_ews.clinical_risk if latest_ews else None,
         patient_dict['frequency'] = latest_ews.frequency if latest_ews else 0,
         patient_dict['next_ews_time'] = self.get_next_ews_time(
             latest_ews.date_scheduled),
         patient_dict['ews_score'] = latest_ews.score if latest_ews else '',
-        patient_dict['ews_trend'] = self.get_ews_trend(),
+        patient_dict['ews_trend'] = self.get_ews_trend(
+            latest_two_ews[0].score, latest_two_ews[1].score),
         patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(),
         patient_dict['rapid_tranq'] = self.get_rapid_tranq_status()
 
@@ -53,7 +56,7 @@ class NhClinicalPatient(models.Model):
                 overdue=overdue, days=days, hours=hours, minutes=minutes)
         return ews_due_datetime_str
 
-    def get_latest_ews(self, limit=1):
+    def get_latest_completed_ews(self, limit=1):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         latest_ews = ews_model.search([
             ('patient_id', '=', self.id),
@@ -61,8 +64,20 @@ class NhClinicalPatient(models.Model):
         ], order='date_terminated desc', limit=limit)
         return latest_ews
 
-    def get_ews_trend(self):
-        return 'same'
+    @staticmethod
+    def get_ews_trend(last_ews_score, second_to_last_ews_score):
+        if last_ews_score is None and second_to_last_ews_score is None:
+            return 'none'
+        elif last_ews_score is None:
+            return 'no latest'
+        elif second_to_last_ews_score is None:
+            return 'first'
+        elif last_ews_score < second_to_last_ews_score:
+            return 'down'
+        elif last_ews_score == second_to_last_ews_score:
+            return 'same'
+        elif last_ews_score > second_to_last_ews_score:
+            return 'up'
 
     def get_refusal_in_effect(self):
         return None
