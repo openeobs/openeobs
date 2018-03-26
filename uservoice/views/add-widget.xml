@@ -1,0 +1,26 @@
+<openerp>
+    <data>
+         <template id="uservoice.base" inherit_id="nh_eobs_mobile.base">
+             <xpath expr="//html/head" position="inside">
+                 <style>
+                     .footer{
+                        padding-right: 0px;
+                        width: 95%;
+                     }
+                     .footer .user{
+                        margin-right: 60px;
+                     }
+                 </style>
+             </xpath>
+             <xpath expr="//html/body" position="inside">
+                 <script src="/uservoice/static/src/js/uservoice-widget.js" type="text/javascript"></script>
+             </xpath>
+         </template>
+
+         <template id="uservoice.assets_backend" inherit_id="web.assets_backend">
+             <xpath expr="." position="inside">
+                 <script src="/uservoice/static/src/js/uservoice-widget.js" type="text/javascript"></script>
+             </xpath>
+         </template>
+    </data>
+</openerp>
