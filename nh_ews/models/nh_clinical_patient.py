@@ -10,19 +10,27 @@ class NhClinicalPatient(models.Model):
 
     @api.one
     def serialise(self):
-        patient_dict = super(NhClinicalPatient, self).serialise()
+        patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
         last_two_ews = self.get_latest_completed_ews(limit=2)
         last_ews = last_two_ews[0] if last_two_ews else None
+        second_to_last_ews = last_two_ews[1] if last_two_ews else None
 
-        patient_dict['clinical_risk'] = \
-            last_ews.clinical_risk if last_ews else None,
+        patient_dict['clinical_risk'] = last_ews and last_ews.clinical_risk
         patient_dict['frequency'] = last_ews.frequency if last_ews else 0,
-        patient_dict['next_ews_time'] = self.get_next_ews_time(
-            last_ews.date_scheduled),
-        patient_dict['ews_score'] = last_ews.score if last_ews else '',
+
+        date_scheduled = last_ews.activity_id.date_scheduled if last_ews \
+            else None
+        patient_dict['next_ews_time'] = self.get_next_ews_time(date_scheduled)
+        patient_dict['ews_score'] = last_ews.score if last_ews else ''
+
+        last_ews_score = last_ews and last_ews.score
+        second_to_last_ews_score = second_to_last_ews and \
+            second_to_last_ews.score
         patient_dict['ews_trend'] = self.get_ews_trend(
-            last_two_ews[0].score, last_two_ews[1].score)
+            last_ews_score, second_to_last_ews_score)
+
+        return patient_dict
 
     def get_next_ews_time(self, date_scheduled):
         if not date_scheduled:

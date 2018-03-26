@@ -130,7 +130,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         :param context: Odoo Context
         :return: If the patient is currently in refusal
         """
-        activity_model = self.pool['nh.activity']
+        activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
         if activity.spell_activity_id.state in ['completed', 'cancelled']:
             return False
