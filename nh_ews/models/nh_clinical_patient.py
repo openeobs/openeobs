@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from openerp import models, api
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
@@ -31,14 +31,26 @@ class NhClinicalPatient(models.Model):
         now = datetime_utils_model.get_current_time()
 
         time_delta = date_scheduled - now
-        ews_due_datetime_str = ''
+        zero_time_delta = timedelta()  # All parameters default to 0.
+
+        overdue = ''
         # If negative then date_scheduled is in the past and so EWS is overdue.
-        if time_delta < 0:
-            ews_due_datetime_str += 'overdue: '
-        if time_delta.days:
-            ews_due_datetime_str += '{} days'.format(time_delta.days)
-        ews_due_datetime_str += '{}:{}'.format(time_delta.hours,
-                                               time_delta.minutes)
+        if time_delta < zero_time_delta:
+            overdue = 'overdue: '
+            # Convert to positive timedelta before further logic because
+            # representation of negative timedeltas is really weird.
+            time_delta = abs(time_delta)
+        days = '{} day(s) '.format(time_delta.days) if time_delta.days else ''
+        # Dividing by int will drop fractional remainder leaving only full
+        # hours.
+        hours_int = time_delta.seconds / 3600
+        hours = '{0:02d}'.format(hours_int)
+        # Subtracting the calculated full hours leaves only full minutes.
+        minutes_int = (time_delta.seconds - hours_int * 3600) / 60
+        minutes = '{0:02d}'.format(minutes_int)
+        ews_due_datetime_str = \
+            '{overdue}{days}{hours}:{minutes} hours'.format(
+                overdue=overdue, days=days, hours=hours, minutes=minutes)
         return ews_due_datetime_str
 
     def get_latest_ews(self, limit=1):

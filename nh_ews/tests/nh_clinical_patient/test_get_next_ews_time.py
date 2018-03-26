@@ -26,49 +26,84 @@ class TestGetNextEwsTime(SingleTransactionCase):
         actual = self.call_test(None)
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_one_second_in_the_future(self):
-        expected = '00:01 hours'
+    def test_date_scheduled_is_1_second_in_the_future(self):
+        expected = '00:00 hours'
         actual = self.call_test('2017-08-06 13:00:01')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_one_hour_in_the_future(self):
+    def test_date_scheduled_is_59_seconds_in_the_future(self):
+        expected = '00:00 hours'
+        actual = self.call_test('2017-08-06 13:00:59')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_minute_in_the_future(self):
+        expected = '00:01 hours'
+        actual = self.call_test('2017-08-06 13:01:00')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_hour_in_the_future(self):
         expected = '01:00 hours'
         actual = self.call_test('2017-08-06 14:00:00')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_less_than_one_day_in_the_future(self):
-        expected = '23:59 hours'
-        actual = self.call_test('2017-08-07 12:59:59')
-        self.assertEqual(expected, actual)
-
-    def test_date_scheduled_is_one_day_in_the_future(self):
+    def test_date_scheduled_is_1_day_in_the_future(self):
         expected = '1 day(s) 00:00 hours'
         actual = self.call_test('2017-08-07 13:00:00')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_more_than_one_day_in_the_future(self):
-        expected = '1 day(s) 00:01 hours'
+    def test_date_scheduled_is_1_day_and_1_second_in_the_future(self):
+        expected = '1 day(s) 00:00 hours'
         actual = self.call_test('2017-08-07 13:00:01')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_right_now(self):
+    def test_date_scheduled_is_1_day_and_59_seconds_in_the_future(self):
         expected = '1 day(s) 00:00 hours'
+        actual = self.call_test('2017-08-07 13:00:59')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_day_and_1_minute_in_the_future(self):
+        expected = '1 day(s) 00:01 hours'
+        actual = self.call_test('2017-08-07 13:01:00')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_right_now(self):
+        expected = '00:00 hours'
         actual = self.call_test('2017-08-06 13:00:00')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_one_second_in_the_past(self):
-        expected = 'overdue: 0 day(s) 00:01 hours'
+    def test_date_scheduled_is_1_second_in_the_past(self):
+        expected = 'overdue: 00:00 hours'
         actual = self.call_test('2017-08-06 12:59:59')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_less_than_one_day_in_the_past(self):
-        expected = 'overdue: 23:59 hours'
-        actual = self.call_test('2017-08-05 13:00:01')
+    def test_date_scheduled_is_59_seconds_in_the_past(self):
+        expected = 'overdue: 00:00 hours'
+        actual = self.call_test('2017-08-06 12:59:01')
         self.assertEqual(expected, actual)
 
-    def test_date_scheduled_is_more_than_one_day_in_the_past(self):
-        expected = 'overdue: 1 day(s) 00:01 hours'
+    def test_date_scheduled_is_1_minute_in_the_past(self):
+        expected = 'overdue: 00:01 hours'
+        actual = self.call_test('2017-08-06 12:59:00')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_day_in_the_past(self):
+        expected = 'overdue: 1 day(s) 00:00 hours'
+        actual = self.call_test('2017-08-05 13:00:00')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_day_and_1_second_in_the_past(self):
+        expected = 'overdue: 1 day(s) 00:00 hours'
         actual = self.call_test('2017-08-05 12:59:59')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_day_and_59_seconds_in_the_past(self):
+        expected = 'overdue: 1 day(s) 00:00 hours'
+        actual = self.call_test('2017-08-05 12:59:01')
+        self.assertEqual(expected, actual)
+
+    def test_date_scheduled_is_1_day_and_1_minute_in_the_past(self):
+        expected = 'overdue: 1 day(s) 00:01 hours'
+        actual = self.call_test('2017-08-05 12:59:00')
         self.assertEqual(expected, actual)
 
     def test_date_scheduled_is_not_in_odoo_default_datetime_format(self):
