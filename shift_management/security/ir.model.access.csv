@@ -3,7 +3,7 @@ base_group_access_nh_clinical_shift,admin:access_shift,model_nh_clinical_shift,n
 admin_access_nh_clinical_shift,admin:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_admin,1,1,1,1,0
 dev_access_nh_clinical_shift,dev:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_dev,1,1,1,1,1
 shift_coordinator_access_nh_clinical_shift,manager:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_ward_manager,1,1,1,1,0
-senior_manager_access_nh_clinical_shift,senior_manager:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_senior_manager,1,1,1,0,0
+senior_manager_access_nh_clinical_shift,senior_manager:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_senior_manager,1,1,0,0,0
 adt_access_nh_clinical_shift,manager:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_adt,1,0,0,0,0
 kiosk_access_nh_clinical_shift,kiosk:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_kiosk,1,0,0,0,0
 hca_access_nh_clinical_shift,hca:access_shift,model_nh_clinical_shift,nh_clinical.group_nhc_hca,1,0,0,0,0

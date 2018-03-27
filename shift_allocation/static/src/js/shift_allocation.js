@@ -1,4 +1,4 @@
-openerp.nh_clinical = function(instance){
+openerp.shift_allocation = function(instance){
 
     instance.web.form.SelectCreatePopup.include({
         setup_search_view: function(search_defaults) {

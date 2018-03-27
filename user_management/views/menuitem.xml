@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <!-- Admin needs to be able to see this menu.
+             Adding the dev group was the only way to make this happen.
+             Not sure why. -->
         <menuitem name="User Management"
                   id="menu_eobs_category_user_management"
                   parent="liveobs_core.menu_liveobs_root"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,base.user_root"/>
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_admin,nh_clinical.group_nhc_dev"/>
 
         <menuitem name="User Management"
                   id="menu_eobs_category_user_management_admin"
@@ -16,14 +19,14 @@
                   sequence="4"
                   parent="menu_eobs_category_user_management"
                   action="action_nhc_user_management_wm"
-                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev,base.user_root"/>
+                  groups="nh_clinical.group_nhc_ward_manager,nh_clinical.group_nhc_dev"/>
 
         <menuitem name="LiveObs Users"
                   id="menu_eobs_admin_user_management"
                   sequence="8"
                   parent="menu_eobs_category_user_management"
                   action="action_nhc_user_management_admin"
-                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin,base.user_root"/>
+                  groups="nh_clinical.group_nhc_dev,nh_clinical.group_nhc_admin"/>
 
         <menuitem name="LiveObs Users"
                   id="menu_eobs_dev_user_management"
