@@ -230,3 +230,38 @@ class NHeObsAPI(orm.AbstractModel):
             description=description
         )
         return response_json
+
+    @api.model
+    def get_patients(self, ids=None):
+        """
+        Return containing every field from
+        :class:`patient<base.nh_clinical_patient>` for each patients.
+
+        :param ids: ids of the patients. If empty, then all patients are
+            returned
+        :type ids: list
+        :returns: list of patient dictionaries
+        :rtype: list
+        """
+        patient_model = self.env['nh.clinical.patient']
+
+        # For shift coordinators or doctors just check location_ids for wards
+        # and return all patients on those wards.
+        if self.env.user.is_doctor() or self.env.user.is_shift_coordinator() \
+                or self.env.user.is_senior_manager():
+            wards = self.env.user.location_ids.filtered(
+                lambda location: location.usage == 'ward')
+            # Patient model serves as an empty recordset to be appended to in
+            # the loop below.
+            patients = patient_model
+            for ward in wards:
+                patients += patient_model.get_patients_on_ward(ward.id, ids)
+        # For other staff like nurses and HCAs, ward is not in location_ids
+        # so check the current shift for each ward and see if they are assigned
+        # to it.
+        else:
+            ward = self._get_user_ward()
+            patients = patient_model.get_patients_on_ward(ward.id, ids)
+
+        patient_dict_list = self._create_patient_dict_list(patients)
+        return patient_dict_list

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
 from openerp.osv import osv, fields
+from openerp import api
 
 
 def list_diff(a, b):
@@ -256,11 +257,11 @@ class StaffReallocationWizard(osv.TransientModel):
             cr, uid, [['groups_id.name', 'in', self._nursing_groups],
                       ['location_ids', 'in', location_ids]], context=context)
 
-    def _get_default_users(self, cr, uid, context=None):
-        ward_id = self._get_default_ward(cr, uid, context=context)
+    @api.model
+    def _get_default_users(self):
+        ward_id = self._get_default_ward()
         shift_model = self.env['nh.clinical.shift']
-        latest_shift_for_ward = shift_model.get_latest_shift_for_ward(
-            cr, uid, ward_id)
+        latest_shift_for_ward = shift_model.get_latest_shift_for_ward(ward_id)
         if not latest_shift_for_ward:
             return
         users_on_shift = \

@@ -618,8 +618,7 @@ class nh_eobs_api(orm.AbstractModel):
         patient[0]['activities'] = activities
         return patient
 
-    @api.model
-    def get_patients(self, ids=None):
+    def get_patients(self, cr, uid, ids, context=None):
         """
         Return containing every field from
         :class:`patient<base.nh_clinical_patient>` for each patients.
@@ -630,11 +629,22 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: list of patient dictionaries
         :rtype: list
         """
-        patient_model = self.env['nh.clinical.patient']
-        ward = self._get_user_ward(self.env.user)
-        patients = patient_model.get_patients_on_ward(ward.id, ids)
-        patient_dict_list = self._create_patient_dict_list(patients)
-        return patient_dict_list
+        if ids:
+            domain = [
+                ('patient_id', 'in', ids),
+                ('state', '=', 'started'),
+                ('data_model', '=', 'nh.clinical.spell'),
+                '|',
+                ('user_ids', 'in', [uid]),  # filter user responsibility
+                ('patient_id.follower_ids', 'in', [uid])
+            ]
+        else:
+            domain = [
+                ('state', '=', 'started'),
+                ('data_model', '=', 'nh.clinical.spell'),
+                ('user_ids', 'in', [uid]),  # filter user responsibility
+            ]
+        return self.collect_patients(cr, uid, domain, context=context)
 
     @api.model
     def _old_get_patients(self, ids):
@@ -665,11 +675,15 @@ class nh_eobs_api(orm.AbstractModel):
             ]
         return self.collect_patients(domain)
 
-    @staticmethod
-    def _get_user_ward(user):
-        if not user.location_ids:
-            raise ValueError("Cannot determine user's ward.")
-        return user.location_ids[0].parent_id
+    def _get_user_ward(self):
+        shift_model = self.env['nh.clinical.shift']
+        location_model = self.env['nh.clinical.location']
+        wards = location_model.search([('usage', '=', 'ward')])
+        for ward in wards:
+            shift = shift_model.get_latest_shift_for_ward(ward.id)
+            if self.env.user in shift.hcas or self.env.user in shift.nurses:
+                return ward
+        raise ValueError("User is not assigned to any currently active shift.")
 
     @api.model
     def _create_patient_dict_list(self, patients):

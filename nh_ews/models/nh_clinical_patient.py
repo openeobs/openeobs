@@ -14,7 +14,7 @@ class NhClinicalPatient(models.Model):
 
         last_two_ews = self.get_latest_completed_ews(limit=2)
         last_ews = last_two_ews[0] if last_two_ews else None
-        second_to_last_ews = last_two_ews[1] if last_two_ews else None
+        second_to_last_ews = last_two_ews[1] if len(last_two_ews) > 1 else None
 
         patient_dict['clinical_risk'] = last_ews and last_ews.clinical_risk
         patient_dict['frequency'] = last_ews.frequency if last_ews else 0,
