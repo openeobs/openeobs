@@ -398,8 +398,8 @@ class nh_eobs_api(orm.AbstractModel):
     def complete(self, activity_id, data):
         """
         Completes an :class:`activity<activity.nh_activity>`. Raises an
-        user_authorised_to_complete if the :class:`user<base.res_users>` is not permitted
-        to complete the activity.
+        user_authorised_to_complete if the :class:`user<base.res_users>` is not
+        permitted to complete the activity.
 
         :param activity_id: id of activity
         :type activity_id: int
