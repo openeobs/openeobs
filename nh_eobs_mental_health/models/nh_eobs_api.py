@@ -263,5 +263,9 @@ class NHeObsAPI(orm.AbstractModel):
             ward = self._get_user_ward()
             patients = patient_model.get_patients_on_ward(ward.id, ids)
 
+        # Filter out patients who are not placed.
+        patients = patients.filtered(
+            lambda patient: patient.current_location_id.usage == 'bed')
+
         patient_dict_list = self._create_patient_dict_list(patients)
         return patient_dict_list
