@@ -646,35 +646,6 @@ class nh_eobs_api(orm.AbstractModel):
             ]
         return self.collect_patients(cr, uid, domain, context=context)
 
-    @api.model
-    def _old_get_patients(self, ids):
-        """
-        Return containing every field from
-        :class:`patient<base.nh_clinical_patient>` for each patients.
-
-        :param ids: ids of the patients. If empty, then all patients are
-            returned
-        :type ids: list
-        :returns: list of patient dictionaries
-        :rtype: list
-        """
-        if ids:
-            domain = [
-                ('patient_id', 'in', ids),
-                ('state', '=', 'started'),
-                ('data_model', '=', 'nh.clinical.spell'),
-                '|',
-                ('user_ids', 'in', [self.env.uid]),
-                ('patient_id.follower_ids', 'in', [self.env.uid])
-            ]
-        else:
-            domain = [
-                ('state', '=', 'started'),
-                ('data_model', '=', 'nh.clinical.spell'),
-                ('user_ids', 'in', [self.env.uid]),
-            ]
-        return self.collect_patients(domain)
-
     def _get_user_ward(self):
         shift_model = self.env['nh.clinical.shift']
         location_model = self.env['nh.clinical.location']
