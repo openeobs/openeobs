@@ -18,7 +18,6 @@ class NHeObsAPI(orm.AbstractModel):
     eObs.
     """
 
-    _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
     @api.model
@@ -35,7 +34,9 @@ class NHeObsAPI(orm.AbstractModel):
         """
         if self._patient_on_obs_stop(patient_id):
             return []
-        return super(NHeObsAPI, self).get_active_observations(patient_id)
+        active_observations = super(NHeObsAPI, self).get_active_observations(
+            patient_id)
+        return active_observations
 
     @api.model
     def _patient_on_obs_stop(self, patient_id):
@@ -269,3 +270,8 @@ class NHeObsAPI(orm.AbstractModel):
 
         patient_dict_list = self._create_patient_dict_list(patients)
         return patient_dict_list
+
+    def user_allocated_to_patient(self, patient_id):
+        patient_model = self.env['nh.clinical.patient']
+        patient = patient_model.browse(patient_id)
+        return self.env.user in patient.current_location_id.user_ids

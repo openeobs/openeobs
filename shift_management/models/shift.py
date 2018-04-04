@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields
+from openerp import models, fields, api
 
 
 class Shift(models.Model):
@@ -21,6 +21,7 @@ class Shift(models.Model):
         relation='shift_hcas'
     )
 
+    @api.model
     def get_latest_shift_for_ward(self, ward_id):
         latest_shift_for_ward_search_results = self.search(
             [('ward', '=', ward_id)],
