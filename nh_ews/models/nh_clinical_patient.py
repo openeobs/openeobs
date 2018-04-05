@@ -18,6 +18,7 @@ class NhClinicalPatient(models.Model):
         """
         patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
+        scheduled_ews_activity = self.get_next_scheduled_ews_activity()
         last_two_ews = self.get_latest_completed_ews(limit=2)
         last_ews = last_two_ews[0] if last_two_ews else None
         second_to_last_ews = last_two_ews[1] if len(last_two_ews) > 1 else None
@@ -25,8 +26,8 @@ class NhClinicalPatient(models.Model):
         patient_dict['clinical_risk'] = last_ews and last_ews.clinical_risk
         patient_dict['frequency'] = last_ews.frequency if last_ews else 0,
 
-        date_scheduled = last_ews.activity_id.date_scheduled if last_ews \
-            else None
+        date_scheduled = scheduled_ews_activity.date_scheduled \
+            if scheduled_ews_activity else None
         patient_dict['next_ews_time'] = self.get_next_ews_time(date_scheduled)
         patient_dict['ews_score'] = last_ews.score if last_ews else ''
 
@@ -50,7 +51,7 @@ class NhClinicalPatient(models.Model):
         :rtype: str
         """
         if not date_scheduled:
-            return '00:00 hours'
+            return ''
         date_scheduled = datetime.strptime(date_scheduled, DTF)
         datetime_utils_model = self.env['datetime_utils']
         now = datetime_utils_model.get_current_time()
@@ -78,19 +79,35 @@ class NhClinicalPatient(models.Model):
                 overdue=overdue, days=days, hours=hours, minutes=minutes)
         return ews_due_datetime_str
 
-    def get_latest_completed_ews(self, limit=1):
+    def get_latest_completed_ews(self, limit=1, include_partials=True):
         """
         :param limit:
         :type limit: int
+        :param include_partials:
+        :type include_partials: bool
         :return:
         :rtype: nh.clinical.patient.observation.ews record
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
-        latest_ews = ews_model.search([
+        domain = [
             ('patient_id', '=', self.id),
             ('state', '=', 'completed')
-        ], order='date_terminated desc', limit=limit)
+        ]
+        if not include_partials:
+            domain.append(('is_partial', '=', False))
+        latest_ews = ews_model.search(
+            domain, order='date_terminated desc', limit=limit)
         return latest_ews
+
+    def get_next_scheduled_ews_activity(self):
+        activity_model = self.env['nh.activity']
+        next_scheduled_ews = activity_model.search([
+            ('data_model', '=', 'nh.clinical.patient.observation.ews'),
+            ('patient_id', '=', self.id),
+            ('state', '=', 'scheduled')
+        ], order='date_scheduled asc')
+        next_scheduled_ews.ensure_one()
+        return next_scheduled_ews
 
     @staticmethod
     def get_ews_trend(last_ews_score, second_to_last_ews_score):
