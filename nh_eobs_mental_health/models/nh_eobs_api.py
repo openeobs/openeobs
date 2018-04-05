@@ -23,9 +23,8 @@ class NHeObsAPI(orm.AbstractModel):
     @api.model
     def get_active_observations(self, patient_id):
         """
-        Returns all active observation types supported by eObs, if the
-        :class:`patient<base.nh_clinical_patient>` has an active
-        :class:`spell<spell.nh_clinical_spell>`.
+        Override to remove observations from list if the patient is on obs
+        stop.
 
         :param patient_id: id of patient
         :type patient_id: int
@@ -40,6 +39,12 @@ class NHeObsAPI(orm.AbstractModel):
 
     @api.model
     def _patient_on_obs_stop(self, patient_id):
+        """
+        :param patient_id:
+        :type patient_id: int
+        :return:
+        :rtype: bool
+        """
         spell_model = self.env['nh.clinical.spell']
         spell_activity = spell_model.get_spell_activity_by_patient_id(
             patient_id)
@@ -235,14 +240,13 @@ class NHeObsAPI(orm.AbstractModel):
     @api.model
     def get_patients(self, ids=None):
         """
-        Return containing every field from
-        :class:`patient<base.nh_clinical_patient>` for each patients.
+        Return a list of patients that the user has access to.
 
         :param ids: ids of the patients. If empty, then all patients are
-            returned
+        returned
         :type ids: list
-        :returns: list of patient dictionaries
-        :rtype: list
+        :returns: List of patient dictionaries
+        :rtype: list of dict
         """
         patient_model = self.env['nh.clinical.patient']
 

@@ -10,6 +10,12 @@ class NhClinicalPatient(models.Model):
 
     @api.one
     def serialise(self):
+        """
+        Override to add EWS data to patient dictionary.
+
+        :return:
+        :rtype: dict
+        """
         patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
         last_two_ews = self.get_latest_completed_ews(limit=2)
@@ -33,6 +39,16 @@ class NhClinicalPatient(models.Model):
         return patient_dict
 
     def get_next_ews_time(self, date_scheduled):
+        """
+        Get the time until the next EWS observation is due or if it is already
+        over due, the amount of time that has passed since it was due.
+
+        :param date_scheduled: The value of the `date_scheduled` field found
+        on the EWS activity record.
+        :type date_scheduled: str
+        :return: Next EWS due time.
+        :rtype: str
+        """
         if not date_scheduled:
             return '00:00 hours'
         date_scheduled = datetime.strptime(date_scheduled, DTF)
@@ -63,6 +79,12 @@ class NhClinicalPatient(models.Model):
         return ews_due_datetime_str
 
     def get_latest_completed_ews(self, limit=1):
+        """
+        :param limit:
+        :type limit: int
+        :return:
+        :rtype: nh.clinical.patient.observation.ews record
+        """
         ews_model = self.env['nh.clinical.patient.observation.ews']
         latest_ews = ews_model.search([
             ('patient_id', '=', self.id),
@@ -72,6 +94,19 @@ class NhClinicalPatient(models.Model):
 
     @staticmethod
     def get_ews_trend(last_ews_score, second_to_last_ews_score):
+        """
+        Imagine EWS scores plotted on a graph. You could find a trend between
+        any 2 points by seeing if the second point is equal, lower, or higher
+        than the first point. This method does that but also takes into account
+        edge cases like no EWS observations.
+
+        :param last_ews_score:
+        :type last_ews_score: int
+        :param second_to_last_ews_score:
+        :type second_to_last_ews_score: int
+        :return:
+        :rtype: str
+        """
         if last_ews_score is None and second_to_last_ews_score is None:
             return 'none'
         elif last_ews_score is None:

@@ -398,7 +398,7 @@ class nh_eobs_api(orm.AbstractModel):
     def complete(self, activity_id, data):
         """
         Completes an :class:`activity<activity.nh_activity>`. Raises an
-        user_authorised_to_complete if the :class:`user<base.res_users>` is not
+        exception if the :class:`user<base.res_users>` is not
         permitted to complete the activity.
 
         :param activity_id: id of activity
@@ -503,9 +503,7 @@ class nh_eobs_api(orm.AbstractModel):
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """
-        Returns all active observation types supported by eObs, if the
-        :class:`patient<base.nh_clinical_patient>` has an active
-        :class:`spell<spell.nh_clinical_spell>`.
+        Returns all active observation types in the system.
 
         :param patient_id: id of patient
         :type patient_id: int
@@ -647,6 +645,14 @@ class nh_eobs_api(orm.AbstractModel):
         return self.collect_patients(cr, uid, domain, context=context)
 
     def _get_user_ward(self):
+        """
+        Determine the ward the current user is allocated to by inspecting the
+        current shift and return it. Otherwise raise an exception.
+
+        :return: The ward the user is currently allocated to
+        :rtype: An nh.clinical.location record
+        :raises: ValueError
+        """
         shift_model = self.env['nh.clinical.shift']
         location_model = self.env['nh.clinical.location']
         wards = location_model.search([('usage', '=', 'ward')])
@@ -658,6 +664,12 @@ class nh_eobs_api(orm.AbstractModel):
 
     @api.model
     def _create_patient_dict_list(self, patients):
+        """
+        :param patients:
+        :type patients: list of nh.clinical.patient records
+        :return:
+        :rtype: list of dict
+        """
         return patients.serialise()
 
     def collect_patients(self, cr, uid, domain, context=None):

@@ -23,6 +23,15 @@ class Shift(models.Model):
 
     @api.model
     def get_latest_shift_for_ward(self, ward_id):
+        """
+        Shifts are associated with wards. This method returns the most
+        recently created shift for a particular ward.
+
+        :param ward_id:
+        :type ward_id: int
+        :return: The most recently created shift for the passed ward
+        :rtype: nh.clinical.shift
+        """
         latest_shift_for_ward_search_results = self.search(
             [('ward', '=', ward_id)],
             order='id desc', limit=1
@@ -30,6 +39,12 @@ class Shift(models.Model):
         return latest_shift_for_ward_search_results
 
     def user_on_shift(self, ward_id):
+        """
+        :param ward_id:
+        :type: int
+        :return:
+        :rtype: bool
+        """
         latest_shift = self.get_latest_shift_for_ward(ward_id)
         user_on_shift = self.env.user in latest_shift.hcas \
             or self.env.user in latest_shift.nurses
