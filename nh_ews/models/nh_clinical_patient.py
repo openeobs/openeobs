@@ -105,8 +105,7 @@ class NhClinicalPatient(models.Model):
             ('data_model', '=', 'nh.clinical.patient.observation.ews'),
             ('patient_id', '=', self.id),
             ('state', '=', 'scheduled')
-        ], order='date_scheduled asc')
-        next_scheduled_ews.ensure_one()
+        ], order='date_scheduled asc', limit=1)
         return next_scheduled_ews
 
     @staticmethod

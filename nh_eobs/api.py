@@ -436,7 +436,7 @@ class nh_eobs_api(orm.AbstractModel):
         Gets the :class:`reason<activity_extension.nh_clinical_reason>`
         for each cancelled :class:`activity<activity.nh_activity>`.
 
-        :returns: list of dictionaries of reasons
+        :returns: A list of dictionaries of reasons
         :rtype: list
         """
 

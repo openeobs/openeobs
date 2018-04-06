@@ -111,7 +111,7 @@ class ObservationCase(SingleTransactionCase):
                 'password': 'testnurse',
                 'groups_id': [[4, group_id] for group_id in nurse_group_ids],
                 'pos_id': cls.pos_id,
-                'location_ids': [[6, 0, cls.bed_ids]]
+                'location_ids': [[6, 0, [cls.bed_ids]]]
             }
         )
 
@@ -134,9 +134,12 @@ class ObservationCase(SingleTransactionCase):
                 ['state', '=', 'scheduled']
             ]
         )
+        if hasattr(cls.bed_ids, '__iter__'):
+            location_id = cls.bed_ids[0]
+        else:
+            location_id = cls.bed_ids
         cls.activity_pool.submit(
-            cr, uid, placement_id[0], {'location_id': cls.bed_ids[0]}
-        )
+            cr, uid, placement_id[0], {'location_id': location_id})
         cls.activity_pool.complete(cr, uid, placement_id[0])
 
     def get_obs(self):

@@ -1,65 +1,36 @@
-from openerp.tests.common import SingleTransactionCase
+from openerp.tests.common import TransactionCase
 
 
-class TestNHeObsAPIGetActiveObservations(SingleTransactionCase):
+class TestNHeObsAPIGetActiveObservations(TransactionCase):
     """
     Test that setting the obs_stop flag on the patient's spell means no
     observations are active for the patient
     """
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestNHeObsAPIGetActiveObservations, cls).setUpClass()
-        cls.spell_model = cls.registry('nh.clinical.spell')
-        cls.patient_model = cls.registry('nh.clinical.patient')
-        cls.api_model = cls.registry('nh.eobs.api')
-        cls.user_model = cls.registry('res.users')
-        cls.activity_model = cls.registry('nh.activity')
+    def setUp(self):
+        super(TestNHeObsAPIGetActiveObservations, self).setUp()
+        self.test_utils_model = self.env['nh.clinical.test_utils']
+        self.test_utils_model.admit_and_place_patient()
+        self.test_utils_model.copy_instance_variables(self)
 
-        def patch_spell_search(*args, **kwargs):
-            return [1]
+        self.api_model = self.env['nh.eobs.api']
 
-        def patch_spell_read(*args, **kwargs):
-            context = kwargs.get('context', {})
-            test = context.get('test')
-            stopped = False
-            if test == 'hide_obs':
-                stopped = True
-            return {
-                'obs_stop': stopped
-            }
+    def call_test(self):
+        self.obs_list = self.api_model.get_active_observations(
+            self.patient.id)
 
-        def patch_activity_search(*args, **kwargs):
-            return [1]
-
-        # patch activity search so when super is hit returns active obs list
-        cls.activity_model._patch_method('search', patch_activity_search)
-        cls.spell_model._patch_method('search', patch_spell_search)
-        cls.spell_model._patch_method('read', patch_spell_read)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.activity_model._revert_method('search')
-        cls.spell_model._revert_method('search')
-        cls.spell_model._revert_method('read')
-        super(TestNHeObsAPIGetActiveObservations, cls).tearDownClass()
-
-    def test_no_activities_on_obs_stop(self):
+    def test_populated_list_when_not_on_obs_stop(self):
         """
-        Test that no activities are provided when the obs_stop flag is set on
-        the spell
+        Test that the gcs dict is removed from the returned list
         """
-        cr, uid = self.cr, self.uid
-        active_obs = self.api_model.get_active_observations(
-            cr, uid, 666, context={'test': 'hide_obs'})
-        self.assertEqual(active_obs, [])
+        self.call_test()
+        self.assertGreater(len(self.obs_list), 0)
 
-    def test_has_activities_on_no_obs_stop(self):
+    def test_empty_list_on_obs_stop(self):
         """
-        Test that no activities are provided when the obs_stop flag is set on
-        the spell
+        Test that no observations are displayed when obs_stop flag is set to
+        True
         """
-        cr, uid = self.cr, self.uid
-        active_obs = self.api_model.get_active_observations(
-            cr, uid, 666, context={'test': 'show_obs'})
-        self.assertNotEqual(active_obs, [])
+        self.test_utils_model.start_pme()
+        self.call_test()
+        self.assertEqual(self.obs_list, [])

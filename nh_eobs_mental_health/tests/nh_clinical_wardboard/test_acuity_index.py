@@ -137,10 +137,12 @@ class TestAcuityIndex(TransactionObservationCase):
         was transferred to the ward has an acuity index of 'High'
         """
         cr, uid = self.cr, self.uid
-        self.get_obs(self.patient_2_id)
-        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
-        self.get_obs(self.patient_2_id)
-        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
+        self.get_obs(self.patient_2_id, user_id=self.user_2_id)
+        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA,
+                          user_id=self.user_2_id)
+        self.get_obs(self.patient_2_id, user_id=self.user_2_id)
+        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA,
+                          user_id=self.user_2_id)
         time.sleep(2)
         self.api_pool.transfer(
             cr, self.adt_id, 'TESTHN002', {'location': 'TESTWARD'})
@@ -162,10 +164,12 @@ class TestAcuityIndex(TransactionObservationCase):
         self.assertEqual(wardboard.acuity_index, 'NoScore')
 
     def test_refused_obs_stop(self):
-        self.get_obs(self.patient_2_id)
-        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA)
-        self.get_obs(self.patient_2_id)
-        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA)
+        self.get_obs(self.patient_2_id, user_id=self.user_2_id)
+        self.complete_obs(clinical_risk_sample_data.HIGH_RISK_DATA,
+                          user_id=self.user_2_id)
+        self.get_obs(self.patient_2_id, user_id=self.user_2_id)
+        self.complete_obs(clinical_risk_sample_data.REFUSED_DATA,
+                          user_id=self.user_2_id)
         time.sleep(2)
 
         spell = self.spell_model.browse(self.spell_id)

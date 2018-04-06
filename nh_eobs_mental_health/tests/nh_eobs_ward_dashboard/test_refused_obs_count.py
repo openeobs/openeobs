@@ -115,7 +115,7 @@ class TestRefusedObsCount(TransactionObservationCase):
         self.complete_observation(
             self.user_id, [self.patient_id], REFUSED_DATA)
         self.complete_observation(
-            self.user_id, [self.patient_2_id], REFUSED_DATA)
+            self.user_2_id, [self.patient_2_id], REFUSED_DATA)
         self.assertEqual(self.get_refused_count(), 1)
         api_model = self.registry('nh.eobs.api')
         time.sleep(2)
