@@ -18,7 +18,7 @@ class NhClinicalPatient(models.Model):
         last_ews = self.get_latest_completed_ews(limit=1)
 
         patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(
-            last_ews),
+            last_ews)
         patient_dict['rapid_tranq'] = self.get_rapid_tranq_status()
         return patient_dict
 

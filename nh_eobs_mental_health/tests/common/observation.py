@@ -94,7 +94,7 @@ class ObservationCase(SingleTransactionCase):
         if bed_ids_search and len(bed_ids_search) >= 10:
             cls.bed_ids = bed_ids_search[:10]
         else:
-            cls.bed_ids = cls.location_pool.create(
+            bed_id = cls.location_pool.create(
                 cr, uid, {
                     'name': 'Test Bed 1',
                     'parent_id': cls.eobs_ward_id,
@@ -102,6 +102,7 @@ class ObservationCase(SingleTransactionCase):
                     'code': 'TESTWARDBED1'
                 }
             )
+            cls.bed_ids = [bed_id]
 
         # create nurse
         cls.user_id = cls.user_pool.create(
@@ -111,7 +112,7 @@ class ObservationCase(SingleTransactionCase):
                 'password': 'testnurse',
                 'groups_id': [[4, group_id] for group_id in nurse_group_ids],
                 'pos_id': cls.pos_id,
-                'location_ids': [[6, 0, [cls.bed_ids]]]
+                'location_ids': [[6, 0, cls.bed_ids]]
             }
         )
 
@@ -134,13 +135,15 @@ class ObservationCase(SingleTransactionCase):
                 ['state', '=', 'scheduled']
             ]
         )
-        if hasattr(cls.bed_ids, '__iter__'):
-            location_id = cls.bed_ids[0]
-        else:
-            location_id = cls.bed_ids
         cls.activity_pool.submit(
-            cr, uid, placement_id[0], {'location_id': location_id})
+            cr, uid, placement_id[0], {'location_id': cls.bed_ids[0]})
         cls.activity_pool.complete(cr, uid, placement_id[0])
+
+        cls.shift_pool = cls.registry('nh.clinical.shift')
+        cls.shift_pool.create(cr, uid, {
+            'ward': cls.eobs_ward_id,
+            'nurses': [(6, 0, [cls.user_id])]
+        })
 
     def get_obs(self):
         ews_activity_search = self.activity_pool.search(

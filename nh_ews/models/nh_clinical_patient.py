@@ -96,7 +96,7 @@ class NhClinicalPatient(models.Model):
         if not include_partials:
             domain.append(('is_partial', '=', False))
         latest_ews = ews_model.search(
-            domain, order='date_terminated desc', limit=limit)
+            domain, order='date_terminated desc, id desc', limit=limit)
         return latest_ews
 
     def get_next_scheduled_ews_activity(self):
