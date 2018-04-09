@@ -186,7 +186,6 @@ class TransactionObservationCase(TransactionCase):
                 _logger.info('nurse failed {0}'.format(e))
                 raise
 
-
         sc_ids_search = self.user_pool.search(
             cr, uid, [
                 ['login', '=', 'testsc']

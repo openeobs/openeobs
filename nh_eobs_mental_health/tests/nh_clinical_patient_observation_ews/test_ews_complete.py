@@ -58,7 +58,8 @@ class TestComplete(SavepointCase):
         for a patient with low clinical risk results in an ir.cron being set up
         to call schedule_clinical_review_notification in 7 days.
         """
-        self.call_test(risk='low', expected_days_til_clinical_review_triggers=7)
+        self.call_test(risk='low',
+                       expected_days_til_clinical_review_triggers=7)
 
     def test_schedules_clinical_review_cron_in_1_day_med(self):
         """
