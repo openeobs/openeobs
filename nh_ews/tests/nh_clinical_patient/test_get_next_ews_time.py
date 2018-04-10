@@ -22,7 +22,7 @@ class TestGetNextEwsTime(SingleTransactionCase):
         return patient_model.get_next_ews_time(date_scheduled)
 
     def test_date_scheduled_is_none(self):
-        expected = '00:00 hours'
+        expected = ''
         actual = self.call_test(None)
         self.assertEqual(expected, actual)
 
