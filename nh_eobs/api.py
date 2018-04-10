@@ -413,7 +413,13 @@ class nh_eobs_api(orm.AbstractModel):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
 
-        if self.env.user.is_doctor() \
+        # Always check allocation for NEWS observations.
+        if activity.data_model == 'nh.clinical.patient.observation.ews':
+            user_authorised_to_complete = self.check_activity_access(
+                activity_id)
+        # If not a NEWS observation then check shift or allocation depending
+        # on user group.
+        elif self.env.user.is_doctor() \
                 or self.env.user.is_shift_coordinator() \
                 or self.env.user.is_senior_manager():
             user_authorised_to_complete = self.check_activity_access(
