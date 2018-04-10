@@ -383,14 +383,13 @@ class StaffReallocationWizard(osv.TransientModel):
             ids = ids[0]
         if not isinstance(ids, int):
             raise ValueError('Invalid ID passed to complete')
-        allocating_pool = self.pool['nh.clinical.allocating']
         wizard = self.browse(cr, uid, ids, context=context)
+
         allocation = {
             u.id: [l.id for l in u.location_ids if l.id not
                    in wizard.location_ids.ids] for u in wizard.user_ids}
-        for allocating in allocating_pool.browse(
-                cr, uid, [a.id for a in wizard.allocating_ids],
-                context=context):
+
+        for allocating in wizard.allocating_ids:
             if allocating.nurse_id:
                 allocation[allocating.nurse_id.id].append(
                     allocating.location_id.id)
@@ -403,10 +402,28 @@ class StaffReallocationWizard(osv.TransientModel):
                 allocation[uid] = [wizard.ward_id.id]
             elif wizard.ward_id.id not in allocation.get(uid):
                 allocation[uid].append(wizard.ward_id.id)
+
         for key, value in allocation.iteritems():
             self.responsibility_allocation_activity(cr, uid, key, value,
                                                     context=context)
+
+        self._update_shift(cr, uid, wizard)
+
         return {'type': 'ir.actions.act_window_close'}
+
+    def _update_shift(self, cr, uid, wizard):
+        nurses = wizard.user_ids.filter_nurses(wizard.user_ids)
+        hcas = wizard.user_ids.filter_hcas(wizard.user_ids)
+
+        shift_model = self.pool['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(
+            cr, uid, wizard.ward_id.id)
+        shift_model.write(
+            cr, uid, shift.id, {
+                'nurses': [(6, 0, map(lambda e: e.id, nurses))],
+                'hcas': [(6, 0, map(lambda e: e.id, hcas))]
+            }
+        )
 
 
 class doctor_allocation_wizard(osv.TransientModel):

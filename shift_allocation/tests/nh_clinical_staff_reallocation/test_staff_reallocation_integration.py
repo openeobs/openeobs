@@ -95,6 +95,32 @@ class TestStaffReallocationIntegration(TransactionCase):
         for resp_allocation in resp_allocations:
             self.assertIn(self.bed.id, resp_allocation.location_ids.ids)
 
+    def test_complete_adds_nurse_to_shift(self):
+        shift_model = self.env['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(self.ward.id)
+
+        nurse = self.test_utils_model.create_nurse()
+        self.assertNotIn(nurse, shift.nurses)
+        self.wizard.user_ids += nurse
+
+        self.wizard.reallocate()
+        self.wizard.complete()
+
+        self.assertIn(nurse, shift.nurses)
+
+    def test_complete_adds_hca_to_shift(self):
+        shift_model = self.env['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(self.ward.id)
+
+        hca = self.test_utils_model.create_hca()
+        self.assertNotIn(hca, shift.hcas)
+        self.wizard.user_ids += hca
+
+        self.wizard.reallocate()
+        self.wizard.complete()
+
+        self.assertIn(hca, shift.hcas)
+
     def test_shift_coordinator_uses_twice(self):
         """
         Test that on completing that the wizard now:
