@@ -3,8 +3,10 @@ from openerp.models import AbstractModel
 
 class NhClinicalTestUtils(AbstractModel):
 
-    def setup_wards(self):
-        super(NhClinicalTestUtils, self).setup_wards()
+    _inherit = 'nh.clinical.test_utils'
+
+    def setup_ward(self):
+        super(NhClinicalTestUtils, self).setup_ward()
         self.create_shifts()
 
     def create_shifts(self):
