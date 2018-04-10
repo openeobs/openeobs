@@ -660,7 +660,6 @@ class nh_eobs_api(orm.AbstractModel):
             shift = shift_model.get_latest_shift_for_ward(ward.id)
             if self.env.user in shift.hcas or self.env.user in shift.nurses:
                 return ward
-        raise ValueError("User is not assigned to any currently active shift.")
 
     @api.model
     def _create_patient_dict_list(self, patients):
