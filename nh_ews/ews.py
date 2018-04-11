@@ -265,13 +265,18 @@ class nh_clinical_patient_observation_ews(orm.Model):
     def _get_o2_display(self, cr, uid, ids, field_names, arg, context=None):
         res = {}
         for ews in self.browse(cr, uid, ids, context=context):
-            display = ''
-            if ews.flow_rate:
-                display += str(ews.flow_rate) + ' l/m '
-            elif ews.concentration:
-                display += str(ews.concentration) + '% '
-            if ews.device_id:
-                display += ews.device_id.name
+            if ews.oxygen_administration_flag:
+                display = ''
+                if ews.flow_rate:
+                    display += str(ews.flow_rate) + ' l/m '
+                elif ews.concentration:
+                    display += str(ews.concentration) + '% '
+                if ews.device_id:
+                    display += ews.device_id.name
+            elif 'oxygen_administration_flag' in ews.none_values:
+                display = ''
+            else:
+                display = 'No'
             res[ews.id] = display
         return res
 

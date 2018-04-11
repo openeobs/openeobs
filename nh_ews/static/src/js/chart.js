@@ -1,8 +1,11 @@
 function processOxygenAdministrationDevice(ob){
-    ob.oxygen_administration_device = "";
-        if (ob.oxygen_administration_flag) {
-            ob.oxygen_administration_device = "Yes";
-        }
+    if (ob.oxygen_administration_flag) {
+        ob.oxygen_administration_device = "Yes";
+    } else if (ob.none_values.includes("oxygen_administration_flag")) {
+        ob.oxygen_administration_device = "";
+    } else {
+        ob.oxygen_administration_device = "No";
+    }
     return ob;
 }
 

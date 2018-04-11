@@ -507,7 +507,13 @@ openerp.nh_eobs = function (instance) {
                         if (d.partial_reason === 'refused' && self.refused || d.is_partial && self.partial_type === 'character'){
                             d.score = false;
                         }
-                        d.oxygen_administration_device = '';
+                        if (d.oxygen_administration_flag) {
+                            d.oxygen_administration_device = "Yes";
+                        } else if (d.none_values.includes("oxygen_administration_flag")) {
+                            d.oxygen_administration_device = "";
+                        } else {
+                            d.oxygen_administration_device = "No";
+                        }
                         if (d.flow_rate && d.flow_rate > -1 || d.concentration && d.concentration > -1 || d.oxygen_administration_flag) {
                             plotO2 = true;
                             d.inspired_oxygen = "";
@@ -526,9 +532,6 @@ openerp.nh_eobs = function (instance) {
                                 d.inspired_oxygen += "NIV Backup Rate: " + d.niv_backup + "<br>";
                                 d.inspired_oxygen += "NIV EPAP: " + d.niv_epap + "<br>";
                                 d.inspired_oxygen += "NIV IPAP: " + d.niv_ipap + "<br>";
-                            }
-                            if (d.oxygen_administration_flag) {
-                                d.oxygen_administration_device = 'Yes';
                             }
                         }
                         if (d.indirect_oxymetry_spo2) {
