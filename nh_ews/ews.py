@@ -273,6 +273,7 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     display += str(ews.concentration) + '% '
                 if ews.device_id:
                     display += ews.device_id.name
+                display = display.strip()
             elif 'oxygen_administration_flag' in ews.none_values:
                 display = ''
             else:
