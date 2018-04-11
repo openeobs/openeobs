@@ -1,5 +1,5 @@
 function processOxygenAdministrationDevice(ob){
-    ob.oxygen_administration_device = "No";
+    ob.oxygen_administration_device = "";
         if (ob.oxygen_administration_flag) {
             ob.oxygen_administration_device = "Yes";
         }

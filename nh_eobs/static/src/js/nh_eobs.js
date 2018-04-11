@@ -460,7 +460,6 @@ openerp.nh_eobs = function (instance) {
         className: 'nh_ewschart',
 
         init: function (field_manager, node) {
-            console.log("EWSCHART INIT");
             this._super(field_manager, node);
             this.dataset = new instance.web.form.One2ManyDataSet(this, this.field.relation);
             this.dataset.o2m = this;
@@ -508,7 +507,7 @@ openerp.nh_eobs = function (instance) {
                         if (d.partial_reason === 'refused' && self.refused || d.is_partial && self.partial_type === 'character'){
                             d.score = false;
                         }
-                        d.oxygen_administration_device = 'No';
+                        d.oxygen_administration_device = '';
                         if (d.flow_rate && d.flow_rate > -1 || d.concentration && d.concentration > -1 || d.oxygen_administration_flag) {
                             plotO2 = true;
                             d.inspired_oxygen = "";
