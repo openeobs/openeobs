@@ -266,6 +266,10 @@ class NHeObsAPI(orm.AbstractModel):
         # to it.
         else:
             ward = self._get_user_ward()
+            if not ward:
+                # If no ward then user is not on a shift so empty list of
+                # patients is expected.
+                return []
             patients = patient_model.get_patients_on_ward(ward.id, ids)
 
         # Filter out patients who are not placed.

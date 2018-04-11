@@ -413,7 +413,15 @@ class nh_eobs_api(orm.AbstractModel):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
 
+        # Always check allocation for NEWS observations.
         if activity.data_model == 'nh.clinical.patient.observation.ews':
+            user_authorised_to_complete = self.check_activity_access(
+                activity_id)
+        # If not a NEWS observation then check shift or allocation depending
+        # on user group.
+        elif self.env.user.is_doctor() \
+                or self.env.user.is_shift_coordinator() \
+                or self.env.user.is_senior_manager():
             user_authorised_to_complete = self.check_activity_access(
                 activity_id)
         else:
@@ -660,7 +668,6 @@ class nh_eobs_api(orm.AbstractModel):
             shift = shift_model.get_latest_shift_for_ward(ward.id)
             if self.env.user in shift.hcas or self.env.user in shift.nurses:
                 return ward
-        raise ValueError("User is not assigned to any currently active shift.")
 
     @api.model
     def _create_patient_dict_list(self, patients):
