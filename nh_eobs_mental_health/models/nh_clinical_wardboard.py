@@ -123,6 +123,17 @@ class NHClinicalWardboard(orm.Model):
             'view_id': view_id
         }
 
+    @api.multi
+    def open_set_therapeutic_obs_level_view(self):
+        return {
+            'name': 'Set Therapeutic Obs Level',
+            'type': 'ir.actions.act_window',
+            'res_model': 'nh.clinical.patient.observation.therapeutic.level',
+            'view_mode': 'form',
+            'target': 'new',
+            'flags': {'form': {'action_buttons': True}}
+        }
+
     @helpers.v8_refresh_materialized_views('ews0', 'ews1', 'ews2')
     @api.multi
     def start_obs_stop(self, reasons, spell_id, spell_activity_id):
