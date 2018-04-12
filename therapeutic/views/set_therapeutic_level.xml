@@ -1,0 +1,38 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_set_therapeutic_obs_level">
+            <field name="name">View Set Therapeutic Obs Level</field>
+            <field name="model">nh.clinical.patient.observation.therapeutic.level</field>
+            <field name="arch" type="xml">
+                <field name="level"/>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_set_therapeutic_obs_level">
+            <field name="name">Action Set Therapeutic Obs Level</field>
+            <field name="res_model">nh.clinical.patient.observation.therapeutic.level</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_set_therapeutic_obs_level"/>
+            <field name="target">new</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_therapeutic_wardboard_patient_form">
+            <field name="name">View Therapeutic Wardboard Patient Form</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/header" position="inside">
+                    <button name="action_set_therapeutic_obs_level"
+                            string="Therapeutic Obs Level"
+                            type="action"
+                            groups="nh_clinical.group_nhc_ward_manager"/>
+                </xpath>
+                <!--xpath expr="//sheet/group/group" position="after">
+                    <group string="Therapeutic Obs Level">
+                        <field name="therapeutic_obs_level"/>
+                    </group>
+                </xpath-->
+            </field>
+        </record>
+    </data>
+</openerp>
