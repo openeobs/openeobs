@@ -10,8 +10,8 @@
     'depends': ['nh_eobs_mental_health'],
     'data': [
         'security/ir.model.access.csv',
-        'views/set_therapeutic_level.xml',
-        'views/wardboard_override.xml'
+        'views/wardboard_override_set_therapeutic_level.xml',
+        'views/wardboard_override_view_therapeutic_level.xml'
     ],
     'demo': [],
     'css': [],
