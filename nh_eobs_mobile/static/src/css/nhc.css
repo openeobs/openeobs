@@ -2290,7 +2290,7 @@ Styleguide 2.2.0
 }
 .tasklist li a .task-right {
   float: right;
-  width: 27.5%;
+  width: 42.5%;
   margin-left: 2.5%;
   margin-top: 0px;
   text-align: right;
@@ -2301,7 +2301,7 @@ Styleguide 2.2.0
 }
 .tasklist li a .task-left {
   float: left;
-  width: 67.5%;
+  width: 42.5%;
   margin-right: 2.5%;
   text-align: left;
   margin-top: 0px;
@@ -2444,7 +2444,7 @@ Styleguide 2.2.1
 .sharelist li label .task-right,
 .checklist li label .task-right {
   float: right;
-  width: 27.5%;
+  width: 42.5%;
   margin-left: 2.5%;
   margin-top: 0;
   text-align: right;
@@ -2457,7 +2457,7 @@ Styleguide 2.2.1
 .sharelist li label .task-left,
 .checklist li label .task-left {
   float: left;
-  width: 67.5%;
+  width: 42.5%;
   margin-right: 2.5%;
   text-align: left;
   margin-top: 0;
@@ -2522,6 +2522,15 @@ Styleguide 2.2.1
   color: white;
   border-radius: 10px;
   padding: 0.5em 2.5%;
+}
+.item-name {
+  font-weight: bold;
+}
+.item-location {
+  font-style: italic;
+}
+.deadline-label {
+  color: #666;
 }
 /*
 

@@ -98,10 +98,10 @@
                                         <div class="task-right">
                                             <t t-foreach="item['deadlines']" t-as="deadline">
                                                 <div>
-                                                    <span class="deadline_label">
+                                                    <span class="deadline-label">
                                                         <t t-esc="deadline['label']"/>
                                                     </span>
-                                                    <span class="deadline_datetime">
+                                                    <span class="deadline-datetime">
                                                         <t t-esc="deadline['datetime']"/>
                                                     </span>
                                                 </div>
@@ -115,7 +115,7 @@
                                                 <i class="icon-alert"></i>
                                             </t>
                                             <div class="item-name">
-                                                <t t-esc="item['full_name']"/> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)
+                                                <t t-esc="item['full_name']"/> <span class="ews_score">(<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)</span>
                                             </div>
                                             <div class="item-location">
                                                 <t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/>
