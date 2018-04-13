@@ -551,18 +551,22 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         cr, uid, context = request.cr, request.session.uid, request.context
         patient_api = request.registry['nh.eobs.api']
         patient_api.unassign_my_activities(cr, uid)
+
+        patient_dict_list = patient_api.get_patients(
+            cr, uid, None, context=context)
+        patients = self.process_patient_list(
+            cr, uid, patient_dict_list, context=context)
+        patient_api.get_patient_followers(cr, uid, patients, context=context)
+
         follow_activities = patient_api.get_assigned_activities(
             cr, uid,
             activity_type='nh.clinical.patient.follow',
             context=context
         )
-        patients = self.process_patient_list(
-            cr, uid, patient_api.get_patients(
-                cr, uid, None, context=context), context=context)
-        patient_api.get_patient_followers(cr, uid, patients, context=context)
+        followed_patients = patient_api.get_followed_patients(
+                cr, uid, [])
         following_patients = self.process_patient_list(
-            cr, uid, patient_api.get_followed_patients(
-                cr, uid, []), context=context)
+            cr, uid, followed_patients, context=context)
 
         qcontext = {
             'notifications': follow_activities,

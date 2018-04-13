@@ -20,6 +20,9 @@ class NhClinicalPatient(models.Model):
         patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(
             last_ews)
         patient_dict['rapid_tranq'] = self.get_rapid_tranq_status()
+
+        self.modify_deadline_for_patient_statuses_if_necessary(patient_dict)
+
         return patient_dict
 
     def get_refusal_in_effect(self, last_ews):
@@ -50,3 +53,37 @@ class NhClinicalPatient(models.Model):
         spell_model = self.env['nh.clinical.spell']
         spell_activity = spell_model.get_spell_activity_by_patient_id(self.id)
         return spell_activity.data_ref.rapid_tranq
+
+    @api.multi
+    def get_status_map_for_patient_ids(self):
+        """
+        Take a list of patient IDs and return the spells
+
+        :return: dict containing patient ID to status flag mapping
+        """
+        spell_model = self.env['nh.clinical.spell']
+        spell_ids = spell_model.search([
+            ['patient_id', 'in', self._ids],
+            ['state', 'not in', ['completed', 'cancelled']]
+        ])
+        spells = spell_model.read(spell_ids, [
+            'obs_stop',
+            'rapid_tranq',
+            'patient_id'
+        ])
+        status_mapping = {}
+        for spell in spells:
+            patient_id = spell.get('patient_id')
+            if patient_id:
+                patient_status = status_mapping[patient_id[0]] = {}
+                patient_status['obs_stop'] = spell.get('obs_stop')
+                patient_status['rapid_tranq'] = spell.get('rapid_tranq')
+        return status_mapping
+
+    def modify_deadline_for_patient_statuses_if_necessary(self, patient_dict):
+        status_map = self.get_status_map_for_patient_ids()
+        patient_dict['rapid_tranq'] = status_map.get(self.id, {}).get(
+            'rapid_tranq', False)
+        if status_map.get(self.id, {}).get('obs_stop'):
+            for deadline in patient_dict['deadlines']:
+                deadline['datetime'] = 'Observations Stopped'

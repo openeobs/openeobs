@@ -37,6 +37,9 @@ class NhClinicalPatient(models.Model):
         patient_dict['ews_trend'] = self.get_ews_trend(
             last_ews_score, second_to_last_ews_score)
 
+        patient_dict['deadlines'].append(self.get_deadline(
+            patient_dict['next_ews_time']))
+
         return patient_dict
 
     def get_next_ews_time(self, date_scheduled):
@@ -135,3 +138,11 @@ class NhClinicalPatient(models.Model):
             return 'same'
         elif last_ews_score > second_to_last_ews_score:
             return 'up'
+
+    @staticmethod
+    def get_deadline(next_ews_time):
+        deadline = {
+            'label': 'NEWS',
+            'datetime': next_ews_time
+        }
+        return deadline

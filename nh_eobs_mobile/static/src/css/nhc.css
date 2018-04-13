@@ -2294,7 +2294,6 @@ Styleguide 2.2.0
   margin-left: 2.5%;
   margin-top: 0px;
   text-align: right;
-  font-weight: bold;
 }
 .tasklist li a .task-right p {
   margin-top: 0px;
@@ -2449,7 +2448,6 @@ Styleguide 2.2.1
   margin-left: 2.5%;
   margin-top: 0;
   text-align: right;
-  font-weight: bold;
 }
 .sharelist li label .task-right p,
 .checklist li label .task-right p {

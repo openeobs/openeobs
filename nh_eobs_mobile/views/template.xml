@@ -96,7 +96,16 @@
                                 <a t-att-href="item['url']" t-att-class="item['color']+' block'">
                                     <div class="task-meta">
                                         <div class="task-right">
-                                            <p class="aside"><t t-esc="item['deadline_time']"/></p>
+                                            <t t-foreach="item['deadlines']" t-as="deadline">
+                                                <div>
+                                                    <span class="deadline_label">
+                                                        <t t-esc="deadline['label']"/>
+                                                    </span>
+                                                    <span class="deadline_datetime">
+                                                        <t t-esc="deadline['datetime']"/>
+                                                    </span>
+                                                </div>
+                                            </t>
                                             <t t-if="'follower_ids' in item and user_id in item['follower_ids']">
                                                 <p class="aside">Claim</p>
                                             </t>
@@ -105,13 +114,21 @@
                                             <t t-if="'notification' in item and item['notification']==True">
                                                 <i class="icon-alert"></i>
                                             </t>
-                                            <strong><t t-esc="item['full_name']"/></strong><t t-if="item['ews_score']!='False'"> (<t t-esc="item['ews_score']"/><t t-if="item['ews_trend']!='False'"> <i t-att-class="'icon-' + item['ews_trend'] + '-arrow'"></i></t>)</t><br/>
-                                            <em><t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/></em>
+                                            <div class="item-name">
+                                                <t t-esc="item['full_name']"/> (<t t-esc="item['ews_score']"/> <i t-att-class="item['trend_icon']"></i>)
+                                            </div>
+                                            <div class="item-location">
+                                                <t t-esc="item['location']"/>, <t t-esc="item['parent_location']"/>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="task-meta">
-                                        <p class="taskInfo"><t t-if="item['summary']"><t t-esc="item['summary']"/></t><br/></p>
-                                    </div>
+                                    <t t-if="item['summary']">
+                                        <div class="task-meta">
+                                            <p class="taskInfo">
+                                                <t t-esc="item['summary']"/>
+                                            </p>
+                                        </div>
+                                    </t>
                                 </a>
                             </li>
                         </t>

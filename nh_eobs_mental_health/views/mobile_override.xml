@@ -11,14 +11,14 @@
             <xpath expr="//t/div/ul/t/li" position="attributes">
                 <attribute name="t-att-class">'status-alert' if item.get('rapid_tranq') == True else ''</attribute>
             </xpath>
-            <xpath expr="//t/div/ul/t/li/a/div/div[@class='task-right']/p[@class='aside']" position="replace">
+            <!--xpath expr="//*[@class='aside']" position="before">
                  <p class="aside">
                      <t t-if="item.get('refusal_in_effect') == True">
                          Refused -
                      </t>
                      <t t-esc="item['deadline_time']"/>
                  </p>
-            </xpath>
+            </xpath-->
         </template>
         <template id="nh_eobs_mental_health.patient" inherit_id="nh_eobs_mobile.patient">
             <xpath expr="//*[@id = 'obsMenu']" position="after">
