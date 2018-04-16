@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
-from openerp.osv import osv, fields
 from openerp import api
+from openerp.osv import osv, fields
 
 
 def list_diff(a, b):
@@ -412,6 +412,16 @@ class StaffReallocationWizard(osv.TransientModel):
         return {'type': 'ir.actions.act_window_close'}
 
     def _update_shift(self, cr, uid, wizard):
+        """
+        Update the fields of the current shift record for the ward to reflect
+        any changes made in the wizard (usually via the 'Nursing staff on
+        shift' field).
+
+        :param cr:
+        :param uid:
+        :param wizard:
+        :return:
+        """
         nurses = wizard.user_ids.filter_nurses(wizard.user_ids)
         hcas = wizard.user_ids.filter_hcas(wizard.user_ids)
 
