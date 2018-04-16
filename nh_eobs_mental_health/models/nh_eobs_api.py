@@ -18,37 +18,37 @@ class NHeObsAPI(orm.AbstractModel):
     eObs.
     """
 
-    _name = 'nh.eobs.api'
     _inherit = 'nh.eobs.api'
 
-    def get_active_observations(self, cr, uid, patient_id, context=None):
+    @api.model
+    def get_active_observations(self, patient_id):
         """
-        Returns all active observation types supported by eObs, if the
-        :class:`patient<base.nh_clinical_patient>` has an active
-        :class:`spell<spell.nh_clinical_spell>`.
+        Override to remove observations from list if the patient is on obs
+        stop.
 
-        :param cr: Odoo Cursor
-        :param uid: User doing operation
         :param patient_id: id of patient
         :type patient_id: int
-        :param context: Odoo context
         :returns: list of all observation types
         :rtype: list
         """
-        spell_model = self.pool['nh.clinical.spell']
-        spell_id = spell_model.search(cr, uid, [
-            ['patient_id', '=', patient_id],
-            ['state', 'not in', ['completed', 'cancelled']]
-        ], context=context)
-        if spell_id:
-            spell_id = spell_id[0]
-            obs_stopped = spell_model.read(
-                cr, uid, spell_id, ['obs_stop'], context=context)\
-                .get('obs_stop')
-            if obs_stopped:
-                return []
-        return super(NHeObsAPI, self)\
-            .get_active_observations(cr, uid, patient_id, context=context)
+        if self._patient_on_obs_stop(patient_id):
+            return []
+        active_observations = super(NHeObsAPI, self).get_active_observations(
+            patient_id)
+        return active_observations
+
+    @api.model
+    def _patient_on_obs_stop(self, patient_id):
+        """
+        :param patient_id:
+        :type patient_id: int
+        :return:
+        :rtype: bool
+        """
+        spell_model = self.env['nh.clinical.spell']
+        spell_activity = spell_model.get_spell_activity_by_patient_id(
+            patient_id)
+        return spell_activity.data_ref.obs_stop
 
     def transfer(self, cr, uid, hospital_number, data, context=None):
         """
@@ -236,3 +236,52 @@ class NHeObsAPI(orm.AbstractModel):
             description=description
         )
         return response_json
+
+    @api.model
+    def get_patients(self, ids=None):
+        """
+        Return a list of patients that the user has access to.
+
+        :param ids: ids of the patients. If empty, then all patients are
+        returned
+        :type ids: list
+        :returns: List of patient dictionaries
+        :rtype: list of dict
+        """
+        patient_model = self.env['nh.clinical.patient']
+
+        # For shift coordinators or doctors just check location_ids for wards
+        # and return all patients on those wards.
+        if self.env.user.is_doctor() \
+                or self.env.user.is_shift_coordinator() \
+                or self.env.user.is_senior_manager() \
+                or self.env.user.is_system_admin():
+            wards = self.env.user.location_ids.filtered(
+                lambda location: location.usage == 'ward')
+            # Patient model serves as an empty recordset to be appended to in
+            # the loop below.
+            patients = patient_model
+            for ward in wards:
+                patients += patient_model.get_patients_on_ward(ward.id, ids)
+        # For other staff like nurses and HCAs, ward is not in location_ids
+        # so check the current shift for each ward and see if they are assigned
+        # to it.
+        else:
+            ward = self._get_user_ward()
+            if not ward:
+                # If no ward then user is not on a shift so empty list of
+                # patients is expected.
+                return []
+            patients = patient_model.get_patients_on_ward(ward.id, ids)
+
+        # Filter out patients who are not placed.
+        patients = patients.filtered(
+            lambda patient: patient.current_location_id.usage == 'bed')
+
+        patient_dict_list = self._create_patient_dict_list(patients)
+        return patient_dict_list
+
+    def user_allocated_to_patient(self, patient_id):
+        patient_model = self.env['nh.clinical.patient']
+        patient = patient_model.browse(patient_id)
+        return self.env.user in patient.current_location_id.user_ids

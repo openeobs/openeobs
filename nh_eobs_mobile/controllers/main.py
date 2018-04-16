@@ -558,7 +558,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         )
         patients = self.process_patient_list(
             cr, uid, patient_api.get_patients(
-                cr, uid, [], context=context), context=context)
+                cr, uid, None, context=context), context=context)
         patient_api.get_patient_followers(cr, uid, patients, context=context)
         following_patients = self.process_patient_list(
             cr, uid, patient_api.get_followed_patients(
@@ -632,6 +632,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_tasks(self, *args, **kw):
         """
         Renders the patient task list for tasks.
+
         :returns: task list response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -832,6 +833,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
     def get_patient(self, patient_id, *args, **kw):
         """
         Renders the :class:`patient<base.nh_clinical_patient>` view.
+
         :returns: patient response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
@@ -891,9 +893,11 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
         Renders the
         :class:`observation<observations.nh_clinical_patient_observation>`
         entry view.
+
         :returns: observations entry response object
         :rtype: :class:`http.Response<openerp.http.Response>`
         """
+        patient_id = int(patient_id)
         cr, uid, context = request.cr, request.uid, request.context
         api_pool = request.registry('nh.eobs.api')
         datetime_utils_model = request.registry('datetime_utils')
@@ -904,7 +908,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         patient = dict()
         patient_info = api_pool.get_patients(
-            cr, uid, [int(patient_id)], context=context)
+            cr, uid, [patient_id], context=context)
         if not patient_info:
                 exceptions.abort(404)
         elif len(patient_info) > 0:
@@ -918,7 +922,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
 
         form_desc, form = self.process_form_fields(
             api_pool.get_form_description(
-                cr, uid, int(patient_id),
+                cr, uid, patient_id,
                 ob_model_name,
                 context=context)
         )
@@ -928,7 +932,7 @@ class MobileFrontend(openerp.addons.web.controllers.main.Home):
             observation, patient_id)
         form['type'] = observation
         form['task-id'] = False
-        form['patient-id'] = int(patient_id)
+        form['patient-id'] = patient_id
         form['source'] = "patient"
         form['start'] = datetime_utils_model.get_current_time().strftime('%s')
         observation_name_list = []

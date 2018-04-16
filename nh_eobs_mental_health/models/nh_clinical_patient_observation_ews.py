@@ -31,6 +31,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
         """
         Mental health override that ensures Clinical Review tasks are set up
         for refusing patients at the appropriate time using CRON jobs.
+
         :returns: ``True``
         :rtype: bool
         """
@@ -47,18 +48,25 @@ class NHClinicalPatientObservationEWS(orm.Model):
             patient_spell.write({'refusing_obs': False})
         if ews.is_partial and not patient_refusing \
                 and ews.partial_reason == 'refused':
-            api_model = self.pool['nh.eobs.api']
             cron_model = self.pool['ir.cron']
-            patient = api_model.get_patients(
-                cr, uid, ews.patient_id.ids, context=context)
             days_to_schedule = 1
-            higher_risks = ['None', 'Low']
-            if patient[0].get('clinical_risk') in higher_risks:
-                days_to_schedule = 7
+
+            spell_activity_id = activity.spell_activity_id.id
+            last_full_ews_activity = \
+                ews.get_last_full_obs_activity(spell_activity_id)
+
+            if last_full_ews_activity:
+                patient_current_clinical_risk = \
+                    last_full_ews_activity.data_ref.clinical_risk
+                higher_risks = ['None', 'Low']
+                if patient_current_clinical_risk in higher_risks:
+                    days_to_schedule = 7
             schedule_date = \
                 datetime_utils_model.get_current_time() + \
                 timedelta(days=days_to_schedule)
+
             patient_spell.write({'refusing_obs': True})
+
             cron_model.create(cr, SUPERUSER_ID, {
                 'name': 'Clinical Review Task '
                         'for Activity:{0}'.format(activity_id),
@@ -72,6 +80,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
                 'interval_type': 'days',
                 'interval_number': days_to_schedule
             }, context=context)
+
         return res
 
     @api.model
@@ -117,8 +126,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
             }
         )
 
-    def is_refusal_in_effect(self, cr, uid, activity_id,
-                             mode='parent', context=None):
+    @api.model
+    def is_refusal_in_effect(self, activity_id, mode='parent'):
         """
         Use the last_refused_ews SQL view to see if activity_id is part of a
         patient refusal
@@ -130,8 +139,8 @@ class NHClinicalPatientObservationEWS(orm.Model):
         :param context: Odoo Context
         :return: If the patient is currently in refusal
         """
-        activity_model = self.pool['nh.activity']
-        activity = activity_model.browse(cr, uid, activity_id)
+        activity_model = self.env['nh.activity']
+        activity = activity_model.browse(activity_id)
         if activity.spell_activity_id.state in ['completed', 'cancelled']:
             return False
 
@@ -141,7 +150,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
             column = 'first_activity_id'
             first_act_order = 'ASC'
 
-        cr.execute(
+        self.env.cr.execute(
             'SELECT refused.refused, '
             'acts.date_terminated '
             'FROM refused_ews_activities AS refused '
@@ -169,7 +178,7 @@ class NHClinicalPatientObservationEWS(orm.Model):
                 first_act_order=first_act_order
             )
         )
-        result = cr.dictfetchall()
+        result = self.env.cr.dictfetchall()
         if result:
             return result[0].get('refused', False)
         return False

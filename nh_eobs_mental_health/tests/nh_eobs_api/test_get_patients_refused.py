@@ -25,16 +25,18 @@ class TestGetPatientsRefused(TransactionObservationCase):
 
         self.completed_obs = []
 
-    def get_refusal_in_effect(self, obs_list=None, patient_id=None):
+    def get_refusal_in_effect(
+            self, obs_list=None, patient_id=None, user_id=None):
+        user_id = user_id or self.user_id
         if not obs_list:
             obs_list = []
         if not patient_id:
             patient_id = self.patient_id
-        self.get_obs(patient_id)
+        self.get_obs(patient_id, user_id=user_id)
         for ob in obs_list:
             self.completed_obs.append(self.ews_activity_id)
-            self.complete_obs(ob)
-            self.get_obs(patient_id)
+            self.complete_obs(ob, user_id=user_id)
+            self.get_obs(patient_id, user_id=user_id)
         _logger.info('Getting activities')
         patient = self.api_pool.get_patients(
             self.cr, self.user_id, [patient_id])
@@ -159,7 +161,7 @@ class TestGetPatientsRefused(TransactionObservationCase):
             [
                 clinical_risk_sample_data.HIGH_RISK_DATA,
                 clinical_risk_sample_data.REFUSED_DATA
-            ], patient_id=self.patient_2_id
+            ], patient_id=self.patient_2_id, user_id=self.user_2_id
         )
         time.sleep(2)
         self.api_pool.transfer(

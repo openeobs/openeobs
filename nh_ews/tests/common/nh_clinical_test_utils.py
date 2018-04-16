@@ -27,9 +27,7 @@ class NhClinicalTestUtils(AbstractModel):
         :return:
         """
         if obs_data is None:
-            risk = risk.upper()
-            variable_name = '{}_RISK_DATA'.format(risk)
-            obs_data = getattr(clinical_risk_sample_data, variable_name)
+            obs_data = self._get_risk_data(risk)
 
         ews_model = self.env['nh.clinical.patient.observation.ews']
         activity_pool = self.pool['nh.activity']
@@ -48,6 +46,13 @@ class NhClinicalTestUtils(AbstractModel):
                              obs_activity_id, obs_data)
         activity_pool.complete(self.env.cr, self.env.uid, obs_activity_id)
         return activity_model.browse(obs_activity_id)
+
+    @staticmethod
+    def _get_risk_data(risk):
+        risk = risk.upper()
+        variable_name = '{}_RISK_DATA'.format(risk)
+        obs_data = getattr(clinical_risk_sample_data, variable_name)
+        return obs_data
 
     def complete_obs(self, obs_data, obs_activity_id=None, user_id=None):
         activity_model = self.env['nh.activity']

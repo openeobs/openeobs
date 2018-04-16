@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
 from openerp.osv import osv, fields
+from openerp import api
 
 
 def list_diff(a, b):
@@ -110,19 +111,6 @@ class AllocationWizards(osv.AbstractModel):
                 'hcas': [(6, 0, map(lambda e: e.id, hcas))]
             }
         )
-
-    def _get_latest_shift_for_ward(self, cr, uid, ward_id):
-        shift_model = self.pool['nh.clinical.shift']
-        latest_shift_for_ward_search_results = shift_model.search(
-            cr, uid,
-            [('ward', '=', ward_id)],
-            order='id desc', limit=1
-        )
-        if latest_shift_for_ward_search_results:
-            latest_shift_for_ward_id = latest_shift_for_ward_search_results[0]
-        else:
-            return
-        return shift_model.browse(cr, uid, latest_shift_for_ward_id)
 
 
 class StaffAllocationWizard(osv.TransientModel):
@@ -269,10 +257,11 @@ class StaffReallocationWizard(osv.TransientModel):
             cr, uid, [['groups_id.name', 'in', self._nursing_groups],
                       ['location_ids', 'in', location_ids]], context=context)
 
-    def _get_default_users(self, cr, uid, context=None):
-        ward_id = self._get_default_ward(cr, uid, context=context)
-        latest_shift_for_ward = \
-            self._get_latest_shift_for_ward(cr, uid, ward_id)
+    @api.model
+    def _get_default_users(self):
+        ward_id = self._get_default_ward()
+        shift_model = self.env['nh.clinical.shift']
+        latest_shift_for_ward = shift_model.get_latest_shift_for_ward(ward_id)
         if not latest_shift_for_ward:
             return
         users_on_shift = \
@@ -616,8 +605,8 @@ class allocating_user(osv.TransientModel):
                 'nh.clinical.staff.reallocation']
             ward_id = reallocation_model._get_default_ward(
                 cr, uid, context=context)
-            allocation_model = self.pool['nh.clinical.allocation']
-            shift = allocation_model._get_latest_shift_for_ward(
+            shift_model = self.pool['nh.clinical.shift']
+            shift = shift_model.get_latest_shift_for_ward(
                 cr, uid, ward_id)
             user_ids = shift.nurses._ids + shift.hcas._ids
         else:

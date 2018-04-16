@@ -372,7 +372,6 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-
         if not data:
             data = {}
         activity_pool = self.pool['nh.activity']
@@ -395,11 +394,12 @@ class nh_eobs_api(orm.AbstractModel):
         return activity_pool.assign(
             cr, uid, activity_id, user_id, context=context)
 
-    def complete(self, cr, uid, activity_id, data, context=None):
+    @api.model
+    def complete(self, activity_id, data):
         """
         Completes an :class:`activity<activity.nh_activity>`. Raises an
-        exception if the :class:`user<base.res_users>` is not permitted
-        to complete the activity.
+        exception if the :class:`user<base.res_users>` is not
+        permitted to complete the activity.
 
         :param activity_id: id of activity
         :type activity_id: int
@@ -409,23 +409,42 @@ class nh_eobs_api(orm.AbstractModel):
         :returns: ``True``
         :rtype: bool
         """
-        activity_pool = self.pool['nh.activity']
-        self._check_activity_id(cr, uid, activity_id, context=context)
-        if not self.check_activity_access(
-                cr, uid, activity_id, context=context):
+        self._check_activity_id(activity_id)
+        activity_model = self.env['nh.activity']
+        activity = activity_model.browse(activity_id)
+
+        # Always check allocation for NEWS observations.
+        if activity.data_model == 'nh.clinical.patient.observation.ews':
+            user_authorised_to_complete = self.check_activity_access(
+                activity_id)
+        # If not a NEWS observation then check shift or allocation depending
+        # on user group.
+        elif self.env.user.is_doctor() \
+                or self.env.user.is_shift_coordinator() \
+                or self.env.user.is_senior_manager():
+            user_authorised_to_complete = self.check_activity_access(
+                activity_id)
+        else:
+            shift_model = self.env['nh.clinical.shift']
+            ward = activity.location_id.parent_id
+            assert ward.usage == 'ward'
+            user_authorised_to_complete = shift_model.user_on_shift(ward.id)
+        if not user_authorised_to_complete:
             raise osv.except_osv(
                 _('Error!'),
                 'User ID %s not allowed to complete this activity: %s'
-                % (uid, activity_id))
-        activity_pool.submit(cr, uid, activity_id, data, context=context)
-        return activity_pool.complete(cr, uid, activity_id, context=context)
+                % (self.env.uid, activity_id)
+            )
+
+        activity.submit(data)
+        return activity.complete()
 
     def get_cancel_reasons(self, cr, uid, context=None):
         """
         Gets the :class:`reason<activity_extension.nh_clinical_reason>`
         for each cancelled :class:`activity<activity.nh_activity>`.
 
-        :returns: list of dictionaries of reasons
+        :returns: A list of dictionaries of reasons
         :rtype: list
         """
 
@@ -492,25 +511,14 @@ class nh_eobs_api(orm.AbstractModel):
 
     def get_active_observations(self, cr, uid, patient_id, context=None):
         """
-        Returns all active observation types supported by eObs, if the
-        :class:`patient<base.nh_clinical_patient>` has an active
-        :class:`spell<spell.nh_clinical_spell>`.
+        Returns all active observation types in the system.
 
         :param patient_id: id of patient
         :type patient_id: int
         :returns: list of all observation types
         :rtype: list
         """
-        activity_pool = self.pool['nh.activity']
-        spell_id = activity_pool.search(
-            cr, uid, [['location_id.user_ids', 'in', [uid]],
-                      ['patient_id', '=', int(patient_id)],
-                      ['state', '=', 'started'],
-                      ['data_model', '=', 'nh.clinical.spell']],
-            context=context)
-        if spell_id:
-            return self._get_active_observations(cr, uid)
-        return []
+        return self._get_active_observations(cr, uid)
 
     # TODO EOBS-1004: Refactor nh_eobs
     # TODO EOBS-981: Admin can set a list of 'active observations' in the UI
@@ -643,6 +651,33 @@ class nh_eobs_api(orm.AbstractModel):
                 ('user_ids', 'in', [uid]),  # filter user responsibility
             ]
         return self.collect_patients(cr, uid, domain, context=context)
+
+    def _get_user_ward(self):
+        """
+        Determine the ward the current user is allocated to by inspecting the
+        current shift and return it. Otherwise raise an exception.
+
+        :return: The ward the user is currently allocated to
+        :rtype: An nh.clinical.location record
+        :raises: ValueError
+        """
+        shift_model = self.env['nh.clinical.shift']
+        location_model = self.env['nh.clinical.location']
+        wards = location_model.search([('usage', '=', 'ward')])
+        for ward in wards:
+            shift = shift_model.get_latest_shift_for_ward(ward.id)
+            if self.env.user in shift.hcas or self.env.user in shift.nurses:
+                return ward
+
+    @api.model
+    def _create_patient_dict_list(self, patients):
+        """
+        :param patients:
+        :type patients: list of nh.clinical.patient records
+        :return:
+        :rtype: list of dict
+        """
+        return patients.serialise()
 
     def collect_patients(self, cr, uid, domain, context=None):
         """
@@ -1175,6 +1210,7 @@ class nh_eobs_api(orm.AbstractModel):
             cr, SUPERUSER_ID, model_name, vals_activity, vals_data,
             context=context)
 
-    def check_activity_access(self, *args, **kwargs):
-        api_pool = self.pool['nh.clinical.api']
-        return api_pool.check_activity_access(*args, **kwargs)
+    @api.model
+    def check_activity_access(self, activity_id):
+        api_model = self.env['nh.clinical.api']
+        return api_model.check_activity_access(activity_id)

@@ -150,13 +150,41 @@ class TransactionObservationCase(TransactionCase):
                 'groups_id':
                     [[4, group_id] for group_id in nurse_group_ids],
                 'pos_id': self.pos_id,
-                'location_ids': [[6, 0, self.bed_ids]]
+                'location_ids': [[6, 0, [self.bed_ids[0]]]]
             }
             _logger.info('nurse data: {0}'.format(nurse_dict))
             try:
                 self.user_id = self.user_pool.create(cr, uid, nurse_dict)
             except Exception as e:
                 _logger.info('nurse failed {0}'.format(e))
+                raise
+
+        # create nurse 2
+        _logger.info('Searching for nurse user')
+        nurse_2_ids_search = self.user_pool.search(
+            cr, uid, [
+                ['login', '=', 'testnurse2']
+            ]
+        )
+        if nurse_2_ids_search:
+            self.user_2_id = nurse_2_ids_search[0]
+        else:
+            _logger.info('Creating nurse user')
+            nurse_dict = {
+                'name': 'Test Nurse 2',
+                'login': 'testnurse2',
+                'password': 'testnurse2',
+                'groups_id':
+                    [[4, group_id] for group_id in nurse_group_ids],
+                'pos_id': self.pos_id,
+                'location_ids': [[6, 0, [self.bed_ids[1]]]]
+            }
+            _logger.info('nurse data: {0}'.format(nurse_dict))
+            try:
+                self.user_2_id = self.user_pool.create(cr, uid, nurse_dict)
+            except Exception as e:
+                _logger.info('nurse failed {0}'.format(e))
+                raise
 
         sc_ids_search = self.user_pool.search(
             cr, uid, [
@@ -249,7 +277,18 @@ class TransactionObservationCase(TransactionCase):
         self.activity_pool.complete(cr, uid, placement_2_id[0])
         self.get_obs()
 
-    def get_obs(self, patient_id=None):
+        shift_model = self.env['nh.clinical.shift']
+        shift_model.create({
+            'ward': self.eobs_ward_id,
+            'nurses': [(6, 0, [self.user_id])]
+        })
+        shift_model.create({
+            'ward': self.eobs_ward_2_id,
+            'nurses': [(6, 0, [self.user_2_id])]
+        })
+
+    def get_obs(self, patient_id=None, user_id=None):
+        user_id = user_id or self.user_id
         _logger.info('Searching for scheduled EWS for patient')
         if not patient_id:
             patient_id = self.patient_id
@@ -270,17 +309,18 @@ class TransactionObservationCase(TransactionCase):
         _logger.info('Assigning EWS to user')
         self.api_pool.assign(
             self.cr,
-            self.user_id,
+            user_id,
             self.ews_activity_id,
-            {'user_id': self.user_id}
+            {'user_id': user_id}
         )
 
-    def complete_obs(self, obs_data):
+    def complete_obs(self, obs_data, user_id=None):
+        user_id = user_id or self.user_id
         # policy triggered by activity completion
         _logger.info('Completing observation with {0}'.format(obs_data))
         self.api_pool.complete(
             self.cr,
-            self.user_id,
+            user_id,
             self.ews_activity_id,
             obs_data
         )

@@ -201,8 +201,14 @@ class TestRapidTranq(HttpCase):
         self.spell_model._patch_method('get_spell_activity_by_patient_id',
                                        mock_get_spell_activity_by_patient)
 
-        response = self.call_test(patient_id='foo')
-        self.assertEqual(404, response.code)
+        try:
+            response = self.call_test(patient_id='foo')
+            self.assertEqual(404, response.code)
+        # Even though this patch is reverted in the tearDown method a mock
+        # was still in place afterwards. Had to add this extra revert to ensure
+        # the patches were properly cleaned up.
+        finally:
+            self.spell_model._revert_method('get_spell_activity_by_patient_id')
 
     def test_success_status_when_check_shows_change_for_passed_value(self):
         response = self.call_test(

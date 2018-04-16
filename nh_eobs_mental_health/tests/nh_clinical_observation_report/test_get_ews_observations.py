@@ -12,6 +12,7 @@ class TestGetEwsObservations(TransactionCase):
             .setUp()
         self.test_utils_model = self.env['nh.clinical.test_utils']
         self.test_utils_model.admit_and_place_patient()
+        self.test_utils_model.copy_instance_variables(self)
 
         self.patient = self.test_utils_model.patient
         self.spell_activity = self.test_utils_model.spell_activity
@@ -25,7 +26,7 @@ class TestGetEwsObservations(TransactionCase):
         self.refused_obs = self.ews_model.get_open_obs_activity(
             self.spell_activity.id
         )
-        self.test_utils_model.refuse_open_obs(
+        self.test_utils_model.sudo(self.nurse.id).refuse_open_obs(
             self.patient.id, self.spell_activity.id
         )
 
