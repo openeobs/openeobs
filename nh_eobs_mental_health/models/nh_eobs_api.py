@@ -252,8 +252,10 @@ class NHeObsAPI(orm.AbstractModel):
 
         # For shift coordinators or doctors just check location_ids for wards
         # and return all patients on those wards.
-        if self.env.user.is_doctor() or self.env.user.is_shift_coordinator() \
-                or self.env.user.is_senior_manager():
+        if self.env.user.is_doctor() \
+                or self.env.user.is_shift_coordinator() \
+                or self.env.user.is_senior_manager() \
+                or self.env.user.is_system_admin():
             wards = self.env.user.location_ids.filtered(
                 lambda location: location.usage == 'ward')
             # Patient model serves as an empty recordset to be appended to in
@@ -266,6 +268,10 @@ class NHeObsAPI(orm.AbstractModel):
         # to it.
         else:
             ward = self._get_user_ward()
+            if not ward:
+                # If no ward then user is not on a shift so empty list of
+                # patients is expected.
+                return []
             patients = patient_model.get_patients_on_ward(ward.id, ids)
 
         # Filter out patients who are not placed.
