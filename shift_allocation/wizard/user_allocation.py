@@ -419,7 +419,7 @@ class StaffReallocationWizard(osv.TransientModel):
 
         :param cr:
         :param uid:
-        :param wizard:
+        :param wizard: nh.clinical.staff.reallocation record
         :return:
         """
         nurses = wizard.user_ids.filter_nurses(wizard.user_ids)
