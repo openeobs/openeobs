@@ -7,7 +7,7 @@
                 <form create="false" edit="false">
                     <group>
                         <field name="patient" readonly="True" options="{'no_open': True}"/>
-                        <field name="level"/>
+                        <field name="level" class="therapeutic_level"/>
                         <field name="frequency" attrs="{'invisible': [('level', '!=', 2)]}"/>
                     </group>
                     <footer>

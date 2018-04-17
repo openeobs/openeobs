@@ -10,9 +10,17 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     _name = 'nh.clinical.patient.observation.therapeutic.level'
 
-    patient = fields.Many2one(comodel_name='nh.clinical.patient',
-                              required=True)
-    level = fields.Integer(required=True, default=1)
+    patient = fields.Many2one(
+        comodel_name='nh.clinical.patient', required=True
+    )
+    level = fields.Selection(
+        required=True, selection=[
+            'Level 1',
+            'Level 2',
+            'Level 3'
+        ],
+        default=1
+    )
     frequency = fields.Selection(selection=frequencies.as_list())
 
     def default_get(self, cr, uid, fields, context=None):
@@ -59,13 +67,13 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.constrains('level', 'frequency')
     def _validate(self):
-        self._validate_level_range()
+        # self._validate_level_range()
         self._validate_frequency_is_only_set_on_level_2()
 
     def _validate_level_range(self):
         validate.in_min_max_range(1, 3, self.level)
 
     def _validate_frequency_is_only_set_on_level_2(self):
-        if self.level == 2 and not self.frequency:
+        if self.level == 'Level 2' and not self.frequency:
             raise ValidationError("Must have a frequency set for level 2 "
                                   "therapeutic obs.")
