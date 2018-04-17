@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
-from openerp.osv import osv, fields
 from openerp import api
+from openerp.osv import osv, fields
 
 
 def list_diff(a, b):
@@ -383,13 +383,15 @@ class StaffReallocationWizard(osv.TransientModel):
             ids = ids[0]
         if not isinstance(ids, int):
             raise ValueError('Invalid ID passed to complete')
+        allocating_pool = self.pool['nh.clinical.allocating']
         wizard = self.browse(cr, uid, ids, context=context)
 
         allocation = {
             u.id: [l.id for l in u.location_ids if l.id not
                    in wizard.location_ids.ids] for u in wizard.user_ids}
-
-        for allocating in wizard.allocating_ids:
+        for allocating in allocating_pool.browse(
+                cr, uid, [a.id for a in wizard.allocating_ids],
+                context=context):
             if allocating.nurse_id:
                 allocation[allocating.nurse_id.id].append(
                     allocating.location_id.id)
