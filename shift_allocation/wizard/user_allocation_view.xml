@@ -85,7 +85,7 @@
             <field name="arch" type="xml">
                 <form string="Staff Allocation Wizard" version="7.0">
                     <header>
-                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <field name="stage" readonly="1" widget="statusbar" options="{'fold_field': 'fold', 'clickable': false}"/>
                         <button string="Start" type="object" name="submit_ward" class="oe_highlight"
                                 attrs="{'invisible': [['stage','!=','wards']]}"/>
                         <button string="Deallocate Previous Shift" type="object" name="deallocate" class="oe_highlight"
@@ -140,7 +140,7 @@
             <field name="arch" type="xml">
                 <form string="Staff Re-Allocation Wizard" version="7.0">
                     <header>
-                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <field name="stage" readonly="1" widget="statusbar" options="{'fold_field': 'fold', 'clickable': false}"/>
                         <button string="Re-Allocate" type="object" name="reallocate" class="oe_highlight"
                                 attrs="{'invisible': [['stage','!=','users']]}"/>
                         <button string="Confirm Allocation" type="object" name="complete" class="oe_highlight"
@@ -185,7 +185,7 @@
             <field name="arch" type="xml">
                 <form string="Doctor Allocation Wizard" version="7.0">
                     <header>
-                        <field name="stage" readonly="1" widget="statusbar" clickable="False" options="{'fold_field': 'fold'}"/>
+                        <field name="stage" readonly="1" widget="statusbar" options="{'fold_field': 'fold', 'clickable': false}"/>
                         <button string="Deallocate Previous Shift" type="object" name="deallocate" class="oe_highlight"
                                 attrs="{'invisible': [['stage','!=','review']]}"/>
                         <button string="Confirm Allocation" type="object" name="submit_users" class="oe_highlight"

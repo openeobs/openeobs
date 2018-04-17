@@ -627,16 +627,29 @@ class allocating_user(osv.TransientModel):
                 cr, uid, [('create_uid', '=', uid)], order='id desc', limit=1)
             allocation = allocation_model.browse(
                 cr, uid, allocation_id[0], context=context)
+
             user_ids = [u.id for u in allocation.user_ids]
         elif parent_view == 'reallocation':
-            reallocation_model = self.pool[
-                'nh.clinical.staff.reallocation']
+            reallocation_model = self.pool['nh.clinical.staff.reallocation']
+            reallocation_id = reallocation_model.search(
+                cr, uid, [('create_uid', '=', uid)], order='id desc', limit=1)
+            reallocation = reallocation_model.browse(
+                cr, uid, reallocation_id[0], context=context)
+
+            # Add users that have just been added as part of the wizard and
+            # so are not in the shift yet.
+            user_ids = [u.id for u in reallocation.user_ids]
+
+            # Add users that are already part of the shift from the completion
+            # of a previous allocation.
             ward_id = reallocation_model._get_default_ward(
                 cr, uid, context=context)
             shift_model = self.pool['nh.clinical.shift']
             shift = shift_model.get_latest_shift_for_ward(
                 cr, uid, ward_id)
-            user_ids = shift.nurses._ids + shift.hcas._ids
+
+            user_ids += shift.nurses._ids
+            user_ids += shift.hcas._ids
         else:
             raise ValueError(
                 "Unknown view. This method does not support this view yet."
