@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
-from openerp.osv import osv, fields
 from openerp import api
+from openerp.osv import osv, fields
 
 
 def list_diff(a, b):
@@ -385,6 +385,7 @@ class StaffReallocationWizard(osv.TransientModel):
             raise ValueError('Invalid ID passed to complete')
         allocating_pool = self.pool['nh.clinical.allocating']
         wizard = self.browse(cr, uid, ids, context=context)
+
         allocation = {
             u.id: [l.id for l in u.location_ids if l.id not
                    in wizard.location_ids.ids] for u in wizard.user_ids}
@@ -403,10 +404,28 @@ class StaffReallocationWizard(osv.TransientModel):
                 allocation[uid] = [wizard.ward_id.id]
             elif wizard.ward_id.id not in allocation.get(uid):
                 allocation[uid].append(wizard.ward_id.id)
+
         for key, value in allocation.iteritems():
             self.responsibility_allocation_activity(cr, uid, key, value,
                                                     context=context)
+
+        self._update_shift(cr, uid, wizard)
+
         return {'type': 'ir.actions.act_window_close'}
+
+    def _update_shift(self, cr, uid, wizard):
+        nurses = wizard.user_ids.filter_nurses(wizard.user_ids)
+        hcas = wizard.user_ids.filter_hcas(wizard.user_ids)
+
+        shift_model = self.pool['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(
+            cr, uid, wizard.ward_id.id)
+        shift_model.write(
+            cr, uid, shift.id, {
+                'nurses': [(6, 0, map(lambda e: e.id, nurses))],
+                'hcas': [(6, 0, map(lambda e: e.id, hcas))]
+            }
+        )
 
 
 class doctor_allocation_wizard(osv.TransientModel):
