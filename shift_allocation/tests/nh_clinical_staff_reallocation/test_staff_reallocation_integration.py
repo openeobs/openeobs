@@ -82,7 +82,7 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.wizard.reallocate()
         self.assertEqual(self.wizard.stage, 'allocation')
 
-    def test_complete(self):
+    def test_complete_creates_responsibility_allocation_activities(self):
         """
         Test that on completing that the wizard now:
         - create responsibility allocation activities for the users and
@@ -96,6 +96,10 @@ class TestStaffReallocationIntegration(TransactionCase):
             self.assertIn(self.bed.id, resp_allocation.location_ids.ids)
 
     def test_complete_adds_nurse_to_shift(self):
+        """
+        A nurse added to the nursing staff on shift field should be in the
+        shift after the complete method is called.
+        """
         shift_model = self.env['nh.clinical.shift']
         shift = shift_model.get_latest_shift_for_ward(self.ward.id)
 
@@ -109,6 +113,10 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.assertIn(nurse, shift.nurses)
 
     def test_complete_adds_hca_to_shift(self):
+        """
+        A HCA added to the nursing staff on shift field should be in the
+        shift after the complete method is called.
+        """
         shift_model = self.env['nh.clinical.shift']
         shift = shift_model.get_latest_shift_for_ward(self.ward.id)
 
@@ -120,6 +128,30 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.wizard.complete()
 
         self.assertIn(hca, shift.hcas)
+
+    def test_complete_only_sets_staff_in_wizard_on_shift(self):
+        """
+        Only the staff in the 'Nursing staff on shift' field in the wizard
+        should be on the shift after the complete method is called.
+        """
+        shift_model = self.env['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(self.ward.id)
+
+        nurse = self.test_utils_model.create_nurse()
+        hca = self.test_utils_model.create_hca()
+        self.assertNotIn(nurse, shift.nurses)
+        self.assertNotIn(hca, shift.hcas)
+        self.wizard.user_ids -= self.nurse
+        self.wizard.user_ids -= self.hca
+        self.wizard.user_ids += nurse
+        self.wizard.user_ids += hca
+
+        self.wizard.reallocate()
+        self.wizard.complete()
+
+        expected_users = nurse + hca
+        actual_users = shift.nurses + shift.hcas
+        self.assertEqual(expected_users, actual_users)
 
     def test_shift_coordinator_uses_twice(self):
         """
