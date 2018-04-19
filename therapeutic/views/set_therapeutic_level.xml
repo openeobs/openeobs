@@ -18,6 +18,7 @@
                     </group>
                     <footer>
                         <button string="Save" type="object" name="save" class="oe_button oe_form_button_save oe_highlight"/>
+                        <button string="Close" special="cancel" class="oe_link"/>
                     </footer>
                 </form>
             </field>
@@ -38,19 +39,10 @@
             <field name="arch" type="xml">
                 <xpath expr="//form/header" position="inside">
                     <button name="%(action_set_therapeutic_obs_level)d"
-                            string="Therapeutic Obs Level - Action"
+                            string="Set Therapeutic Obs Level"
                             type="action"
                             groups="nh_clinical.group_nhc_ward_manager"/>
-                    <button name="open_set_therapeutic_obs_level_view"
-                            string="Therapeutic Obs Level - Object"
-                            type="object"
-                            groups="nh_clinical.group_nhc_ward_manager"/>
                 </xpath>
-                <!--xpath expr="//sheet/group/group" position="after">
-                    <group string="Therapeutic Obs Level">
-                        <field name="therapeutic_obs_level"/>
-                    </group>
-                </xpath-->
             </field>
         </record>
     </data>

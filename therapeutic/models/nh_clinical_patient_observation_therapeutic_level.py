@@ -1,7 +1,5 @@
 from openerp import models, fields, api
 
-from openerp.addons.nh_observations import frequencies
-
 from openerp.exceptions import ValidationError
 
 
@@ -15,21 +13,33 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         (3, 'Level 3'),
         (4, 'Level 4')
     ]
+    frequencies = [
+        (5, 'Every 5 Minutes'),
+        (10, 'Every 10 Minutes'),
+        (15, 'Every 15 Minutes'),
+        (20, 'Every 20 Minutes'),
+        (25, 'Every 25 Minutes'),
+        (30, 'Every 30 Minutes')
+    ]
     staff_to_patient_ratios = [
         (1, '1:1'),
-        (1, '2:1'),
-        (1, '3:1')
+        (2, '2:1'),
+        (3, '3:1')
     ]
 
     patient = fields.Many2one(
         comodel_name='nh.clinical.patient', required=True
     )
     level = fields.Selection(
-        required=True, selection=levels
+        required=True, selection=levels, string='Observation Level'
     )
-    frequency = fields.Selection(selection=frequencies.as_list())
+    frequency = fields.Selection(
+        selection=frequencies.as_list(),
+        string='Observation Frequency'
+    )
     staff_to_patient_ratio = fields.Selection(
-        selection=staff_to_patient_ratios
+        selection=staff_to_patient_ratios,
+        string='Staff to patient ratio'
     )
 
     @api.onchange('level')
@@ -52,7 +62,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             )
             self.staff_to_patient_ratio = \
                 current_level_record.staff_to_patient_ratio \
-                if current_level_record else False
+                if current_level_record else self.staff_to_patient_ratios[0][0]
 
     def default_get(self, cr, uid, fields, context=None):
         """
@@ -120,8 +130,8 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             )
 
     def _validate_frequency_is_not_set_for_level_3_or_4(self):
-        if self.level == self.levels[2][0] or self.level == self.levels[3][0] \
-                and self.frequency:
+        if (self.level == self.levels[2][0]
+                or self.level == self.levels[3][0]) and self.frequency:
             raise ValidationError(
                 "No frequency should be set for level 3 or 4."
             )
