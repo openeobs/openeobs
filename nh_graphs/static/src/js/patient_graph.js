@@ -768,6 +768,7 @@ drawTable: function() {
         }).attr("class", thisEntry.label).style({"padding": "0.3em 0.5%",  "text-align": function(d){ if(d != thisEntry.label){ return "center";}},  "border-left": function(d){ if(d != thisEntry.label){ return "1px solid #262626";}}});
     }
 },
+// Draws the full obs table in the mobile. Not to be confused with the NEWS 'tabular values' table.
 drawTabularObs: function(el){
     //var container = nh_graphs.select(el).append('div');
     var context = this.context, focus = this.focus, svg = this.svg;
