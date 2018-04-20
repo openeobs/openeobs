@@ -96,6 +96,7 @@ class TestStaffReallocationReallocate(SingleTransactionCase):
                     allocatingwrite = args[4]
             return True
 
+        # TODO EOBS-2534 Refactor test_reallocate module in shift allocation
         def mock_update_shift(*args, **kwargs):
             pass
 
