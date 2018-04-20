@@ -95,7 +95,7 @@ class TestStaffReallocationIntegration(TransactionCase):
         for resp_allocation in resp_allocations:
             self.assertIn(self.bed.id, resp_allocation.location_ids.ids)
 
-    def test_complete_adds_nurse_to_shift(self):
+    def test_reallocate_adds_nurse_to_shift(self):
         """
         A nurse added to the nursing staff on shift field should be in the
         shift after the complete method is called.
@@ -108,11 +108,10 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.wizard.user_ids += nurse
 
         self.wizard.reallocate()
-        self.wizard.complete()
 
         self.assertIn(nurse, shift.nurses)
 
-    def test_complete_adds_hca_to_shift(self):
+    def test_reallocate_adds_hca_to_shift(self):
         """
         A HCA added to the nursing staff on shift field should be in the
         shift after the complete method is called.
@@ -125,11 +124,10 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.wizard.user_ids += hca
 
         self.wizard.reallocate()
-        self.wizard.complete()
 
         self.assertIn(hca, shift.hcas)
 
-    def test_complete_only_sets_staff_in_wizard_on_shift(self):
+    def test_reallocate_only_sets_staff_in_wizard_on_shift(self):
         """
         Only the staff in the 'Nursing staff on shift' field in the wizard
         should be on the shift after the complete method is called.
@@ -147,7 +145,6 @@ class TestStaffReallocationIntegration(TransactionCase):
         self.wizard.user_ids += hca
 
         self.wizard.reallocate()
-        self.wizard.complete()
 
         expected_users = nurse + hca
         actual_users = shift.nurses + shift.hcas

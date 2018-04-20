@@ -342,12 +342,12 @@ class StaffReallocationWizard(osv.TransientModel):
         if not isinstance(ids, int):
             raise ValueError('reallocate expected integer')
         user_pool = self.pool['res.users']
-        wiz = self.read(
+        wizard = self.read(
             cr, uid, ids, ['location_ids', 'user_ids'], context=context)
-        location_ids = wiz.get('location_ids')
+        location_ids = wizard.get('location_ids')
         loc_user_ids = self.get_users_for_locations(
             cr, uid, location_ids, context=context)
-        user_ids = wiz.get('user_ids')
+        user_ids = wizard.get('user_ids')
         recompute = False
         for u_id in loc_user_ids:
             if u_id not in user_ids and u_id != uid:
@@ -369,6 +369,10 @@ class StaffReallocationWizard(osv.TransientModel):
             self.write(cr, uid, ids,
                        {'allocating_ids': [[6, 0, allocating_ids]]},
                        context=context)
+
+        wizard = self.browse(cr, uid, ids, context=context)
+        self._update_shift(cr, uid, wizard)
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Nursing Re-Allocation',
@@ -408,8 +412,6 @@ class StaffReallocationWizard(osv.TransientModel):
         for key, value in allocation.iteritems():
             self.responsibility_allocation_activity(cr, uid, key, value,
                                                     context=context)
-
-        self._update_shift(cr, uid, wizard)
 
         return {'type': 'ir.actions.act_window_close'}
 
