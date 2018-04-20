@@ -1,14 +1,14 @@
 <openerp>
   <data noupdate="1">
-    <record id="nh_clinical.nhc_location_default_hospital" model="nh.clinical.location">
+    <record id="nhc_location_default_hospital" model="nh.clinical.location">
       <field name="name">Greenfield University Hospital</field>
       <field name="code">GUH</field>
       <field name="type">pos</field>
       <field name="usage">hospital</field>
     </record>
-    <record id="nh_clinical.nhc_location_default_pos" model="nh.clinical.pos">
+    <record id="nhc_location_default_pos" model="nh.clinical.pos">
       <field name="name">Greenfield University Hospital</field>
-      <field name="location_id" ref="nh_clinical.nhc_location_default_hospital" />
+      <field name="location_id" ref="nhc_location_default_hospital" />
       <field name="company_id" ref="base.main_company" />
     </record>
   </data>
