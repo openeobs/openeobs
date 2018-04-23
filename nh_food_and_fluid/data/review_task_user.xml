@@ -12,7 +12,7 @@
             <field name="login">food_fluid_review_creator</field>
             <field name="tz">Europe/London</field>
             <field eval="[(4, ref('group_nhc_food_fluid_review_creators'))]" name="groups_id" />
-            <field eval="[(4, ref('nh_clinical.nhc_location_default_pos'))]" name="pos_ids" />
+            <field eval="[(4, ref('nh_eobs_demo.nhc_location_default_pos'))]" name="pos_ids" />
         </record>
 
 
