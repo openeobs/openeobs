@@ -128,7 +128,7 @@ class NHClinicalWardboard(orm.Model):
         return {
             'name': 'Set Therapeutic Obs Level',
             'type': 'ir.actions.act_window',
-            'res_model': 'nh.clinical.patient.observation.therapeutic.level',
+            'res_model': 'nh.clinical.therapeutic.level',
             'view_mode': 'form',
             'target': 'new',
             'flags': {'form': {'action_buttons': True}}

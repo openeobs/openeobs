@@ -5,7 +5,7 @@ from openerp.exceptions import ValidationError
 
 class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
-    _name = 'nh.clinical.patient.observation.therapeutic.level'
+    _name = 'nh.clinical.therapeutic.level'
 
     levels = [
         (1, 'Level 1'),
@@ -19,7 +19,8 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         (15, 'Every 15 Minutes'),
         (20, 'Every 20 Minutes'),
         (25, 'Every 25 Minutes'),
-        (30, 'Every 30 Minutes')
+        (30, 'Every 30 Minutes'),
+        (60, 'Every Hour')
     ]
     staff_to_patient_ratios = [
         (1, '1:1'),
@@ -34,7 +35,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         required=True, selection=levels, string='Observation Level'
     )
     frequency = fields.Selection(
-        selection=frequencies.as_list(),
+        selection=frequencies,
         string='Observation Frequency'
     )
     staff_to_patient_ratio = fields.Selection(
@@ -43,26 +44,15 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     )
 
     @api.onchange('level')
-    def _update_other_fields(self):
-        if self.level == self.levels[0][0]:
+    def _set_fields_based_on_level(self):
+        if self.is_level(1):
             self.frequency = 60
             self.staff_to_patient_ratio = False
-        elif self.level == self.levels[1][0]:
-            current_level_record = self.get_current_level_record_for_patient(
-                self.patient.id
-            )
-            self.frequency = current_level_record.frequency \
-                if current_level_record else False
-            self.staff_to_patient_ratio = False
-        elif self.level == self.levels[2][0] \
-                or self.level == self.levels[3][0]:
+        elif self.is_level(2):
             self.frequency = False
-            current_level_record = self.get_current_level_record_for_patient(
-                self.patient.id
-            )
-            self.staff_to_patient_ratio = \
-                current_level_record.staff_to_patient_ratio \
-                if current_level_record else self.staff_to_patient_ratios[0][0]
+            self.staff_to_patient_ratio = False
+        elif self.is_level(3) or self.is_level(4):
+            self.frequency = False
 
     def default_get(self, cr, uid, fields, context=None):
         """
@@ -86,13 +76,6 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             wardboard = wardboard_model.browse(cr, uid, context['active_id'])
             patient_id = wardboard.patient_id.id
 
-            current_level_record = \
-                self.get_current_level_record_for_patient(
-                    cr, uid, patient_id, context=context)
-            default_level = current_level_record.level \
-                if current_level_record else self.levels[0][0]
-
-            field_defaults_dict['level'] = default_level
             field_defaults_dict['patient'] = patient_id
         return field_defaults_dict
 
@@ -118,22 +101,39 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.constrains('level', 'frequency')
     def _validate(self):
-        self._validate_frequency_is_every_hour_on_level_1()
-        self._validate_frequency_is_not_set_for_level_3_or_4()
+        if self.is_level(1):
+            # Always every hour so no need to store.
+            self._validate_frequency_is_false()
+            self._validate_staff_to_patient_ratio_is_false()
+        elif self.is_level(2):
+            self._validate_staff_to_patient_ratio_is_false()
+            self._validate_frequency_is_given()
+        elif self.is_level(3) or self.is_level(4):
+            self._validate_frequency_is_false()
+            self._validate_staff_to_patient_ratio_is_given()
 
-    def _validate_frequency_is_every_hour_on_level_1(self):
-        every_hour = 60
-        if self.level == self.levels[0][0] \
-                and self.frequency != every_hour:
+    def _validate_frequency_is_false(self):
+        if self.frequency is not False:
             raise ValidationError(
-                "Frequency must be {} when setting level 1.".format(every_hour)
+                "Frequency should not be provided for this level."
             )
 
-    def _validate_frequency_is_not_set_for_level_3_or_4(self):
-        if (self.level == self.levels[2][0]
-                or self.level == self.levels[3][0]) and self.frequency:
+    def _validate_staff_to_patient_ratio_is_false(self):
+        if self.staff_to_patient_ratio is not False:
             raise ValidationError(
-                "No frequency should be set for level 3 or 4."
+                "Staff to patient ratio should not be provided for this level."
+            )
+
+    def _validate_frequency_is_given(self):
+        if not self.frequency:
+            raise ValidationError(
+                "Please fill out all fields before saving."
+            )
+
+    def _validate_staff_to_patient_ratio_is_given(self):
+        if not self.staff_to_patient_ratio:
+            raise ValidationError(
+                "Please fill out all fields before saving."
             )
 
     @api.model
@@ -142,3 +142,6 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             ('patient', '=', patient_id)
         ], order='id desc', limit=1)
         return current_level_record
+
+    def is_level(self, level):
+        return self.level == self.levels[level - 1][0]
