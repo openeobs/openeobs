@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of NHClinical. See LICENSE file for full copyright and licensing details
-from openerp.osv import osv, fields
 from openerp import api
+from openerp.osv import osv, fields
 
 
 def list_diff(a, b):
@@ -342,12 +342,12 @@ class StaffReallocationWizard(osv.TransientModel):
         if not isinstance(ids, int):
             raise ValueError('reallocate expected integer')
         user_pool = self.pool['res.users']
-        wiz = self.read(
+        wizard = self.read(
             cr, uid, ids, ['location_ids', 'user_ids'], context=context)
-        location_ids = wiz.get('location_ids')
+        location_ids = wizard.get('location_ids')
         loc_user_ids = self.get_users_for_locations(
             cr, uid, location_ids, context=context)
-        user_ids = wiz.get('user_ids')
+        user_ids = wizard.get('user_ids')
         recompute = False
         for u_id in loc_user_ids:
             if u_id not in user_ids and u_id != uid:
@@ -369,6 +369,10 @@ class StaffReallocationWizard(osv.TransientModel):
             self.write(cr, uid, ids,
                        {'allocating_ids': [[6, 0, allocating_ids]]},
                        context=context)
+
+        wizard = self.browse(cr, uid, ids, context=context)
+        self._update_shift(cr, uid, wizard)
+
         return {
             'type': 'ir.actions.act_window',
             'name': 'Nursing Re-Allocation',
@@ -383,13 +387,15 @@ class StaffReallocationWizard(osv.TransientModel):
             ids = ids[0]
         if not isinstance(ids, int):
             raise ValueError('Invalid ID passed to complete')
+        allocating_pool = self.pool['nh.clinical.allocating']
         wizard = self.browse(cr, uid, ids, context=context)
 
         allocation = {
             u.id: [l.id for l in u.location_ids if l.id not
                    in wizard.location_ids.ids] for u in wizard.user_ids}
-
-        for allocating in wizard.allocating_ids:
+        for allocating in allocating_pool.browse(
+                cr, uid, [a.id for a in wizard.allocating_ids],
+                context=context):
             if allocating.nurse_id:
                 allocation[allocating.nurse_id.id].append(
                     allocating.location_id.id)
@@ -407,11 +413,18 @@ class StaffReallocationWizard(osv.TransientModel):
             self.responsibility_allocation_activity(cr, uid, key, value,
                                                     context=context)
 
-        self._update_shift(cr, uid, wizard)
-
         return {'type': 'ir.actions.act_window_close'}
 
     def _update_shift(self, cr, uid, wizard):
+        """
+        Update the fields of the current shift record for the ward to reflect
+        any changes made in the wizard (usually via the 'Nursing staff on
+        shift' field).
+
+        :param cr:
+        :param uid:
+        :param wizard: nh.clinical.staff.reallocation record
+        """
         nurses = wizard.user_ids.filter_nurses(wizard.user_ids)
         hcas = wizard.user_ids.filter_hcas(wizard.user_ids)
 
@@ -616,16 +629,29 @@ class allocating_user(osv.TransientModel):
                 cr, uid, [('create_uid', '=', uid)], order='id desc', limit=1)
             allocation = allocation_model.browse(
                 cr, uid, allocation_id[0], context=context)
+
             user_ids = [u.id for u in allocation.user_ids]
         elif parent_view == 'reallocation':
-            reallocation_model = self.pool[
-                'nh.clinical.staff.reallocation']
+            reallocation_model = self.pool['nh.clinical.staff.reallocation']
+            reallocation_id = reallocation_model.search(
+                cr, uid, [('create_uid', '=', uid)], order='id desc', limit=1)
+            reallocation = reallocation_model.browse(
+                cr, uid, reallocation_id[0], context=context)
+
+            # Add users that have just been added as part of the wizard and
+            # so are not in the shift yet.
+            user_ids = [u.id for u in reallocation.user_ids]
+
+            # Add users that are already part of the shift from the completion
+            # of a previous allocation.
             ward_id = reallocation_model._get_default_ward(
                 cr, uid, context=context)
             shift_model = self.pool['nh.clinical.shift']
             shift = shift_model.get_latest_shift_for_ward(
                 cr, uid, ward_id)
-            user_ids = shift.nurses._ids + shift.hcas._ids
+
+            user_ids += shift.nurses._ids
+            user_ids += shift.hcas._ids
         else:
             raise ValueError(
                 "Unknown view. This method does not support this view yet."

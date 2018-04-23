@@ -150,3 +150,28 @@ class TestStaffAllocationIntegration(TransactionCase):
             ])
         for resp_allocation in resp_allocations:
             self.assertEqual(resp_allocation.location_ids.ids, [self.bed.id])
+
+    def test_complete_only_sets_staff_in_wizard_on_shift(self):
+        """
+        Only the staff in the 'Nursing staff on shift' field in the wizard
+        should be on the shift after the complete method is called.
+        """
+        self.wizard.submit_ward()
+        self.wizard.deallocate()
+
+        nurse = self.test_utils_model.create_nurse()
+        hca = self.test_utils_model.create_hca()
+        self.wizard.user_ids -= self.nurse
+        self.wizard.user_ids -= self.hca
+        self.wizard.user_ids += nurse
+        self.wizard.user_ids += hca
+
+        self.wizard.submit_users()
+        self.wizard.complete()
+
+        shift_model = self.env['nh.clinical.shift']
+        shift = shift_model.get_latest_shift_for_ward(self.ward.id)
+
+        expected_users = nurse + hca
+        actual_users = shift.nurses + shift.hcas
+        self.assertEqual(expected_users, actual_users)

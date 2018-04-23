@@ -96,6 +96,10 @@ class TestStaffReallocationReallocate(SingleTransactionCase):
                     allocatingwrite = args[4]
             return True
 
+        # TODO EOBS-2534 Refactor test_reallocate module in shift allocation
+        def mock_update_shift(*args, **kwargs):
+            pass
+
         self.allocation_pool._patch_method('_get_default_allocatings',
                                            mock_get_default_allocatings)
         self.allocation_pool._patch_method('read',
@@ -109,6 +113,7 @@ class TestStaffReallocationReallocate(SingleTransactionCase):
         self.allocation_pool._patch_method('unfollow_patients_in_locations',
                                            mock_user_patient_unfollow)
         self.allocation_pool._patch_method('write', mock_reallocation_write)
+        self.allocation_pool._patch_method('_update_shift', mock_update_shift)
 
     def tearDown(self):
         super(TestStaffReallocationReallocate, self).tearDown()
@@ -120,6 +125,7 @@ class TestStaffReallocationReallocate(SingleTransactionCase):
         self.allocation_pool._revert_method('unfollow_patients_in_locations')
         self.allocation_pool._revert_method('write')
         self.allocation_pool._revert_method('get_users_for_locations')
+        self.allocation_pool._revert_method('_update_shift')
 
     def test_calls_resp_unfollow_on_user_deallocated(self):
         """
