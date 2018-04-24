@@ -45,6 +45,18 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.model
     def create(self, values):
+        """
+        Currently frequency should always be 60 for all levels except level 2.
+        This is enforced in the UI by making the frequency field read-only.
+
+        Unfortunately Odoo does not send the value of read-only fields to the
+        server so records are created with `False` for their frequency. This
+        override is necessary to ensure the correct frequency is in the
+        database and can therefore be used by other features.
+
+        :param values:
+        :return:
+        """
         if 'frequency' not in values or not values['frequency']:
             values['frequency'] = 60
         return super(NhClinicalPatientObservationTherapeuticLevel, self)\
@@ -52,6 +64,13 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.onchange('level')
     def _set_fields_based_on_level(self):
+        """
+        Currently frequency should always be 60 for all levels except level 2.
+        This is enforced in the UI by making the frequency field read-only.
+
+        This onchange method ensures that the read-only frequency field shows
+        'Every Hour' when levels 1, 3, or 4 are selected.
+        """
         if self.is_level(1):
             self.frequency = 60
             self.staff_to_patient_ratio = False
@@ -94,9 +113,10 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
         Pressing the button creates the therapeutic level
         record even without calling anything (I think the `oe_form_button_save`
-        class on the button triggers an action in Odoo's JavaScript) but if
-        there is nothing set on the button to call then it blows up during
-        module load.
+        class on the button triggers an action in Odoo's JavaScript to do this)
+        but if there is nothing set on the button to call then it blows up
+        during module load so this method exists as a hack purely to stop that
+        blow up.
 
         :param cr:
         :param uid:
@@ -108,6 +128,15 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.constrains('level', 'frequency')
     def _validate(self):
+        """
+        This method is called just before the record is persisted, after the
+        `create` call to validate all its fields.
+
+        Some of the validation should not be possible to trigger via the UI and
+        so exist to cover other inputs such as the API.
+
+        :raises: openerp.exceptions.ValidationError
+        """
         if self.is_level(1):
             self._validate_frequency_is_every_hour()
             self._validate_staff_to_patient_ratio_is_false()
