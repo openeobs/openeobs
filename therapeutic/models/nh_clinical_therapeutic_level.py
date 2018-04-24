@@ -133,7 +133,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         `create` call to validate all its fields.
 
         Some of the validation should not be possible to trigger via the UI and
-        so exist to cover other inputs such as the API.
+        so exists to cover other inputs such as the API.
 
         :raises: openerp.exceptions.ValidationError
         """
