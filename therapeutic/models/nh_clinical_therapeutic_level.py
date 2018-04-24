@@ -36,12 +36,19 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     )
     frequency = fields.Selection(
         selection=frequencies,
-        string='Observation Frequency'
+        string='Observation Recording Frequency'
     )
     staff_to_patient_ratio = fields.Selection(
         selection=staff_to_patient_ratios,
         string='Staff to patient ratio'
     )
+
+    @api.model
+    def create(self, values):
+        if 'frequency' not in values or not values['frequency']:
+            values['frequency'] = 60
+        return super(NhClinicalPatientObservationTherapeuticLevel, self)\
+            .create(values)
 
     @api.onchange('level')
     def _set_fields_based_on_level(self):
@@ -52,7 +59,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             self.frequency = False
             self.staff_to_patient_ratio = False
         elif self.is_level(3) or self.is_level(4):
-            self.frequency = False
+            self.frequency = 60
 
     def default_get(self, cr, uid, fields, context=None):
         """
@@ -102,20 +109,19 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     @api.constrains('level', 'frequency')
     def _validate(self):
         if self.is_level(1):
-            # Always every hour so no need to store.
-            self._validate_frequency_is_false()
+            self._validate_frequency_is_every_hour()
             self._validate_staff_to_patient_ratio_is_false()
         elif self.is_level(2):
-            self._validate_staff_to_patient_ratio_is_false()
             self._validate_frequency_is_given()
+            self._validate_staff_to_patient_ratio_is_false()
         elif self.is_level(3) or self.is_level(4):
-            self._validate_frequency_is_false()
+            self._validate_frequency_is_every_hour()
             self._validate_staff_to_patient_ratio_is_given()
 
-    def _validate_frequency_is_false(self):
-        if self.frequency is not False:
+    def _validate_frequency_is_every_hour(self):
+        if self.frequency != 60:
             raise ValidationError(
-                "Frequency should not be provided for this level."
+                "Frequency must be every hour for this level."
             )
 
     def _validate_staff_to_patient_ratio_is_false(self):

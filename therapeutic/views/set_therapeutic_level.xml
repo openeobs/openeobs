@@ -11,7 +11,7 @@
                                class="therapeutic_level"/>
                         <field name="frequency"
                                class="therapeutic_frequency"
-                               attrs="{'invisible': [('level', 'not in', [1, 2])], 'readonly': [('level', '=', 1)]}"/>
+                               attrs="{'invisible': [('level', '=', False)], 'readonly': [('level', '!=', 2)]}"/>
                         <field name="staff_to_patient_ratio"
                                class="therapeutic_staff_to_patient_ratio"
                                attrs="{'invisible': [('level', 'not in', [3, 4])]}"/>
