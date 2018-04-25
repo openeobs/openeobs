@@ -57,6 +57,10 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         :param values:
         :return:
         """
+        # Have to put validation here because otherwise we set it to 60 and
+        # there is no error message for leaving frequency blank on level 2.
+        if values['level'] == 2:
+            self._validate_frequency_is_given(values['frequency'])
         if 'frequency' not in values or not values['frequency']:
             values['frequency'] = 60
         return super(NhClinicalPatientObservationTherapeuticLevel, self)\
@@ -159,8 +163,9 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
                 "Staff to patient ratio should not be provided for this level."
             )
 
-    def _validate_frequency_is_given(self):
-        if not self.frequency:
+    @staticmethod
+    def _validate_frequency_is_given(frequency):
+        if not frequency:
             raise ValidationError(
                 "Please fill out all fields before saving."
             )
