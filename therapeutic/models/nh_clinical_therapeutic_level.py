@@ -6,7 +6,8 @@ from openerp.exceptions import ValidationError
 class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     """
     Represents the level of therapeutic observations that a patient is intended
-    to be on.
+    to be on. The level assigned to a patient affects how therapeutic
+    observations are to be performed on them.
     """
     _name = 'nh.clinical.therapeutic.level'
 
