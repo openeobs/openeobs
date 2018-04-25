@@ -148,7 +148,6 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             self._validate_frequency_is_every_hour()
             self._validate_staff_to_patient_ratio_is_false()
         elif self.is_level(2):
-            self._validate_frequency_is_given()
             self._validate_staff_to_patient_ratio_is_false()
         elif self.is_level(3) or self.is_level(4):
             self._validate_frequency_is_every_hour()
