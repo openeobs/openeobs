@@ -35,7 +35,8 @@ class TestSpellManagementPatientUpdate(SavepointCase):
         cr, uid = self.cr, self.uid
         # Test only works with spellboard's override of read,
         # cannot use browse.
-        spellboard = self.spellboard_pool.read(cr, uid, [self.spell_activity.id])[0]
+        spellboard = self.spellboard_pool.read(
+            cr, uid, [self.spell_activity.id])[0]
         self.assertEqual(
             spellboard.get('patient_id', [0, ''])[1],
             'Patient, Updated-Test'
