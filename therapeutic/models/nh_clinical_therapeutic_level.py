@@ -73,20 +73,21 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     @api.onchange('level')
     def _set_fields_based_on_level(self):
         """
-        Currently frequency should always be 60 for all levels except level 2.
-        This is enforced in the UI by making the frequency field read-only.
+        In the UI fields are hidden or shown when the user selects different
+        levels, but even when a field is hidden its last value is still
+        submitted to the server.
 
-        This onchange method ensures that the read-only frequency field shows
-        'Every Hour' when levels 1, 3, or 4 are selected.
+        This onchange method ensures that fields are reset to `False` everytime
+        the level is changed so that no unintended values are submitted.
         """
         if self.is_level(1):
-            self.frequency = 60
+            self.frequency = False
             self.staff_to_patient_ratio = False
         elif self.is_level(2):
             self.frequency = False
             self.staff_to_patient_ratio = False
         elif self.is_level(3) or self.is_level(4):
-            self.frequency = 60
+            self.frequency = False
 
     def default_get(self, cr, uid, fields, context=None):
         """
@@ -112,6 +113,27 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
             field_defaults_dict['patient'] = patient_id
         return field_defaults_dict
+
+    @api.model
+    def fields_view_get(
+            self, view_id=None, view_type=False, toolbar=False, submenu=False):
+        """
+        Remove 'Every 60 minutes' option from frequency dropdown. This is
+        because the dropdown is only used when level 2 is selected for which
+        'Every 60 minutes' is not a valid value.
+
+        :param view_id:
+        :param view_type:
+        :param toolbar:
+        :param submenu:
+        :return:
+        """
+        field_view = super(NhClinicalPatientObservationTherapeuticLevel, self)\
+            .fields_view_get(view_id=view_id, view_type=view_type,
+                             toolbar=toolbar, submenu=submenu)
+        if view_type == 'form':
+            del field_view['fields']['frequency']['selection'][-1]
+        return field_view
 
     def save(self, cr, uid, ids, context=None):
         """

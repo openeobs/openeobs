@@ -11,7 +11,11 @@
                                class="therapeutic_level"/>
                         <field name="frequency"
                                class="therapeutic_frequency"
-                               attrs="{'invisible': [('level', '=', False)], 'readonly': [('level', '!=', 2)]}"/>
+                               attrs="{'invisible': [('level', '!=', 2)]}"/>
+                        <label for="frequency" string="Observation Recording Frequency"
+                               attrs="{'invisible': [('level', 'in', [False, 2])]}"/>
+                        <span class="therapeutic_frequency"
+                              attrs="{'invisible': [('level', 'in', [False, 2])]}">Every Hour</span>
                         <field name="staff_to_patient_ratio"
                                class="therapeutic_staff_to_patient_ratio"
                                attrs="{'invisible': [('level', 'not in', [3, 4])]}"/>
