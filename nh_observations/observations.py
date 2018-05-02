@@ -45,6 +45,13 @@ class NhClinicalPatientObservation(orm.AbstractModel):
 
     @classmethod
     def get_description(cls, append_observation=True):
+        """
+        Return a label for the observation suitable for display.
+
+        :param append_observation:
+        :return:
+        :rtype: str
+        """
         description = \
             super(NhClinicalPatientObservation, cls).get_description()
         if append_observation:
@@ -86,6 +93,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     def get_submission_message(self):
         """
         Provides a message to be displayed when the observation is submitted.
+
         :return:
         :rtype str
         """

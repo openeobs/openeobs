@@ -48,6 +48,23 @@ class Selection(odoo_fields.Selection, ObservationField):
         )
 
 
+class Boolean(odoo_fields.Boolean):
+
+    def __init__(self, string=None, necessary=True, **kwargs):
+        super(Boolean, self).__init__(
+            string=string, necessary=necessary, **kwargs
+        )
+
+
+class Char(odoo_fields.Char):
+
+    def __init__(self, string=None, necessary=True, **kwargs):
+        self._slots['necessary'] = necessary
+        super(Char, self).__init__(
+            string=string, necessary=necessary, **kwargs
+        )
+
+
 class Text(odoo_fields.Text):
 
     def __init__(self, string=None, necessary=True, **kwargs):
