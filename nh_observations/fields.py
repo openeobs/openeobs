@@ -25,101 +25,58 @@ def set_odoo_field_type_classes(type_to_class_dict):
 odoo_field_type_to_class_dict = get_odoo_field_type_classes()
 
 
-class ObservationField(odoo_fields.Field):
-
-    def __init__(self, string=None, necessary=True, initially_hidden=False,
-                 reference=None, minimum=None, maximum=None, *args, **kwargs):
-        super(ObservationField, self).__init__(
-            string=string, necessary=necessary,
-            initially_hidden=initially_hidden, reference=reference,
-            minimum=minimum, maximum=maximum, *args, **kwargs
-        )
-
-
-class MultiSelect(ObservationField):
-    pass
-
-
-class Selection(odoo_fields.Selection, ObservationField):
-
-    def __init__(self, *args, **kwargs):
-        super(Selection, self).__init__(
-            *args, **kwargs
-        )
+class Selection(odoo_fields.Selection):
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Boolean(odoo_fields.Boolean):
-
-    def __init__(self, string=None, necessary=True, **kwargs):
-        super(Boolean, self).__init__(
-            string=string, necessary=necessary, **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Char(odoo_fields.Char):
-
-    def __init__(self, string=None, necessary=True, **kwargs):
-        self._slots['necessary'] = necessary
-        super(Char, self).__init__(
-            string=string, necessary=necessary, **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Text(odoo_fields.Text):
-
-    def __init__(self, string=None, necessary=True, **kwargs):
-        super(Text, self).__init__(
-            string=string, necessary=necessary, **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Integer(odoo_fields.Integer):
-
-    def __init__(self, string=None, necessary=True, **kwargs):
-        super(Integer, self).__init__(
-            string=string, necessary=necessary, **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Many2one(odoo_fields.Many2one):
-
-    def __init__(self, comodel_name=None, string=None, necessary=True,
-                 **kwargs):
-        super(Many2one, self).__init__(
-            comodel_name=comodel_name, string=string, necessary=necessary,
-            **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class One2many(odoo_fields.One2many):
-
-    def __init__(self, comodel_name=None, inverse_name=None, string=None,
-                 necessary=True, **kwargs):
-        super(One2many, self).__init__(
-            comodel_name=comodel_name, inverse_name=inverse_name,
-            string=string, necessary=necessary, **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Many2Many(odoo_fields.Many2many):
-
-    def __init__(self, comodel_name=None, relation=None, column1=None,
-                 column2=None, string=None, necessary=True, **kwargs):
-        super(Many2Many, self).__init__(
-            comodel_name=comodel_name,
-            relation=relation,
-            column1=column1,
-            column2=column2,
-            string=string,
-            necessary=necessary,
-            **kwargs
-        )
+    _slots = {
+        'necessary': True,
+    }
 
 
 class Float(odoo_fields.Float):
-
-    def __init__(self, *args, **kwargs):
-        super(Float, self).__init__(*args, **kwargs)
+    _slots = {
+        'necessary': True,
+    }
 
 
 # Hack to reset the `MetaField.by_type` dictionary to the state it was in

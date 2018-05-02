@@ -27,7 +27,8 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
     patient_level = obs_fields.Many2one(
         comodel_name='nh.clinical.therapeutic.level',
         help="The therapeutic level assigned to the patient at the time of "
-             "the observation being completed."
+             "the observation being completed.",
+        necessary=False
     )
     patient_status = obs_fields.Selection(
         selection=_patient_status_selection,
@@ -41,7 +42,9 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         size=100,
         necessary=False
     )
-    one_to_one_intervention_needed = obs_fields.Boolean()
+    one_to_one_intervention_needed = obs_fields.Boolean(
+        necessary=False
+    )
     other_staff_during_intervention = obs_fields.Char(
         size=200,
         necessary=False
