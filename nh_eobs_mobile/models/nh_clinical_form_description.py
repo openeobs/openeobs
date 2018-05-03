@@ -24,9 +24,14 @@ class FormDescription(models.TransientModel):
             cls._add_selection_keys_if_necessary(field, field_description)
             form_description.append(field_description)
 
-        # desired_order = model.get_obs_field_order()
-        # form_description.sort(key=lambda e: desired_order.index(e.get('name')))
+        cls._order_fields(model, form_description)
+
         return form_description
+
+    @staticmethod
+    def _order_fields(model, form_description):
+        desired_order = model.get_obs_field_order()
+        form_description.sort(key=lambda e: desired_order.index(e.get('name')))
 
     @staticmethod
     def _get_type(field):
@@ -42,5 +47,5 @@ class FormDescription(models.TransientModel):
             field_description['selection'] = field.selection
             field_description['selection_type'] = 'text'
         elif field.type == 'boolean':
-            field_description['selection'] = [[False, 'No'], [True, 'Yes']]
+            field_description['selection'] = [[True, 'Yes'], [False, 'No']]
             field_description['selection_type'] = 'boolean'

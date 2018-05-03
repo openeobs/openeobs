@@ -25,6 +25,9 @@ def set_odoo_field_type_classes(type_to_class_dict):
 odoo_field_type_to_class_dict = get_odoo_field_type_classes()
 
 
+# TODO See if there is a way to have field register their order as they are
+# instantiated so that form descriptions know which order to display fields in
+# based on declaration order within the class.
 class Selection(odoo_fields.Selection):
     _slots = {
         'necessary': True,
