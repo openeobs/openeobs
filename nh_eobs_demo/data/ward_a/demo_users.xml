@@ -9,7 +9,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3'),ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6'),ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9'),ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12'),ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15'),ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18'),ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21'),ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24'),ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27'),ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_dallas_user" model="res.users">
       <field name="name">Dallas Jacobs</field>
@@ -19,7 +19,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3'),ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6'),ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9'),ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12'),ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15'),ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18'),ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21'),ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24'),ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27'),ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_dallin_user" model="res.users">
       <field name="name">Dallin Pfeffer</field>
@@ -29,7 +29,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3'),ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6'),ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9'),ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12'),ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15'),ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18'),ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21'),ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24'),ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27'),ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_doctor_dalton_user" model="res.users">
       <field name="name">Dalton Pollich</field>
@@ -39,7 +39,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_doctor'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_doctor'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa'),ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3'),ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6'),ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9'),ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12'),ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15'),ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18'),ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21'),ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24'),ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27'),ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <!-- Ward A: kiosk -->
     <record id="nhc_def_conf_kiosk_kade_user" model="res.users">
@@ -50,7 +50,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_kiosk'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_kiosk'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <!-- Ward A: hca -->
     <record id="nhc_def_conf_hca_hal_user" model="res.users">
@@ -61,7 +61,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_halbert_user" model="res.users">
       <field name="name">Halbert Predovic</field>
@@ -71,7 +71,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_hale_user" model="res.users">
       <field name="name">Hale VonRueden</field>
@@ -81,7 +81,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_hall_user" model="res.users">
       <field name="name">Hall Romaguera</field>
@@ -91,7 +91,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_halley_user" model="res.users">
       <field name="name">Halley Lindgren</field>
@@ -101,7 +101,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_hallie_user" model="res.users">
       <field name="name">Hallie Wehner</field>
@@ -111,7 +111,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_halsey_user" model="res.users">
       <field name="name">Halsey Parisian</field>
@@ -121,7 +121,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_ham_user" model="res.users">
       <field name="name">Ham Kiehn</field>
@@ -131,7 +131,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_hamilton_user" model="res.users">
       <field name="name">Hamilton Stehr</field>
@@ -141,7 +141,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_hca_hamp_user" model="res.users">
       <field name="name">Hamp Harber</field>
@@ -151,7 +151,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_hca'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_hca'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <!-- Ward A: nurse -->
     <record id="nhc_def_conf_nurse_nasir_user" model="res.users">
@@ -162,7 +162,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b1'),ref('nhc_def_conf_location_wa_b2'),ref('nhc_def_conf_location_wa_b3')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nat_user" model="res.users">
       <field name="name">Nat Kemmer</field>
@@ -172,7 +172,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b4'),ref('nhc_def_conf_location_wa_b5'),ref('nhc_def_conf_location_wa_b6')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nathan_user" model="res.users">
       <field name="name">Nathan Ankunding</field>
@@ -182,7 +182,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b7'),ref('nhc_def_conf_location_wa_b8'),ref('nhc_def_conf_location_wa_b9')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nathanael_user" model="res.users">
       <field name="name">Nathanael Lowe</field>
@@ -192,7 +192,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b10'),ref('nhc_def_conf_location_wa_b11'),ref('nhc_def_conf_location_wa_b12')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nathanial_user" model="res.users">
       <field name="name">Nathanial O'Kon</field>
@@ -202,7 +202,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b13'),ref('nhc_def_conf_location_wa_b14'),ref('nhc_def_conf_location_wa_b15')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nathaniel_user" model="res.users">
       <field name="name">Nathaniel Hansen</field>
@@ -212,7 +212,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b16'),ref('nhc_def_conf_location_wa_b17'),ref('nhc_def_conf_location_wa_b18')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_nathen_user" model="res.users">
       <field name="name">Nathen Green</field>
@@ -222,7 +222,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b19'),ref('nhc_def_conf_location_wa_b20'),ref('nhc_def_conf_location_wa_b21')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_neal_user" model="res.users">
       <field name="name">Neal O'Conner</field>
@@ -232,7 +232,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b22'),ref('nhc_def_conf_location_wa_b23'),ref('nhc_def_conf_location_wa_b24')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_ned_user" model="res.users">
       <field name="name">Ned Bode</field>
@@ -242,7 +242,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b25'),ref('nhc_def_conf_location_wa_b26'),ref('nhc_def_conf_location_wa_b27')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <record id="nhc_def_conf_nurse_needham_user" model="res.users">
       <field name="name">Needham Weissnat</field>
@@ -252,7 +252,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_nurse'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_nurse'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa_b28'),ref('nhc_def_conf_location_wa_b29'),ref('nhc_def_conf_location_wa_b30')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
     <!-- Ward A: ward_manager -->
     <record id="nhc_def_conf_ward_manager_waino_user" model="res.users">
@@ -263,7 +263,7 @@
       <field eval="[(4, ref('nh_clinical.group_nhc_ward_manager'))]" name="groups_id" />
       <field eval="[(4, ref('nh_clinical.role_nhc_ward_manager'))]" name="category_id" />
       <field eval="[[6, False, [ref('nhc_def_conf_location_wa')]]]" name="location_ids" />
-      <field eval="[[6,0,[ref('nh_clinical.nhc_location_default_pos')]]]" name="pos_ids" />
+      <field eval="[[6,0,[ref('nhc_location_default_pos')]]]" name="pos_ids" />
     </record>
   </data>
 </openerp>
