@@ -52,4 +52,6 @@ class TestObservationEntryTemplate(SingleTransactionCase):
             'textarea', attrs={'name': self.expected_field_name}
         )
 
-        self.assertEqual(self.expected_field_size, textarea.maxlength)
+        expected = str(self.expected_field_size)
+        actual = textarea['maxlength']
+        self.assertEqual(expected, actual)

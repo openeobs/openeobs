@@ -21,6 +21,7 @@ class FormDescription(models.TransientModel):
                 'required': str(field.required).lower(),
                 'necessary': str(field.necessary).lower()
             }
+            cls._add_size_if_necessary(field, field_description)
             cls._add_selection_keys_if_necessary(field, field_description)
             form_description.append(field_description)
 
@@ -40,6 +41,11 @@ class FormDescription(models.TransientModel):
         elif field.type == 'boolean':
             return 'selection'
         return field.type
+
+    @staticmethod
+    def _add_size_if_necessary(field, field_description):
+        if hasattr(field, 'size') and field.size:
+            field_description['size'] = field.size
 
     @staticmethod
     def _add_selection_keys_if_necessary(field, field_description):
