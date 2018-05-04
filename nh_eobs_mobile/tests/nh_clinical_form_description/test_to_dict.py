@@ -5,7 +5,10 @@ from openerp.tests.common import TransactionCase
 
 
 class TestToDict(TransactionCase):
-
+    """
+    Create a pretend model and put it through the `to_dict` method to ensure
+    it produces a correctly serialised form description.
+    """
     class Model(object):
         an_obs_selection_field = nh_observations.fields.Selection(
             selection=['foo', 'bar'],
@@ -47,6 +50,9 @@ class TestToDict(TransactionCase):
         self.model = self.Model()
 
     def test_returns_list_of_dicts(self):
+        """
+        Should return a list of dictionaries.
+        """
         form_description = \
             self.form_description_model.to_dict(self.model)
 
@@ -55,6 +61,10 @@ class TestToDict(TransactionCase):
             self.assertTrue(dict, type(field_description))
 
     def test_returns_only_obs_fields(self):
+        """
+        The method only works with our own subclasses of Odoo's fields so
+        ensure it never attempts to parse Odoo's own fields.
+        """
         form_description = \
             self.form_description_model.to_dict(self.model)
 
@@ -62,6 +72,10 @@ class TestToDict(TransactionCase):
         self.assertEqual(form_description[0]['name'], 'obb')
 
     def test_adds_size_to_field_description(self):
+        """
+        The size field attribute should be mapped to a size key in the field
+        description.
+        """
         form_description = \
             self.form_description_model.to_dict(self.model)
         character_field_description = [

@@ -4,7 +4,10 @@ from openerp.tests.common import SingleTransactionCase
 
 
 class TestObservationEntryTemplate(SingleTransactionCase):
-
+    """
+    Render a sub-template used to for the fields on the the mobile
+    observation form and ensure the correct HTML is produced.
+    """
     def setUp(self):
         super(TestObservationEntryTemplate, self).setUp()
 
