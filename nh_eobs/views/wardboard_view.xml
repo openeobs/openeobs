@@ -244,7 +244,7 @@
                                 <group>
                                     <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
                                     <field name="location_full_name" readonly="1" string="Current Point of Care"/>
-                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="last_movement_datetime" readonly="1" string="Transfer In" widget="nhc_datetime"/>
                                     <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
                                 <group string="Movements History">
@@ -567,7 +567,7 @@
                                 <group>
                                     <field name="spell_date_started" readonly="True" string="Hospital Admission Date" widget="nhc_datetime"/>
                                     <field name="location_full_name" readonly="1" string="Current Point of Care"/>
-                                    <field name="move_date" readonly="1" string="Transfer In" widget="nhc_datetime"/>
+                                    <field name="last_movement_datetime" readonly="1" string="Transfer In" widget="nhc_datetime"/>
                                     <field name="time_since_admission" readonly="1" string="Current length of hospital stay"/>
                                 </group>
                                 <group string="Movements History">
