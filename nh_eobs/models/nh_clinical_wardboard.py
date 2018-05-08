@@ -20,7 +20,7 @@ class NhClinicalWardboard(models.Model):
         :rtype: str
         """
         for record in self:
-            ward_moves = self.move_ids.filtered(
+            ward_moves = record.move_ids.filtered(
                 lambda move: move.location_id.usage == 'ward'
             )
             # In theory there should never be a wardboard with no move IDs but
