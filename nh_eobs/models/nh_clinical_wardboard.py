@@ -21,6 +21,10 @@ class NhClinicalWardboard(models.Model):
             ward_moves = self.move_ids.filtered(
                 lambda move: move.location_id.usage == 'ward'
             )
+            # In theory there should never be a wardboard with no move IDs but
+            # in reality this situation occurs due to unrealistic demo data.
+            if not ward_moves:
+                return
             # If two items have the same sort key then their original order is
             # maintained.
             # This means that we can use `move_datetime` as the primary sort
