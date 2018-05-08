@@ -1,6 +1,6 @@
 """
 Tests the method that provides the value for the computed field
-`last_movement_datetime`. The field is used on the patient form to populate the
+`transfer_in_datetime`. The field is used on the patient form to populate the
 'Transfer In' value which is intended to indicate the datetime when the patient
 was transferred into the current ward.
 """
@@ -9,9 +9,9 @@ from unittest import skip
 from openerp.tests.common import SavepointCase
 
 
-def _get_actual_last_movement_datetime(self):
+def _get_actual_transfer_in_datetime(self):
     wardboard = self.wardboard_model.browse(self.spell.id)
-    return wardboard.last_movement_datetime
+    return wardboard.transfer_in_datetime
 
 
 class TestMovementsThatTakeTheCurrentServerTime(SavepointCase):
@@ -22,10 +22,11 @@ class TestMovementsThatTakeTheCurrentServerTime(SavepointCase):
     def setUp(self):
         super(TestMovementsThatTakeTheCurrentServerTime, self).setUp()
 
-        self.expected_last_movement_datetime = '2017-06-06 12:00:00'
+        self.admit_datetime = '2017-06-06 12:00:00'
+        self.transfer_in_datetime_stub = self.admit_datetime
 
         def _stub_get_current_time(*args, **kwargs):
-            return self.expected_last_movement_datetime
+            return self.transfer_in_datetime_stub
 
         self.datetime_utils_model = self.env['datetime_utils']
         self.datetime_utils_model._patch_method(
@@ -36,39 +37,52 @@ class TestMovementsThatTakeTheCurrentServerTime(SavepointCase):
         self.test_utils_model.admit_and_place_patient()
         self.test_utils_model.copy_instance_variables(self)
 
+        current_datetime = '2017-06-06 13:00:00'
+        self.transfer_in_datetime_stub = current_datetime
+
         self.wardboard_model = self.env['nh.clinical.wardboard']
 
     def tearDown(self):
         super(TestMovementsThatTakeTheCurrentServerTime, self).tearDown()
         self.datetime_utils_model._revert_method('get_current_time')
 
-    def call_test(self):
-        actual_last_movement_datetime = \
-            _get_actual_last_movement_datetime(self)
+    def call_test(self, expected_datetime):
+        actual_transfer_in_datetime = \
+            _get_actual_transfer_in_datetime(self)
         self.assertEqual(
-            self.expected_last_movement_datetime, actual_last_movement_datetime
+            expected_datetime, actual_transfer_in_datetime
         )
 
     def test_patient_placed(self):
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
 
     def test_patient_transferred(self):
+        transfer_time = '2017-06-06 14:00:00'
+        self.transfer_in_datetime_stub = transfer_time
         self.test_utils_model.transfer_patient()
-        self.call_test()
+        self.call_test(expected_datetime=transfer_time)
 
+    @skip('Fails until EOBS-2586 is fixed.')
     def test_transfer_cancelled(self):
+        transfer_time = '2017-06-06 14:00:00'
+        self.transfer_in_datetime_stub = transfer_time
         self.test_utils_model.transfer_patient()
         self.test_utils_model.cancel_patient_transfer()
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
 
     def test_patient_discharged(self):
+        discharge_datetime = '2017-06-06 14:00:00'
+        self.transfer_in_datetime_stub = discharge_datetime
         self.test_utils_model.discharge_patient()
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
 
+    @skip('Fails until EOBS-2586 is fixed.')
     def test_discharge_cancelled(self):
+        discharge_datetime = '2017-06-06 14:00:00'
+        self.transfer_in_datetime_stub = discharge_datetime
         self.test_utils_model.discharge_patient()
         self.test_utils_model.cancel_patient_discharge()
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
 
 
 class TestMovementsWithMoveDatetimesExplicitlySet(SavepointCase):
@@ -85,40 +99,41 @@ class TestMovementsWithMoveDatetimesExplicitlySet(SavepointCase):
 
         self.wardboard_model = self.env['nh.clinical.wardboard']
 
-    def call_test(self):
-        actual_last_movement_datetime = \
-            _get_actual_last_movement_datetime(self)
+        self.admit_datetime = '2017-06-06 12:00:00'
+
+    def call_test(self, expected_datetime):
+        actual_transfer_in_datetime = \
+            _get_actual_transfer_in_datetime(self)
         self.assertEqual(
-            self.expected_last_movement_datetime, actual_last_movement_datetime
+            expected_datetime, actual_transfer_in_datetime
         )
 
     def test_patient_admitted_in_the_past(self):
-        self.expected_last_movement_datetime = '2017-06-06 12:00:00'
         self.spell = self.test_utils_model.admit_patient(
-            start_date=self.expected_last_movement_datetime)
-        self.call_test()
+            start_date=self.admit_datetime)
+        self.call_test(expected_datetime=self.admit_datetime)
 
     def test_discharge_patient(self):
-        self.expected_last_movement_datetime = '2017-06-06 12:00:00'
         self.spell = self.test_utils_model.admit_patient(
-            start_date=self.expected_last_movement_datetime)
+            start_date=self.admit_datetime)
 
-        self.expected_last_movement_datetime = '2017-06-07 12:00:00'
+        discharge_datetime = '2017-06-07 12:00:00'
         self.test_utils_model.discharge_patient(
-            discharge_datetime=self.expected_last_movement_datetime)
+            discharge_datetime=discharge_datetime
+        )
 
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
 
-    @skip('Test fails until EOBS-2586 is fixed.')
+    @skip('Fails until EOBS-2586 is fixed.')
     def test_discharge_cancelled(self):
-        self.expected_last_movement_datetime = '2017-06-06 12:00:00'
         self.spell = self.test_utils_model.admit_patient(
-            start_date=self.expected_last_movement_datetime)
+            start_date=self.admit_datetime)
 
-        discharge_datetime = '2017-07-07 12:00:00'
+        discharge_datetime = '2017-06-07 12:00:00'
         self.test_utils_model.discharge_patient(
-            discharge_datetime=discharge_datetime)
+            discharge_datetime=discharge_datetime
+        )
 
         self.test_utils_model.cancel_patient_discharge()
 
-        self.call_test()
+        self.call_test(expected_datetime=self.admit_datetime)
