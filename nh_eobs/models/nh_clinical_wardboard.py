@@ -2,7 +2,9 @@ from openerp import models, fields, api
 
 
 class NhClinicalWardboard(models.Model):
-
+    """
+    Wardboard extension. Note there is also a V7 extension in this module.
+    """
     _inherit = 'nh.clinical.wardboard'
 
     transfer_in_datetime = fields.Datetime(
