@@ -1021,7 +1021,7 @@ class ObservationReport(models.AbstractModel):
 
         # Transfer history
         for transfer in report_data['transfer_history']:
-            self._localise_dict_time(transfer, date_terminated)
+            self._localise_dict_time(transfer['values'], 'move_datetime')
 
     def _localise_dict_time(self, dictionary, key, return_string_format=None):
         date_time = dictionary[key]
