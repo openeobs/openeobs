@@ -40,14 +40,14 @@ class TestCreate(UserManagementCase):
         Test that creating a user, creates a user
         """
         self.call_test(
-            created_user_role=self.hca_role, 
+            created_user_role=self.hca_role,
             user_to_create_with=self.superuser
         )
         self._assert_hca_created()
 
     def test_superuser_can_create_hca(self):
         self.call_test(
-            created_user_role=self.hca_role, 
+            created_user_role=self.hca_role,
             user_to_create_with=self.shift_coordinator
         )
         self._assert_hca_created()
@@ -55,7 +55,7 @@ class TestCreate(UserManagementCase):
     def test_cannot_create_hca_with_ward_responsibility(self):
         with self.assertRaises(except_osv):
             self.call_test(
-                created_user_role=self.hca_role, 
+                created_user_role=self.hca_role,
                 user_to_create_with=self.superuser,
                 create_with_ward_responsibility=True
             )
