@@ -68,6 +68,7 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         the patient if one has ever been set.
 
         :param values:
+        :type values: dict
         :return:
         """
         patient_id = values['patient_id']
