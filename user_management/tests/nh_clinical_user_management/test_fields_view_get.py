@@ -1,7 +1,7 @@
-from openerp.tests.common import SavepointCase
+from openerp.tests.common import TransactionCase
 
 
-class TestFieldsViewGet(SavepointCase):
+class TestFieldsViewGet(TransactionCase):
 
     def setUp(self):
         super(TestFieldsViewGet, self).setUp()

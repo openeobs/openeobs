@@ -3,9 +3,9 @@ from openerp.osv.orm import except_orm
 from .user_management_case import UserManagementCase
 
 
-class TestUserCRUD(UserManagementCase):
+class TestWrite(UserManagementCase):
     """
-    Test CRUD operations on users within user management
+    Test the write override.
     """
     def call_test(self, user=None):
         hca_data = {
@@ -30,7 +30,7 @@ class TestUserCRUD(UserManagementCase):
 
     def test_can_update_subordinate(self):
         """
-        Test that superior users can update subordinate user groups
+        Test that superior users can update subordinate user groups.
         """
         self.call_test(user=self.shift_coordinator)
         update_data = {
@@ -42,6 +42,9 @@ class TestUserCRUD(UserManagementCase):
         self._assert_subordinate_updated(update)
 
     def test_superuser_can_update_subordinate(self):
+        """
+        Test that the superuser can update subordinate user groups.
+        """
         self.call_test()
         update_data = {
             'name': 'TU2',
@@ -54,8 +57,7 @@ class TestUserCRUD(UserManagementCase):
     def test_cant_update_superiors(self):
         """
         Test that an exception is thrown when subordinate user tries to
-        update
-        user that is superior to them
+        update user that is superior to them.
         """
         self.call_test(user=self.shift_coordinator)
 
@@ -67,12 +69,21 @@ class TestUserCRUD(UserManagementCase):
         with self.assertRaises(except_orm):
             self.shift_coordinator.sudo(self.hca).write(update_data)
 
-    def test_superuser_can_update_superiors(self):
-        self.call_test()
+    def test_superuser_can_update_shift_coordinator(self):
+        """
+        Test that superuser can update a more senior user.
+        """
+        creation_values = {
+            'name': 'SC',
+            'login': 'sc',
+            'category_id': [[4, self.shift_coordinator_role.id]]
+        }
+        self.shift_coordinator = \
+            self.user_management_model.create(creation_values)
 
-        update_data = {
+        update_values = {
             'name': 'TU3',
             'login': 'tu3',
             'category_id': [[6, 0, [self.nurse_role.id]]]
         }
-        self.shift_coordinator.write(update_data)
+        self.shift_coordinator.write(update_values)

@@ -3,9 +3,9 @@ from openerp.osv.osv import except_osv
 from .user_management_case import UserManagementCase
 
 
-class TestUserCRUD(UserManagementCase):
+class TestCreate(UserManagementCase):
     """
-    Test CRUD operations on users within user management
+    Test the create override.
     """
     def call_test(self, created_user_role, user_to_create_with,
                   create_with_ward_responsibility=False):
