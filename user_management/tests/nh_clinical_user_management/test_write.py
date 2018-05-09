@@ -11,22 +11,11 @@ class TestUserCRUD(UserManagementCase):
         hca_data = {
             'name': 'HCA2',
             'login': 'hca2',
-            'category_id': [[4, self.hca_role.id]],
-            'ward_ids': [(6, 0, self.ward.id)]
+            'category_id': [[4, self.hca_role.id]]
         }
         if user:
             self.user_management_model = self.user_management_model.sudo(user)
         self.hca = self.user_management_model.create(hca_data)
-
-    def _assert_hca_created(self):
-        self.assertTrue(self.hca, msg="HCA user not created")
-        self.assertEqual(self.hca.name, 'HCA2')
-        self.assertEqual(self.hca.login, 'hca2')
-        groups = [g.name for g in self.hca.groups_id]
-        self.assertTrue('NH Clinical HCA Group' in groups,
-                        msg="User created without HCA group")
-        self.assertTrue('Employee' in groups,
-                        msg="User created without Employee group")
 
     def _assert_subordinate_updated(self, update):
         self.assertTrue(update)
@@ -38,17 +27,6 @@ class TestUserCRUD(UserManagementCase):
         self.assertTrue('NH Clinical Nurse Group' in groups,
                         msg="Nurse group missing")
         self.assertTrue('Employee' in groups, msg="Employee group removed")
-
-    def test_creates_user(self):
-        """
-        Test that creating a user, creates a user
-        """
-        self.call_test(user=self.shift_coordinator)
-        self._assert_hca_created()
-
-    def test_superuser_can_create_user(self):
-        self.call_test()
-        self._assert_hca_created()
 
     def test_can_update_subordinate(self):
         """
