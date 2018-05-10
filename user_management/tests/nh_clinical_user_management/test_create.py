@@ -25,13 +25,15 @@ class TestCreate(UserManagementCase):
             creation_values
         )
 
-    def _assert_hca_created(self):
+    def _assert_user_created(self, expected_group_name):
         self.assertTrue(self.created_user, msg="HCA user not created")
         self.assertEqual(self.created_user.name, 'HCA2')
         self.assertEqual(self.created_user.login, 'hca2')
         groups = [g.name for g in self.created_user.groups_id]
-        self.assertTrue('NH Clinical HCA Group' in groups,
-                        msg="User created without HCA group")
+        self.assertTrue(
+            expected_group_name in groups,
+            msg="User created without '{}'.".format(expected_group_name)
+        )
         self.assertTrue('Employee' in groups,
                         msg="User created without Employee group")
 
@@ -41,16 +43,25 @@ class TestCreate(UserManagementCase):
         """
         self.call_test(
             created_user_role=self.hca_role,
-            user_to_create_with=self.superuser
+            user_to_create_with=self.shift_coordinator
         )
-        self._assert_hca_created()
+        self._assert_user_created(expected_group_name='NH Clinical HCA Group')
 
     def test_superuser_can_create_hca(self):
         self.call_test(
             created_user_role=self.hca_role,
-            user_to_create_with=self.shift_coordinator
+            user_to_create_with=self.superuser
         )
-        self._assert_hca_created()
+        self._assert_user_created(expected_group_name='NH Clinical HCA Group')
+
+    def test_superuser_can_create_system_administrator(self):
+        self.call_test(
+            created_user_role=self.system_admin_role,
+            user_to_create_with=self.superuser
+        )
+        self._assert_user_created(
+            expected_group_name='NH Clinical Admin Group'
+        )
 
     def test_cannot_create_hca_with_ward_responsibility(self):
         with self.assertRaises(except_osv):
@@ -74,4 +85,6 @@ class TestCreate(UserManagementCase):
             user_to_create_with=self.superuser,
             create_with_ward_responsibility=True
         )
-        self.assertTrue(self.created_user)
+        self._assert_user_created(
+            expected_group_name='NH Clinical Shift Coordinator Group'
+        )

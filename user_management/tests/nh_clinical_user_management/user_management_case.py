@@ -22,5 +22,8 @@ class UserManagementCase(TransactionCase):
             self.category_model.search([('name', '=', 'Nurse')])[0]
         self.shift_coordinator_role = \
             self.category_model.search([('name', '=', 'Shift Coordinator')])[0]
+        self.system_admin_role = self.category_model.search(
+            [('name', '=', 'System Administrator')]
+        )[0]
 
         self.user_management_model = self.env['nh.clinical.user.management']
