@@ -38,9 +38,6 @@ class TestCreate(UserManagementCase):
                         msg="User created without Employee group")
 
     def test_shift_coordinator_can_create_hca(self):
-        """
-        Test that creating a user, creates a user
-        """
         self.call_test(
             created_user_role=self.hca_role,
             user_to_create_with=self.shift_coordinator
