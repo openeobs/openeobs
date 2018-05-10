@@ -23,16 +23,6 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         ('DI', 'Discharge')
     ]
 
-    # This field is left out of the form description because its type is not
-    # currently supported. This is a good thing as we do not want to display
-    # this field at the moment. It is maintained for use of future features.
-    patient_level = obs_fields.Many2one(
-        comodel_name='nh.clinical.therapeutic.level',
-        string="Patient Level",
-        help="The therapeutic level assigned to the patient at the time of "
-             "the observation being completed.",
-        necessary=False
-    )
     patient_status = obs_fields.Selection(
         selection=_patient_status_selection,
         string="Patient Status",
@@ -60,28 +50,6 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         string="Other Notes",
         necessary=False
     )
-
-    @api.model
-    def create(self, values):
-        """
-        Override to add a reference to the current therapeutic level set for
-        the patient if one has ever been set.
-
-        :param values:
-        :type values: dict
-        :return:
-        """
-        patient_id = values['patient_id']
-        therapeutic_level_model = self.env['nh.clinical.therapeutic.level']
-
-        current_patient_level = \
-            therapeutic_level_model.get_current_level_record_for_patient(
-                patient_id)
-        if current_patient_level:
-            values['patient_level'] = current_patient_level.id
-
-        return super(NhClinicalPatientObservationTherapeutic, self).create(
-            values)
 
     _description = 'Therapeutic'
     # TODO Remove when EOBS-982 complete.
