@@ -173,18 +173,22 @@ class NhClinicalTestUtils(AbstractModel):
         self.bed.write({'context_ids': [[4, self.eobs_context.id]]})
         self.other_bed.write({'context_ids': [[4, self.eobs_context.id]]})
 
-    def discharge_patient(self, hospital_number=None):
+    def discharge_patient(self, hospital_number=None, discharge_datetime=None):
         """ Overriding discharge patient to use nh.eobs.api so can take
         advantage of overrides there
 
-        :param hospital_number: hospital number of patient
+        :param hospital_number: Hospital number of patient
+        :param discharge_datetime: Date and time when the discharge occurred.
         """
-        if not hospital_number:
-            hospital_number = self.hospital_number
-        api_model = self.env['nh.eobs.api']
-        api_model.discharge(hospital_number, {
+        hospital_number = hospital_number or self.hospital_number
+        creation_values = {
             'location': 'DISL'
-        })
+        }
+        if discharge_datetime:
+            creation_values['discharge_date'] = discharge_datetime
+
+        api_model = self.env['nh.eobs.api']
+        api_model.discharge(hospital_number, creation_values)
 
     def cancel_patient_discharge(self, hospital_number=None):
         """
@@ -193,12 +197,11 @@ class NhClinicalTestUtils(AbstractModel):
 
         :param hospital_number: Hospital number for patient
         """
-        if not hospital_number:
-            hospital_number = self.hospital_number
+        hospital_number = hospital_number or self.hospital_number
         api_model = self.env['nh.eobs.api']
         api_model.cancel_discharge(hospital_number)
 
-    def transfer_patient(self, location_code, hospital_number=None):
+    def transfer_patient(self, location_code=None, hospital_number=None):
         """
         Overriding transfer patient to use nh.eobs.api so can take advantage of
         overrides there
@@ -206,8 +209,8 @@ class NhClinicalTestUtils(AbstractModel):
         :param location_code: Code to transfer patient to
         :param hospital_number: Hospital number of patient
         """
-        if not hospital_number:
-            hospital_number = self.hospital_number
+        hospital_number = hospital_number or self.hospital_number
+        location_code = location_code or self.other_ward.code
         api_model = self.env['nh.clinical.api']
         api_model.transfer(hospital_number, {
             'location': location_code

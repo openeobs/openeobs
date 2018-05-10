@@ -3,8 +3,8 @@
 """
 Defines models for the `Wardboard` view.
 """
-import logging
 import copy
+import logging
 
 from openerp import SUPERUSER_ID, api
 from openerp.osv import orm, fields, osv
@@ -490,7 +490,6 @@ class nh_clinical_wardboard(orm.Model):
         'spell_activity_id': fields.many2one('nh.activity', 'Spell Activity'),
         'spell_date_started': fields.datetime('Spell Start Date'),
         'time_since_admission': fields.text('Time since Admission'),
-        'move_date': fields.datetime('Time since Last Movement'),
         'spell_date_terminated': fields.datetime('Spell Discharge Date'),
         'recently_discharged': fields.boolean('Recently Discharged'),
         'spell_state': fields.char('Spell State', size=50),

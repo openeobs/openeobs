@@ -316,6 +316,7 @@ class ObservationReportHelpers(TransactionCase):
     move_values = {
         'date_started': '1988-01-12 06:00:00',
         'date_terminated': '1988-01-12 06:00:01',
+        'move_datetime': '1988-01-12 06:00:01',
         'id': 1,
         'location_id': [1, 'Test Location']
     }

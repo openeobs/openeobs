@@ -25,7 +25,7 @@ class TestSpellManagementPatientUpdate(SavepointCase):
 
     def test_updates_patient_name(self):
         """
-        Check that on updating the patient name on the patient object the
+        Check that updating the patient name on the patient object causes the
         spellboard object has the correct name.
         """
         self.patient.given_name = 'Updated-Test'

@@ -665,7 +665,7 @@
                                 <tbody>
                                     <t t-foreach="transfer_history" t-as="transfer">
                                         <tr class="main-entry">
-                                            <td class="col-xs-3"><t t-esc="transfer.get('date_terminated', '')"/></td>
+                                            <td class="col-xs-3"><t t-esc="transfer.get('values', {}).get('move_datetime', '')"/></td>
                                             <td class="col-xs-2"><t t-esc="transfer.get('bed', '')"/></td>
                                             <td class="col-xs-7"><t t-esc="transfer.get('ward', '')"/></td>
                                         </tr>
