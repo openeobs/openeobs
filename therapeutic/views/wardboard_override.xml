@@ -7,8 +7,14 @@
             <field name="arch" type="xml">
                 <xpath expr="//sheet/group/group[@string = 'Early Warning Score']" position="after">
                     <group string="Therapeutic Observations">
-                        <field name="therapeutic_level" string="Level" readonly="1"/>
-                        <field name="therapeutic_frequency" string="Frequency" readonly="1" attrs="{'invisible': [('therapeutic_level', '!=', 2)]}"/>
+                        <field name="therapeutic_level"
+                               string="Current Level"
+                               readonly="1"/>
+                        <field name="therapeutic_frequency"
+                               string="Recording Frequency"
+                               readonly="1"/>
+                        <field name="therapeutic_staff_to_patient_ratio"
+                               string="Staff to Patient Ratio"/>
                     </group>
                 </xpath>
             </field>
