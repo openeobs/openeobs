@@ -413,17 +413,25 @@ class nh_eobs_api(orm.AbstractModel):
         activity_model = self.env['nh.activity']
         activity = activity_model.browse(activity_id)
 
+        # Shift coordinator only has location IDs of the wards they are
+        # responsible unlike the doctor who has location IDs of responsible
+        # wards and all beds. This inconsistent behaviour should be fixed but
+        # for now we must check for ward responsibility for all activities
+        # being completed, even for NEWS which normally expects bed allocation.
+        # TODO Possibly refactor based on answer to EOBS-2600
+        if self.env.user.is_shift_coordinator():
+            ward = activity.location_id.parent_id
+            user_authorised_to_complete = ward in self.env.user.location_ids
         # Always check allocation for NEWS observations.
-        if activity.data_model == 'nh.clinical.patient.observation.ews':
+        elif activity.data_model == 'nh.clinical.patient.observation.ews':
             user_authorised_to_complete = self.check_activity_access(
                 activity_id)
         # If not a NEWS observation then check shift or allocation depending
         # on user group.
         elif self.env.user.is_doctor() \
-                or self.env.user.is_shift_coordinator() \
                 or self.env.user.is_senior_manager():
-            user_authorised_to_complete = self.check_activity_access(
-                activity_id)
+            user_authorised_to_complete = \
+                self.check_activity_access(activity_id)
         else:
             shift_model = self.env['nh.clinical.shift']
             ward = activity.location_id.parent_id
