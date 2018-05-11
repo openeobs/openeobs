@@ -34,11 +34,11 @@ class NhClinicalWardboard(models.Model):
             )
 
     def _get_latest_therapeutic_level_record(self):
-        domain = [('patient', '=', self.patient_id.id)]
-        therapeutic_level_model = \
-            self.env['nh.clinical.therapeutic.level']
-        current_therapeutic_level = therapeutic_level_model.search(
-            domain, order='id desc', limit=1)
+        therapeutic_level_model = self.env['nh.clinical.therapeutic.level']
+        current_therapeutic_level = \
+            therapeutic_level_model.get_current_level_record_for_patient(
+                self.patient_id.id
+            )
         return current_therapeutic_level
 
     @staticmethod

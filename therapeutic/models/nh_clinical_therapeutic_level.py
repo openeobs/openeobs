@@ -35,6 +35,9 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     patient = fields.Many2one(
         comodel_name='nh.clinical.patient', required=True
     )
+    spell = fields.Many2one(
+        comodel_name='nh.clinical.spell'
+    )
     level = fields.Selection(
         required=True, selection=levels, string='Observation Level'
     )
@@ -67,6 +70,15 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             self._validate_frequency_is_given(values['frequency'])
         if 'frequency' not in values or not values['frequency']:
             values['frequency'] = 60
+
+        # Create reference to spell to distinguish from previous admissions.
+        patient_id = values['patient']
+        spell_model = self.env['nh.clinical.spell']
+        current_spell_activity = \
+            spell_model.get_spell_activity_by_patient_id(patient_id)
+        spell_id = current_spell_activity.data_ref.id
+        values['spell'] = spell_id
+
         return super(NhClinicalPatientObservationTherapeuticLevel, self)\
             .create(values)
 
@@ -203,8 +215,11 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.model
     def get_current_level_record_for_patient(self, patient_id):
+        spell_model = self.env['nh.clinical.spell']
+        current_spell_activity = \
+            spell_model.get_spell_activity_by_patient_id(patient_id)
         current_level_record = self.search([
-            ('patient', '=', patient_id)
+            ('spell', '=', current_spell_activity.data_ref.id)
         ], order='id desc', limit=1)
         return current_level_record
 
