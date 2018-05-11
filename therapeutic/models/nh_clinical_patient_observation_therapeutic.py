@@ -1,4 +1,4 @@
-from openerp import models, api
+from openerp import models, api, fields
 
 from openerp.addons.nh_observations import fields as obs_fields
 
@@ -50,6 +50,11 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         string="Other Notes",
         necessary=False
     )
+    # Only has to be redefined because the super model is V7 API and therefore
+    # has a hard link to the compute method.
+    is_partial = fields.Boolean(
+        compute='_is_partial',
+    )
 
     _description = 'Therapeutic'
     # TODO Remove when EOBS-982 complete.
@@ -63,6 +68,10 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         'other_staff_during_intervention',
         'other_notes'
     ]
+    _required = [
+        'patient_status',
+        'one_to_one_intervention_needed'
+    ]
 
     @api.model
     def get_form_description(self, patient_id):
@@ -72,3 +81,12 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         form_description_model = self.env['nh.clinical.form_description']
         form_description = form_description_model.to_dict(self)
         return form_description
+
+    def _is_partial(self):
+        """
+        This override is a hack to disable partials entirely for this
+        observation. The `_required` attribute affects the population of the
+        `none_values` and validation for partials which makes it difficult to
+        achieve the same by just declaring attributes on the model.
+        """
+        return False
