@@ -60,6 +60,9 @@ class NhClinicalWardboard(models.Model):
 
     def _set_therapeutic_staff_to_patient_ratio(
             self, record, current_therapeutic_level):
+        if not current_therapeutic_level.staff_to_patient_ratio:
+            return
+
         therapeutic_level_model = self.env['nh.clinical.therapeutic.level']
         staff_to_patient_ratio_int = \
             current_therapeutic_level.staff_to_patient_ratio
@@ -68,7 +71,8 @@ class NhClinicalWardboard(models.Model):
 
         # Lookup display string using integer.
         staff_to_patient_ratio_selection = filter(
-            lambda frequency: frequency[0] == staff_to_patient_ratio_int,
+            lambda staff_to_patient_ratio: staff_to_patient_ratio[0]
+            == staff_to_patient_ratio_int,
             staff_to_patient_ratios
         )[0]
         staff_to_patient_ratio_str = staff_to_patient_ratio_selection[1]
