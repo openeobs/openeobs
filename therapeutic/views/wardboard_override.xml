@@ -9,12 +9,15 @@
                     <group string="Therapeutic Observations">
                         <field name="therapeutic_level"
                                string="Current Level"
-                               readonly="1"/>
+                               readonly="1"
+                               class="therapeutic_level"/>
                         <field name="therapeutic_frequency"
                                string="Recording Frequency"
-                               readonly="1"/>
+                               readonly="1"
+                               class="therapeutic_frequency"/>
                         <field name="therapeutic_staff_to_patient_ratio"
-                               string="Staff to Patient Ratio"/>
+                               string="Staff to Patient Ratio"
+                               class="therapeutic_staff_to_patient_ratio"/>
                     </group>
                 </xpath>
             </field>
