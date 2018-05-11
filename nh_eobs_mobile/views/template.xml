@@ -351,7 +351,7 @@
         </template>
 
         <template name="Input box" t-name="nh_eobs_mobile.observation_data_text_input">
-            <div t-att-class="'block obsTextField valHide' if item['initially_hidden']==True else 'block obsTextField'" t-att-id="'parent_' + item['name']">
+            <div t-att-class="'block obsField obsTextField valHide' if item['initially_hidden']==True else 'block obsField obsTextField'" t-att-id="'parent_' + item['name']">
                 <div class="input-header">
                     <label t-att-for="item['name']">
                         <t t-esc="item['label']"/>
