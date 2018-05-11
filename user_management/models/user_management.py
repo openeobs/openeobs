@@ -1,5 +1,7 @@
-from openerp.osv import orm, fields, osv
 import copy
+
+from openerp import SUPERUSER_ID
+from openerp.osv import orm, fields, osv
 
 
 class NhClinicalUserManagement(orm.Model):
@@ -137,6 +139,10 @@ class NhClinicalUserManagement(orm.Model):
         :returns: ``True``
         :rtype: bool
         """
+        if uid == SUPERUSER_ID:
+            return super(NhClinicalUserManagement, self)\
+                .write(cr, uid, ids, vals, context=None)
+
         user_pool = self.pool['res.users']
         category_pool = self.pool['res.partner.category']
         alloc_pool = self.pool['nh.clinical.user.responsibility.allocation']
@@ -177,7 +183,7 @@ class NhClinicalUserManagement(orm.Model):
                 activity_pool.complete(cr, uid, activity_id, context=context)
         return res
 
-    def fields_view_get(self, cr, user, view_id=None, view_type='form',
+    def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         context=None, toolbar=False, submenu=False):
         """
         Extension of Odoo's ``fields_view_get`` method that returns a
@@ -192,16 +198,20 @@ class NhClinicalUserManagement(orm.Model):
         ctx = context.copy()
         ctx['partner_category_display'] = 'short'
         res = super(NhClinicalUserManagement, self).fields_view_get(
-            cr, user, view_id, view_type, ctx, toolbar, submenu)
+            cr, uid, view_id, view_type, ctx, toolbar, submenu)
+
+        if uid == SUPERUSER_ID:
+            return res
+
         if view_type == 'form' and res['fields'].get('category_id'):
             user_pool = self.pool['res.users']
             category_pool = self.pool['res.partner.category']
-            u = user_pool.browse(cr, user, user, context=ctx)
+            u = user_pool.browse(cr, uid, uid, context=ctx)
             category_ids = [c.id for c in u.category_id]
             child_ids = []
             for c in category_ids:
                 child_ids += category_pool.get_child_of_ids(
-                    cr, user, c, context=ctx)
+                    cr, uid, c, context=ctx)
             res['fields']['category_id']['domain'] = [['id', 'in', child_ids]]
         return res
 
