@@ -2,7 +2,9 @@ from openerp import models, fields, api
 
 
 class NhClinicalWardboard(models.Model):
-
+    """
+    Override to add information about the patient's current therapeutic level.
+    """
     _inherit = 'nh.clinical.wardboard'
 
     therapeutic_level = fields.Char(

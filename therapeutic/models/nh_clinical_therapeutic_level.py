@@ -215,6 +215,14 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.model
     def get_current_level_record_for_patient(self, patient_id):
+        """
+        Get the current therapeutic level record for the patient. Only returns
+        level records that were set during the currently open spell. Levels
+        from old ones are disregarded.
+
+        :param patient_id:
+        :return:
+        """
         spell_model = self.env['nh.clinical.spell']
         current_spell_activity = \
             spell_model.get_spell_activity_by_patient_id(patient_id)
@@ -224,4 +232,14 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         return current_level_record
 
     def is_level(self, level):
+        """
+        Indicates whether or not the record referenced by `self` has the passed
+        level. If the current record represents a level 1 therapeutic obs and
+        `1` is passed it will return `True`.
+
+        :param level: A level record.
+        :rtype: int
+        :return:
+        :rtype: bool
+        """
         return self.level == self.levels[level - 1][0]
