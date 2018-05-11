@@ -73,8 +73,8 @@ class NhClinicalWardboard(models.Model):
 
         # Lookup display string using integer.
         staff_to_patient_ratio_selection = filter(
-            lambda staff_to_patient_ratio: staff_to_patient_ratio[0]
-            == staff_to_patient_ratio_int,
+            lambda staff_to_patient_ratio:
+            staff_to_patient_ratio[0] == staff_to_patient_ratio_int,
             staff_to_patient_ratios
         )[0]
         staff_to_patient_ratio_str = staff_to_patient_ratio_selection[1]
