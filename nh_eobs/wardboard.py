@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Part of Open eObs. See LICENSE file for full copyright and licensing details.
 """
-Defines models for the `Wardboard` view.
+Defines models for the `Wardboard` view which powers the Acuity Board and
+Patients by Ward.
 """
 import copy
 import logging

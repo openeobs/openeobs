@@ -19,9 +19,6 @@ class NhClinicalTestUtils(AbstractModel):
         :param data_model: Observation model associated with the activity
         :param user_id: ID of user who will do observation
         """
-        api_model = self.pool['nh.eobs.api']
-        activity_model = self.env['nh.activity']
-
         if not patient_id:
             patient_id = self.patient.id
         if not data_model:
@@ -29,18 +26,25 @@ class NhClinicalTestUtils(AbstractModel):
         if not user_id:
             user_id = self.nurse.id
 
+        self._get_open_obs(patient_id, data_model)
+        self.assign_obs(user_id)
+
+    def _get_open_obs(self, patient_id, data_model):
+        activity_model = self.env['nh.activity']
         ews_activity_search = activity_model.search(
             [
-                ['data_model', '=', data_model],
                 ['patient_id', '=', patient_id],
+                ['data_model', '=', data_model],
                 ['state', '=', 'scheduled']
             ]
         )
         if ews_activity_search:
             self.ews_activity = ews_activity_search[0]
-        else:
-            raise ValueError('Could not find EWS Activity ID')
+            return self.ews_activity
+        raise ValueError('Could not find EWS Activity ID')
 
+    def assign_obs(self, user_id):
+        api_model = self.pool['nh.eobs.api']
         api_model.assign(
             self.env.cr,
             user_id,
