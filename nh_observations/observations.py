@@ -45,6 +45,13 @@ class NhClinicalPatientObservation(orm.AbstractModel):
 
     @classmethod
     def get_description(cls, append_observation=True):
+        """
+        Return a label for the observation suitable for display.
+
+        :param append_observation:
+        :return:
+        :rtype: str
+        """
         description = \
             super(NhClinicalPatientObservation, cls).get_description()
         if append_observation:
@@ -52,7 +59,22 @@ class NhClinicalPatientObservation(orm.AbstractModel):
         return description
 
     def get_obs_field_order(self):
-        return self._required
+        """
+        Get the intended order of fields which can be used for various things
+        such as display order in the mobile observation form (achieved by
+        ordering the field descriptions in the form description).
+
+        :return: List of field names.
+        :rtype: list
+        """
+        if not hasattr(self, 'fields_order'):
+            raise NotImplementedError(
+                "Tried to get the order of fields for model '{model_name}' "
+                "but could not find a `fields_order` class attribute. Either "
+                "one must be added or the `get_obs_field_order()` method "
+                "should be overridden."
+            )
+        return self.fields_order
 
     @api.multi
     def get_obs_fields(self):
@@ -86,6 +108,7 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     def get_submission_message(self):
         """
         Provides a message to be displayed when the observation is submitted.
+
         :return:
         :rtype str
         """

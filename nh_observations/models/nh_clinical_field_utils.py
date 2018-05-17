@@ -15,6 +15,8 @@ class FieldUtils(models.AbstractModel):
     def is_obs_field(cls, field):
         fields = (
             nh_obs_fields.Selection,
+            nh_obs_fields.Boolean,
+            nh_obs_fields.Char,
             nh_obs_fields.Text,
             nh_obs_fields.Integer,
             nh_obs_fields.One2many,
