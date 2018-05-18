@@ -110,7 +110,8 @@ class TestWorkloadChanged(TestWorkloadIntegration):
         ])
         self.buckets_pool.write(cr, uid, bucket_to_change,
                                 {
-              'name': '16+ minutes remain', 'sequence': 1})
+                                    'name': '16+ minutes remain',
+                                    'sequence': 1})
         self.buckets_pool.write(cr, uid, bucket_ids[0],
                                 {'sequence': 2})
         self.buckets_pool.write(cr, uid, bucket_ids[1],

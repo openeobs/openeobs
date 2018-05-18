@@ -4,7 +4,7 @@ Tests the method that provides the value for the computed field
 'Transfer In' value which is intended to indicate the datetime when the patient
 was transferred into the current ward.
 """
-from unittest import skip
+# from unittest import skip
 
 from openerp.tests.common import SavepointCase
 

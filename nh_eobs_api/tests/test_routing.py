@@ -2,7 +2,7 @@
 import json
 import logging
 from random import choice as random_choice
-from unittest import skip
+# from unittest import skip
 
 import jinja2
 import openerp.tests

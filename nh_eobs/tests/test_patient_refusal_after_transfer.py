@@ -88,4 +88,10 @@ class TestPatientRefusalAfterTransfer(TransactionCase):
             )
 
         self.api_model.swap_bed(self.hospital_number, {'location': 'WB'})
+
+        obs_activity_after_refusal = \
+            self.test_utils_model.refuse_open_obs(
+                self.patient.id, self.spell_activity_id
+            )
+        obs_after_refusal = obs_activity_after_refusal.data_ref
         self.assertEqual(obs_after_refusal.frequency, 15)

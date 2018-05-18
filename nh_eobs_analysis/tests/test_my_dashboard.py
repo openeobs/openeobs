@@ -15,5 +15,4 @@ class TestMyDashboard(TransactionCase):
         """
         Test that My Dashboard saves the filtered dataset of OLAP.
         """
-        pass
-
+        self.assertTrue(False)
