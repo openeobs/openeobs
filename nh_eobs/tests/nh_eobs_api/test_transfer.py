@@ -13,3 +13,5 @@ class TestTransfer(TransactionCase):
             ('spell_activity_id', '=', self.spell_activity_id),
             ('state', 'not in', ['completed', 'cancelled'])
         ]
+
+# TODO - There are no tests here

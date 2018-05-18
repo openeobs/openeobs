@@ -62,7 +62,7 @@ class TestMovementsThatTakeTheCurrentServerTime(SavepointCase):
         self.test_utils_model.transfer_patient()
         self.call_test(expected_datetime=transfer_time)
 
-    @skip('Fails until EOBS-2586 is fixed.')
+    # @skip('Fails until EOBS-2586 is fixed.')
     def test_transfer_cancelled(self):
         transfer_time = '2017-06-06 14:00:00'
         self.transfer_in_datetime_stub = transfer_time
@@ -76,7 +76,7 @@ class TestMovementsThatTakeTheCurrentServerTime(SavepointCase):
         self.test_utils_model.discharge_patient()
         self.call_test(expected_datetime=self.admit_datetime)
 
-    @skip('Fails until EOBS-2586 is fixed.')
+    # @skip('Fails until EOBS-2586 is fixed.')
     def test_discharge_cancelled(self):
         discharge_datetime = '2017-06-06 14:00:00'
         self.transfer_in_datetime_stub = discharge_datetime
@@ -124,7 +124,7 @@ class TestMovementsWithMoveDatetimesExplicitlySet(SavepointCase):
 
         self.call_test(expected_datetime=self.admit_datetime)
 
-    @skip('Fails until EOBS-2586 is fixed.')
+    # @skip('Fails until EOBS-2586 is fixed.')
     def test_discharge_cancelled(self):
         self.spell = self.test_utils_model.admit_patient(
             start_date=self.admit_datetime)

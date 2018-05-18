@@ -82,7 +82,8 @@ class TestGetSubmissionMessage(TransactionCase):
         expected = '-20ml'
         self.assertEqual(expected, actual)
 
-    def test_message_contains_int_fluid_balance_when_fluid_output(self):
+    def test_message_contains_int_fluid_balance_when_fluid_output2(self):
+        # Edited due to name duplication (added number 2)
         """Message contains the fluid balance."""
         self.fluid_taken = 0
         self.fluid_output = None

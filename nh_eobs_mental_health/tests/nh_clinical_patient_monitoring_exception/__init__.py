@@ -8,4 +8,4 @@ from . import test_patient_refusal_after_obs_stop
 #
 # When creating a new wizard class the reasons field is False and cannot be set
 # to multiple reasons using `reasons = [(6, 0, [list_of_ids])]`.
-# from . import test_select_reason
+from . import test_select_reason

@@ -416,7 +416,7 @@ class TestRouteManagerMethods(openerp.tests.TransactionCase):
         self.assertEqual(route_4.name, 'test_route_4')
         self.assertIn(route_4.name, route_manager.ROUTES.keys())
 
-    @skip('Unfinished test here! Please, complete me =)')
+    # @skip('Unfinished test here! Please, complete me =)')
     def test_method_remove_route(self):
         # Create the RouteManager and feed it with some initial data
         objects_number = 5

@@ -91,72 +91,73 @@ class TestWorkloadInitial(TestWorkloadIntegration):
                 self.assertEqual(activity.get('proximity_interval'),
                                  self.zero_mins)
 
-# class TestWorkloadChanged(TestWorkloadIntegration):
-#
-#     def setUp(self):
-#         super(TestWorkloadChanged, self).setUp()
-#         cr, uid = self.cr, self.uid
-#
-#         bucket_ids = self.buckets_pool.search(cr, uid, [
-#             ['name', 'in', [
-#                 '0-15 minutes remain',
-#                 '1-15 minutes late',
-#                 '16+ minutes late'
-#             ]]
-#         ])
-#         bucket_to_change = self.buckets_pool.search(cr, uid, [
-#             ['name', '=', '46+ minutes remain']
-#         ])
-#         self.buckets_pool.write(cr, uid, bucket_to_change,
-#                                 {
-#               'name': '16+ minutes remain', 'sequence': 1})
-#         self.buckets_pool.write(cr, uid, bucket_ids[0],
-#                                 {'sequence': 2})
-#         self.buckets_pool.write(cr, uid, bucket_ids[1],
-#                                 {'sequence': 3})
-#         self.buckets_pool.write(cr, uid, bucket_ids[2],
-#                                 {'sequence': 4})
-#         self.buckets = bucket_to_change + bucket_ids
-#         self.settings_pool.write(cr, uid, 1, {
-#             'workload_bucket_period': [[6, 0, self.buckets]]})
-#
-#     def test_init_method(self):
-#         self.workload_pool.init(self.cr)
-#         workload = self.workload_pool.read(self.cr, self.uid, [
-#             self.activity_60_remain,
-#             self.activity_40_remain,
-#             self.activity_20_remain,
-#             self.activity_10_remain,
-#             self.activity_0_remain,
-#             self.activity_10_late,
-#             self.activity_20_late
-#         ])
-#         self.assertEqual(workload[0].get('proximity_interval'), 1)
-#         self.assertEqual(workload[1].get('proximity_interval'), 1)
-#         self.assertEqual(workload[2].get('proximity_interval'), 1)
-#         self.assertEqual(workload[3].get('proximity_interval'), 2)
-#         self.assertEqual(workload[4].get('proximity_interval'), 2)
-#         self.assertEqual(workload[5].get('proximity_interval'), 3)
-#         self.assertEqual(workload[6].get('proximity_interval'), 4)
-#
-#     def test_refresh_method(self):
-#         cr, uid = self.cr, self.uid
-#         buckets = [b.get('name') for b in
-#                    self.workload_pool.read(cr, uid, self.buckets)]
-#         self.config_pool.refresh_workload_view(cr, buckets)
-#         workload = self.workload_pool.read(cr, uid, [
-#             self.activity_60_remain,
-#             self.activity_40_remain,
-#             self.activity_20_remain,
-#             self.activity_10_remain,
-#             self.activity_0_remain,
-#             self.activity_10_late,
-#             self.activity_20_late
-#         ])
-#         self.assertEqual(workload[0].get('proximity_interval'), 1)
-#         self.assertEqual(workload[1].get('proximity_interval'), 1)
-#         self.assertEqual(workload[2].get('proximity_interval'), 1)
-#         self.assertEqual(workload[3].get('proximity_interval'), 2)
-#         self.assertEqual(workload[4].get('proximity_interval'), 2)
-#         self.assertEqual(workload[5].get('proximity_interval'), 3)
-#         self.assertEqual(workload[6].get('proximity_interval'), 4)
+
+class TestWorkloadChanged(TestWorkloadIntegration):
+
+    def setUp(self):
+        super(TestWorkloadChanged, self).setUp()
+        cr, uid = self.cr, self.uid
+
+        bucket_ids = self.buckets_pool.search(cr, uid, [
+            ['name', 'in', [
+                '0-15 minutes remain',
+                '1-15 minutes late',
+                '16+ minutes late'
+            ]]
+        ])
+        bucket_to_change = self.buckets_pool.search(cr, uid, [
+            ['name', '=', '46+ minutes remain']
+        ])
+        self.buckets_pool.write(cr, uid, bucket_to_change,
+                                {
+              'name': '16+ minutes remain', 'sequence': 1})
+        self.buckets_pool.write(cr, uid, bucket_ids[0],
+                                {'sequence': 2})
+        self.buckets_pool.write(cr, uid, bucket_ids[1],
+                                {'sequence': 3})
+        self.buckets_pool.write(cr, uid, bucket_ids[2],
+                                {'sequence': 4})
+        self.buckets = bucket_to_change + bucket_ids
+        self.settings_pool.write(cr, uid, 1, {
+            'workload_bucket_period': [[6, 0, self.buckets]]})
+
+    def test_init_method(self):
+        self.workload_pool.init(self.cr)
+        workload = self.workload_pool.read(self.cr, self.uid, [
+            self.activity_60_remain,
+            self.activity_40_remain,
+            self.activity_20_remain,
+            self.activity_10_remain,
+            self.activity_0_remain,
+            self.activity_10_late,
+            self.activity_20_late
+        ])
+        self.assertEqual(workload[0].get('proximity_interval'), 1)
+        self.assertEqual(workload[1].get('proximity_interval'), 1)
+        self.assertEqual(workload[2].get('proximity_interval'), 1)
+        self.assertEqual(workload[3].get('proximity_interval'), 2)
+        self.assertEqual(workload[4].get('proximity_interval'), 2)
+        self.assertEqual(workload[5].get('proximity_interval'), 3)
+        self.assertEqual(workload[6].get('proximity_interval'), 4)
+
+    def test_refresh_method(self):
+        cr, uid = self.cr, self.uid
+        buckets = [b.get('name') for b in
+                   self.workload_pool.read(cr, uid, self.buckets)]
+        self.config_pool.refresh_workload_view(cr, buckets)
+        workload = self.workload_pool.read(cr, uid, [
+            self.activity_60_remain,
+            self.activity_40_remain,
+            self.activity_20_remain,
+            self.activity_10_remain,
+            self.activity_0_remain,
+            self.activity_10_late,
+            self.activity_20_late
+        ])
+        self.assertEqual(workload[0].get('proximity_interval'), 1)
+        self.assertEqual(workload[1].get('proximity_interval'), 1)
+        self.assertEqual(workload[2].get('proximity_interval'), 1)
+        self.assertEqual(workload[3].get('proximity_interval'), 2)
+        self.assertEqual(workload[4].get('proximity_interval'), 2)
+        self.assertEqual(workload[5].get('proximity_interval'), 3)
+        self.assertEqual(workload[6].get('proximity_interval'), 4)

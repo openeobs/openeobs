@@ -10,4 +10,4 @@ from . import test_localise_and_format_datetimes
 from . import test_process_report_dates
 
 # Disabled
-# from . import test_table_structure
+from . import test_table_structure

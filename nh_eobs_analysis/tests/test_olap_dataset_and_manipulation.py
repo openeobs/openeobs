@@ -15,50 +15,50 @@ class TestOlapDatasetAndManipulation(TransactionCase):
     - It should allow the user to reduce the time period under analyse to
       the last 48 hours
     """
-
+# TODO - The whole file is just 'pass'
     def test_aggregates_data_in_dimensions(self):
         """
         Test that the OLAP view aggregates the data in the dimensions
         """
-        pass
+        self.assertTrue(False)
 
     def test_filters_dataset_on_dimensions(self):
         """
         Test that the OLAP view allows to filter the data set via the
         dimensions
         """
-        pass
+        self.assertTrue(False)
 
     def test_filters_dataset_on_time_period(self):
         """
         Test that the OLAP view allows to filter the data set via the time
         period
         """
-        pass
+        self.assertTrue(False)
 
     def test_filters_dataset_on_ward_assignment_of_user(self):
         """
         Test that the OLAP view filters the dataset to only show the wards the
         user is assigned to
         """
-        pass
+        self.assertTrue(False)
 
     def test_filters_dataset_to_show_last_eight_days(self):
         """
         Test that the OLAP view filters the dataset to only show the last 8
         days
         """
-        pass
+        self.assertTrue(False)
 
     def test_only_shows_scheduled_and_completed_observations(self):
         """
         Test that the OLAP view only contains data for scheduled and completed
         observations
         """
-        pass
+        self.assertTrue(False)
 
     def test_filters_dataset_for_last_48_hours(self):
         """
         Test that the OLAP view filters the dataset on the last 48 hours
         """
-        pass
+        self.assertTrue(False)

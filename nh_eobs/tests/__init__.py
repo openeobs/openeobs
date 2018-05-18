@@ -20,8 +20,13 @@ from .nh_clinical_patient_discharge import *
 from .nh_clinical_patient_transfer import *
 
 # Disabled tests
-# from . import test_api_demo
+from . import test_api_demo
 # from openeobs.nh_eobs.tests.wardboard import test_wardboard
-# from . import test_palliative_status_tour
-# from . import test_staff_allocation_tours
-# from . import test_stand_in_api
+from . import test_palliative_status_tour
+from . import test_staff_allocation_tours
+from . import test_stand_in_api
+
+# uncommented tests above, added the following ones
+from . import test_get_last_full_obs_activity, \
+    test_patient_refusal_after_transfer, test_workload_bucket_settings
+

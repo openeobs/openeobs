@@ -5,3 +5,5 @@ from . import test_olap_view_dimensions
 from . import test_olap_view_security
 from . import test_read_group
 from .ir_ui_menu import *
+
+from . import test_my_dashboard

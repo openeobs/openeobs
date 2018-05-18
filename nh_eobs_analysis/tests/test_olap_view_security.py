@@ -12,23 +12,23 @@ class TestOlapViewSecurity(TransactionCase):
     - it doesn't show data from any of the other columns in the DB tables
       used to compute the dimensions
     """
-
+# TODO - the whole file is just 'pass'
     def test_shows_only_data_from_wards_the_user_is_assigned_to(self):
         """
         Test the OLAP view shows only data from wards the user is assigned to.
         """
-        pass
+        self.assertTrue(False)
 
     def test_is_accessible_only_by_senior_manager_and_shift_coordinator(self):
         """
         Test the OLAP view is accessible only be users belonging to
         groups/roles 'Senior Manager' and 'Ward Manager'.
         """
-        pass
+        self.assertTrue(False)
 
     def test_shows_only_data_from_columns_used_in_dimensions_computation(self):
         """
         Test the OLAP view doesn't show data stored in any DB tables' columns
         other than the ones actually used for constructing the dimensions.
         """
-        pass
+        self.assertTrue(False)

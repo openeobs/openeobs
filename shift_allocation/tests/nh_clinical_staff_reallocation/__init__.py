@@ -8,3 +8,4 @@ from . import test_reallocate
 from . import test_staff_reallocation_complete
 from . import test_staff_reallocation_integration
 from . import test_staff_reallocation_multi_ward
+from . import test_fields_view_get

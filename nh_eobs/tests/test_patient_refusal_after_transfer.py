@@ -76,16 +76,16 @@ class TestPatientRefusalAfterTransfer(TransactionCase):
         obs_after_refusal = obs_activity_after_refusal.data_ref
         self.assertEqual(obs_after_refusal.frequency, 15)
 
-    # def test_bed_swap_keeps_refusal_status(self):
-    #     """
-    #     Test that when a patient who is currently refusing gets moved between
-    #     beds does not lose their refusal status
-    #     """
-    #     self.initial_medium_risk_obs_activity = \
-    #         self.test_utils_model.create_and_complete_ews_obs_activity(
-    #             self.patient.id, self.spell_activity_id,
-    #             clinical_risk_sample_data.MEDIUM_RISK_DATA
-    #         )
-    #
-    #     self.api_model.swap_bed(self.hospital_number, {'location': 'WB'})
-    #     self.assertEqual(obs_after_refusal.frequency, 15)
+    def test_bed_swap_keeps_refusal_status(self):
+        """
+        Test that when a patient who is currently refusing gets moved between
+        beds does not lose their refusal status
+        """
+        self.initial_medium_risk_obs_activity = \
+            self.test_utils_model.create_and_complete_ews_obs_activity(
+                self.patient.id, self.spell_activity_id,
+                clinical_risk_sample_data.MEDIUM_RISK_DATA
+            )
+
+        self.api_model.swap_bed(self.hospital_number, {'location': 'WB'})
+        self.assertEqual(obs_after_refusal.frequency, 15)

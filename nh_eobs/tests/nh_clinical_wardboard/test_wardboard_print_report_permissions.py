@@ -86,11 +86,11 @@ class TestWardboardPrintReportPermissions(SingleTransactionCase):
                 self.cr, self.senior_manager, groups=self.button_groups,
                 context={}))
 
-    # def test_openeobs_admin_can_see_print_report_button(self):
-    #     self.assertTrue(
-    #         self.registry('ir.ui.view').user_has_groups(
-    #             self.cr, self.shift_coordinator, groups=self.button_groups,
-    #             context={}))
+    def test_openeobs_admin_can_see_print_report_button(self):
+        self.assertTrue(
+            self.registry('ir.ui.view').user_has_groups(
+                self.cr, self.shift_coordinator, groups=self.button_groups,
+                context={}))
 
     def test_default_admin_can_see_print_report_button(self):
         self.assertTrue(

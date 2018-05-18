@@ -12,3 +12,4 @@ from . import test_get_refusals_until_news_obs_taken_column_data
 from . import test_get_report_data
 from . import test_get_task_column_data
 from . import test_datetimes_are_correctly_localised
+from . import test_get_clinical_review_frequency_set_column_data

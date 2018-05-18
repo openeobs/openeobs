@@ -10,8 +10,10 @@ class TestMyDashboard(TransactionCase):
       view to the 'My Dashboard' view.
     """
 
+    # TODO - there is just a pass here
     def test_OLAP_view_is_saved_to_my_dashboard(self):
         """
         Test that My Dashboard saves the filtered dataset of OLAP.
         """
         pass
+
