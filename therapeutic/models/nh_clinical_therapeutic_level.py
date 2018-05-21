@@ -223,6 +223,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         :param patient_id:
         :type patient_id: int
         :return:
+        :rtype: nh.clinical.therapeutic.level
         """
         spell_model = self.env['nh.clinical.spell']
         current_spell_activity = \
