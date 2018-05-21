@@ -221,6 +221,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         from old ones are disregarded.
 
         :param patient_id:
+        :type patient_id: int
         :return:
         """
         spell_model = self.env['nh.clinical.spell']
