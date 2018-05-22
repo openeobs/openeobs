@@ -71,8 +71,18 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         if 'frequency' not in values or not values['frequency']:
             values['frequency'] = 60
 
-        if self.env.context['active_model'] == 'nh.clinical.wardboard':
-            # Create spell reference to distinguish from previous admissions.
+        # If patient supplied then spell reference can be added.
+        if 'patient' in values:
+            patient_id = values['patient']
+            spell_model = self.env['nh.clinical.spell']
+            current_spell_activity = \
+                spell_model.get_spell_activity_by_patient_id(patient_id)
+            spell_id = current_spell_activity.data_ref.id
+            values['spell'] = spell_id
+        # If created from wardboard spell reference can still be created
+        # without a patient ID because it can be retrieved from the
+        # wardboard record.
+        elif self.env.context['active_model'] == 'nh.clinical.wardboard':
             wardboard_id = self.env.context['active_id']
             wardboard = self.env['nh.clinical.wardboard'].browse(wardboard_id)
             spell_id = wardboard.spell_activity_id.data_ref.id
