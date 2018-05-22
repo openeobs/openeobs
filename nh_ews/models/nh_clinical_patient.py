@@ -18,17 +18,18 @@ class NhClinicalPatient(models.Model):
         """
         patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
-        scheduled_ews_activity = self.get_next_scheduled_ews_activity()
-        last_two_ews = self.get_latest_completed_ews(limit=2)
+        last_two_ews = self.get_latest_full_completed_ews(limit=2)
         last_ews = last_two_ews[0] if last_two_ews else None
         second_to_last_ews = last_two_ews[1] if len(last_two_ews) > 1 else None
 
         patient_dict['clinical_risk'] = last_ews and last_ews.clinical_risk
         patient_dict['frequency'] = last_ews.frequency if last_ews else 0,
 
+        scheduled_ews_activity = self.get_next_scheduled_ews_activity()
         date_scheduled = scheduled_ews_activity.date_scheduled \
             if scheduled_ews_activity else None
         patient_dict['next_ews_time'] = self.get_next_ews_time(date_scheduled)
+
         patient_dict['ews_score'] = last_ews.score if last_ews else ''
 
         last_ews_score = last_ews and last_ews.score
@@ -79,22 +80,19 @@ class NhClinicalPatient(models.Model):
                 overdue=overdue, days=days, hours=hours, minutes=minutes)
         return ews_due_datetime_str
 
-    def get_latest_completed_ews(self, limit=1, include_partials=True):
+    def get_latest_full_completed_ews(self, limit=1):
         """
         :param limit:
         :type limit: int
-        :param include_partials:
-        :type include_partials: bool
         :return:
         :rtype: nh.clinical.patient.observation.ews record
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
         domain = [
             ('patient_id', '=', self.id),
-            ('state', '=', 'completed')
+            ('state', '=', 'completed'),
+            ('is_partial', '=', False)  # TODO this makes page load terrible.
         ]
-        if not include_partials:
-            domain.append(('is_partial', '=', False))
         latest_ews = ews_model.search(
             domain, order='date_terminated desc, id desc', limit=limit)
         return latest_ews
