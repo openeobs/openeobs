@@ -156,14 +156,17 @@ NHMobilePatient = (function(superClass) {
       tableFunc(self, serverData);
     }
     if (!validChart || !validTable) {
-      return graphTabs.style.display = "none";
+      graphTabs.style.display = "none";
     } else {
       graphTabs.style.display = "block";
       if (activeTab === "#graph-content") {
-        return tableEl.style.display = "none";
+        tableEl.style.display = "none";
       } else {
-        return graphContent.style.display = "none";
+        graphContent.style.display = "none";
       }
+    }
+    if (!validChart && validTable) {
+      return controls.style.display = 'none';
     }
   };
 

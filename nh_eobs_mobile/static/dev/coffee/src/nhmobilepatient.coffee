@@ -136,6 +136,8 @@ class NHMobilePatient extends NHMobile
         tableEl.style.display = "none"
       else
         graphContent.style.display = "none"
+    if not validChart and validTable
+      controls.style.display = 'none'
 
   redrawGraphAreaWithNoDataPlaceholder: (self) ->
     graphContent = document.getElementById("graph-content")
