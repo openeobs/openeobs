@@ -1348,7 +1348,7 @@ NHMobilePatient = (function(superClass) {
     } else {
       controls.style.display = "none";
       graphContent.style.display = "block";
-      chartEl.innerHTML = "<h2>No observation data available for patient</h2>";
+      chartEl.innerHTML = '<h2 class="placeholder">' + 'No observation data available for patient' + '</h2>';
       return graphTabs.style.display = "none";
     }
   };

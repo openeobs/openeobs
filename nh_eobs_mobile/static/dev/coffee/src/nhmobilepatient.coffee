@@ -139,7 +139,8 @@ class NHMobilePatient extends NHMobile
     else
       controls.style.display = "none"
       graphContent.style.display = "block"
-      chartEl.innerHTML = "<h2>No observation data available for patient</h2>"
+      chartEl.innerHTML = '<h2 class="placeholder">' +
+        'No observation data available for patient' + '</h2>'
       graphTabs.style.display = "none"
 
 ### istanbul ignore if ###

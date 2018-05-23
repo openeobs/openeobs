@@ -90,3 +90,14 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         achieve the same by just declaring attributes on the model.
         """
         return False
+
+    @classmethod
+    def get_data_visualisation_resource(cls):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return '/therapeutic/static/src/js/chart.js'
