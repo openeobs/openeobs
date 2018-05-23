@@ -479,7 +479,7 @@ describe('Patient Information Functionality', function(){
             var controls = document.getElementById('controls');
             expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
-            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
         });
 
         it('Hides tabs and shows message when no observation data found - from table tab on other obs', function(){
@@ -558,7 +558,7 @@ describe('Patient Information Functionality', function(){
             expect(graphContent.style.display).toBe('block');
             var chart = document.getElementById('chart');
             expect(chart.style.display).toBe('block');
-            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
         });
 
         it('Hides tabs when only needs to draw chart or table and not both', function(){
@@ -655,7 +655,7 @@ describe('Patient Information Functionality', function(){
             var controls = document.getElementById('controls');
             expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
-            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
 
             var chartSelect = document.getElementById('chart_select');
             chartSelect.value = 'neuro';
@@ -688,7 +688,7 @@ describe('Patient Information Functionality', function(){
             var controls = document.getElementById('controls');
             expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
-            expect(chart.innerHTML).toBe('<h2>No observation data available for patient</h2>');
+            expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
 
         });
 

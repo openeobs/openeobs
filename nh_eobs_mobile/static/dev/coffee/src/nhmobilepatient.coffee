@@ -143,6 +143,7 @@ class NHMobilePatient extends NHMobile
         'No observation data available for patient' + '</h2>'
       graphTabs.style.display = "none"
 
+
 ### istanbul ignore if ###
 if !window.NH
   window.NH = {}

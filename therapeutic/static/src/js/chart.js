@@ -4,7 +4,6 @@ function drawTherapeuticChart(settings, serverData) {
 }
 
 function drawTherapeuticTable(settings, serverData){
-    var obs = serverData.reverse();
     var tableEl = new window.NH.NHGraphLib("#table");
     tableEl.table = {
         element: "#table",
@@ -39,13 +38,8 @@ function drawTherapeuticTable(settings, serverData){
             }
         ]
     };
-    tableEl.data.raw = processTherapeuticData(obs);
+    tableEl.data.raw = processTherapeuticData(serverData);
     tableEl.draw();
-}
-
-function hideRangedValuesCheckbox() {
-    var rangeCheckbox = document.getElementById('range');
-    rangeCheckbox.style.display = 'none';
 }
 
 function convertValue(value, valueToChange, substituteValue){
