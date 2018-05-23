@@ -1,8 +1,3 @@
-// Only exists to hide the 'ranged values' checkbox at the moment.
-function drawTherapeuticChart(settings, serverData) {
-    var svg = new window.NH.NHGraphLib("#" + settings.chart_element);
-}
-
 function drawTherapeuticTable(settings, serverData){
     var tableEl = new window.NH.NHGraphLib("#table");
     tableEl.table = {

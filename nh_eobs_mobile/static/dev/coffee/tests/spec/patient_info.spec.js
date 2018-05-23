@@ -605,7 +605,7 @@ describe('Patient Information Functionality', function(){
             expect(tableEl.style.display).toBe('block');
         });
 
-        it('Shows tabs, form controls and chart when observation data is found', function(){
+        it('Shows tabs and chart when observation data is found', function(){
             spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
                 // change obs on endpoint called
                 var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
@@ -652,8 +652,6 @@ describe('Patient Information Functionality', function(){
             expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
             var tabs = document.getElementsByClassName('tabs');
             expect(tabs[0].style.display).toBe('none');
-            var controls = document.getElementById('controls');
-            expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
             expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
 
@@ -669,8 +667,6 @@ describe('Patient Information Functionality', function(){
             expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro');
             var tabs = document.getElementsByClassName('tabs');
             expect(tabs[0].style.display).toBe('block');
-            var controls = document.getElementById('controls');
-            expect(controls.style.display).toBe('block');
             var chart = document.getElementById('chart');
             expect(chart.innerHTML).not.toBe('<h2>No observation data available for patient</h2>');
 
@@ -685,11 +681,169 @@ describe('Patient Information Functionality', function(){
             expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('ews');
             var tabs = document.getElementsByClassName('tabs');
             expect(tabs[0].style.display).toBe('none');
-            var controls = document.getElementById('controls');
-            expect(controls.style.display).toBe('none');
             var chart = document.getElementById('chart');
             expect(chart.innerHTML).toBe('<h2 class="placeholder">No observation data available for patient</h2>');
 
+        });
+
+        it('Shows form controls when the chart tab is selected and observation data is found', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+               var promise = new Promise();
+                var emptyGraph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(emptyGraph);
+                return promise;
+            });
+            spyOn(NHMobilePatient.prototype, 'changeChart').and.callThrough();
+            spyOn(NHMobilePatient.prototype, 'drawGraph').and.callThrough();
+            nhpatient = new NHMobilePatient();
+
+            // Initial load with no obs
+            expect(NHMobilePatient.prototype.drawGraph).toHaveBeenCalled();
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+
+            var chartSelect = document.getElementById('chart_select');
+            chartSelect.value = 'neuro';
+
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
+
+            // After change to obs with data
+            expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('neuro');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+
+            chartSelect.value = 'ews';
+
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
+
+            // After change to obs with no data
+            expect(NHMobilePatient.prototype.changeChart).toHaveBeenCalled()
+            expect(NHMobilePatient.prototype.drawGraph.calls.mostRecent().args[2]).toBe('ews');
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+        });
+
+        it('Does not show form controls when the table tab is selected and observation data is found', function(){
+            spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
+                // change obs on endpoint called
+                var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
+                var obs = [];
+                if(url.indexOf('neuro') > -1){
+                    obs = [
+                        {
+                            respiration_rate: 18,
+                            indirect_oxymetry_spo2: 99,
+                            body_temperature: 37.5,
+                            pulse_rate: 80,
+                            blood_pressure_systolic: 120,
+                            blood_pressure_diastolic: 80,
+                            score: 0,
+                            avpu_text: 'A',
+                            oxygen_administration_flag: false,
+                            flow_rate: false,
+                            concentration: false,
+                            device_id: false,
+                            cpap_peep: false,
+                            niv_backup: false,
+                            niv_ipap: false,
+                            niv_epap: false
+                        }
+                    ]
+                }
+               var promise = new Promise();
+                var emptyGraph = new NHMobileData({
+                    status: 'success',
+                    title: 'Test Patient',
+                    description: 'Observations for Test Patient',
+                    data: {
+                       obs: obs
+                    }
+                });
+                promise.complete(emptyGraph);
+                return promise;
+            });
+            nhpatient = new NHMobilePatient();
+
+            var testButtons = document.getElementsByClassName('tab');
+            var graphTabButton = testButtons[0]
+            var tableTabButton = testButtons[1]
+
+            // Select neuro...
+            var chartSelect = document.getElementById('chart_select');
+            chartSelect.value = 'neuro';
+            var changeEvent = document.createEvent('CustomEvent');
+            changeEvent.initCustomEvent('change', false, true, false);
+            chartSelect.dispatchEvent(changeEvent);
+            // ...And expect controls.
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+
+            // Select table...
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            tableTabButton.dispatchEvent(clickEvent);
+            // ...And expect no controls.
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
+
+            // Select graph tab again...
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            graphTabButton.dispatchEvent(clickEvent);
+            // ...And expect controls again.
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('block');
+        });
+
+        it('Does not show form controls when the table tab is selected and no observation data is found', function(){
+            nhpatient = new NHMobilePatient();
+
+            var testButtons = document.getElementsByClassName('tab');
+            var tableTabButton = testButtons[1]
+
+            // Select table and expect no controls.
+            var clickEvent = document.createEvent('CustomEvent');
+            clickEvent.initCustomEvent('click', false, true, false);
+            tableTabButton.dispatchEvent(clickEvent);
+            var controls = document.getElementById('controls');
+            expect(controls.style.display).toBe('none');
         });
 
         it('Fetches data for the selected observation when the \'See observation data for:\' dropdown is changed', function(){
