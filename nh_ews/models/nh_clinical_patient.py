@@ -84,7 +84,7 @@ class NhClinicalPatient(models.Model):
         """
         :param limit:
         :type limit: int
-        :return:
+        :return: The latest full (not partial) completed EWS observation.
         :rtype: nh.clinical.patient.observation.ews record
         """
         ews_model = self.env['nh.clinical.patient.observation.ews']
