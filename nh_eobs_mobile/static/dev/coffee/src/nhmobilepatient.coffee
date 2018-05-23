@@ -106,7 +106,7 @@ class NHMobilePatient extends NHMobile
       ["<a href=\"#\" data-action=\"close\" "+
         "data-target=\"obs_menu\">Cancel</a>"], 0, body)
 
-  drawGraph: (self, serverData, dataModel) ->
+  redrawGraphAreaWithData: (self, serverData, dataModel) ->
     graphContent = document.getElementById("graph-content")
     controls = document.getElementById("controls")
     chartEl = document.getElementById(self.chart_element)
@@ -116,33 +116,44 @@ class NHMobilePatient extends NHMobile
       graphTabs.getElementsByClassName("selected")[0].getAttribute('href')
     chartFuncName = "draw" + dataModel.capitalize() + "Chart"
     tableFuncName = "draw" + dataModel.capitalize() + "Table"
-    if serverData.length > 0
-      visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl]
-      for el in visualisation_els
-        el.style.display = "block"
-      chartFunc = window[chartFuncName]
-      tableFunc = window[tableFuncName]
-      validChart = (typeof chartFunc is "function")
-      validTable = (typeof tableFunc is "function")
-      if validChart
-        chartFunc(self, serverData)
-      if validTable
-        tableFunc(self, serverData)
-      if not validChart or not validTable
-        graphTabs.style.display = "none"
-      else
-        graphTabs.style.display = "block"
-        if activeTab is "#graph-content"
-          tableEl.style.display = "none"
-        else
-          graphContent.style.display = "none"
-    else
-      controls.style.display = "none"
-      graphContent.style.display = "block"
-      chartEl.innerHTML = '<h2 class="placeholder">' +
-        'No observation data available for patient' + '</h2>'
-      graphTabs.style.display = "none"
 
+    visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl]
+    for el in visualisation_els
+      el.style.display = "block"
+    chartFunc = window[chartFuncName]
+    tableFunc = window[tableFuncName]
+    validChart = (typeof chartFunc is "function")
+    validTable = (typeof tableFunc is "function")
+    if validChart
+      chartFunc(self, serverData)
+    if validTable
+      tableFunc(self, serverData)
+    if not validChart or not validTable
+      graphTabs.style.display = "none"
+    else
+      graphTabs.style.display = "block"
+      if activeTab is "#graph-content"
+        tableEl.style.display = "none"
+      else
+        graphContent.style.display = "none"
+
+  redrawGraphAreaWithNoDataPlaceholder: (self) ->
+    graphContent = document.getElementById("graph-content")
+    controls = document.getElementById("controls")
+    chartEl = document.getElementById(self.chart_element)
+    graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0]
+
+    controls.style.display = "none"
+    graphContent.style.display = "block"
+    chartEl.innerHTML = '<h2 class="placeholder">' +
+      'No observation data available for patient' + '</h2>'
+    graphTabs.style.display = "none"
+
+  drawGraph: (self, serverData, dataModel) ->
+    if serverData.length > 0
+      self.redrawGraphAreaWithData(self, serverData, dataModel)
+    else
+      self.redrawGraphAreaWithNoDataPlaceholder(self)
 
 ### istanbul ignore if ###
 if !window.NH
