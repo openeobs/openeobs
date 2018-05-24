@@ -17,6 +17,7 @@
                                class="therapeutic_frequency"/>
                         <field name="therapeutic_staff_to_patient_ratio"
                                string="Staff to Patient Ratio"
+                               readonly="1"
                                class="therapeutic_staff_to_patient_ratio"/>
                     </group>
                 </xpath>
