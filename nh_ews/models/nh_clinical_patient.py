@@ -5,7 +5,9 @@ from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT as DTF
 
 
 class NhClinicalPatient(models.Model):
-
+    """
+    Patient override to add EWS data to some methods.
+    """
     _inherit = 'nh.clinical.patient'
 
     @api.one
