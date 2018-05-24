@@ -18,7 +18,7 @@ class NhClinicalPatient(models.Model):
         """
         patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
-        last_two_ews = self.get_latest_full_completed_ews(limit=2)
+        last_two_ews = self.get_latest_completed_ews(limit=2)
         last_ews = last_two_ews[0] if last_two_ews else None
         second_to_last_ews = last_two_ews[1] if len(last_two_ews) > 1 else None
 
@@ -80,7 +80,7 @@ class NhClinicalPatient(models.Model):
                 overdue=overdue, days=days, hours=hours, minutes=minutes)
         return ews_due_datetime_str
 
-    def get_latest_full_completed_ews(self, limit=1):
+    def get_latest_completed_ews(self, limit=1, include_partials=False):
         """
         :param limit:
         :type limit: int
@@ -90,9 +90,11 @@ class NhClinicalPatient(models.Model):
         ews_model = self.env['nh.clinical.patient.observation.ews']
         domain = [
             ('patient_id', '=', self.id),
-            ('state', '=', 'completed'),
-            ('is_partial', '=', False)  # TODO this makes page load terrible.
+            ('state', '=', 'completed')
         ]
+        if not include_partials:
+            # TODO this makes page load terrible.
+            domain.append(('is_partial', '=', False))
         latest_ews = ews_model.search(
             domain, order='date_terminated desc, id desc', limit=limit)
         return latest_ews

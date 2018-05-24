@@ -15,7 +15,9 @@ class NhClinicalPatient(models.Model):
         """
         patient_dict = super(NhClinicalPatient, self).serialise()[0]
 
-        last_ews = self.get_latest_full_completed_ews(limit=1)
+        last_ews = self.get_latest_completed_ews(
+            limit=1, include_partials=True
+        )
 
         patient_dict['refusal_in_effect'] = self.get_refusal_in_effect(
             last_ews)
