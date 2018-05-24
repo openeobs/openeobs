@@ -762,7 +762,7 @@ describe('Patient Information Functionality', function(){
 
         it('Does not show form controls when the observation has a table but no graph', function(){
             spyOn(NHMobilePatient.prototype, 'process_request').and.callFake(function(){
-                // change obs on endpoint called
+                // Change obs on endpoint called
                 var url = NHMobilePatient.prototype.process_request.calls.mostRecent().args[1];
                 var obs = [];
                 if(url.indexOf('neuro') > -1){
