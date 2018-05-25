@@ -95,7 +95,7 @@ class NhClinicalPatient(models.Model):
             ('state', '=', 'completed')
         ]
         if not include_partials:
-            # TODO this makes page load terrible.
+            # TODO this makes page load terrible (EOBS-2628).
             domain.append(('is_partial', '=', False))
         latest_ews = ews_model.search(
             domain, order='date_terminated desc, id desc', limit=limit)
