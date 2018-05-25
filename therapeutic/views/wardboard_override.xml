@@ -1,0 +1,27 @@
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_therapeutic_wardboard_form">
+            <field name="name">Therapeutic Wardboard Tree View</field>
+            <field name="model">nh.clinical.wardboard</field>
+            <field name="inherit_id" ref="nh_eobs.view_wardboard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/group/group[@string = 'Early Warning Score']" position="after">
+                    <group string="Therapeutic Observations">
+                        <field name="therapeutic_level"
+                               string="Current Level"
+                               readonly="1"
+                               class="therapeutic_level"/>
+                        <field name="therapeutic_frequency"
+                               string="Recording Frequency"
+                               readonly="1"
+                               class="therapeutic_frequency"/>
+                        <field name="therapeutic_staff_to_patient_ratio"
+                               string="Staff to Patient Ratio"
+                               readonly="1"
+                               class="therapeutic_staff_to_patient_ratio"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

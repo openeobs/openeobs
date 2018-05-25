@@ -5,7 +5,7 @@ from openerp.addons.nh_observations import fields as obs_fields
 
 class NhClinicalPatientObservationTherapeutic(models.Model):
     """
-    Model for the therapeutic observation.
+    Model representing a therapeutic observation.
     """
     _name = 'nh.clinical.patient.observation.therapeutic'
     _inherit = 'nh.clinical.patient.observation'
