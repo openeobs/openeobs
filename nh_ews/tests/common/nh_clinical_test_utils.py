@@ -49,6 +49,8 @@ class NhClinicalTestUtils(AbstractModel):
 
     @staticmethod
     def _get_risk_data(risk):
+        if risk == 'partial':
+            return clinical_risk_sample_data.PARTIAL_DATA_AWAY_FROM_BED
         risk = risk.upper()
         variable_name = '{}_RISK_DATA'.format(risk)
         obs_data = getattr(clinical_risk_sample_data, variable_name)

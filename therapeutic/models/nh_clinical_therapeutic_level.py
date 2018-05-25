@@ -35,6 +35,9 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
     patient = fields.Many2one(
         comodel_name='nh.clinical.patient', required=True
     )
+    spell = fields.Many2one(
+        comodel_name='nh.clinical.spell'
+    )
     level = fields.Selection(
         required=True, selection=levels, string='Observation Level'
     )
@@ -67,6 +70,29 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
             self._validate_frequency_is_given(values['frequency'])
         if 'frequency' not in values or not values['frequency']:
             values['frequency'] = 60
+
+        # If patient supplied then spell reference can be added.
+        if 'patient' in values:
+            patient_id = values['patient']
+            spell_model = self.env['nh.clinical.spell']
+            current_spell_activity = \
+                spell_model.get_spell_activity_by_patient_id(patient_id)
+            spell_id = current_spell_activity.data_ref.id
+            values['spell'] = spell_id
+        # If created from wardboard spell reference can still be created
+        # without a patient ID because it can be retrieved from the
+        # wardboard record.
+        elif self.env.context['active_model'] == 'nh.clinical.wardboard':
+            wardboard_id = self.env.context['active_id']
+            wardboard = self.env['nh.clinical.wardboard'].browse(wardboard_id)
+            spell_id = wardboard.spell_activity_id.data_ref.id
+            values['spell'] = spell_id
+        else:
+            raise ValueError(
+                "Active model is not wardboard. Currently creation of "
+                "therapeutic level records is only supported from a wardboard."
+            )
+
         return super(NhClinicalPatientObservationTherapeuticLevel, self)\
             .create(values)
 
@@ -203,10 +229,33 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
 
     @api.model
     def get_current_level_record_for_patient(self, patient_id):
+        """
+        Get the current therapeutic level record for the patient. Only returns
+        level records that were set during the currently open spell. Levels
+        from old ones are disregarded.
+
+        :param patient_id:
+        :type patient_id: int
+        :return:
+        :rtype: nh.clinical.therapeutic.level
+        """
+        spell_model = self.env['nh.clinical.spell']
+        current_spell_activity = \
+            spell_model.get_spell_activity_by_patient_id(patient_id)
         current_level_record = self.search([
-            ('patient', '=', patient_id)
+            ('spell', '=', current_spell_activity.data_ref.id)
         ], order='id desc', limit=1)
         return current_level_record
 
     def is_level(self, level):
+        """
+        Indicates whether or not the record referenced by `self` has the passed
+        level. If the current record represents a level 1 therapeutic obs and
+        `1` is passed it will return `True`.
+
+        :param level: A level record.
+        :rtype: int
+        :return:
+        :rtype: bool
+        """
         return self.level == self.levels[level - 1][0]
