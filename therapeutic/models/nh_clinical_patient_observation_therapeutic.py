@@ -117,10 +117,10 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         obs_dict_list = super(NhClinicalPatientObservationTherapeutic, self)\
             .get_formatted_obs(replace_zeros=replace_zeros,
                                convert_datetimes_to_client_timezone=convert)
+        key = 'one_to_one_intervention_needed'
         obs_with_one_to_one_submitted_as_no = [
             obs_dict for obs_dict in obs_dict_list
-            if 'one_to_one_intervention_needed' not in obs_dict['none_values']
-               and obs_dict['one_to_one_intervention_needed'] is None
+            if key not in obs_dict['none_values'] and obs_dict[key] is None
         ]
         for obs in obs_with_one_to_one_submitted_as_no:
             obs['one_to_one_intervention_needed'] = False
