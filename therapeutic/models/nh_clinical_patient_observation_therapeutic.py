@@ -101,3 +101,27 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         :rtype: str
         """
         return '/therapeutic/static/src/js/chart.js'
+
+    @api.multi
+    def get_formatted_obs(self, replace_zeros=False,
+                          convert_datetimes_to_client_timezone=False):
+        """
+        Override to ensure that the boolean field
+        `one_to_one_intervention_needed` is correctly displayed in the mobile
+        front-end when 'No' was selected during obs submission.
+
+        :return:
+        :rtype: list
+        """
+        convert = convert_datetimes_to_client_timezone
+        obs_dict_list = super(NhClinicalPatientObservationTherapeutic, self)\
+            .get_formatted_obs(replace_zeros=replace_zeros,
+                               convert_datetimes_to_client_timezone=convert)
+        obs_with_one_to_one_submitted_as_no = [
+            obs_dict for obs_dict in obs_dict_list
+            if 'one_to_one_intervention_needed' not in obs_dict['none_values']
+               and obs_dict['one_to_one_intervention_needed'] is None
+        ]
+        for obs in obs_with_one_to_one_submitted_as_no:
+            obs['one_to_one_intervention_needed'] = False
+        return obs_dict_list

@@ -35,8 +35,6 @@ class NhClinicalPatientObservationNeurological(models.Model):
     ]
 
     _description = "Neurological"
-    # TODO Remove when EOBS-982 complete.
-    # Also decides the order fields are displayed in the mobile view.
     _required = [
         'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_right_reaction',
         'pupil_left_size', 'pupil_left_reaction',

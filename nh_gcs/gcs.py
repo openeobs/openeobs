@@ -30,7 +30,6 @@ class nh_clinical_patient_observation_gcs(models.Model):
     _name = 'nh.clinical.patient.observation.gcs'
     _inherit = ['nh.clinical.patient.observation_scored']
 
-    # Also decides the order fields are displayed in the mobile view.
     _required = ['eyes', 'verbal', 'motor']
     _scored = ['eyes', 'verbal', 'motor']
     _description = "GCS"
