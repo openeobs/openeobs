@@ -35,6 +35,9 @@ class NhClinicalPatientObservationNeurological(models.Model):
     ]
 
     _description = "Neurological"
+    # TODO EOBS-982 Refactor _required, _num_fields, none_values
+    # Can be removed when the above tech debt is completed and `_required` is
+    # no longer used.
     _required = [
         'eyes', 'verbal', 'motor', 'pupil_right_size', 'pupil_right_reaction',
         'pupil_left_size', 'pupil_left_reaction',
