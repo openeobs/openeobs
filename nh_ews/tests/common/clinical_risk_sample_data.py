@@ -56,3 +56,63 @@ PARTIAL_DATA_AWAY_FROM_BED = {
     'respiration_rate': 11,
     'partial_reason': 'patient_away_from_bed'
 }
+
+FULL_NO_OXYGEN_ADMINISTRATION = {
+    'respiration_rate': 18,
+    'indirect_oxymetry_spo2': 99,
+    'body_temperature': 37.5,
+    'blood_pressure_systolic': 120,
+    'blood_pressure_diastolic': 80,
+    'pulse_rate': 65,
+    'avpu_text': 'A',
+    'oxygen_administration_flag': False
+}
+
+PARTIAL_NO_RESPIRATION_RATE = {
+    'indirect_oxymetry_spo2': 99,
+    'body_temperature': 37.5,
+    'blood_pressure_systolic': 120,
+    'blood_pressure_diastolic': 80,
+    'pulse_rate': 65,
+    'avpu_text': 'A',
+    'oxygen_administration_flag': False,
+    'partial_reason': 'patient_away_from_bed'
+}
+
+PARTIAL_OXYGEN_ADMINISTRATION_NO_DEVICE = {
+    'respiration_rate': 18,
+    'indirect_oxymetry_spo2': 99,
+    'body_temperature': 37.5,
+    'blood_pressure_systolic': 120,
+    'blood_pressure_diastolic': 80,
+    'pulse_rate': 65,
+    'avpu_text': 'A',
+    'oxygen_administration_flag': True,
+    'partial_reason': 'patient_away_from_bed'
+}
+
+PARTIAL_OXYGEN_ADMINISTRATION_DEVICE = {
+    'respiration_rate': 18,
+    'indirect_oxymetry_spo2': 99,
+    'body_temperature': 37.5,
+    'blood_pressure_systolic': 120,
+    'blood_pressure_diastolic': 80,
+    'pulse_rate': 65,
+    'avpu_text': 'A',
+    'oxygen_administration_flag': True,
+    'device_id': 34,
+    'partial_reason': 'patient_away_from_bed'
+}
+
+FULL_OXYGEN_ADMINISTRATION = {
+    'respiration_rate': 18,
+    'indirect_oxymetry_spo2': 99,
+    'body_temperature': 37.5,
+    'blood_pressure_systolic': 120,
+    'blood_pressure_diastolic': 80,
+    'pulse_rate': 65,
+    'avpu_text': 'A',
+    'oxygen_administration_flag': True,
+    'device_id': 34,
+    'concentration': 18
+}

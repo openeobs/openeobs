@@ -102,15 +102,19 @@ class nh_clinical_patient_observation_ews(orm.Model):
         if not self._required:
             return {id: False for id in ids}
         res = {}
-        for obs in self.read(cr, uid, ids, ['none_values',
-                                            'oxygen_administration_flag',
-                                            'device_id',
-                                            'flow_rate',
-                                            'cpap_peep',
-                                            'niv_epap',
-                                            'niv_backup',
-                                            'niv_ipap',
-                                            'concentration'], context):
+        for obs in self.read(
+                cr, uid, ids, [
+                    'none_values',
+                    'oxygen_administration_flag',
+                    'device_id',
+                    'flow_rate',
+                    'cpap_peep',
+                    'niv_epap',
+                    'niv_backup',
+                    'niv_ipap',
+                    'concentration'
+                ], context
+        ):
             partial = bool(set(self._required) & set(eval(obs['none_values'])))
             suppl_oxygen = obs.get('oxygen_administration_flag')
             if not partial and suppl_oxygen:
@@ -135,22 +139,6 @@ class nh_clinical_patient_observation_ews(orm.Model):
                     obs['id']: partial
                 })
         return res
-
-    def _is_partial_search(self, cr, uid, obj, name, args, domain=None,
-                           context=None):
-            arg1, op, arg2 = args[0]
-            arg2 = bool(arg2)
-            all_ids = self.search(cr, uid, [])
-            is_partial_map = self._is_partial(
-                cr, uid, all_ids, 'is_partial', None, context=context)
-            partial_ews_ids = [key for key, value in is_partial_map.items()
-                               if value]
-            if arg2:
-                return [('id', 'in', [ews_id for ews_id in all_ids
-                                      if ews_id in partial_ews_ids])]
-            else:
-                return [('id', 'in', [ews_id for ews_id in all_ids
-                                      if ews_id not in partial_ews_ids])]
 
     @api.model
     def calculate_score(self, ews_data):
@@ -300,6 +288,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
 
     _avpu_values = [['A', 'Alert'], ['V', 'Voice'], ['P', 'Pain'],
                     ['U', 'Unresponsive']]
+    _partial_fields = _required + [
+        'none_values',
+        'device_id',
+        'flow_rate',
+        'concentration',
+        'cpap_peep',
+        'niv_ipap',
+        'niv_epap',
+        'niv_backup'
+    ]
+
     _columns = {
         'score': fields.function(
             _get_score, type='integer', multi='score', string='Score', store={
@@ -318,9 +317,17 @@ class nh_clinical_patient_observation_ews(orm.Model):
                 'nh.clinical.patient.observation.ews': (
                     lambda self, cr, uid, ids, ctx: ids, [], 10)
             }),
-        'is_partial': fields.function(_is_partial, type='boolean',
-                                      fnct_search=_is_partial_search,
-                                      string='Is Partial?'),
+        'is_partial': fields.function(
+            _is_partial, type='boolean',
+            string='Is Partial?',
+            store={
+                'nh.clinical.patient.observation.ews': (
+                    lambda self, cr, uid, ids, context=None: ids,
+                    _partial_fields,
+                    10
+                )
+            }
+        ),
         'respiration_rate': fields.integer('Respiration Rate'),
         'indirect_oxymetry_spo2': fields.integer('O2 Saturation'),
         'oxygen_administration_flag': fields.boolean(
