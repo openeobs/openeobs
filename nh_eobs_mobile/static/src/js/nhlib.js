@@ -1309,7 +1309,7 @@ NHMobilePatient = (function(superClass) {
     return new NHModal("obs_menu", "Pick an observation for " + pat, menu, ["<a href=\"#\" data-action=\"close\" " + "data-target=\"obs_menu\">Cancel</a>"], 0, body);
   };
 
-  NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
+  NHMobilePatient.prototype.redrawGraphAreaWithData = function(self, serverData, dataModel) {
     var activeTab, chartEl, chartFunc, chartFuncName, controls, el, graphContent, graphTabs, i, len, tableEl, tableFunc, tableFuncName, validChart, validTable, visualisation_els;
     graphContent = document.getElementById("graph-content");
     controls = document.getElementById("controls");
@@ -1319,37 +1319,53 @@ NHMobilePatient = (function(superClass) {
     activeTab = graphTabs.getElementsByClassName("selected")[0].getAttribute('href');
     chartFuncName = "draw" + dataModel.capitalize() + "Chart";
     tableFuncName = "draw" + dataModel.capitalize() + "Table";
-    if (serverData.length > 0) {
-      visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl];
-      for (i = 0, len = visualisation_els.length; i < len; i++) {
-        el = visualisation_els[i];
-        el.style.display = "block";
-      }
-      chartFunc = window[chartFuncName];
-      tableFunc = window[tableFuncName];
-      validChart = typeof chartFunc === "function";
-      validTable = typeof tableFunc === "function";
-      if (validChart) {
-        chartFunc(self, serverData);
-      }
-      if (validTable) {
-        tableFunc(self, serverData);
-      }
-      if (!validChart || !validTable) {
-        return graphTabs.style.display = "none";
-      } else {
-        graphTabs.style.display = "block";
-        if (activeTab === "#graph-content") {
-          return tableEl.style.display = "none";
-        } else {
-          return graphContent.style.display = "none";
-        }
-      }
+    visualisation_els = [controls, graphTabs, chartEl, graphContent, tableEl];
+    for (i = 0, len = visualisation_els.length; i < len; i++) {
+      el = visualisation_els[i];
+      el.style.display = "block";
+    }
+    chartFunc = window[chartFuncName];
+    tableFunc = window[tableFuncName];
+    validChart = typeof chartFunc === "function";
+    validTable = typeof tableFunc === "function";
+    if (validChart) {
+      chartFunc(self, serverData);
+    }
+    if (validTable) {
+      tableFunc(self, serverData);
+    }
+    if (!validChart || !validTable) {
+      graphTabs.style.display = "none";
     } else {
-      controls.style.display = "none";
-      graphContent.style.display = "block";
-      chartEl.innerHTML = "<h2>No observation data available for patient</h2>";
-      return graphTabs.style.display = "none";
+      graphTabs.style.display = "block";
+      if (activeTab === "#graph-content") {
+        tableEl.style.display = "none";
+      } else {
+        graphContent.style.display = "none";
+      }
+    }
+    if (!validChart && validTable) {
+      return controls.style.display = 'none';
+    }
+  };
+
+  NHMobilePatient.prototype.redrawGraphAreaWithNoDataPlaceholder = function(self) {
+    var chartEl, controls, graphContent, graphTabs;
+    graphContent = document.getElementById("graph-content");
+    controls = document.getElementById("controls");
+    chartEl = document.getElementById(self.chart_element);
+    graphTabs = graphContent.parentNode.getElementsByClassName("tabs")[0];
+    controls.style.display = "none";
+    graphContent.style.display = "block";
+    chartEl.innerHTML = '<h2 class="placeholder">' + 'No observation data available for patient' + '</h2>';
+    return graphTabs.style.display = "none";
+  };
+
+  NHMobilePatient.prototype.drawGraph = function(self, serverData, dataModel) {
+    if (serverData.length > 0) {
+      return self.redrawGraphAreaWithData(self, serverData, dataModel);
+    } else {
+      return self.redrawGraphAreaWithNoDataPlaceholder(self);
     }
   };
 

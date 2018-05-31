@@ -32,7 +32,6 @@ class NhClinicalPatientObservation(orm.AbstractModel):
     _inherit = ['nh.activity.data']
 
     # Fields required for complete observation.
-    # Also decides the order fields are displayed in the mobile view.
     _required = []
     # Numeric fields we want to be able to read as NULL instead of 0.
     _num_fields = []

@@ -549,6 +549,10 @@ p.food_fluid_period strong {
   font-weight: normal;
   font-style: italic;
 }
+.placeholder {
+  text-align: center;
+  color: #666;
+}
 /*
 
 CSS

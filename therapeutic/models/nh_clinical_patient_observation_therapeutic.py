@@ -90,3 +90,38 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         achieve the same by just declaring attributes on the model.
         """
         return False
+
+    @classmethod
+    def get_data_visualisation_resource(cls):
+        """
+        Returns URL of JS file to plot data visualisation so can be loaded on
+        mobile and desktop
+
+        :return: URL of JS file to plot graph
+        :rtype: str
+        """
+        return '/therapeutic/static/src/js/chart.js'
+
+    @api.multi
+    def get_formatted_obs(self, replace_zeros=False,
+                          convert_datetimes_to_client_timezone=False):
+        """
+        Override to ensure that the boolean field
+        `one_to_one_intervention_needed` is correctly displayed in the mobile
+        front-end when 'No' was selected during obs submission.
+
+        :return:
+        :rtype: list
+        """
+        convert = convert_datetimes_to_client_timezone
+        obs_dict_list = super(NhClinicalPatientObservationTherapeutic, self)\
+            .get_formatted_obs(replace_zeros=replace_zeros,
+                               convert_datetimes_to_client_timezone=convert)
+        key = 'one_to_one_intervention_needed'
+        obs_with_one_to_one_submitted_as_no = [
+            obs_dict for obs_dict in obs_dict_list
+            if key not in obs_dict['none_values'] and obs_dict[key] is None
+        ]
+        for obs in obs_with_one_to_one_submitted_as_no:
+            obs['one_to_one_intervention_needed'] = False
+        return obs_dict_list
