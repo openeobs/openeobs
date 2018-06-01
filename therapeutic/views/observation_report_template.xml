@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+
+        <template id="observation_report" inherit_id="nh_eobs.observation_report" name="Observation Report">
+            <xpath expr="//*[@id = 'news_values']" position="after">
+                <t t-if="therapeutic_level_history">
+                    <div class="col-xs-12 row" id="therapeutic-level-history">
+                        <h3>Therapeutic Level History</h3>
+                        <t t-call="therapeutic.level_table"/>
+                    </div>
+                </t>
+                <t t-if="therapeutic_observations">
+                    <div class="col-xs-12 row" id="therapeutic-observations">
+                        <h3>Therapeutic Observations</h3>
+                        <t t-call="therapeutic.observation_table"/>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+
+        <template id="level_table">
+            <table class="striped col-xs-12 row">
+                <thead>
+                    <tr>
+                        <th class="col-xs-1 therapeutic-level-table-header">Date</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Level</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Recording Frequency</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Staff to Patient Ratio</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="therapeutic_level_history" t-as="level">
+                        <tr>
+                            <td class="col-xs-1 therapeutic-level-date"><t t-esc="level['date']"/></td>
+                            <td class="col-xs-1 therapeutic-level-level"><t t-esc="level['level']"/></td>
+                            <td class="col-xs-1 therapeutic-level-frequency"><t t-esc="level['frequency']"/></td>
+                            <td class="col-xs-1 therapeutic-level-staff-to-patient-ratio"><t t-esc="level['staff_to_patient_ratio']"/></td>
+                            <td class="col-xs-1 therapeutic-level-user"><t t-esc="level['user']"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </template>
+
+        <template id="observation_table">
+            <table class="striped col-xs-12 row">
+                <thead>
+                    <tr>
+                        <th class="col-xs-1 therapeutic-level-table-header">Date</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Patient Status</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Location</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Areas of Concern</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Intervention?</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Other Staff</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">Other Notes</th>
+                        <th class="col-xs-1 therapeutic-level-table-header">User</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="therapeutic_observations" t-as="observation">
+                        <tr>
+                            <td class="col-xs-1 therapeutic-observation-date"><t t-esc="observation['date']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-patient-status"><t t-esc="observation['patient_status']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-location"><t t-esc="observation['location']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-areas-of-concern"><t t-esc="observation['areas_of_concern']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-intervention"><t t-esc="observation['intervention']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-other-staff-during-intervention"><t t-esc="observation['other_staff_during_intervention']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-other-notes"><t t-esc="observation['other_notes']"/></td>
+                            <td class="col-xs-1 therapeutic-observation-user"><t t-esc="observation['user']"/></td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </template>
+
+    </data>
+</openerp>
