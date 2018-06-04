@@ -258,7 +258,8 @@ class TestRenderHtmlTherapeuticObservations(TestRenderHtmlBase):
 
         self.call_test()
 
-        actual = self._get_table_cells('other-staff-during-intervention')[0].text
+        actual = \
+            self._get_table_cells('other-staff-during-intervention')[0].text
         self.assertEqual(expected, actual)
 
     def test_table_has_other_notes(self):
