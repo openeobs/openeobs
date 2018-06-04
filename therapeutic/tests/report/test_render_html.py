@@ -90,9 +90,12 @@ class TestRenderHtmlTherapeuticLevel(TestRenderHtmlBase):
 
     def test_table_has_date(self):
         level = self._create_level()
+        localised_create_date = self.datetime_utils_model.get_localised_time(
+            date_time=level.create_date, return_string=True
+        )
         expected = self.datetime_utils_model \
             .reformat_server_datetime_for_frontend(
-                level.create_date, two_character_year=True
+                localised_create_date, two_character_year=True
             )
 
         self.call_test()
@@ -212,9 +215,12 @@ class TestRenderHtmlTherapeuticObservations(TestRenderHtmlBase):
 
     def test_table_has_date(self):
         obs = self._create_obs()
-        expected = self.datetime_utils_model\
+        localised_create_date = self.datetime_utils_model.get_localised_time(
+            date_time=obs.create_date, return_string=True
+        )
+        expected = self.datetime_utils_model \
             .reformat_server_datetime_for_frontend(
-                obs.create_date, two_character_year=True
+                localised_create_date, two_character_year=True
             )
 
         self.call_test()
