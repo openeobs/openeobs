@@ -3,11 +3,11 @@ from BeautifulSoup import BeautifulSoup
 from openerp.tests.common import SavepointCase
 
 
-fake_timedelta = None
-
-
 class TestRenderHtmlBase(SavepointCase):
-
+    """
+    Base class used for testing the rendering of report HTML for therapeutic
+    sections.
+    """
     def setUp(self):
         super(TestRenderHtmlBase, self).setUp()
         self.test_utils_model = self.env['nh.clinical.test_utils']
@@ -33,7 +33,10 @@ class TestRenderHtmlBase(SavepointCase):
 
 
 class TestRenderHtmlTherapeuticLevel(TestRenderHtmlBase):
-
+    """
+    Test the rendering of the therapeutic level section in the observation
+    report.
+    """
     def setUp(self):
         super(TestRenderHtmlTherapeuticLevel, self).setUp()
         self.shift_coordinator = \
@@ -147,7 +150,10 @@ class TestRenderHtmlTherapeuticLevel(TestRenderHtmlBase):
 
 
 class TestRenderHtmlTherapeuticObservations(TestRenderHtmlBase):
-
+    """
+    Test the rendering of the therapeutic observation section in the
+    observation report.
+    """
     def _create_obs(self):
         obs_activity_id = self.therapeutic_obs_model.create_activity(
             {},
