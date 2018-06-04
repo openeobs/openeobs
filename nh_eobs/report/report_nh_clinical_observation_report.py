@@ -1039,7 +1039,8 @@ class ObservationReport(models.AbstractModel):
 
         localised_date_time = datetime_utils.get_localised_time(
             date_time, return_string=True,
-            return_string_format=return_string_format)
+            return_string_format=return_string_format
+        )
 
         dictionary[key] = localised_date_time
 

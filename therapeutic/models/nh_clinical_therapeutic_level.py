@@ -82,7 +82,7 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         # If created from wardboard spell reference can still be created
         # without a patient ID because it can be retrieved from the
         # wardboard record.
-        elif self.env.context['active_model'] == 'nh.clinical.wardboard':
+        elif self.env.context.get('active_model') == 'nh.clinical.wardboard':
             wardboard_id = self.env.context['active_id']
             wardboard = self.env['nh.clinical.wardboard'].browse(wardboard_id)
             spell_id = wardboard.spell_activity_id.data_ref.id
@@ -259,3 +259,41 @@ class NhClinicalPatientObservationTherapeuticLevel(models.Model):
         :rtype: bool
         """
         return self.level == self.levels[level - 1][0]
+
+    @api.one
+    def serialise(self):
+        frequency = self.get_field_value_label('frequency', self.frequency)
+        if self.staff_to_patient_ratio:
+            staff_to_patient_ratio = self.get_field_value_label(
+                'staff_to_patient_ratio', self.staff_to_patient_ratio
+            )
+        else:
+            staff_to_patient_ratio = ''
+
+        level_dict = {
+            'id': self.id,
+            'date': self.create_date,
+            'level': self.level,
+            'frequency': frequency,
+            'staff_to_patient_ratio': staff_to_patient_ratio,
+            'user': self.create_uid.name
+        }
+        return level_dict
+
+    def get_field_value_label(self, field_name, field_value):
+        """
+        Lookup the label for the passed field value and return it.
+
+        :param field_name:
+        :type field_name: str
+        :param field_value:
+        :type field_value: str
+        :return: Field label.
+        :rtype: str
+        """
+        field = self._fields[field_name]
+        selection = field.selection
+        valid_value_tuple = \
+            [valid_value_tuple for valid_value_tuple in selection
+             if valid_value_tuple[0] == field_value][0]
+        return valid_value_tuple[1]

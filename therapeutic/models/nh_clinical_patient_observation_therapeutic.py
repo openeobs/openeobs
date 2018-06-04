@@ -125,3 +125,34 @@ class NhClinicalPatientObservationTherapeutic(models.Model):
         for obs in obs_with_one_to_one_submitted_as_no:
             obs['one_to_one_intervention_needed'] = False
         return obs_dict_list
+
+    @api.one
+    def serialise(self):
+        patient_status = self.get_field_value_label(
+            'patient_status', self.patient_status
+        )
+        intervention = self._convert_bool_to_yes_no_string(
+            'one_to_one_intervention_needed',
+            self.one_to_one_intervention_needed
+        )
+        obs_dict = {
+            'id': self.id,
+            'date': self.create_date,
+            'patient_status': patient_status,
+            'location': self.location,
+            'areas_of_concern': self.areas_of_concern,
+            'intervention': intervention,
+            'other_staff_during_intervention':
+                self.other_staff_during_intervention,
+            'other_notes': self.other_notes,
+            'user': self.terminate_uid.name
+        }
+        return obs_dict
+
+    def _convert_bool_to_yes_no_string(self, field_name, field_value):
+        if field_value:
+            return 'Yes'
+        elif field_name in self.none_values:
+            return ''
+        else:
+            return 'No'

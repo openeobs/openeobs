@@ -15,7 +15,8 @@
     'data': [
         'security/ir.model.access.csv',
         'views/set_therapeutic_level.xml',
-        'views/wardboard_override.xml'
+        'views/wardboard_override.xml',
+        'views/observation_report_template.xml'
     ],
     'demo': [],
     'css': [],
