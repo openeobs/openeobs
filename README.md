@@ -1,5 +1,5 @@
 # Open-eObs
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5168b7d619c54feab1bdebc527ec1745)](https://www.codacy.com/app/BJSS/openeobs?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NeovaHealth/openeobs&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5168b7d619c54feab1bdebc527ec1745)](https://www.codacy.com/app/BJSS/openeobs?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=NeovaHealth/openeobs&amp;utm_campaign=Badge_Grade) ![](https://img.shields.io/travis/openeobs/openeobs.svg?logo=travis)
 
 Open-eObs is an electronic observation, ward management and task management software
 for Acute and Mental Health hospitals.
