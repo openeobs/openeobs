@@ -11,3 +11,4 @@ lxml==3.8.0
 Click==6.7
 pylint-odoo==1.8.0
 pylint-plugin-utils==0.2.4
+Sphinx==1.6.4

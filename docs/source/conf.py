@@ -62,8 +62,8 @@ sphinxodoo_addons_path = []
 if os.environ.get('READTHEDOCS'):
     sphinxodoo_addons_path.append(repo_path)
     addon_archives = [
-        'https://github.com/NeovaHealth/nhclinical/archive/master.zip',
-        'https://github.com/bjss/odoo/archive/odoo-sans-ldap.zip'
+        'https://github.com/openeobs/nhclinical/archive/master.zip',
+        'https://github.com/openeobs/odoo/archive/odoo-sans-ldap.zip'
     ]
     for archive in addon_archives:
         # This downloads the zip archive of the addons and adds the extracted
